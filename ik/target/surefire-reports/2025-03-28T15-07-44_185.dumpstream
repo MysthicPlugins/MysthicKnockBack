@@ -1,5 +1,0 @@
-# Created at 2025-03-28T15:07:44.556
-Boot Manifest-JAR contains absolute paths in classpath 'D:\Kv Developer\PUGLINS NASHE\ik\target\test-classes'
-Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
-'other' has different root
-
