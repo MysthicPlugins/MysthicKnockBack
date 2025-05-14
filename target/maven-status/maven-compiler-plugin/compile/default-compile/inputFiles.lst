@@ -8,6 +8,7 @@ E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\items\Arrow.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\items\Blocks.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\items\Bow.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\items\Feather.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\items\ItemsManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\items\Knocker.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\items\KnockerManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\items\Pearl.java
@@ -16,4 +17,6 @@ E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\KvKnockback.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\CombatListener.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\ItemListener.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\PlayerListener.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\ScoreboardManager.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\stats\PlayerStats.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\utils\MessageUtils.java
