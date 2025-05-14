@@ -26,7 +26,7 @@ public class MainCommand implements CommandExecutor{
 
         if(!(sender instanceof Player)){
             // Consola :3
-                Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(KvKnockback.prefix +"&c Solo puedes usar este comando siendo un jugador."));
+            Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(KvKnockback.prefix +"&c Solo puedes usar este comando siendo un jugador."));
             return true;
         }
 
@@ -42,7 +42,7 @@ public class MainCommand implements CommandExecutor{
                 sender.sendMessage(MessageUtils.getColor(KvKnockback.prefix + "Fecha y hora actual: &e"+ date));
 
             } else if(args[0].equalsIgnoreCase("Get")){
-                // /KvKnockback get <Author/Version>
+                // /kvknockback get <Author/Version>
                 subCommandGet(sender, args);
 
             } else if(args[0].equalsIgnoreCase("VicioKB")){

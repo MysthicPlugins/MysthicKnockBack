@@ -1,12 +1,15 @@
 package kk.kvlzx.utils;
 
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 
 public class MessageUtils {
     
     public static String getColor(String msg) {
         return ChatColor.translateAlternateColorCodes('&', msg);
     }
-    
-    // Add more utility methods here
+
+    public static void sendMsg(CommandSender sender, String msg) {
+        sender.sendMessage(getColor(msg));
+    }
 }

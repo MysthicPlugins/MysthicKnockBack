@@ -1,7 +1,7 @@
 main: kk.kvlzx.KvKnockback
 version: 1.0.0-SNAPSHOT
 name: KvKnockback
-author: Kvlzx
+authors: [Kvlzx, Gabo]
 api-version: 1.13
 depend: [WorldEdit]
 

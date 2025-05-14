@@ -1,0 +1,5 @@
+{
+    "yaml.schemas": {
+        "https://json.schemastore.org/bukkit-plugin.json": "file:///e%3A/Plugins/KvKnockback/src/main/resources/plugin.yml"
+    }
+}

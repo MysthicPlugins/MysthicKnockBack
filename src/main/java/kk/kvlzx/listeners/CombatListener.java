@@ -5,18 +5,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.entity.Player;
-import org.bukkit.Sound;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 
 import kk.kvlzx.KvKnockback;
-import kk.kvlzx.items.Pearl;
-import kk.kvlzx.utils.MessageUtils;
 
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class CombatListener implements Listener {
     private final KvKnockback plugin;
+    private final Map<UUID, UUID> lastAttacker = new HashMap<>();
+    private final Map<UUID, Long> lastAttackTime = new HashMap<>();
+    private static final long COMBAT_TIMEOUT = 10000; // 10 segundos
 
     public CombatListener(KvKnockback plugin) {
         this.plugin = plugin;
@@ -26,15 +27,11 @@ public class CombatListener implements Listener {
     public void onPlayerDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
 
-        Player player = (Player) event.getEntity();
-
         DamageCause cause = event.getCause();
 
         // Solo cancelamos el daño por caída
         if (cause == DamageCause.FALL) {
             event.setCancelled(true);
-        } else if (cause == DamageCause.VOID) {
-            player.setHealth(0.0D);
         }
         event.setDamage(0.0D);
     }
@@ -42,16 +39,35 @@ public class CombatListener implements Listener {
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
-
-        Player player = (Player) event.getEntity();
-        EntityDamageEvent.DamageCause cause = event.getCause();
-
-        if (cause == EntityDamageEvent.DamageCause.VOID || cause == EntityDamageEvent.DamageCause.CUSTOM) {
-            player.setHealth(0.0);
-            return;
-        }
-
         event.setDamage(0.0D);
+    }
+
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player)) return;
+        if (!(event.getDamager() instanceof Player)) return;
+
+        Player victim = (Player) event.getEntity();
+        Player attacker = (Player) event.getDamager();
+
+        lastAttacker.put(victim.getUniqueId(), attacker.getUniqueId());
+        lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
+    }
+
+    public Player getLastAttacker(Player victim) {
+        UUID lastAttackerUUID = lastAttacker.get(victim.getUniqueId());
+        Long lastAttackTimeStamp = lastAttackTime.get(victim.getUniqueId());
+        
+        if (lastAttackerUUID == null || lastAttackTimeStamp == null) return null;
+        
+        // Verifica si el último ataque fue hace menos de 10 segundos
+        if (System.currentTimeMillis() - lastAttackTimeStamp > COMBAT_TIMEOUT) {
+            lastAttacker.remove(victim.getUniqueId());
+            lastAttackTime.remove(victim.getUniqueId());
+            return null;
+        }
+        
+        return plugin.getServer().getPlayer(lastAttackerUUID);
     }
 
     @EventHandler
@@ -61,41 +77,5 @@ public class CombatListener implements Listener {
             ((Player) event.getEntity()).setFoodLevel(20);
             ((Player) event.getEntity()).setSaturation(20.0f);
         }
-    }
-
-    @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        Player victim = event.getEntity();
-        Player killer = victim.getKiller();
-
-        if (killer == null || killer == victim) {
-            return;
-        }
-
-        // -------------------------PROVISIONAL!!!-------------------------
-        killer.playSound(killer.getLocation(), Sound.SWIM, 1.0f, 1.0f);
-
-        int pearlSlot = 8;
-        ItemStack currentItem = killer.getInventory().getItem(pearlSlot);
-
-        Pearl pearl = new Pearl(
-            "&5 Perla",
-            Arrays.asList(MessageUtils.getColor("&5 Cada lanzamiento reescribe tu destino.")),
-            Material.ENDER_PEARL
-        );
-        ItemStack pearlItem = pearl.getItem();
-        pearlItem.setAmount(1);
-
-        if (currentItem == null || currentItem.getType() == Material.AIR) {
-            killer.getInventory().setItem(pearlSlot, pearlItem);
-        } else if (currentItem.getType() == Material.ENDER_PEARL) {
-            int currentAmount = currentItem.getAmount();
-            if (currentAmount < 128) {
-                currentItem.setAmount(currentAmount + 1);
-                killer.getInventory().setItem(pearlSlot, currentItem);
-            }
-        }
-
-        killer.updateInventory();
     }
 }

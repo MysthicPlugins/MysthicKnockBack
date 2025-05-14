@@ -10,18 +10,22 @@ import kk.kvlzx.commands.ReportCommand;
 import kk.kvlzx.listeners.CombatListener;
 import kk.kvlzx.listeners.ItemListener;
 import kk.kvlzx.listeners.PlayerListener;
+import kk.kvlzx.managers.ScoreboardManager;
+import kk.kvlzx.utils.MessageUtils;
 import net.md_5.bungee.api.ChatColor;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 public class KvKnockback extends JavaPlugin {
 
-    public static String prefix = "&b[&3KvKnockback&b]";
+    public static String prefix = "&b[&3KvKnockback&b] ";
 
     public String version = getDescription().getVersion();
     
     private static KvKnockback instance;
     private ArenaManager arenaManager;
     private WorldEditPlugin worldEdit;
+    private CombatListener combatListener;
+    private ScoreboardManager scoreboardManager;
 
     @Override
     public void onEnable() {
@@ -39,20 +43,31 @@ public class KvKnockback extends JavaPlugin {
         registerCommands();
         registerEvents();
 
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + "&eIntKnock ha sido activado. &fVersión: " + version));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + "&eGracias por usar mi plugin :3"));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + "&e≽^•⩊•^≼"));
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&b=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&bKvKnockback &fv" + version);
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&fEstado: &aActivado");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&fDesarrollado por: &bKvlzx & Gabo");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&fSoporte Discord: kvlzx, gaboh_");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&b≽^•⩊•^≼");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&b=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
     }
 
     @Override
     public void onDisable() {
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + "&eIntKnock ha sido Desactivado. &fVersión: " + version));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + "&eGracias por usar mi plugin :3"));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + "&e≽^•⩊•^≼"));
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&c=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&bKvKnockback &fv" + version);
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&fEstado: &cDesactivado");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&c≽^•⩊•^≼");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&c=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
     }
     
     public void registerManagers() {
         arenaManager = new ArenaManager(this);
+        scoreboardManager = new ScoreboardManager(this);
     }
 
     public void registerCommands() {
@@ -63,7 +78,8 @@ public class KvKnockback extends JavaPlugin {
 
     public void registerEvents() {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
-        getServer().getPluginManager().registerEvents(new CombatListener(this), this);
+        combatListener = new CombatListener(this);
+        getServer().getPluginManager().registerEvents(combatListener, this);
         getServer().getPluginManager().registerEvents(new ItemListener(this), this);
     }
 
@@ -77,5 +93,13 @@ public class KvKnockback extends JavaPlugin {
 
     public ArenaManager getArenaManager() {
         return arenaManager;
+    }
+
+    public CombatListener getCombatListener() {
+        return combatListener;
+    }
+
+    public ScoreboardManager getScoreboardManager() {
+        return scoreboardManager;
     }
 }

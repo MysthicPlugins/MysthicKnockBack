@@ -2,6 +2,8 @@ package kk.kvlzx.arena;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.Collection;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -14,10 +16,12 @@ import kk.kvlzx.KvKnockback;
 public class ArenaManager {
     private final KvKnockback plugin;
     private final Map<String, Arena> arenas;
+    private final Map<UUID, String> playerZones;
 
     public ArenaManager(KvKnockback plugin) {
         this.plugin = plugin;
         this.arenas = new HashMap<>();
+        this.playerZones = new HashMap<>();
     }
 
     public boolean createArena(String name) {
@@ -53,5 +57,21 @@ public class ArenaManager {
 
     public Arena getArena(String name) {
         return arenas.get(name);
+    }
+
+    public void setPlayerZone(Player player, String zone) {
+        if (zone == null) {
+            playerZones.remove(player.getUniqueId());
+        } else {
+            playerZones.put(player.getUniqueId(), zone);
+        }
+    }
+
+    public String getPlayerZone(Player player) {
+        return playerZones.get(player.getUniqueId());
+    }
+
+    public Collection<Arena> getArenas() {
+        return arenas.values();
     }
 }
