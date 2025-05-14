@@ -1,0 +1,17 @@
+main: kk.kvlzx.KvKnockback
+version: 1.0.0-SNAPSHOT
+name: KvKnockback
+author: Kvlzx
+api-version: 1.13
+depend: [WorldEdit]
+
+commands:
+  kvknockback:
+    description: Main command
+    aliases: 
+      - kvk
+      - kk
+  report:
+    description: Command to report a player
+  arena:
+    description: Command to define an arena
