@@ -6,9 +6,8 @@ import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldedit.regions.Region;
+import com.sk89q.worldedit.bukkit.selections.Selection;
 
 import kk.kvlzx.KvKnockback;
 
@@ -36,18 +35,11 @@ public class ArenaManager {
 
         WorldEditPlugin worldEdit = (WorldEditPlugin) plugin.getServer().getPluginManager().getPlugin("WorldEdit");
         try {
-            Region region = worldEdit.getSession(player).getSelection(BukkitAdapter.adapt(player.getWorld()));
-            if (region == null) return false;
+            Selection selection = worldEdit.getSelection(player);
+            if (selection == null) return false;
 
-            Location min = new Location(player.getWorld(), 
-                region.getMinimumPoint().getX(),
-                region.getMinimumPoint().getY(), 
-                region.getMinimumPoint().getZ());
-            
-            Location max = new Location(player.getWorld(),
-                region.getMaximumPoint().getX(),
-                region.getMaximumPoint().getY(),
-                region.getMaximumPoint().getZ());
+            Location min = selection.getMinimumPoint();
+            Location max = selection.getMaximumPoint();
 
             Zone zone = new Zone(min, max, zoneType.toLowerCase());
             arena.setZone(zoneType.toLowerCase(), zone);
