@@ -56,6 +56,13 @@ public class ArenaCommand implements CommandExecutor {
                     sender.sendMessage(MessageUtils.getColor("&cError al establecer la zona. Asegúrate de tener una selección válida."));
                 }
                 break;
+            case "setspawn":
+                if (plugin.getArenaManager().setSpawn(arenaName, player.getLocation())) {
+                    sender.sendMessage(MessageUtils.getColor("&aSpawn point establecido para la arena " + arenaName));
+                } else {
+                    sender.sendMessage(MessageUtils.getColor("&cLa arena no existe."));
+                }
+                break;
             default:
                 sendHelp(sender);
                 break;
@@ -68,5 +75,6 @@ public class ArenaCommand implements CommandExecutor {
         sender.sendMessage(MessageUtils.getColor("&b=== Comandos de Arena ==="));
         sender.sendMessage(MessageUtils.getColor("&f/arena create <nombre> &7- Crea una nueva arena"));
         sender.sendMessage(MessageUtils.getColor("&f/arena setzone <arena> <spawn/pvp/void> &7- Establece una zona"));
+        sender.sendMessage(MessageUtils.getColor("&f/arena setspawn <arena> &7- Establece el punto de spawn"));
     }
 }

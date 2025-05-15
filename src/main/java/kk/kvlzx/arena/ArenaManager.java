@@ -4,7 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Collection;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -17,6 +22,8 @@ public class ArenaManager {
     private final KvKnockback plugin;
     private final Map<String, Arena> arenas;
     private final Map<UUID, String> playerZones;
+    private final Map<String, Set<UUID>> arenaPlayers = new HashMap<>();
+    private String currentArena = null;
 
     public ArenaManager(KvKnockback plugin) {
         this.plugin = plugin;
@@ -30,6 +37,8 @@ public class ArenaManager {
         }
         Arena arena = new Arena(name);
         arenas.put(name, arena);
+        arenaPlayers.put(name, new HashSet<>());
+        if (currentArena == null) currentArena = name;
         return true;
     }
 
@@ -55,23 +64,77 @@ public class ArenaManager {
         }
     }
 
+    public boolean setSpawn(String arenaName, Location location) {
+        Arena arena = arenas.get(arenaName);
+        if (arena == null) return false;
+        arena.setSpawnPoint(location);
+        return true;
+    }
+
     public Arena getArena(String name) {
         return arenas.get(name);
     }
 
-    public void setPlayerZone(Player player, String zone) {
+    public void setPlayerZone(Player player, String arenaName, String zone) {
         if (zone == null) {
             playerZones.remove(player.getUniqueId());
         } else {
-            playerZones.put(player.getUniqueId(), zone);
+            playerZones.put(player.getUniqueId(), arenaName + ":" + zone);
         }
     }
 
     public String getPlayerZone(Player player) {
-        return playerZones.get(player.getUniqueId());
+        String zoneInfo = playerZones.get(player.getUniqueId());
+        return zoneInfo != null ? zoneInfo.split(":")[1] : null;
+    }
+
+    public String getPlayerArena(Player player) {
+        String zoneInfo = playerZones.get(player.getUniqueId());
+        return zoneInfo != null ? zoneInfo.split(":")[0] : null;
     }
 
     public Collection<Arena> getArenas() {
         return arenas.values();
+    }
+
+    public void addPlayerToArena(Player player, String arenaName) {
+        arenaPlayers.get(arenaName).add(player.getUniqueId());
+    }
+
+    public void removePlayerFromArena(Player player, String arenaName) {
+        if (arenaPlayers.containsKey(arenaName)) {
+            arenaPlayers.get(arenaName).remove(player.getUniqueId());
+        }
+    }
+
+    public Set<Player> getPlayersInArena(String arenaName) {
+        Set<Player> players = new HashSet<>();
+        if (arenaPlayers.containsKey(arenaName)) {
+            for (UUID uuid : arenaPlayers.get(arenaName)) {
+                Player player = Bukkit.getPlayer(uuid);
+                if (player != null && player.isOnline()) {
+                    players.add(player);
+                }
+            }
+        }
+        return players;
+    }
+
+    public String getCurrentArena() {
+        return currentArena;
+    }
+
+    public void setCurrentArena(String arenaName) {
+        this.currentArena = arenaName;
+    }
+
+    public String getNextArena() {
+        List<String> arenaList = new ArrayList<>(arenas.keySet());
+        if (arenaList.isEmpty()) return null;
+        
+        int currentIndex = arenaList.indexOf(currentArena);
+        if (currentIndex == -1) return arenaList.get(0);
+        
+        return arenaList.get((currentIndex + 1) % arenaList.size());
     }
 }

@@ -6,6 +6,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import kk.kvlzx.items.Pearl;
@@ -28,15 +30,41 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        event.getDrops().clear(); // Evita que se dropeen items al morir
+        event.setDroppedExp(0); // Evita que se dropee experiencia
+    }
+
+    @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         ItemsManager.giveSpawnItems(player);
+        
+        String currentArena = plugin.getArenaManager().getCurrentArena();
+        if (currentArena != null) {
+            Arena arena = plugin.getArenaManager().getArena(currentArena);
+            if (arena != null && arena.getSpawnLocation() != null) {
+                player.teleport(arena.getSpawnLocation());
+                plugin.getArenaManager().addPlayerToArena(player, currentArena);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        String currentArena = plugin.getArenaManager().getCurrentArena();
+        if (currentArena != null) {
+            plugin.getArenaManager().removePlayerFromArena(player, currentArena);
+        }
     }
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
         Location to = event.getTo();
+        String currentArena = plugin.getArenaManager().getPlayerArena(player);
+        String currentZone = plugin.getArenaManager().getPlayerZone(player);
         
         for (Arena arena : plugin.getArenaManager().getArenas()) {
             Zone voidZone = arena.getZone("void");
@@ -54,44 +82,43 @@ public class PlayerListener implements Listener {
                 }
                 return;
             }
-        }
-        
-        for (Arena arena : plugin.getArenaManager().getArenas()) {
-            Zone currentZone = null;
             
-            // Mirar por cada zona
+            String foundZone = null;
+            String foundArena = null;
+            
             for (String zoneType : new String[]{"spawn", "pvp", "void"}) {
                 Zone zone = arena.getZone(zoneType);
                 if (zone != null && zone.isInside(to)) {
-                    currentZone = zone;
-                    String lastZone = plugin.getArenaManager().getPlayerZone(player);
-                    
-                    if (!zone.getType().equals(lastZone)) {
-                        // Actualizar la zona del jugador
-                        plugin.getArenaManager().setPlayerZone(player, zone.getType());
-                        
-                        // Mandar mensaje (DEBUG)
-                        switch (zone.getType()) {
-                            case "spawn":
-                                player.sendMessage(MessageUtils.getColor("&aHas entrado a la zona de Spawn"));
-                                ItemsManager.giveSpawnItems(player);
-                                break;
-                            case "pvp":
-                                player.sendMessage(MessageUtils.getColor("&cHas entrado a la zona de PvP"));
-                                ItemsManager.givePvPItems(player);
-                                break;
-                            case "void":
-                                player.sendMessage(MessageUtils.getColor("&7Has entrado a la zona de Void"));
-                                break;
-                        }
-                    }
+                    foundZone = zoneType;
+                    foundArena = arena.getName();
                     break;
                 }
             }
             
-            if (currentZone == null) {
-                plugin.getArenaManager().setPlayerZone(player, null);
+            if (foundZone != null) {
+                if (!foundZone.equals(currentZone) || !foundArena.equals(currentArena)) {
+                    plugin.getArenaManager().setPlayerZone(player, foundArena, foundZone);
+                    
+                    switch (foundZone) {
+                        case "spawn":
+                            player.sendMessage(MessageUtils.getColor("&aHas entrado a la zona de Spawn de la arena " + foundArena));
+                            ItemsManager.giveSpawnItems(player);
+                            break;
+                        case "pvp":
+                            player.sendMessage(MessageUtils.getColor("&cHas entrado a la zona de PvP de la arena " + foundArena));
+                            ItemsManager.givePvPItems(player);
+                            break;
+                        case "void":
+                            player.sendMessage(MessageUtils.getColor("&7Has entrado a la zona de Void de la arena " + foundArena));
+                            break;
+                    }
+                }
+                return;
             }
+        }
+        
+        if (currentZone != null) {
+            plugin.getArenaManager().setPlayerZone(player, null, null);
         }
     }
 

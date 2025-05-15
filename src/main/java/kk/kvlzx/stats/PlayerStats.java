@@ -13,7 +13,7 @@ public class PlayerStats {
     public PlayerStats() {
         this.kills = 0;
         this.deaths = 0;
-        this.elo = 1000; // ELO inicial
+        this.elo = 500; // ELO inicial modificado a 500
     }
 
     public static PlayerStats getStats(UUID uuid) {
@@ -28,6 +28,8 @@ public class PlayerStats {
 
     public void addDeath() {
         this.deaths++;
+        int eloLost = (int)(Math.random() * 10) + 6; // Random entre 6-15
+        this.elo = Math.max(0, this.elo - eloLost); // Evita que el ELO sea negativo
     }
 
     public int getKills() { return kills; }

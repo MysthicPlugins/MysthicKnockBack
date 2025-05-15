@@ -7,6 +7,7 @@ import org.bukkit.Location;
 public class Arena {
     private final String name;
     private final Map<String, Zone> zones;
+    private Location spawnPoint;
 
     public Arena(String name) {
         this.name = name;
@@ -25,11 +26,18 @@ public class Arena {
         return name;
     }
 
+    public void setSpawnPoint(Location location) {
+        this.spawnPoint = location;
+    }
+
     public Location getSpawnLocation() {
+        if (spawnPoint != null) {
+            return spawnPoint;
+        }
+        // Fallback al centro de la zona spawn si no hay spawnpoint definido
         Zone spawnZone = zones.get("spawn");
         if (spawnZone == null) return null;
         
-        // Obtiene el centro de la zona de spawn
         Location min = spawnZone.getMin();
         Location max = spawnZone.getMax();
         return new Location(
@@ -37,7 +45,7 @@ public class Arena {
             (min.getX() + max.getX()) / 2,
             min.getY(),
             (min.getZ() + max.getZ()) / 2,
-            0, 0 // yaw y pitch en 0
+            0, 0
         );
     }
 }
