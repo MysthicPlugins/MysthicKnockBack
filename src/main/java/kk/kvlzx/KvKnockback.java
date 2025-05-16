@@ -13,7 +13,6 @@ import kk.kvlzx.listeners.ItemListener;
 import kk.kvlzx.listeners.PlayerListener;
 import kk.kvlzx.managers.ScoreboardManager;
 import kk.kvlzx.utils.MessageUtils;
-import net.md_5.bungee.api.ChatColor;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 public class KvKnockback extends JavaPlugin {

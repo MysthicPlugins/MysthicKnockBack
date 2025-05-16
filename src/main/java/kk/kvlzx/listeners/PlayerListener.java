@@ -21,6 +21,7 @@ import java.util.Arrays;
 import kk.kvlzx.KvKnockback;
 import kk.kvlzx.items.ItemsManager;
 import kk.kvlzx.utils.MessageUtils;
+import kk.kvlzx.utils.TitleUtils;
 import kk.kvlzx.arena.Arena;
 import kk.kvlzx.arena.Zone;
 import kk.kvlzx.stats.PlayerStats;
@@ -42,6 +43,7 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         ItemsManager.giveSpawnItems(player);
+        TitleUtils.sendTitle(player, "&a¡¡Bienvenido! a &6KvKnockback", "Domina la arena y deja tu marca."); // Titulo de bienvenida para el jugador
         
         String currentArena = plugin.getArenaManager().getCurrentArena();
         if (currentArena != null) {

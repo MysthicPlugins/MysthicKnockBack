@@ -8,6 +8,7 @@ import kk.kvlzx.KvKnockback;
 
 public class InventoryListener implements Listener{
 
+    @SuppressWarnings("unused")
     private final KvKnockback plugin;
 
     public InventoryListener(KvKnockback plugin) {
