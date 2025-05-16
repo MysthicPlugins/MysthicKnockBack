@@ -1,12 +1,15 @@
 package kk.kvlzx.listeners;
 
 import org.bukkit.event.Listener;
-
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -56,6 +59,48 @@ public class PlayerListener implements Listener {
         String currentArena = plugin.getArenaManager().getCurrentArena();
         if (currentArena != null) {
             plugin.getArenaManager().removePlayerFromArena(player, currentArena);
+        }
+    }
+
+    @EventHandler
+    public void onDropItem(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+        String currentArena = plugin.getArenaManager().getPlayerArena(player);
+        if (currentArena == null) return;
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onItemPickup(PlayerPickupItemEvent event) {
+        // Cancelar el poder agarrar items si el jugador está dentro de una arena
+        Player player = event.getPlayer();
+        String currentArena = plugin.getArenaManager().getPlayerArena(player);
+        if (currentArena == null) return;
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerBlockBreak(BlockBreakEvent event) {
+        // Cancelar el poder romper bloques si el jugador está dentro de una arena
+        Player player = event.getPlayer();
+        String currentArena = plugin.getArenaManager().getPlayerArena(player);
+        if (currentArena == null) return;
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerInventoryClick(InventoryClickEvent event) {
+        // Evitar que el jugador clickee su propio inventario (para que no pueda mover items)
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        Player player = (Player) event.getWhoClicked();
+        String currentArena = plugin.getArenaManager().getPlayerArena(player);
+        if (currentArena == null) return;
+
+        if (event.getClickedInventory() == player.getInventory()) {
+            event.setCancelled(true);
         }
     }
 

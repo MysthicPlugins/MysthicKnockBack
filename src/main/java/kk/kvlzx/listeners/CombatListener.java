@@ -7,6 +7,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.entity.Player;
 
 import kk.kvlzx.KvKnockback;
+import kk.kvlzx.utils.KnockbackUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +53,9 @@ public class CombatListener implements Listener {
 
         lastAttacker.put(victim.getUniqueId(), attacker.getUniqueId());
         lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
+
+        // Aplicar knockback custom
+        KnockbackUtils.applyCustomKnockback(event, victim, attacker, plugin);
     }
 
     public Player getLastAttacker(Player victim) {

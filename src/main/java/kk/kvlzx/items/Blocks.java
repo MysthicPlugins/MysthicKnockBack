@@ -19,11 +19,9 @@ public class Blocks {
         this.item = new ItemStack(material, 64);
         ItemMeta meta = item.getItemMeta();
         if(meta !=null){
-
             meta.setDisplayName(MessageUtils.getColor(name));
             meta.setLore(Arrays.asList(MessageUtils.getColor("&8 Un clásico del desierto")));
             item.setItemMeta(meta);
-            
         }
 
     }

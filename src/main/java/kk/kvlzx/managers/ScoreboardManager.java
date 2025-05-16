@@ -14,6 +14,7 @@ import kk.kvlzx.arena.Arena;
 import kk.kvlzx.arena.ArenaManager;
 import kk.kvlzx.stats.PlayerStats;
 import kk.kvlzx.utils.MessageUtils;
+import kk.kvlzx.utils.TitleUtils;
 
 import java.util.Arrays;
 
@@ -48,15 +49,17 @@ public class ScoreboardManager {
                 
                 // Alertas de tiempo
                 if (Arrays.stream(COUNTDOWN_ALERTS).anyMatch(t -> t == timeLeft)) {
-                    Bukkit.broadcastMessage(MessageUtils.getColor("&e¡La arena cambiará en &c" + timeLeft + " &esegundos!"));
+                    Bukkit.broadcastMessage(MessageUtils.getColor("&a¡La arena cambiará en &c" + timeLeft + " &asegundos!"));
                 }
                 
                 // Últimos 5 segundos con títulos
                 if (timeLeft <= 5 && timeLeft > 0) {
                     for (Player player : Bukkit.getOnlinePlayers()) {
-                        player.sendTitle(
-                            MessageUtils.getColor("&c" + timeLeft),
-                            MessageUtils.getColor("&esegundos para cambiar de arena")
+                        TitleUtils.sendTitle(
+                            player,
+                            "&c" + timeLeft,
+                            "&esegundos para cambiar de arena",
+                            0, 20, 0
                         );
                         player.playSound(player.getLocation(), Sound.NOTE_PLING, 1.0f, 1.0f);
                     }

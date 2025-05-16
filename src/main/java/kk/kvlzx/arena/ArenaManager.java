@@ -137,4 +137,9 @@ public class ArenaManager {
         
         return arenaList.get((currentIndex + 1) % arenaList.size());
     }
+
+    public Arena getArenaByPlayer(Player player) {
+        String arenaName = getPlayerArena(player);
+        return arenaName != null ? getArena(arenaName) : null;
+    }
 }
