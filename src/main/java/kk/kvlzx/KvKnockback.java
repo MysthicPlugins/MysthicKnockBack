@@ -8,6 +8,7 @@ import kk.kvlzx.commands.ArenaCommand;
 import kk.kvlzx.commands.MainCommand;
 import kk.kvlzx.commands.ReportCommand;
 import kk.kvlzx.listeners.CombatListener;
+import kk.kvlzx.listeners.InventoryListener;
 import kk.kvlzx.listeners.ItemListener;
 import kk.kvlzx.listeners.PlayerListener;
 import kk.kvlzx.managers.ScoreboardManager;
@@ -81,6 +82,7 @@ public class KvKnockback extends JavaPlugin {
         combatListener = new CombatListener(this);
         getServer().getPluginManager().registerEvents(combatListener, this);
         getServer().getPluginManager().registerEvents(new ItemListener(this), this);
+        getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
     }
 
     public static KvKnockback getInstance() {

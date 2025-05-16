@@ -58,8 +58,7 @@ public class ScoreboardManager {
                         TitleUtils.sendTitle(
                             player,
                             "&c" + timeLeft,
-                            "&esegundos para cambiar de arena",
-                            0, 20, 0
+                            "&esegundos para cambiar de arena"
                         );
                         player.playSound(player.getLocation(), Sound.NOTE_PLING, 1.0f, 1.0f);
                     }
@@ -83,7 +82,10 @@ public class ScoreboardManager {
         Arena nextArenaObj = arenaManager.getArena(nextArena);
         Location nextSpawn = nextArenaObj.getSpawnLocation();
         
-        if (nextSpawn == null) return;
+        if (nextSpawn == null) {
+            Bukkit.broadcastMessage(MessageUtils.getColor("&cError: La arena " + nextArena + " no tiene un punto de spawn configurado."));
+            return;
+        }
 
         // Mensaje de transición
         Bukkit.broadcastMessage(MessageUtils.getColor("&b&l=-=-=-=-=-=-=-=-=-="));
@@ -91,17 +93,29 @@ public class ScoreboardManager {
         Bukkit.broadcastMessage(MessageUtils.getColor("&bDe: &f" + currentArena + " &bA: &f" + nextArena));
         Bukkit.broadcastMessage(MessageUtils.getColor("&b&l=-=-=-=-=-=-=-=-=-="));
 
-        // Teletransportar a todos los jugadores
-        for (Player player : arenaManager.getPlayersInArena(currentArena)) {
-            arenaManager.removePlayerFromArena(player, currentArena);
-            player.teleport(nextSpawn);
-            arenaManager.addPlayerToArena(player, nextArena);
-            
-            // Efectos de sonido
-            player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1.0f, 1.0f);
+        // Teletransportar a TODOS los jugadores online
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            // Remover del registro de la arena anterior
+            if (currentArena != null) {
+                arenaManager.removePlayerFromArena(player, currentArena);
+            }
+
+            // Teletransportar y registrar en la nueva arena
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    player.teleport(nextSpawn);
+                    arenaManager.addPlayerToArena(player, nextArena);
+                    
+                    // Efectos visuales y sonoros
+                    player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1.0f, 1.0f);
+                }
+            }.runTaskLater(plugin, 2L); // Pequeño delay para asegurar sincronización
         }
 
+        // Actualizar la arena actual
         arenaManager.setCurrentArena(nextArena);
+        Bukkit.broadcastMessage(MessageUtils.getColor("&a¡Todos los jugadores han sido teletransportados a la arena " + nextArena + "!"));
     }
 
     public void updateScoreboard(Player player) {
