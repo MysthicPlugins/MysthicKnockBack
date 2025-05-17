@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import kk.kvlzx.KvKnockback;
+import kk.kvlzx.arena.Arena;
 import kk.kvlzx.utils.MessageUtils;
 
 public class ArenaCommand implements CommandExecutor {
@@ -50,8 +51,14 @@ public class ArenaCommand implements CommandExecutor {
                     return true;
                 }
                 String zoneType = args[2].toLowerCase();
-                if (plugin.getArenaManager().setZone(arenaName, zoneType,  player)) {
-                    sender.sendMessage(MessageUtils.getColor("&aZona " + zoneType + " establecida para la arena " + arenaName));
+                if (!isValidZoneType(zoneType)) {
+                    sender.sendMessage(MessageUtils.getColor("&cTipo de zona inválido. Usa: spawn, pvp o void"));
+                    return true;
+                }
+                
+                if (plugin.getArenaManager().setZone(arenaName, zoneType, player)) {
+                    String action = hasExistingZone(arenaName, zoneType) ? "actualizada" : "establecida";
+                    sender.sendMessage(MessageUtils.getColor("&aZona " + zoneType + " " + action + " para la arena " + arenaName));
                 } else {
                     sender.sendMessage(MessageUtils.getColor("&cError al establecer la zona. Asegúrate de tener una selección válida."));
                 }
@@ -59,6 +66,13 @@ public class ArenaCommand implements CommandExecutor {
             case "setspawn":
                 if (plugin.getArenaManager().setSpawn(arenaName, player.getLocation())) {
                     sender.sendMessage(MessageUtils.getColor("&aSpawn point establecido para la arena " + arenaName));
+                } else {
+                    sender.sendMessage(MessageUtils.getColor("&cLa arena no existe."));
+                }
+                break;
+            case "delete":
+                if (plugin.getArenaManager().deleteArena(arenaName)) {
+                    sender.sendMessage(MessageUtils.getColor("&aArena " + arenaName + " eliminada correctamente."));
                 } else {
                     sender.sendMessage(MessageUtils.getColor("&cLa arena no existe."));
                 }
@@ -71,10 +85,20 @@ public class ArenaCommand implements CommandExecutor {
         return true;
     }
 
+    private boolean isValidZoneType(String zoneType) {
+        return zoneType.equals("spawn") || zoneType.equals("pvp") || zoneType.equals("void");
+    }
+
+    private boolean hasExistingZone(String arenaName, String zoneType) {
+        Arena arena = plugin.getArenaManager().getArena(arenaName);
+        return arena != null && arena.getZone(zoneType) != null;
+    }
+
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(MessageUtils.getColor("&b=== Comandos de Arena ==="));
         sender.sendMessage(MessageUtils.getColor("&f/arena create <nombre> &7- Crea una nueva arena"));
-        sender.sendMessage(MessageUtils.getColor("&f/arena setzone <arena> <spawn/pvp/void> &7- Establece una zona"));
+        sender.sendMessage(MessageUtils.getColor("&f/arena setzone <arena> <spawn/pvp/void> &7- Establece/actualiza una zona"));
         sender.sendMessage(MessageUtils.getColor("&f/arena setspawn <arena> &7- Establece el punto de spawn"));
+        sender.sendMessage(MessageUtils.getColor("&f/arena delete <arena> &7- Elimina una arena"));
     }
 }

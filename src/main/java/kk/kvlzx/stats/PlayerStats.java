@@ -53,4 +53,7 @@ public class PlayerStats {
     public int getKills() { return kills; }
     public int getDeaths() { return deaths; }
     public int getElo() { return elo; }
+    public double getKDR() {
+        return deaths == 0 ? kills : (double) kills / deaths;
+    }
 }

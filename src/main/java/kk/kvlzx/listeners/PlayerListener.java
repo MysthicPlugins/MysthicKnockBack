@@ -12,16 +12,17 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
-import kk.kvlzx.items.Pearl;
+import kk.kvlzx.items.CustomItem.ItemType;
 import kk.kvlzx.managers.RankManager;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import java.util.Arrays;
 
 import kk.kvlzx.KvKnockback;
+import kk.kvlzx.items.CustomItem;
 import kk.kvlzx.items.ItemsManager;
 import kk.kvlzx.utils.MessageUtils;
 import kk.kvlzx.utils.TitleUtils;
@@ -196,12 +197,7 @@ public class PlayerListener implements Listener {
         int pearlSlot = 8;
         ItemStack currentItem = killer.getInventory().getItem(pearlSlot);
 
-        Pearl pearl = new Pearl(
-            "&5 Perla",
-            Arrays.asList(MessageUtils.getColor("&8 Cada lanzamiento reescribe tu destino.")),
-            Material.ENDER_PEARL
-        );
-        ItemStack pearlItem = pearl.getItem();
+        ItemStack pearlItem = CustomItem.create(ItemType.PEARL);
         pearlItem.setAmount(1);
 
         if (currentItem == null || currentItem.getType() == Material.AIR) {
@@ -233,8 +229,18 @@ public class PlayerListener implements Listener {
                     player.spigot().respawn();
                     player.teleport(spawnLoc);
                     ItemsManager.giveSpawnItems(player);
+                    // Actualizar el rango después del respawn
+                    RankManager.updatePlayerRank(player, playerStats.getElo());
                 }
             }.runTaskLater(plugin, 1L);
         }
+    }
+
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        // Actualizar el rango en el respawn por si acaso
+        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        RankManager.updatePlayerRank(player, stats.getElo());
     }
 }

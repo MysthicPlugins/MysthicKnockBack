@@ -18,7 +18,9 @@ import org.bukkit.Bukkit;
 import java.util.*;
 
 import kk.kvlzx.KvKnockback;
-import kk.kvlzx.items.Bow;
+import kk.kvlzx.arena.ZoneType;
+import kk.kvlzx.items.CustomItem;
+import kk.kvlzx.items.CustomItem.ItemType;
 import kk.kvlzx.utils.MessageUtils;
 
 public class ItemListener implements Listener {
@@ -239,11 +241,7 @@ public class ItemListener implements Listener {
                     player.updateInventory();
                 }
 
-                ItemStack restoredBow = new Bow(
-                    "&4 Mazakarko",
-                    Arrays.asList(MessageUtils.getColor("&5 Un disparo, un impacto, un salto al vacío.")),
-                    Material.BOW
-                ).getItem();
+                ItemStack restoredBow = CustomItem.create(ItemType.BOW);
                 restoredBow.setDurability((short) 0);
                 restoredBow.setAmount(1);
                 player.getInventory().setItem(bowSlot, restoredBow);
@@ -268,6 +266,20 @@ public class ItemListener implements Listener {
                     cancel();
                     return;
                 }
+
+                // Verificar si el jugador está en spawn
+                String zone = plugin.getArenaManager().getPlayerZone(player);
+                if (zone != null && zone.equals(ZoneType.SPAWN.getId())) {
+                    // Restaurar item y cancelar cooldown
+                    ItemStack restoredItem = original.clone();
+                    restoredItem.setAmount(1);
+                    player.getInventory().setItem(slot, restoredItem);
+                    player.updateInventory();
+                    cooldowns.get(player.getUniqueId()).clear(); // Limpiar cooldowns
+                    cancel();
+                    return;
+                }
+
                 if (timeLeft <= 0) {
                     ItemStack restoredItem = original.clone();
                     restoredItem.setAmount(1);

@@ -145,4 +145,34 @@ public class ArenaManager {
         String arenaName = getPlayerArena(player);
         return arenaName != null ? getArena(arenaName) : null;
     }
+
+    public boolean deleteArena(String name) {
+        if (!arenas.containsKey(name)) {
+            return false;
+        }
+
+        // Si es la arena actual, cambiar a la siguiente
+        if (name.equals(currentArena)) {
+            String nextArena = getNextArena();
+            if (nextArena != null && !nextArena.equals(name)) {
+                currentArena = nextArena;
+            } else {
+                currentArena = null;
+            }
+        }
+
+        // Remover jugadores de la arena
+        Set<UUID> players = arenaPlayers.remove(name);
+        if (players != null) {
+            players.forEach(uuid -> {
+                Player player = Bukkit.getPlayer(uuid);
+                if (player != null) {
+                    playerZones.remove(player.getUniqueId());
+                }
+            });
+        }
+
+        arenas.remove(name);
+        return true;
+    }
 }

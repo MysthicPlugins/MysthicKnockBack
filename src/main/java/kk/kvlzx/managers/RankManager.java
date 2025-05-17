@@ -1,8 +1,10 @@
 package kk.kvlzx.managers;
 
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import kk.kvlzx.utils.MessageUtils;
+import kk.kvlzx.KvKnockback;
 
 public class RankManager {
     public enum Rank {
@@ -51,10 +53,16 @@ public class RankManager {
     }
 
     public static void updatePlayerRank(Player player, int elo) {
-        Rank rank = Rank.getRankByElo(elo);
-        String displayName = MessageUtils.getColor(rank.getDisplayName() + " &r" + player.getName());
-        player.setPlayerListName(displayName);
-        player.setDisplayName(displayName);
+        // Agregar un pequeño delay para asegurar que el jugador esté completamente spawneado
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Rank rank = Rank.getRankByElo(elo);
+                String displayName = MessageUtils.getColor(rank.getDisplayName() + " &r" + player.getName());
+                player.setPlayerListName(displayName);
+                player.setDisplayName(displayName);
+            }
+        }.runTaskLater(KvKnockback.getInstance(), 2L);
     }
 
     public static String getRankPrefix(int elo) {
