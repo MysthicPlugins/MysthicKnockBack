@@ -5,9 +5,11 @@ E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\arena\ZoneType.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\ArenaCommand.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\MainCommand.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\ReportCommand.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\StatsCommand.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\items\CustomItem.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\items\ItemsManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\KvKnockback.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\ChatListener.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\CombatListener.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\InventoryListener.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\ItemListener.java

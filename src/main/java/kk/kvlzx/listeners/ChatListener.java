@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import kk.kvlzx.managers.RankManager;
+import kk.kvlzx.stats.PlayerStats;
 import kk.kvlzx.KvKnockback;
 
 public class ChatListener implements Listener {
@@ -13,18 +14,18 @@ public class ChatListener implements Listener {
 
     public ChatListener(KvKnockback plugin) {
         this.plugin = plugin;
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
-        String rankPrefix = RankManager.getRankPrefix(player);
+        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        String rankPrefix = RankManager.getRankPrefix(stats.getElo());
         String playerName = player.getName();
         String message = event.getMessage();
 
         // Formato del chat: [Rango] Nombre: Mensaje
-        event.setFormat(rankPrefix + playerName + " &7: " + message);
+        event.setFormat(rankPrefix + " &r" + playerName + " &7: " + message);
     }
 }
 

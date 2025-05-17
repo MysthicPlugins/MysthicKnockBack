@@ -7,6 +7,7 @@ import kk.kvlzx.arena.ArenaManager;
 import kk.kvlzx.commands.ArenaCommand;
 import kk.kvlzx.commands.MainCommand;
 import kk.kvlzx.commands.ReportCommand;
+import kk.kvlzx.commands.StatsCommand;
 import kk.kvlzx.listeners.ChatListener;
 import kk.kvlzx.listeners.CombatListener;
 import kk.kvlzx.listeners.InventoryListener;
@@ -81,7 +82,7 @@ public class KvKnockback extends JavaPlugin {
         getCommand("kvknockback").setExecutor(new MainCommand(this));
         getCommand("report").setExecutor(new ReportCommand(this));
         getCommand("arena").setExecutor(new ArenaCommand(this));
-        getCommand("setelo").setExecutor(this); // Registro del comando /setelo
+        getCommand("stats").setExecutor(new StatsCommand(this)); // Cambiado de setelo a stats
     }
 
     public void registerEvents() {
@@ -91,7 +92,7 @@ public class KvKnockback extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ItemListener(this), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
         getServer().getPluginManager().registerEvents(new SpawnItemListener(this), this);
-        new ChatListener(this); // Registro del ChatListener
+        getServer().getPluginManager().registerEvents(new ChatListener(this), this); // Registro del ChatListener
     }
 
     public static KvKnockback getInstance() {

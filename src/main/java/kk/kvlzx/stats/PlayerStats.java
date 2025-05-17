@@ -56,4 +56,20 @@ public class PlayerStats {
     public double getKDR() {
         return deaths == 0 ? kills : (double) kills / deaths;
     }
+
+    public void setElo(int elo) {
+        this.elo = Math.max(0, elo);
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            RankManager.updatePlayerRank(player, this.elo);
+        }
+    }
+
+    public void setKills(int kills) {
+        this.kills = Math.max(0, kills);
+    }
+
+    public void setDeaths(int deaths) {
+        this.deaths = Math.max(0, deaths);
+    }
 }
