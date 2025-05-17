@@ -7,6 +7,7 @@ import kk.kvlzx.arena.ArenaManager;
 import kk.kvlzx.commands.ArenaCommand;
 import kk.kvlzx.commands.MainCommand;
 import kk.kvlzx.commands.ReportCommand;
+import kk.kvlzx.listeners.ChatListener;
 import kk.kvlzx.listeners.CombatListener;
 import kk.kvlzx.listeners.InventoryListener;
 import kk.kvlzx.listeners.ItemListener;
@@ -32,7 +33,6 @@ public class KvKnockback extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
         instance = this;
 
         worldEdit = (WorldEditPlugin) getServer().getPluginManager().getPlugin("WorldEdit");
@@ -59,7 +59,6 @@ public class KvKnockback extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
         // Eliminar la scoreboard
         streakManager.onDisable();
 
@@ -82,6 +81,7 @@ public class KvKnockback extends JavaPlugin {
         getCommand("kvknockback").setExecutor(new MainCommand(this));
         getCommand("report").setExecutor(new ReportCommand(this));
         getCommand("arena").setExecutor(new ArenaCommand(this));
+        getCommand("setelo").setExecutor(this); // Registro del comando /setelo
     }
 
     public void registerEvents() {
@@ -91,6 +91,7 @@ public class KvKnockback extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ItemListener(this), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
         getServer().getPluginManager().registerEvents(new SpawnItemListener(this), this);
+        new ChatListener(this); // Registro del ChatListener
     }
 
     public static KvKnockback getInstance() {

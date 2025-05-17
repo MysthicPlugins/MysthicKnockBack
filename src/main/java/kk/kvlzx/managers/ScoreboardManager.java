@@ -168,7 +168,7 @@ public class ScoreboardManager {
         obj.getScore(MessageUtils.getColor("&b● " + player.getName())).setScore(score--);
         obj.getScore("").setScore(score--);
         obj.getScore(MessageUtils.getColor("&6● Arena: &f" + currentArena)).setScore(score--);
-        obj.getScore(MessageUtils.getColor("&c● Rank: " + RankManager.getRankPrefix(stats.getElo()))).setScore(score--);
+        obj.getScore(MessageUtils.getColor("&c● Rank: " + RankManager.getRankPrefix(player))).setScore(score--);
         obj.getScore(" ").setScore(score--);
         obj.getScore(MessageUtils.getColor("&a● Kills: &f" + stats.getKills())).setScore(score--);
         obj.getScore(MessageUtils.getColor("&4● Deaths: &f" + stats.getDeaths())).setScore(score--);

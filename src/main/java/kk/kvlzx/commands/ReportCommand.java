@@ -11,7 +11,6 @@ import kk.kvlzx.utils.MessageUtils;
 
 public class ReportCommand implements CommandExecutor{
 
-    @SuppressWarnings("unused")
     private KvKnockback plugin;
     public ReportCommand(KvKnockback plugin){
         this.plugin = plugin;
@@ -44,7 +43,7 @@ public class ReportCommand implements CommandExecutor{
 
             String reason = "";
             for(Player op: Bukkit.getOnlinePlayers()){
-                if(op.hasPermission("intknock.report")){
+                if(op.hasPermission("kvknockback.report")){
                     for(int i = 1; i < args.length; i++){
                         reason += args[i] + " ";
                     }

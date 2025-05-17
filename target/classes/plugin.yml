@@ -6,6 +6,7 @@ api-version: 1.13
 depend: [WorldEdit]
 
 commands:
+
   kvknockback:
     description: Main command
     aliases: 
@@ -13,5 +14,15 @@ commands:
       - kk
   report:
     description: Command to report a player
+
   arena:
     description: Command to define an arena
+
+  commands:
+    setelo:
+      description: Asigna un Elo a un jugador
+      usage: /setelo <jugador> <elo>
+      permission: kvknockback.setelo
+      permissions:
+        kvknockback.setelo:
+          default: op
