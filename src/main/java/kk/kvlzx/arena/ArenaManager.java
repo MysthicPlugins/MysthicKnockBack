@@ -42,7 +42,10 @@ public class ArenaManager {
         return true;
     }
 
-    public boolean setZone(String arenaName, String zoneType, Player player) {
+    public boolean setZone(String arenaName, String zoneTypeStr, Player player) {
+        ZoneType zoneType = ZoneType.fromString(zoneTypeStr);
+        if (zoneType == null) return false;
+
         Arena arena = arenas.get(arenaName);
         if (arena == null) return false;
 
@@ -54,8 +57,8 @@ public class ArenaManager {
             Location min = selection.getMinimumPoint();
             Location max = selection.getMaximumPoint();
 
-            Zone zone = new Zone(min, max, zoneType.toLowerCase());
-            arena.setZone(zoneType.toLowerCase(), zone);
+            Zone zone = new Zone(min, max, zoneType);
+            arena.setZone(zoneType, zone); // Ahora pasamos ZoneType
             return true;
 
         } catch (Exception e) {

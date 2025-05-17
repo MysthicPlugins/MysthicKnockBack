@@ -10,10 +10,13 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import kk.kvlzx.items.Pearl;
+import kk.kvlzx.managers.RankManager;
+
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import java.util.Arrays;
@@ -43,7 +46,11 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         ItemsManager.giveSpawnItems(player);
-        TitleUtils.sendTitle(player, "&a¡¡Bienvenido! a &6KvKnockback", "Domina la arena y deja tu marca."); // Titulo de bienvenida para el jugador
+        TitleUtils.sendTitle(player, "&a¡Bienvenido a &6KnockbackFFA&a!", "&fDomina la arena y deja tu marca.");
+        
+        // Actualizar rango
+        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        RankManager.updatePlayerRank(player, stats.getElo());
         
         String currentArena = plugin.getArenaManager().getCurrentArena();
         if (currentArena != null) {
@@ -58,6 +65,8 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        plugin.getStreakManager().resetStreak(player); // Resetear racha al desconectarse
+        
         String currentArena = plugin.getArenaManager().getCurrentArena();
         if (currentArena != null) {
             plugin.getArenaManager().removePlayerFromArena(player, currentArena);
@@ -106,9 +115,23 @@ public class PlayerListener implements Listener {
         }
     }
 
+        @EventHandler
+    public void onPlayerInventoryClick(InventoryDragEvent event) {
+        // Evitar que el jugador mueva items en su propio inventario
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        Player player = (Player) event.getWhoClicked();
+        String currentArena = plugin.getArenaManager().getPlayerArena(player);
+        if (currentArena == null) return;
+
+        if (event.getInventory() == player.getInventory()) {
+            event.setCancelled(true);
+        }
+    }
+
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
+        
         Location to = event.getTo();
         String currentArena = plugin.getArenaManager().getPlayerArena(player);
         String currentZone = plugin.getArenaManager().getPlayerZone(player);
@@ -194,11 +217,13 @@ public class PlayerListener implements Listener {
 
         PlayerStats killerStats = PlayerStats.getStats(killer.getUniqueId());
         killerStats.addKill();
+        plugin.getStreakManager().addKill(killer); // Agregar kill al sistema de rachas
     }
 
     private void respawnPlayerAtSpawn(Player player, Arena arena) {
         PlayerStats playerStats = PlayerStats.getStats(player.getUniqueId());
         playerStats.addDeath();
+        plugin.getStreakManager().resetStreak(player); // Resetear racha al morir
         
         Location spawnLoc = arena.getSpawnLocation();
         if (spawnLoc != null) {

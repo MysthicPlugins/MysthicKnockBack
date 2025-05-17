@@ -12,6 +12,7 @@ import kk.kvlzx.listeners.InventoryListener;
 import kk.kvlzx.listeners.ItemListener;
 import kk.kvlzx.listeners.PlayerListener;
 import kk.kvlzx.managers.ScoreboardManager;
+import kk.kvlzx.managers.StreakManager;
 import kk.kvlzx.utils.MessageUtils;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
@@ -26,6 +27,7 @@ public class KvKnockback extends JavaPlugin {
     private WorldEditPlugin worldEdit;
     private CombatListener combatListener;
     private ScoreboardManager scoreboardManager;
+    private StreakManager streakManager;
 
     @Override
     public void onEnable() {
@@ -56,6 +58,10 @@ public class KvKnockback extends JavaPlugin {
 
     @Override
     public void onDisable() {
+
+        // Eliminar la scoreboard
+        streakManager.onDisable();
+
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&c=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&bKvKnockback &fv" + version);
@@ -68,6 +74,7 @@ public class KvKnockback extends JavaPlugin {
     public void registerManagers() {
         arenaManager = new ArenaManager(this);
         scoreboardManager = new ScoreboardManager(this);
+        streakManager = new StreakManager();
     }
 
     public void registerCommands() {
@@ -102,5 +109,9 @@ public class KvKnockback extends JavaPlugin {
 
     public ScoreboardManager getScoreboardManager() {
         return scoreboardManager;
+    }
+
+    public StreakManager getStreakManager() {
+        return streakManager;
     }
 }

@@ -3,11 +3,12 @@ package kk.kvlzx.stats;
 import net.md_5.bungee.api.ChatColor;
 
 public class Streak {
-
     private int kills;
+    private int maxKillstreak; // Nueva variable para racha máxima
 
     public Streak() {
         this.kills = 0;
+        this.maxKillstreak = 0;
     }
 
     public int getKills() {
@@ -16,6 +17,9 @@ public class Streak {
 
     public void addKill() {
         kills++;
+        if (kills > maxKillstreak) {
+            maxKillstreak = kills;
+        }
     }
 
     public void reset() {
@@ -47,6 +51,10 @@ public class Streak {
             return ChatColor.GRAY + "MVP";
         }
         return null;
+    }
+
+    public int getMaxKillstreak() {
+        return maxKillstreak;
     }
 }
 

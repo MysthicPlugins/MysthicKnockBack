@@ -7,6 +7,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.entity.Player;
 
 import kk.kvlzx.KvKnockback;
+import kk.kvlzx.arena.ZoneType;
 import kk.kvlzx.utils.KnockbackUtils;
 
 import java.util.HashMap;
@@ -50,6 +51,16 @@ public class CombatListener implements Listener {
 
         Player victim = (Player) event.getEntity();
         Player attacker = (Player) event.getDamager();
+
+        // Verificar si el jugador está en spawn
+        String victimZone = plugin.getArenaManager().getPlayerZone(victim);
+        String attackerZone = plugin.getArenaManager().getPlayerZone(attacker);
+        
+        if (victimZone != null && victimZone.equals(ZoneType.SPAWN.getId()) || 
+            attackerZone != null && attackerZone.equals(ZoneType.SPAWN.getId())) {
+            event.setCancelled(true);
+            return;
+        }
 
         lastAttacker.put(victim.getUniqueId(), attacker.getUniqueId());
         lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());

@@ -13,6 +13,7 @@ import kk.kvlzx.KvKnockback;
 import kk.kvlzx.arena.Arena;
 import kk.kvlzx.arena.ArenaManager;
 import kk.kvlzx.stats.PlayerStats;
+import kk.kvlzx.stats.Streak;
 import kk.kvlzx.utils.MessageUtils;
 import kk.kvlzx.utils.TitleUtils;
 
@@ -121,28 +122,29 @@ public class ScoreboardManager {
     public void updateScoreboard(Player player) {
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective obj = board.registerNewObjective("stats", "dummy");
-        obj.setDisplayName(MessageUtils.getColor("&e&lKnockbackFFA"));
+        obj.setDisplayName(MessageUtils.getColor("&e&l⚔ KnockbackFFA ⚔"));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         String currentArena = plugin.getArenaManager().getCurrentArena();
+        Streak streak = plugin.getStreakManager().getStreak(player);
         
-        int score = 9;
+        int score = 12;
         
-        obj.getScore(MessageUtils.getColor("&7&m----------------")).setScore(score--);
-        obj.getScore(MessageUtils.getColor("&fArena: &b" + currentArena)).setScore(score--);
+        obj.getScore(MessageUtils.getColor("&7&m--------------------------------------------------")).setScore(score--);
+        obj.getScore(MessageUtils.getColor("&b● Jugador: &f" + player.getName())).setScore(score--);
         obj.getScore("").setScore(score--);
-        obj.getScore(MessageUtils.getColor("&fKills: &a" + stats.getKills())).setScore(score--);
-        obj.getScore(MessageUtils.getColor("&fMuertes: &c" + stats.getDeaths())).setScore(score--);
-        obj.getScore(MessageUtils.getColor("&fELO: &6" + stats.getElo())).setScore(score--);
+        obj.getScore(MessageUtils.getColor("&6● Arena: &f" + currentArena)).setScore(score--);
+        obj.getScore(MessageUtils.getColor("&c● Rango: " + RankManager.getRankPrefix(stats.getElo()))).setScore(score--);
         obj.getScore(" ").setScore(score--);
-        obj.getScore(MessageUtils.getColor("&f User: &f" + player.getName())).setScore(score--);
-        obj.getScore(" ").setScore(score--);
-
+        obj.getScore(MessageUtils.getColor("&a● Kills: &f" + stats.getKills())).setScore(score--);
+        obj.getScore(MessageUtils.getColor("&4● Muertes: &f" + stats.getDeaths())).setScore(score--);
+        obj.getScore(MessageUtils.getColor("&e● ELO: &f" + stats.getElo())).setScore(score--);
+        obj.getScore(MessageUtils.getColor("&5● Racha: &f" + streak.getKills() + " &7(Max: &f" + streak.getMaxKillstreak() + "&7)")).setScore(score--);
         
         String timeFormatted = String.format("%02d:%02d", timeLeft / 60, timeLeft % 60);
-        obj.getScore(MessageUtils.getColor("&fTiempo: &e" + timeFormatted)).setScore(score--);
-        obj.getScore(MessageUtils.getColor("&7&m----------------")).setScore(score);
+        obj.getScore(MessageUtils.getColor("&d● Tiempo: &f" + timeFormatted)).setScore(score--);
+        obj.getScore(MessageUtils.getColor("&7&m--------------------------------------------------")).setScore(score);
 
         player.setScoreboard(board);
     }

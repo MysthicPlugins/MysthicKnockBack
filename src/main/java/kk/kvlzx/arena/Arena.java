@@ -6,7 +6,7 @@ import org.bukkit.Location;
 
 public class Arena {
     private final String name;
-    private final Map<String, Zone> zones;
+    private final Map<ZoneType, Zone> zones; // Cambiado de String a ZoneType
     private Location spawnPoint;
 
     public Arena(String name) {
@@ -14,12 +14,12 @@ public class Arena {
         this.zones = new HashMap<>();
     }
 
-    public void setZone(String type, Zone zone) {
-        zones.put(type.toLowerCase(), zone);
+    public void setZone(ZoneType type, Zone zone) { // Cambiado de String a ZoneType
+        zones.put(type, zone);
     }
 
     public Zone getZone(String type) {
-        return zones.get(type.toLowerCase());
+        return zones.get(ZoneType.fromString(type));
     }
 
     public String getName() {
@@ -35,7 +35,7 @@ public class Arena {
             return spawnPoint;
         }
         // Fallback al centro de la zona spawn si no hay spawnpoint definido
-        Zone spawnZone = zones.get("spawn");
+        Zone spawnZone = zones.get(ZoneType.SPAWN);
         if (spawnZone == null) return null;
         
         Location min = spawnZone.getMin();

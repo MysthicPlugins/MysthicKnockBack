@@ -1,6 +1,7 @@
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\arena\Arena.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\arena\ArenaManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\arena\Zone.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\arena\ZoneType.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\ArenaCommand.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\MainCommand.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\ReportCommand.java
@@ -18,8 +19,11 @@ E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\CombatListener.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\InventoryListener.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\ItemListener.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\PlayerListener.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\RankManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\ScoreboardManager.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\StreakManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\stats\PlayerStats.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\stats\Streak.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\utils\KnockbackUtils.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\utils\MessageUtils.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\utils\TitleUtils.java

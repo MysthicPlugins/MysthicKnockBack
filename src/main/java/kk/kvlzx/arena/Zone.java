@@ -5,9 +5,9 @@ import org.bukkit.Location;
 public class Zone {
     private Location min;
     private Location max;
-    private String type; // spawn, pvp, void
+    private ZoneType type;
 
-    public Zone(Location min, Location max, String type) {
+    public Zone(Location min, Location max, ZoneType type) {
         this.min = min;
         this.max = max;
         this.type = type;
@@ -21,7 +21,7 @@ public class Zone {
         return max;
     }
 
-    public String getType() {
+    public ZoneType getType() {
         return type;
     }
 
