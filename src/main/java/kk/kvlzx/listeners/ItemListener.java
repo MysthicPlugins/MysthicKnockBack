@@ -72,16 +72,27 @@ public class ItemListener implements Listener {
         return -1;
     }
 
+    private boolean isInPvPZone(Player player) {
+        String zone = plugin.getArenaManager().getPlayerZone(player);
+        return zone != null && zone.equals(ZoneType.PVP.getId());
+    }
+
     @EventHandler
     public void onEntityShootBow(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
         Player player = (Player) event.getEntity();
-        UUID uuid = player.getUniqueId();
+
+        if (!isInPvPZone(player)) {
+            event.setCancelled(true);
+            return;
+        }
 
         if (isOnCooldown(player, COOLDOWN_BOW)) {
             event.setCancelled(true);
             return;
         }
+
+        UUID uuid = player.getUniqueId();
 
         ItemStack arrow = findItemByType(player, Material.ARROW);
         int arrowSlot = findSlotByType(player, Material.ARROW);
@@ -108,6 +119,11 @@ public class ItemListener implements Listener {
     @EventHandler
     public void onFeatherUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
+        if (!isInPvPZone(player)) {
+            event.setCancelled(true);
+            return;
+        }
+
         ItemStack feather = findItemByType(player, Material.FEATHER);
         int featherSlot = findSlotByType(player, Material.FEATHER);
 
@@ -162,6 +178,11 @@ public class ItemListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
+        if (!isInPvPZone(player)) {
+            event.setCancelled(true);
+            return;
+        }
+
         ItemStack item = event.getItemInHand();
 
         if (isinfiniteBlock(item.getType()) || item.getType() == Material.GOLD_PLATE) {
@@ -267,15 +288,18 @@ public class ItemListener implements Listener {
                     return;
                 }
 
-                // Verificar si el jugador está en spawn
+                // Verificar si el jugador está en spawn o no está en pvp
                 String zone = plugin.getArenaManager().getPlayerZone(player);
-                if (zone != null && zone.equals(ZoneType.SPAWN.getId())) {
+                if (zone == null || !zone.equals(ZoneType.PVP.getId())) {
                     // Restaurar item y cancelar cooldown
                     ItemStack restoredItem = original.clone();
                     restoredItem.setAmount(1);
                     player.getInventory().setItem(slot, restoredItem);
                     player.updateInventory();
-                    cooldowns.get(player.getUniqueId()).clear(); // Limpiar cooldowns
+                    Map<String, Long> playerCooldowns = cooldowns.get(player.getUniqueId());
+                    if (playerCooldowns != null) {
+                        playerCooldowns.clear();
+                    }
                     cancel();
                     return;
                 }

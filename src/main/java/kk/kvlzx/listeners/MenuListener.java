@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
 
 import kk.kvlzx.KvKnockback;
+import kk.kvlzx.items.ItemsManager;
 import kk.kvlzx.menus.MainMenu;
 import kk.kvlzx.menus.TopMenu;
 import kk.kvlzx.stats.PlayerStats;
@@ -60,6 +61,9 @@ public class MenuListener implements Listener {
                 case SKULL_ITEM:
                     showPlayerStats(player);
                     player.closeInventory();
+                    break;
+                case CHEST:
+                    plugin.getInventoryManager().openEditor(player);
                     break;
                 default:
                     break;

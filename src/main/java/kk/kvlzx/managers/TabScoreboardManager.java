@@ -1,5 +1,10 @@
 package kk.kvlzx.managers;
 
+import me.neznamy.tab.api.TabAPI;
+import me.neznamy.tab.api.TabPlayer;
+import me.neznamy.tab.api.scoreboard.Scoreboard;
+import me.neznamy.tab.api.scoreboard.ScoreboardManager;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -7,9 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
 
 import kk.kvlzx.KvKnockback;
 import kk.kvlzx.arena.Arena;
@@ -20,28 +22,70 @@ import kk.kvlzx.utils.MessageUtils;
 import kk.kvlzx.utils.TitleUtils;
 
 import java.util.Arrays;
+import java.util.List;
 
-public class ScoreboardManager {
+public class TabScoreboardManager {
     private final KvKnockback plugin;
+    private final TabAPI tabAPI;
+    private final ScoreboardManager scoreboardManager;
     private int timeLeft = 120; // 2 minutos en segundos
     private final int ARENA_TIME = 120; // 2 minutos en segundos
     private final int[] COUNTDOWN_ALERTS = {60, 30, 10, 5, 4, 3, 2, 1}; // Alertas en segundos
 
-    public ScoreboardManager(KvKnockback plugin) {
+    public TabScoreboardManager(KvKnockback plugin) {
         this.plugin = plugin;
-        startScoreboardUpdate();
+        this.tabAPI = TabAPI.getInstance();
+        this.scoreboardManager = tabAPI.getScoreboardManager();
+        setupScoreboard();
         startArenaRotation();
     }
 
-    private void startScoreboardUpdate() {
+    private void setupScoreboard() {
         new BukkitRunnable() {
             @Override
             public void run() {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    updateScoreboard(player);
+                for (TabPlayer player : tabAPI.getOnlinePlayers()) {
+                    updatePlayerScoreboard(player);
                 }
             }
-        }.runTaskTimer(plugin, 20L, 20L); // Actualizar cada segundo
+        }.runTaskTimer(plugin, 20L, 20L);
+    }
+
+    private void updatePlayerScoreboard(TabPlayer tabPlayer) {
+        Player player = plugin.getServer().getPlayer(tabPlayer.getName());
+        if (player == null) return;
+
+        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        String currentArena = plugin.getArenaManager().getCurrentArena();
+        Streak streak = plugin.getStreakManager().getStreak(player);
+        
+        int minutes = timeLeft / 60;
+        int seconds = timeLeft % 60;
+        String formattedTime = String.format("&a%02d:%02d", minutes, seconds);
+
+        List<String> lines = Arrays.asList(
+            "&6&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
+            "&e&l⭐ &fJugador: &b" + player.getName(),
+            "",
+            "&e&l⚔ &fArena: &a" + currentArena,
+            "&e&l👑 &fRango: " + RankManager.getRankPrefix(stats.getElo()),
+            "",
+            "&e&l☠ &fKills: &a" + stats.getKills(),
+            "&e&l💀 &fMuertes: &c" + stats.getDeaths(),
+            "&e&l🏆 &fElo: &6" + stats.getElo(),
+            "&e&l📊 &fKDR: &b" + String.format("%.2f", stats.getKDR()),
+            "&e&l⚡ &fRacha: &d" + streak.getKills() + (streak.getMaxKillstreak() > 0 ? " &7(" + streak.getMaxKillstreak() + ")" : ""),
+            "&e&l⏳ &fTiempo: " + formattedTime,
+            "&6&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+        );
+
+        Scoreboard scoreboard = scoreboardManager.createScoreboard(
+            "main_scoreboard",
+            "&e&l🏆 &6&lKnockbackFFA",
+            lines
+        );
+
+        scoreboardManager.showScoreboard(tabPlayer, scoreboard);
     }
 
     private void startArenaRotation() {
@@ -150,41 +194,5 @@ public class ScoreboardManager {
 
         // Actualizar la arena actual
         plugin.getArenaManager().setCurrentArena(nextArena);
-    }
-
-    public void updateScoreboard(Player player) {
-        Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective obj = board.registerNewObjective("stats", "dummy");
-        obj.setDisplayName(MessageUtils.getColor("&e&l⚔ KnockbackFFA ⚔"));
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
-
-        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
-        String currentArena = plugin.getArenaManager().getCurrentArena();
-        Streak streak = plugin.getStreakManager().getStreak(player);
-        
-        int score = 13; // Aumentamos en 1 para agregar la línea del KDR
-        
-        obj.getScore(MessageUtils.getColor("&7&m----------------")).setScore(score--);
-        obj.getScore(MessageUtils.getColor("&b● " + player.getName())).setScore(score--);
-        obj.getScore("").setScore(score--);
-        obj.getScore(MessageUtils.getColor("&6● Arena: &f" + currentArena)).setScore(score--);
-        obj.getScore(MessageUtils.getColor("&c● Rank: " + RankManager.getRankPrefix(stats.getElo()))).setScore(score--);
-        obj.getScore(" ").setScore(score--);
-        obj.getScore(MessageUtils.getColor("&a● Kills: &f" + stats.getKills())).setScore(score--);
-        obj.getScore(MessageUtils.getColor("&4● Deaths: &f" + stats.getDeaths())).setScore(score--);
-        obj.getScore(MessageUtils.getColor("&e● Elo: &f" + stats.getElo())).setScore(score--);
-        obj.getScore(MessageUtils.getColor("&b● KDR: &f" + String.format("%.2f", stats.getKDR()))).setScore(score--);
-        
-        String streakText = "&5● Racha: &f" + streak.getKills();
-        if (streak.getMaxKillstreak() > 0) {
-            streakText += " &7(" + streak.getMaxKillstreak() + ")";
-        }
-        obj.getScore(MessageUtils.getColor(streakText)).setScore(score--);
-        
-        String timeFormatted = String.format("%02d:%02d", timeLeft / 60, timeLeft % 60);
-        obj.getScore(MessageUtils.getColor("&d● Tiempo: &f" + timeFormatted)).setScore(score--);
-        obj.getScore(MessageUtils.getColor("&7&m----------------")).setScore(score);
-
-        player.setScoreboard(board);
     }
 }

@@ -38,6 +38,9 @@ public class MainMenu {
         playerHead.setItemMeta(meta);
         menu.setItem(13, playerHead);
 
+        // Añadir botón de personalización de inventario
+        menu.setItem(22, createMenuItem(Material.CHEST, "&6⚒ Personalizar Inventario", "&7Click para personalizar tu inventario de PvP"));
+
         player.openInventory(menu);
     }
 

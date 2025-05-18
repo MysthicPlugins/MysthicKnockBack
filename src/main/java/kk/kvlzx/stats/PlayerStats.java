@@ -18,6 +18,8 @@ public class PlayerStats {
     private int elo;
     private long playTime; // Tiempo en milisegundos
     private long lastJoin;
+    private long lastDeathTime = 0;
+    private static final long DEATH_COOLDOWN = 500; // 500ms cooldown
 
     public PlayerStats(UUID uuid) {
         this.uuid = uuid;
@@ -48,7 +50,18 @@ public class PlayerStats {
         }
     }
 
+    public boolean canDie() {
+        long currentTime = System.currentTimeMillis();
+        return currentTime - lastDeathTime >= DEATH_COOLDOWN;
+    }
+    
     public void addDeath() {
+        long currentTime = System.currentTimeMillis();
+        if (!canDie()) {
+            return; // Evitar muertes duplicadas
+        }
+        lastDeathTime = currentTime;
+        
         this.deaths++;
         int eloLost = (int)(Math.random() * 10) + 6; // Random entre 6-15
         this.elo = Math.max(0, this.elo - eloLost); // Evita que el ELO sea negativo

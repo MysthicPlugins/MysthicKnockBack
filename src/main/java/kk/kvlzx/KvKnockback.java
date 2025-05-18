@@ -14,7 +14,8 @@ import kk.kvlzx.listeners.InventoryListener;
 import kk.kvlzx.listeners.ItemListener;
 import kk.kvlzx.listeners.PlayerListener;
 import kk.kvlzx.listeners.MenuListener;
-import kk.kvlzx.managers.ScoreboardManager;
+import kk.kvlzx.managers.TabScoreboardManager;
+import kk.kvlzx.managers.CustomInventoryManager;
 import kk.kvlzx.managers.StreakManager;
 import kk.kvlzx.managers.TabManager;
 import kk.kvlzx.utils.MessageUtils;
@@ -30,9 +31,10 @@ public class KvKnockback extends JavaPlugin {
     private ArenaManager arenaManager;
     private WorldEditPlugin worldEdit;
     private CombatListener combatListener;
-    private ScoreboardManager scoreboardManager;
+    private TabScoreboardManager scoreboardManager;
     private StreakManager streakManager;
     private TabManager tabManager;
+    private CustomInventoryManager inventoryManager;
 
     @Override
     public void onEnable() {
@@ -78,9 +80,10 @@ public class KvKnockback extends JavaPlugin {
     
     public void registerManagers() {
         arenaManager = new ArenaManager(this);
-        scoreboardManager = new ScoreboardManager(this);
+        scoreboardManager = new TabScoreboardManager(this);
         streakManager = new StreakManager();
         tabManager = new TabManager(this);
+        inventoryManager = new CustomInventoryManager(this);
     }
 
     public void registerCommands() {
@@ -116,7 +119,7 @@ public class KvKnockback extends JavaPlugin {
         return combatListener;
     }
 
-    public ScoreboardManager getScoreboardManager() {
+    public TabScoreboardManager getScoreboardManager() {
         return scoreboardManager;
     }
 
@@ -126,5 +129,9 @@ public class KvKnockback extends JavaPlugin {
 
     public TabManager getTabManager() {
         return tabManager;
+    }
+
+    public CustomInventoryManager getInventoryManager() {
+        return inventoryManager;
     }
 }

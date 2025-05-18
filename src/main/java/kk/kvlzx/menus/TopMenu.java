@@ -109,8 +109,12 @@ public class TopMenu {
             long hours = (long) data.value;
             long minutes = (long) ((data.value - hours) * 60);
             lore.add(MessageUtils.getColor(statPrefix + hours + "h " + minutes + "m"));
-        } else {
+        } else if (statPrefix.contains("KDR")) {
+            // Solo KDR tiene 2 decimales
             lore.add(MessageUtils.getColor(statPrefix + String.format("%.2f", data.value)));
+        } else {
+            // El resto de stats se muestran como enteros
+            lore.add(MessageUtils.getColor(statPrefix + String.format("%.0f", data.value)));
         }
         lore.add(MessageUtils.getColor("&7Posición: #" + position));
         meta.setLore(lore);

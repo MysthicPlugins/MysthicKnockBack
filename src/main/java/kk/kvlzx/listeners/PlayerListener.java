@@ -135,7 +135,6 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
-        
         Location to = event.getTo();
         String currentArena = plugin.getArenaManager().getPlayerArena(player);
         String currentZone = plugin.getArenaManager().getPlayerZone(player);
@@ -143,17 +142,24 @@ public class PlayerListener implements Listener {
         for (Arena arena : plugin.getArenaManager().getArenas()) {
             Zone voidZone = arena.getZone("void");
             if (voidZone != null && voidZone.isInside(to)) {
+                PlayerStats playerStats = PlayerStats.getStats(player.getUniqueId());
+                if (!playerStats.canDie()) {
+                    return; // Si el jugador está en cooldown de muerte, ignorar
+                }
+
+                event.setCancelled(true); // Cancelar el movimiento hacia el void
                 CombatListener combatListener = plugin.getCombatListener();
                 Player killer = combatListener.getLastAttacker(player);
                 
                 if (killer != null && killer != player) {
                     givePearlToKiller(killer);
-                    player.damage(1000.0, killer); // Dar la kill del jugador al killer
-                    respawnPlayerAtSpawn(player, arena);
+                    player.damage(1000.0, killer);
                 } else {
-                    player.damage(1000.0); // Sin killer
-                    respawnPlayerAtSpawn(player, arena);
+                    player.damage(1000.0);
                 }
+                
+                // Teletransportar inmediatamente al jugador al spawn
+                respawnPlayerAtSpawn(player, arena);
                 return;
             }
             

@@ -64,7 +64,7 @@ public class TabManager {
         pm.registerPlayerPlaceholder("%rank%", 1000, player -> {
             Player p = plugin.getServer().getPlayer(player.getName());
             if (p != null) {
-                return RankManager.getRankPrefix(PlayerStats.getStats(p.getUniqueId()).getElo());
+                return RankManager.getRankPrefix(PlayerStats.getStats(p.getUniqueId()).getElo()) + " ";
             }
             return "";
         });
@@ -72,6 +72,11 @@ public class TabManager {
         pm.registerServerPlaceholder("%online%", 1000, () -> 
             String.valueOf(plugin.getServer().getOnlinePlayers().size())
         );
+
+        // Configurar el formato del tab
+        for (TabPlayer player : tabAPI.getOnlinePlayers()) {
+            tabAPI.getNameTagManager().setPrefix(player, "%rank%");
+        }
     }
 
     public void onPlayerJoin(PlayerLoadEvent e) {
