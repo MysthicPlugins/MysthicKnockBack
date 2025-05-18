@@ -45,7 +45,6 @@ public class KvKnockback extends JavaPlugin {
             return;
         }
 
-        saveDefaultConfig();
         registerManagers();
         arenaManager.loadArenas(); // Cargar arenas después de registrar managers
         registerCommands();
