@@ -41,6 +41,7 @@ public class PlayerListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         event.getDrops().clear(); // Evita que se dropeen items al morir
         event.setDroppedExp(0); // Evita que se dropee experiencia
+        event.setDeathMessage(null); // Evita que se muestre el mensaje de muerte
     }
 
     @EventHandler
@@ -66,6 +67,8 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        stats.updatePlayTime();
         plugin.getStreakManager().resetStreak(player); // Resetear racha al desconectarse
         
         String currentArena = plugin.getArenaManager().getCurrentArena();

@@ -65,13 +65,13 @@ public class CustomItem {
         return item;
     }
 
-    public static ItemStack createSkull(Player player) {
-        ItemStack skull = new ItemStack(Material.SKULL_ITEM);
+    public static ItemStack createSkull(Player player, String displayName, String lore) {
+        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
         SkullMeta meta = (SkullMeta) skull.getItemMeta();
         
         meta.setOwner(player.getName());
-        meta.setDisplayName(MessageUtils.getColor("&a✪ Tus Estadísticas"));
-        meta.setLore(Arrays.asList(MessageUtils.getColor("&7Click para ver tus stats")));
+        meta.setDisplayName(MessageUtils.getColor(displayName));
+        meta.setLore(Arrays.asList(MessageUtils.getColor(lore)));
         
         skull.setItemMeta(meta);
         return skull;

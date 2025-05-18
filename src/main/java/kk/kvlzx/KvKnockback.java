@@ -13,9 +13,10 @@ import kk.kvlzx.listeners.CombatListener;
 import kk.kvlzx.listeners.InventoryListener;
 import kk.kvlzx.listeners.ItemListener;
 import kk.kvlzx.listeners.PlayerListener;
-import kk.kvlzx.listeners.SpawnItemListener;
+import kk.kvlzx.listeners.MenuListener;
 import kk.kvlzx.managers.ScoreboardManager;
 import kk.kvlzx.managers.StreakManager;
+import kk.kvlzx.managers.TabManager;
 import kk.kvlzx.utils.MessageUtils;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
@@ -31,6 +32,7 @@ public class KvKnockback extends JavaPlugin {
     private CombatListener combatListener;
     private ScoreboardManager scoreboardManager;
     private StreakManager streakManager;
+    private TabManager tabManager;
 
     @Override
     public void onEnable() {
@@ -43,7 +45,9 @@ public class KvKnockback extends JavaPlugin {
             return;
         }
 
+        saveDefaultConfig();
         registerManagers();
+        arenaManager.loadArenas(); // Cargar arenas después de registrar managers
         registerCommands();
         registerEvents();
 
@@ -60,6 +64,7 @@ public class KvKnockback extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        arenaManager.saveArenas(); // Guardar arenas antes de desactivar
         // Eliminar la scoreboard
         streakManager.onDisable();
 
@@ -76,6 +81,7 @@ public class KvKnockback extends JavaPlugin {
         arenaManager = new ArenaManager(this);
         scoreboardManager = new ScoreboardManager(this);
         streakManager = new StreakManager();
+        tabManager = new TabManager(this);
     }
 
     public void registerCommands() {
@@ -91,8 +97,8 @@ public class KvKnockback extends JavaPlugin {
         getServer().getPluginManager().registerEvents(combatListener, this);
         getServer().getPluginManager().registerEvents(new ItemListener(this), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
-        getServer().getPluginManager().registerEvents(new SpawnItemListener(this), this);
-        getServer().getPluginManager().registerEvents(new ChatListener(this), this); // Registro del ChatListener
+        getServer().getPluginManager().registerEvents(new MenuListener(this), this);
+        getServer().getPluginManager().registerEvents(new ChatListener(this), this);
     }
 
     public static KvKnockback getInstance() {
@@ -117,5 +123,9 @@ public class KvKnockback extends JavaPlugin {
 
     public StreakManager getStreakManager() {
         return streakManager;
+    }
+
+    public TabManager getTabManager() {
+        return tabManager;
     }
 }

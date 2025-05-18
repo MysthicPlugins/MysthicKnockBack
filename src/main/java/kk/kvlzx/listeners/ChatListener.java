@@ -7,6 +7,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import kk.kvlzx.managers.RankManager;
 import kk.kvlzx.stats.PlayerStats;
+import kk.kvlzx.utils.MessageUtils;
 import kk.kvlzx.KvKnockback;
 
 public class ChatListener implements Listener {
@@ -25,7 +26,7 @@ public class ChatListener implements Listener {
         String message = event.getMessage();
 
         // Formato del chat: [Rango] Nombre: Mensaje
-        event.setFormat(rankPrefix + " &r" + playerName + " &7: " + message);
+        event.setFormat(MessageUtils.getColor(rankPrefix + " &r" + playerName + " &7: &f " + message));
     }
 }
 

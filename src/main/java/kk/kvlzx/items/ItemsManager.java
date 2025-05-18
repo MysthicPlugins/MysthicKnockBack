@@ -8,11 +8,7 @@ public class ItemsManager {
 
     public static void giveSpawnItems(Player player) {
         player.getInventory().clear();
-        player.getInventory().setItem(0, CustomItem.create(ItemType.TOP_KILLS));
-        player.getInventory().setItem(1, CustomItem.create(ItemType.TOP_KDR));
-        player.getInventory().setItem(2, CustomItem.create(ItemType.TOP_STREAKS));
-        player.getInventory().setItem(4, CustomItem.createSkull(player));
-        player.getInventory().setItem(6, CustomItem.create(ItemType.TOP_ELO));
+        player.getInventory().setItem(4, CustomItem.createSkull(player, "&a✦ Menú Principal", "&7Click derecho para abrir el menú"));
         player.updateInventory();
     }
     

@@ -8,15 +8,19 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.File;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 
 import kk.kvlzx.KvKnockback;
+import kk.kvlzx.data.ArenaData;
 
 public class ArenaManager {
     private final KvKnockback plugin;
@@ -24,11 +28,14 @@ public class ArenaManager {
     private final Map<UUID, String> playerZones;
     private final Map<String, Set<UUID>> arenaPlayers = new HashMap<>();
     private String currentArena = null;
+    private final ArenaData arenaData;
 
     public ArenaManager(KvKnockback plugin) {
         this.plugin = plugin;
         this.arenas = new HashMap<>();
         this.playerZones = new HashMap<>();
+        this.arenaData = new ArenaData(plugin);
+        loadArenas();
     }
 
     public boolean createArena(String name) {
@@ -174,5 +181,38 @@ public class ArenaManager {
 
         arenas.remove(name);
         return true;
+    }
+
+    public void loadArenas() {
+        File dataFolder = new File(plugin.getDataFolder(), "data");
+        File arenaFile = new File(dataFolder, "arenas.yml");
+        
+        if (!arenaFile.exists()) return;
+
+        ConfigurationSection config = arenaData.getConfig();
+        if (!config.contains("arenas")) return;
+
+        for (String arenaName : config.getConfigurationSection("arenas").getKeys(false)) {
+            Arena arena = new Arena(arenaName);
+            arenaData.loadArena(arenaName, arena);
+            arenas.put(arenaName, arena);
+            arenaPlayers.put(arenaName, new HashSet<>());
+        }
+
+        String activeArena = arenaData.loadActiveArena();
+        if (activeArena != null && arenas.containsKey(activeArena)) {
+            currentArena = activeArena;
+        } else if (!arenas.isEmpty()) {
+            currentArena = arenas.keySet().iterator().next();
+        }
+    }
+
+    public void saveArenas() {
+        for (Arena arena : arenas.values()) {
+            arenaData.saveArena(arena);
+        }
+        if (currentArena != null) {
+            arenaData.saveActiveArena(currentArena);
+        }
     }
 }
