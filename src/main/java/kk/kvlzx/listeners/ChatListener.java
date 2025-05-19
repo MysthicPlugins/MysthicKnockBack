@@ -26,7 +26,7 @@ public class ChatListener implements Listener {
         String message = event.getMessage();
 
         // Formato del chat: [Rango] Nombre: Mensaje
-        event.setFormat(MessageUtils.getColor(rankPrefix + " &r" + playerName + " &7: &f " + message));
+        event.setFormat(MessageUtils.getColor(rankPrefix + " &r" + playerName + "&7: &f " + message));
     }
 }
 

@@ -62,9 +62,6 @@ public class MenuListener implements Listener {
                     showPlayerStats(player);
                     player.closeInventory();
                     break;
-                case CHEST:
-                    plugin.getInventoryManager().openEditor(player);
-                    break;
                 default:
                     break;
             }

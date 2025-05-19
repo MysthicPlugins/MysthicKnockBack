@@ -18,14 +18,7 @@ public class CustomItem {
         PEARL(Material.ENDER_PEARL, "&5Perla", "&8 Cada lanzamiento reescribe tu destino.", false),
         FEATHER(Material.FEATHER, "&ePluma", "&8 No es magia, es pura aerodinámica.", false),
         PLATE(Material.GOLD_PLATE, "&6Placa", "&8 ¿Listo para volar? Pisa y verás.", false),
-        BLOCKS(Material.SANDSTONE, "&3Arenisca", "&8 Un clásico del desierto", false),
-
-        // Items del spawn
-        TOP_KILLS(Material.DIAMOND_SWORD, "&b⚔ Top Kills", "&7Click para ver el top de kills", false),
-        TOP_KDR(Material.GOLDEN_APPLE, "&6☠ Top KDR", "&7Click para ver el top de KDR", false),
-        TOP_STREAKS(Material.BLAZE_POWDER, "&c⚡ Top Rachas", "&7Click para ver el top de rachas", false),
-        TOP_ELO(Material.NETHER_STAR, "&e✦ Top ELO", "&7Click para ver el top de ELO", false),
-        PLAYER_STATS(Material.SKULL_ITEM, "&a✪ Tus Estadísticas", "&7Click para ver tus stats", false);
+        BLOCKS(Material.SANDSTONE, "&3Arenisca", "&8 Un clásico del desierto", false);
 
         private final Material material;
         private final String name;

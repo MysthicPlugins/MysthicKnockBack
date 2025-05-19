@@ -12,12 +12,9 @@ E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\items\ItemsManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\KvKnockback.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\ChatListener.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\CombatListener.java
-E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\InventoryListener.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\ItemListener.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\MenuListener.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\PlayerListener.java
-E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\SpawnItemListener.java
-E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\CustomInventoryManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\RankManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\StreakManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\TabManager.java

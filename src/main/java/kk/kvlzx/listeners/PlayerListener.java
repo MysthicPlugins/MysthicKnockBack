@@ -2,6 +2,7 @@ package kk.kvlzx.listeners;
 
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -94,6 +95,16 @@ public class PlayerListener implements Listener {
         if (currentArena == null) return;
 
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerBlockPlace(BlockPlaceEvent event) {
+        // Poder poner bloques si el jugador está dentro de una arena
+        Player player = event.getPlayer();
+        String currentArena = plugin.getArenaManager().getPlayerArena(player);
+        if (currentArena == null) return;
+
+        event.setCancelled(false);
     }
 
     @EventHandler

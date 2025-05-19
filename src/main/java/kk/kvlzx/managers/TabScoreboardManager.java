@@ -52,11 +52,16 @@ public class TabScoreboardManager {
     }
 
     private void updatePlayerScoreboard(TabPlayer tabPlayer) {
+        if (tabPlayer == null) return;
+        
         Player player = plugin.getServer().getPlayer(tabPlayer.getName());
-        if (player == null) return;
+        if (player == null || !player.isOnline()) return;
 
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         String currentArena = plugin.getArenaManager().getCurrentArena();
+        if (currentArena == null) currentArena = "Ninguna";
+        
+        // No es necesario verificar si streak es null porque getStreak() siempre retorna un objeto
         Streak streak = plugin.getStreakManager().getStreak(player);
         
         int minutes = timeLeft / 60;
