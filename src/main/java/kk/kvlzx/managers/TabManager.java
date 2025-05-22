@@ -55,6 +55,11 @@ public class TabManager {
         for (TabPlayer player : tabAPI.getOnlinePlayers()) {
             tabAPI.getHeaderFooterManager().setHeader(player, header);
             tabAPI.getHeaderFooterManager().setFooter(player, footer);
+            
+            // Setear el formato del tab para cada jugador
+            String rankPrefix = RankManager.getRankPrefix(PlayerStats.getStats(player.getUniqueId()).getElo());
+            tabAPI.getTabListFormatManager().setPrefix(player, rankPrefix + " ");
+            tabAPI.getTabListFormatManager().setSuffix(player, " &8[&f%ping%ms&8]");
         }
     }
 

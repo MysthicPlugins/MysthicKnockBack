@@ -53,16 +53,13 @@ public class TabScoreboardManager {
 
     private void updatePlayerScoreboard(TabPlayer tabPlayer) {
         if (tabPlayer == null) return;
-        
-        Player player = plugin.getServer().getPlayer(tabPlayer.getName());
-        if (player == null || !player.isOnline()) return;
 
-        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        PlayerStats stats = PlayerStats.getStats(tabPlayer.getUniqueId());
         String currentArena = plugin.getArenaManager().getCurrentArena();
         if (currentArena == null) currentArena = "Ninguna";
         
-        // No es necesario verificar si streak es null porque getStreak() siempre retorna un objeto
-        Streak streak = plugin.getStreakManager().getStreak(player);
+        // Obtener el streak directamente usando el UUID del TabPlayer
+        Streak streak = plugin.getStreakManager().getStreak(tabPlayer.getUniqueId());
         
         int minutes = timeLeft / 60;
         int seconds = timeLeft % 60;
@@ -70,7 +67,7 @@ public class TabScoreboardManager {
 
         List<String> lines = Arrays.asList(
             "&6&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬",
-            "&e&l⭐ &fJugador: &b" + player.getName(),
+            "&e&l⭐ &fJugador: &b" + tabPlayer.getName(),
             "",
             "&e&l⚔ &fArena: &a" + currentArena,
             "&e&l👑 &fRango: " + RankManager.getRankPrefix(stats.getElo()),

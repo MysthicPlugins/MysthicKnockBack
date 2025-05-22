@@ -49,8 +49,13 @@ public class StreakManager {
         updateMvpTag(player, streak);
     }
 
+    public Streak getStreak(UUID uuid) {
+        return playerStreaks.computeIfAbsent(uuid, k -> new Streak());
+    }
+
+    // Método para obtener la racha de un jugador usando su UUID
     public Streak getStreak(Player player) {
-        return playerStreaks.computeIfAbsent(player.getUniqueId(), k -> new Streak());
+        return getStreak(player.getUniqueId());
     }
 
     private void updateMvpTag(Player player, Streak streak) {
