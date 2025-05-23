@@ -164,15 +164,15 @@ public class ItemListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
+        Block block = event.getBlock();
+        Material blockType = block.getType();
 
-        ItemStack item = event.getItemInHand();
-
-        if (isinfiniteBlock(item.getType()) || item.getType() == Material.GOLD_PLATE) {
-            int itemSlot = findSlotByType(player, item.getType());
+        if (blockType.isBlock()) {
+            int itemSlot = findSlotByType(player, blockType);
             ItemStack stack = player.getInventory().getItem(itemSlot);
 
             if (stack != null) {
-                if (item.getType() == Material.GOLD_PLATE) {
+                if (blockType == Material.GOLD_PLATE) {
                     if (isOnCooldown(player, COOLDOWN_PLATE)) {
                         player.sendMessage(MessageUtils.getColor(
                             "&cDebes esperar " + ((cooldowns.get(player.getUniqueId()).get(COOLDOWN_PLATE) - System.currentTimeMillis()) / 1000.0) + " segundos para colocar otra placa."));
@@ -182,37 +182,16 @@ public class ItemListener implements Listener {
                     stack.setAmount(1);
                     setCooldown(player, COOLDOWN_PLATE, COOLDOWN_SECONDS);
                     startCooldownVisual(player, stack, itemSlot, COOLDOWN_SECONDS);
-                    startPlateTimer(event.getBlock().getLocation());
+                    startPlateTimer(block.getLocation());
                 } else {
-                    if (stack.getAmount() <= 63) {
-                        stack.setAmount(64);
-                    }
+                    stack.setAmount(64); // Siempre mantener en 64 los bloques
+                    player.sendMessage("Haz colocado un bloque: " + blockType);
                 }
                 player.getInventory().setItem(itemSlot, stack);
                 player.updateInventory();
             }
-
-            if (isinfiniteBlock(item.getType())) {
-                Block block = event.getBlock();
-                Bukkit.getScheduler().runTaskLater(plugin, () -> block.setType(Material.AIR), 100L);
-            }
+            Bukkit.getScheduler().runTaskLater(plugin, () -> block.setType(Material.AIR), 100L);
         }
-    }
-
-    private boolean isinfiniteBlock(Material material) {
-        return Arrays.asList(
-            Material.SANDSTONE, 
-            Material.SNOW_BLOCK, 
-            Material.STONE, 
-            Material.BEDROCK,
-            Material.IRON_BLOCK,
-            Material.GOLD_BLOCK,
-            Material.DIAMOND_BLOCK,
-            Material.EMERALD_BLOCK,
-            Material.OBSIDIAN,
-            Material.ENDER_STONE,
-            Material.PRISMARINE,
-            Material.SPONGE).contains(material);
     }
 
     private void startPlateTimer(Location location) {

@@ -1,6 +1,10 @@
 package kk.kvlzx.items;
 
 import java.util.Arrays;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -70,6 +74,18 @@ public class CustomItem {
         meta.setDisplayName(MessageUtils.getColor(displayName));
         meta.setLore(Arrays.asList(MessageUtils.getColor(lore)));
         
+        skull.setItemMeta(meta);
+        return skull;
+    }
+
+    public static ItemStack createSkullFromUUID(UUID uuid, String displayName, String... lore) {
+        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
+        SkullMeta meta = (SkullMeta) skull.getItemMeta();
+        meta.setOwner(Bukkit.getOfflinePlayer(uuid).getName());
+        meta.setDisplayName(MessageUtils.getColor(displayName));
+        meta.setLore(Arrays.asList(lore).stream()
+                    .map(MessageUtils::getColor)
+                    .collect(Collectors.toList()));
         skull.setItemMeta(meta);
         return skull;
     }

@@ -2,7 +2,6 @@ package kk.kvlzx.listeners;
 
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -10,6 +9,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.Location;
@@ -85,46 +86,25 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onDropItem(PlayerDropItemEvent event) {
-        Player player = event.getPlayer();
-        String currentArena = plugin.getArenaManager().getPlayerArena(player);
-        if (currentArena == null) return;
-
         event.setCancelled(true);
     }
 
     @EventHandler
     public void onItemPickup(PlayerPickupItemEvent event) {
-        // Cancelar el poder agarrar items si el jugador está dentro de una arena
-        Player player = event.getPlayer();
-        String currentArena = plugin.getArenaManager().getPlayerArena(player);
-        if (currentArena == null) return;
-
         event.setCancelled(true);
-    }
-
-    @EventHandler
-    public void onPlayerBlockPlace(BlockPlaceEvent event) {
-        Player player = event.getPlayer();
-        String currentZone = plugin.getArenaManager().getPlayerZone(player);
-
-        // Cancelar si está en spawn o si no está en ninguna arena
-        if (currentZone == null || currentZone.equals("spawn")) {
-            event.setCancelled(true);
-            return;
-        }
-
-        // Permitir colocar bloques en otras zonas
-        event.setCancelled(false);
     }
 
     @EventHandler
     public void onPlayerBlockBreak(BlockBreakEvent event) {
-        // Cancelar el poder romper bloques si el jugador está dentro de una arena
-        Player player = event.getPlayer();
-        String currentArena = plugin.getArenaManager().getPlayerArena(player);
-        if (currentArena == null) return;
-
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (event.getClickedInventory() != null && event.getClickedInventory().getType() == InventoryType.PLAYER) {
+            event.setCancelled(true); // Evitar que el jugador mueva items en su inventario
+        }
     }
 
     @EventHandler
@@ -141,8 +121,6 @@ public class PlayerListener implements Listener {
                 if (!playerStats.canDie()) {
                     return; // Si el jugador está en cooldown de muerte, ignorar
                 }
-
-                event.setCancelled(true); // Cancelar el movimiento hacia el void
                 CombatListener combatListener = plugin.getCombatListener();
                 Player killer = combatListener.getLastAttacker(player);
                 

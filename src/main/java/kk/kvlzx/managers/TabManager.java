@@ -44,15 +44,15 @@ public class TabManager {
     private void updateHeaderFooter() {
         String header = MessageUtils.getColor(
             "\n" +
-            "               " + headerAnimations[animationFrame] + "\n" +
-            "                &7¡Demuestra tu habilidad en KnockBack!\n"
+            "" + headerAnimations[animationFrame] + "\n" +
+            "       &7¡Demuestra tu habilidad en KnockBack!\n"
         );
 
         String footer = MessageUtils.getColor(
             "\n" +
-            "                    &eTienda: &ftienda.servidor.com\n" +
-            "                   &bDiscord: &fdiscord.gg/servidor\n" +
-            "              &aJugadores Online: &f" + Bukkit.getOnlinePlayers().size() + "\n"
+            "&eTienda: &ftienda.servidor.com\n" +
+            "&bDiscord: &fdiscord.gg/servidor\n" +
+            "&aJugadores Online: &f" + Bukkit.getOnlinePlayers().size() + "\n"
         );
 
         IChatBaseComponent headerComponent = ChatSerializer.a("{\"text\": \"" + header + "\"}");

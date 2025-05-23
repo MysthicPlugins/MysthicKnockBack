@@ -3,7 +3,6 @@ package kk.kvlzx.menus;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -11,11 +10,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import kk.kvlzx.managers.MenuManager;
 import kk.kvlzx.utils.MessageUtils;
 
 public class MainMenu {
     public static void openMenu(Player player) {
-        Inventory menu = Bukkit.createInventory(null, 27, MessageUtils.getColor("&8• &a&lMenú Principal &8•"));
+        Inventory menu = MenuManager.createInventory(MenuType.MAIN_MENU);
 
         // Top Kills (Espada de Diamante)
         menu.setItem(10, createMenuItem(Material.DIAMOND_SWORD, "&b⚔ Top Kills", "&7Click para ver el ranking"));
@@ -28,6 +28,9 @@ public class MainMenu {
 
         // Top ELO (Estrella del Nether)
         menu.setItem(16, createMenuItem(Material.NETHER_STAR, "&e✦ Top ELO", "&7Click para ver el ranking"));
+
+        // Top Horas Jugadas (Reloj)
+        menu.setItem(15, createMenuItem(Material.WATCH, "&a⌚ Top Horas Jugadas", "&7Click para ver el ranking"));
 
         // Tus Stats (Cabeza del jugador)
         ItemStack playerHead = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
