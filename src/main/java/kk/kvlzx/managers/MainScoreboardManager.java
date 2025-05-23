@@ -51,7 +51,7 @@ public class MainScoreboardManager {
     private void updatePlayerScoreboard(Player player) {
         Scoreboard board = scoreboardManager.getNewScoreboard();
         Objective obj = board.registerNewObjective("main", "dummy");
-        obj.setDisplayName(MessageUtils.getColor("&e&l🏆 &6&lKnockbackFFA"));
+        obj.setDisplayName(MessageUtils.getColor("&e☆ &6&lKnockbackFFA"));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
@@ -67,17 +67,17 @@ public class MainScoreboardManager {
         // Las líneas se agregan en orden inverso debido a cómo funciona el sistema de scores
         setScore(obj, "&6&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", 13);
         setScore(obj, "", 12);
-        setScore(obj, "&e&l⭐ &fJugador: &b" + player.getName(), 11);
+        setScore(obj, "&e☆ &fJugador: &b" + player.getName(), 11);
         setScore(obj, "", 10);
-        setScore(obj, "&e&l⚔ &fArena: &a" + currentArena, 9);
-        setScore(obj, "&e&l👑 &fRango: " + RankManager.getRankPrefix(stats.getElo()), 8);
+        setScore(obj, "&e⚡ &fArena: &a" + currentArena, 9);
+        setScore(obj, "&e❋ &fRango: " + RankManager.getRankPrefix(stats.getElo()), 8);
         setScore(obj, "", 7);
-        setScore(obj, "&e&l☠ &fKills: &a" + stats.getKills(), 6);
-        setScore(obj, "&e&l💀 &fMuertes: &c" + stats.getDeaths(), 5);
-        setScore(obj, "&e&l🏆 &fElo: &6" + stats.getElo(), 4);
-        setScore(obj, "&e&l📊 &fKDR: &b" + String.format("%.2f", stats.getKDR()), 3);
-        setScore(obj, "&e&l⚡ &fRacha: &d" + streak.getKills() + (streak.getMaxKillstreak() > 0 ? " &7(" + streak.getMaxKillstreak() + ")" : ""), 2);
-        setScore(obj, "&e&l⏳ &fTiempo: " + formattedTime, 1);
+        setScore(obj, "&e⚔ &fKills: &a" + stats.getKills(), 6);
+        setScore(obj, "&e☠ &fMuertes: &c" + stats.getDeaths(), 5);
+        setScore(obj, "&e✦ &fElo: &6" + stats.getElo(), 4);
+        setScore(obj, "&e❈ &fKDR: &b" + String.format("%.2f", stats.getKDR()), 3);
+        setScore(obj, "&e➜ &fRacha: &d" + streak.getKills() + (streak.getMaxKillstreak() > 0 ? " &7(" + streak.getMaxKillstreak() + ")" : ""), 2);
+        setScore(obj, "&e⌚ &fTiempo: " + formattedTime, 1);
         setScore(obj, "&6&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", 0);
 
         player.setScoreboard(board);

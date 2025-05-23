@@ -3,7 +3,7 @@ version: 1.0.0-SNAPSHOT
 name: KvKnockback
 authors: [Kvlzx, Gabo]
 api-version: 1.13
-depend: [WorldEdit, TAB]
+depend: [WorldEdit]
 
 commands:
   kvknockback:

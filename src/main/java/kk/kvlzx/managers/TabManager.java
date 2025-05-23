@@ -43,14 +43,16 @@ public class TabManager {
 
     private void updateHeaderFooter() {
         String header = MessageUtils.getColor(
-            "\n" + headerAnimations[animationFrame] + "\n" +
-            "&7¡Demuestra tu habilidad en KnockBack!\n"
+            "\n" +
+            "               " + headerAnimations[animationFrame] + "\n" +
+            "                &7¡Demuestra tu habilidad en KnockBack!\n"
         );
 
         String footer = MessageUtils.getColor(
-            "\n&eTienda: &ftienda.servidor.com" +
-            "\n&bDiscord: &fdiscord.gg/servidor" +
-            "\n&aJugadores Online: &f" + Bukkit.getOnlinePlayers().size() + "\n"
+            "\n" +
+            "                    &eTienda: &ftienda.servidor.com\n" +
+            "                   &bDiscord: &fdiscord.gg/servidor\n" +
+            "              &aJugadores Online: &f" + Bukkit.getOnlinePlayers().size() + "\n"
         );
 
         IChatBaseComponent headerComponent = ChatSerializer.a("{\"text\": \"" + header + "\"}");
@@ -80,7 +82,7 @@ public class TabManager {
             int ping = craftPlayer.getHandle().ping;
             
             String displayName = MessageUtils.getColor(
-                rankPrefix + " " + player.getName() + " &8[&f" + ping + "ms&8]"
+                rankPrefix + "&f " + player.getName() + " &8[&f" + ping + "ms&8]"
             );
 
             // Actualizar el nombre en la lista de jugadores

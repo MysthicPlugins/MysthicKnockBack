@@ -11,8 +11,8 @@ import kk.kvlzx.KvKnockback;
 public class KnockbackUtils {
     
     // Constantes de knockback
-    private static final double BASE_HORIZONTAL_KB = 0.35;
-    private static final double BASE_VERTICAL_KB = 0.35;
+    private static final double BASE_HORIZONTAL_KB = 0.25;
+    private static final double BASE_VERTICAL_KB = 0.25;
     private static final double VERTICAL_LIMIT = 0.4;
     private static final double SPRINT_BONUS = 0.1;
     private static final double DISTANCE_BONUS_MULTIPLIER = 0.03;

@@ -39,12 +39,6 @@ public class CombatListener implements Listener {
     }
 
     @EventHandler
-    public void onDamage(EntityDamageEvent event) {
-        if (!(event.getEntity() instanceof Player)) return;
-        event.setDamage(0.0D);
-    }
-
-    @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
         if (!(event.getDamager() instanceof Player)) return;

@@ -47,6 +47,10 @@ public class CustomItem {
             if (type.knockback) {
                 meta.addEnchant(Enchantment.KNOCKBACK, 2, true);
             }
+            
+            if (type == ItemType.BOW) {
+                meta.addEnchant(Enchantment.ARROW_KNOCKBACK, 2, true);
+            }
 
             item.setItemMeta(meta);
         }

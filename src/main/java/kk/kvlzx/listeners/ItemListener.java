@@ -72,20 +72,10 @@ public class ItemListener implements Listener {
         return -1;
     }
 
-    private boolean isInPvPZone(Player player) {
-        String zone = plugin.getArenaManager().getPlayerZone(player);
-        return zone != null && zone.equals(ZoneType.PVP.getId());
-    }
-
     @EventHandler
     public void onEntityShootBow(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
         Player player = (Player) event.getEntity();
-
-        if (!isInPvPZone(player)) {
-            event.setCancelled(true);
-            return;
-        }
 
         if (isOnCooldown(player, COOLDOWN_BOW)) {
             event.setCancelled(true);
@@ -119,10 +109,6 @@ public class ItemListener implements Listener {
     @EventHandler
     public void onFeatherUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if (!isInPvPZone(player)) {
-            event.setCancelled(true);
-            return;
-        }
 
         ItemStack feather = findItemByType(player, Material.FEATHER);
         int featherSlot = findSlotByType(player, Material.FEATHER);
@@ -178,10 +164,6 @@ public class ItemListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
-        if (!isInPvPZone(player)) {
-            event.setCancelled(true);
-            return;
-        }
 
         ItemStack item = event.getItemInHand();
 
@@ -212,7 +194,7 @@ public class ItemListener implements Listener {
 
             if (isinfiniteBlock(item.getType())) {
                 Block block = event.getBlock();
-                Bukkit.getScheduler().runTaskLater(plugin, () -> block.setType(Material.AIR), 20L * 10);
+                Bukkit.getScheduler().runTaskLater(plugin, () -> block.setType(Material.AIR), 100L);
             }
         }
     }

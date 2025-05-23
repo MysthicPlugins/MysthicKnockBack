@@ -10,12 +10,12 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
+
 import kk.kvlzx.items.CustomItem.ItemType;
 import kk.kvlzx.managers.RankManager;
 
@@ -104,11 +104,16 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerBlockPlace(BlockPlaceEvent event) {
-        // Poder poner bloques si el jugador está dentro de una arena
         Player player = event.getPlayer();
-        String currentArena = plugin.getArenaManager().getPlayerArena(player);
-        if (currentArena == null) return;
+        String currentZone = plugin.getArenaManager().getPlayerZone(player);
 
+        // Cancelar si está en spawn o si no está en ninguna arena
+        if (currentZone == null || currentZone.equals("spawn")) {
+            event.setCancelled(true);
+            return;
+        }
+
+        // Permitir colocar bloques en otras zonas
         event.setCancelled(false);
     }
 
@@ -120,32 +125,6 @@ public class PlayerListener implements Listener {
         if (currentArena == null) return;
 
         event.setCancelled(true);
-    }
-
-    @EventHandler
-    public void onPlayerInventoryClick(InventoryClickEvent event) {
-        // Evitar que el jugador clickee su propio inventario (para que no pueda mover items)
-        if (!(event.getWhoClicked() instanceof Player)) return;
-        Player player = (Player) event.getWhoClicked();
-        String currentArena = plugin.getArenaManager().getPlayerArena(player);
-        if (currentArena == null) return;
-
-        if (event.getClickedInventory() == player.getInventory()) {
-            event.setCancelled(true);
-        }
-    }
-
-        @EventHandler
-    public void onPlayerInventoryClick(InventoryDragEvent event) {
-        // Evitar que el jugador mueva items en su propio inventario
-        if (!(event.getWhoClicked() instanceof Player)) return;
-        Player player = (Player) event.getWhoClicked();
-        String currentArena = plugin.getArenaManager().getPlayerArena(player);
-        if (currentArena == null) return;
-
-        if (event.getInventory() == player.getInventory()) {
-            event.setCancelled(true);
-        }
     }
 
     @EventHandler
@@ -244,7 +223,7 @@ public class PlayerListener implements Listener {
     private void respawnPlayerAtSpawn(Player player, Arena arena) {
         PlayerStats playerStats = PlayerStats.getStats(player.getUniqueId());
         playerStats.addDeath();
-        plugin.getStreakManager().resetStreak(player); // Resetear racha al morir
+        plugin.getStreakManager().resetStreak(player);
         
         Location spawnLoc = arena.getSpawnLocation();
         if (spawnLoc != null) {
@@ -253,9 +232,13 @@ public class PlayerListener implements Listener {
                 public void run() {
                     player.spigot().respawn();
                     player.teleport(spawnLoc);
+                    player.setVelocity(new Vector(0, 0, 0)); // Cancelar cualquier velocidad
+                    player.setFallDistance(0); // Resetear distancia de caída
                     ItemsManager.giveSpawnItems(player);
-                    // Actualizar el rango después del respawn
                     RankManager.updatePlayerRank(player, playerStats.getElo());
+                    
+                    // Dar invulnerabilidad temporal
+                    player.setNoDamageTicks(40); // 2 segundos de invulnerabilidad
                 }
             }.runTaskLater(plugin, 1L);
         }
