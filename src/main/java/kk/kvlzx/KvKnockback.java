@@ -13,7 +13,7 @@ import kk.kvlzx.listeners.CombatListener;
 import kk.kvlzx.listeners.ItemListener;
 import kk.kvlzx.listeners.PlayerListener;
 import kk.kvlzx.listeners.MenuListener;
-import kk.kvlzx.managers.TabScoreboardManager;
+import kk.kvlzx.managers.MainScoreboardManager;
 import kk.kvlzx.managers.StreakManager;
 import kk.kvlzx.managers.TabManager;
 import kk.kvlzx.utils.MessageUtils;
@@ -29,7 +29,7 @@ public class KvKnockback extends JavaPlugin {
     private ArenaManager arenaManager;
     private WorldEditPlugin worldEdit;
     private CombatListener combatListener;
-    private TabScoreboardManager scoreboardManager;
+    private MainScoreboardManager scoreboardManager;
     private StreakManager streakManager;
     private TabManager tabManager;
 
@@ -77,7 +77,7 @@ public class KvKnockback extends JavaPlugin {
     
     public void registerManagers() {
         arenaManager = new ArenaManager(this);
-        scoreboardManager = new TabScoreboardManager(this);
+        scoreboardManager = new MainScoreboardManager(this);
         streakManager = new StreakManager();
         tabManager = new TabManager(this);
     }
@@ -114,7 +114,7 @@ public class KvKnockback extends JavaPlugin {
         return combatListener;
     }
 
-    public TabScoreboardManager getScoreboardManager() {
+    public MainScoreboardManager getScoreboardManager() {
         return scoreboardManager;
     }
 

@@ -1,21 +1,23 @@
 package kk.kvlzx.managers;
 
-import me.neznamy.tab.api.TabAPI;
-import me.neznamy.tab.api.TabPlayer;
-import me.neznamy.tab.api.event.player.PlayerLoadEvent;
-import me.neznamy.tab.api.placeholder.PlaceholderManager;
-import me.neznamy.tab.api.tablist.HeaderFooterManager;
-
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
+import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerListHeaderFooter;
+import net.minecraft.server.v1_8_R3.IChatBaseComponent;
+import net.minecraft.server.v1_8_R3.IChatBaseComponent.ChatSerializer;
 
 import kk.kvlzx.KvKnockback;
 import kk.kvlzx.stats.PlayerStats;
 import kk.kvlzx.utils.MessageUtils;
 
+import java.lang.reflect.Field;
+
 public class TabManager {
     private final KvKnockback plugin;
-    private final TabAPI tabAPI;
     private int animationFrame = 0;
     private final String[] headerAnimations = {
         "&b&l≽^•⩊•^≼ &6&lKnockbackFFA &b&l≽^•⩊•^≼",
@@ -25,9 +27,7 @@ public class TabManager {
 
     public TabManager(KvKnockback plugin) {
         this.plugin = plugin;
-        this.tabAPI = TabAPI.getInstance();
         startAnimation();
-        registerPlaceholders();
     }
 
     private void startAnimation() {
@@ -35,6 +35,7 @@ public class TabManager {
             @Override
             public void run() {
                 updateHeaderFooter();
+                updatePlayerList();
                 animationFrame = (animationFrame + 1) % headerAnimations.length;
             }
         }.runTaskTimer(plugin, 0L, 20L);
@@ -49,43 +50,51 @@ public class TabManager {
         String footer = MessageUtils.getColor(
             "\n&eTienda: &ftienda.servidor.com" +
             "\n&bDiscord: &fdiscord.gg/servidor" +
-            "\n&aJugadores Online: &f%online%\n"
+            "\n&aJugadores Online: &f" + Bukkit.getOnlinePlayers().size() + "\n"
         );
 
-        for (TabPlayer player : tabAPI.getOnlinePlayers()) {
-            tabAPI.getHeaderFooterManager().setHeader(player, header);
-            tabAPI.getHeaderFooterManager().setFooter(player, footer);
-            
-            // Setear el formato del tab para cada jugador
-            String rankPrefix = RankManager.getRankPrefix(PlayerStats.getStats(player.getUniqueId()).getElo());
-            tabAPI.getTabListFormatManager().setPrefix(player, rankPrefix + " ");
-            tabAPI.getTabListFormatManager().setSuffix(player, " &8[&f%ping%ms&8]");
-        }
-    }
+        IChatBaseComponent headerComponent = ChatSerializer.a("{\"text\": \"" + header + "\"}");
+        IChatBaseComponent footerComponent = ChatSerializer.a("{\"text\": \"" + footer + "\"}");
 
-    private void registerPlaceholders() {
-        PlaceholderManager pm = tabAPI.getPlaceholderManager();
-        
-        pm.registerPlayerPlaceholder("%rank%", 1000, player -> {
-            Player p = plugin.getServer().getPlayer(player.getName());
-            if (p != null) {
-                return RankManager.getRankPrefix(PlayerStats.getStats(p.getUniqueId()).getElo()) + " ";
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            CraftPlayer craftPlayer = (CraftPlayer) player;
+            PacketPlayOutPlayerListHeaderFooter packet = new PacketPlayOutPlayerListHeaderFooter();
+            try {
+                Field a = packet.getClass().getDeclaredField("a");
+                a.setAccessible(true);
+                a.set(packet, headerComponent);
+                Field b = packet.getClass().getDeclaredField("b");
+                b.setAccessible(true);
+                b.set(packet, footerComponent);
+                craftPlayer.getHandle().playerConnection.sendPacket(packet);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            return "";
-        });
-
-        pm.registerServerPlaceholder("%online%", 1000, () -> 
-            String.valueOf(plugin.getServer().getOnlinePlayers().size())
-        );
-
-        // Configurar el formato del tab
-        for (TabPlayer player : tabAPI.getOnlinePlayers()) {
-            tabAPI.getNameTagManager().setPrefix(player, "%rank%");
         }
     }
 
-    public void onPlayerJoin(PlayerLoadEvent e) {
-        updateHeaderFooter();
-    }
+    private void updatePlayerList() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            CraftPlayer craftPlayer = (CraftPlayer) player;
+            String rankPrefix = RankManager.getRankPrefix(PlayerStats.getStats(player.getUniqueId()).getElo());
+            int ping = craftPlayer.getHandle().ping;
+            
+            String displayName = MessageUtils.getColor(
+                rankPrefix + " " + player.getName() + " &8[&f" + ping + "ms&8]"
+            );
 
+            // Actualizar el nombre en la lista de jugadores
+            craftPlayer.setPlayerListName(displayName);
+            
+            // Actualizar el tab para todos los jugadores
+            PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(
+                EnumPlayerInfoAction.UPDATE_DISPLAY_NAME, 
+                craftPlayer.getHandle()
+            );
+
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                ((CraftPlayer) online).getHandle().playerConnection.sendPacket(packet);
+            }
+        }
+    }
 }

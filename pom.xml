@@ -22,10 +22,6 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -43,10 +39,11 @@
             <systemPath>${project.basedir}/depends/worldedit-bukkit-6.1.9.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>com.github.NEZNAMY</groupId>
-            <artifactId>TAB-API</artifactId>
-            <version>5.2.0</version>
-            <scope>provided</scope>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.8.8-R0.1-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/depends/spigot-1.8.8.jar</systemPath>
         </dependency>
     </dependencies>
 
@@ -58,7 +55,6 @@
                 <includes>
                     <include>plugin.yml</include>
                     <include>data/arenas.yml</include>
-                    <include>data/inventories.yml</include>
                 </includes>
             </resource>
         </resources>

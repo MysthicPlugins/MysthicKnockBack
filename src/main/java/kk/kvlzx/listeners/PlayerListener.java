@@ -49,7 +49,12 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         ItemsManager.giveSpawnItems(player);
-        TitleUtils.sendTitle(player, "&a¡Bienvenido a &6KnockbackFFA&a!", "&fDomina la arena y deja tu marca.");
+        TitleUtils.sendTitle(
+            player, 
+            "&a¡Bienvenido a &6KnockbackFFA&a!", 
+            "&fDomina la arena y deja tu marca.",
+            20, 60, 20
+        );
         
         // Actualizar rango
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
