@@ -49,6 +49,9 @@ public class MainMenu {
         playerHead.setItemMeta(meta);
         menu.setItem(31, playerHead);
 
+        // Editor de Inventario
+        menu.setItem(40, createMenuItem(Material.REDSTONE, "&c⚙ Editor de Inventario", "&7Click para editar el inventario"));
+
         player.openInventory(menu);
     }
 

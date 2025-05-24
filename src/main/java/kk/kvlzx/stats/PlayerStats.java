@@ -53,9 +53,15 @@ public class PlayerStats {
 
     public static void saveAllStats() {
         if (statsData == null) return;
-        for (UUID uuid : stats.keySet()) {
-            statsData.saveStats(uuid, stats.get(uuid));
-        }
+        
+        // Solo guardar stats de jugadores que han estado online
+        stats.forEach((uuid, playerStats) -> {
+            try {
+                statsData.saveStats(uuid, playerStats);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void saveStats() {
@@ -107,7 +113,15 @@ public class PlayerStats {
     }
 
     public int getMaxKillstreak() {
-        return KvKnockback.getInstance().getStreakManager().getStreak(Bukkit.getPlayer(uuid)).getMaxKillstreak();
+        try {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null && player.isOnline()) {
+                return KvKnockback.getInstance().getStreakManager().getStreak(player).getMaxKillstreak();
+            }
+        } catch (Exception e) {
+            // Si hay error, retornar 0
+        }
+        return 0;
     }
 
     public void setElo(int elo) {
@@ -128,14 +142,16 @@ public class PlayerStats {
 
     public void updatePlayTime() {
         long now = System.currentTimeMillis();
-        playTime += now - lastJoin;
+        long timePassed = now - lastJoin;
+        playTime += timePassed;
         lastJoin = now;
     }
 
     public String getFormattedPlayTime() {
-        long hours = playTime / (1000 * 60 * 60);
-        long minutes = (playTime % (1000 * 60 * 60)) / (1000 * 60);
-        return String.format("%dh %dm", hours, minutes);
+        long totalMinutes = playTime / (1000 * 60);
+        long hours = totalMinutes / 60;
+        long minutes = totalMinutes % 60;
+        return String.format("%dh %02dm", hours, minutes);
     }
 
     public double getPlayTimeHours() {

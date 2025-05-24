@@ -46,6 +46,12 @@ public class CombatListener implements Listener {
         Player victim = (Player) event.getEntity();
         Player attacker = (Player) event.getDamager();
 
+        // Verificar si la arena está cambiando
+        if (plugin.getScoreboardManager().isArenaChanging()) {
+            event.setCancelled(true);
+            return;
+        }
+
         // Verificar si el jugador está en spawn
         String victimZone = plugin.getArenaManager().getPlayerZone(victim);
         String attackerZone = plugin.getArenaManager().getPlayerZone(attacker);

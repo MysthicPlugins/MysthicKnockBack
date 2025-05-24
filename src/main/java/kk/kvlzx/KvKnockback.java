@@ -1,6 +1,7 @@
 package kk.kvlzx;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import kk.kvlzx.arena.ArenaManager;
@@ -50,11 +51,12 @@ public class KvKnockback extends JavaPlugin {
         }
 
         registerManagers();
-        arenaManager.loadArenas(); // Cargar arenas después de registrar managers
-        registerCommands();
-        registerEvents();
         PlayerStats.initializeStatsData(this);
         PlayerStats.loadAllStats();
+        arenaManager.loadArenas();
+        registerCommands();
+        registerEvents();
+        startPlaytimeUpdater();
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&b=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
@@ -69,10 +71,14 @@ public class KvKnockback extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        arenaManager.saveArenas(); // Guardar arenas antes de desactivar
-        // Eliminar la scoreboard
-        streakManager.onDisable();
-        PlayerStats.saveAllStats();
+        try {
+            arenaManager.saveArenas();
+            PlayerStats.saveAllStats();
+            streakManager.onDisable();
+        } catch (Exception e) {
+            getLogger().severe("Error al guardar datos: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&c=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
@@ -88,6 +94,15 @@ public class KvKnockback extends JavaPlugin {
         scoreboardManager = new MainScoreboardManager(this);
         streakManager = new StreakManager();
         tabManager = new TabManager(this);
+    }
+
+    private void startPlaytimeUpdater() {
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+                stats.updatePlayTime();
+            }
+        }, 1200L, 1200L); // 1200 ticks = 1 minuto
     }
 
     public void registerCommands() {

@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -86,22 +87,31 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onDropItem(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+        if (player.getGameMode() == GameMode.CREATIVE) return; // Permitir en modo creativo
         event.setCancelled(true);
     }
 
     @EventHandler
     public void onItemPickup(PlayerPickupItemEvent event) {
+        Player player = event.getPlayer();
+        if (player.getGameMode() == GameMode.CREATIVE) return; // Permitir en modo creativo
         event.setCancelled(true);
     }
 
     @EventHandler
     public void onPlayerBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        if (player.getGameMode() == GameMode.CREATIVE) return; // Permitir en modo creativo
         event.setCancelled(true);
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
+
+        Player player = (Player) event.getWhoClicked();
+        if (player.getGameMode() == GameMode.CREATIVE) return; // Permitir en modo creativo
         
         // Cancelar cualquier click en el inventario del jugador
         if (event.getClickedInventory() != null && 

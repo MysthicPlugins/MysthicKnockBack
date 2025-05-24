@@ -189,8 +189,6 @@ public class ItemListener implements Listener {
             if (stack != null) {
                 if (blockType == Material.GOLD_PLATE) {
                     if (isOnCooldown(player, COOLDOWN_PLATE)) {
-                        player.sendMessage(MessageUtils.getColor(
-                            "&cDebes esperar " + ((cooldowns.get(player.getUniqueId()).get(COOLDOWN_PLATE) - System.currentTimeMillis()) / 1000.0) + " segundos para colocar otra placa."));
                         event.setCancelled(true);
                         return;
                     }
@@ -274,7 +272,7 @@ public class ItemListener implements Listener {
                 if (zone == null || !zone.equals(ZoneType.PVP.getId())) {
                     // Restaurar item inmediatamente y cancelar cooldown
                     ItemStack restoredItem = original.clone();
-                    restoredItem.setAmount(1);
+                    restoredItem.setAmount(0);
                     player.getInventory().setItem(slot, restoredItem);
                     player.updateInventory();
                     // Limpiar cooldowns

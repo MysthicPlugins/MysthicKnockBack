@@ -12,6 +12,7 @@ import java.util.List;
 
 import kk.kvlzx.managers.MenuManager;
 import kk.kvlzx.managers.TopManager;
+import kk.kvlzx.utils.MessageUtils;
 
 public class TopMenu {
     private static final int[] TOP_SLOTS = {10, 11, 12, 13, 14, 15, 16, // Primera fila (7 slots)
@@ -35,6 +36,13 @@ public class TopMenu {
             menu.setItem(TOP_SLOTS[i], 
                 TopManager.createTopSkull(i + 1, entry.getKey(), entry.getValue(), type));
         }
+
+        // Agregar botón de retorno
+        ItemStack backButton = new ItemStack(Material.ARROW);
+        ItemMeta backMeta = backButton.getItemMeta();
+        backMeta.setDisplayName(MessageUtils.getColor("&c← Volver al menú principal"));
+        backButton.setItemMeta(backMeta);
+        menu.setItem(18, backButton);
 
         player.openInventory(menu);
     }

@@ -9,14 +9,18 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
+import org.bukkit.inventory.Inventory;
 
 import kk.kvlzx.KvKnockback;
+import kk.kvlzx.items.ItemsManager;
 import kk.kvlzx.managers.MenuManager;
 import kk.kvlzx.menus.MainMenu;
 import kk.kvlzx.menus.MenuType;
 import kk.kvlzx.menus.TopMenu;
 import kk.kvlzx.menus.TopType;
 import kk.kvlzx.menus.StatsMenu;
+import kk.kvlzx.menus.InventoryEditorMenu;
+import kk.kvlzx.utils.MessageUtils;
 
 public class MenuListener implements Listener {
     private final KvKnockback plugin;
@@ -56,57 +60,44 @@ public class MenuListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
         Player player = (Player) event.getWhoClicked();
 
-        if (MenuManager.isPluginInventory(event.getInventory())) {
-            // Prevenir mover items entre inventarios
-            if (event.getClickedInventory() != event.getView().getTopInventory()) {
-                event.setCancelled(true);
-                return;
-            }
+        if (!MenuManager.isPluginInventory(event.getInventory())) return;
 
-            // Prevenir usar hotkeys de números (1-9)
-            if (event.getHotbarButton() != -1) {
-                event.setCancelled(true);
-                return;
-            }
-
-            // Permitir solo click izquierdo
-            if (event.isRightClick()) {
-                event.setCancelled(true);
-                return;
-            }
-
-            // Prevenir shift+click
-            if (event.isShiftClick()) {
-                event.setCancelled(true);
-                return;
-            }
-
+        // Prevenir clicks en el inventario del jugador
+        if (event.getClickedInventory() != event.getView().getTopInventory()) {
             event.setCancelled(true);
-            // Acá podemos manejar los clicks específicos según el tipo de menú
-            handleMenuClick(event);
+            return;
         }
-    }
 
-    private void handleMenuClick(InventoryClickEvent event) {
+        // Cancelar todo tipo de clicks
+        event.setCancelled(true);
+
+        // Si no hay item clickeado, retornar
+        ItemStack clicked = event.getCurrentItem();
+        if (clicked == null || clicked.getType() == Material.AIR) return;
+
         MenuType menuType = MenuManager.getMenuType(event.getInventory());
         if (menuType == null) return;
 
-        ItemStack clicked = event.getCurrentItem();
-        if (clicked == null) return;
-        Player player = (Player) event.getWhoClicked();
-
-        switch (menuType) {
-            case MAIN_MENU:
-                handleMainMenuClick(clicked, player);
-                break;
-            case TOP_MENU:
-                // Los tops son solo visuales, no necesitan manejo de clicks
-                break;
+        // Manejar el botón de retorno para todos los menús
+        if (clicked.getType() == Material.ARROW && 
+            clicked.hasItemMeta() && 
+            clicked.getItemMeta().hasDisplayName() &&
+            clicked.getItemMeta().getDisplayName().contains("Volver")) {
+            MainMenu.openMenu(player);
+            return;
         }
+
+        // Solo procesar clicks en el menú principal
+        if (menuType == MenuType.MAIN_MENU) {
+            handleMenuInteraction(clicked.getType(), player);
+        } else if (menuType == MenuType.INVENTORY_EDITOR) {
+            handleInventoryEditorClick(event);
+            return;
+        }
+        // Los otros menús son solo visuales, no necesitan manejo de clicks
     }
 
-    private void handleMainMenuClick(ItemStack clicked, Player player) {
-        Material type = clicked.getType();
+    private void handleMenuInteraction(Material type, Player player) {
         switch (type) {
             case SKULL_ITEM:
                 StatsMenu.openMenu(player);
@@ -126,8 +117,43 @@ public class MenuListener implements Listener {
             case WATCH:
                 TopMenu.openMenu(player, TopType.PLAYTIME);
                 break;
+            case REDSTONE:
+                InventoryEditorMenu.openMenu(player);
+                break;
             default:
                 break;
         }
+    }
+
+    private void handleInventoryEditorClick(InventoryClickEvent event) {
+        Player player = (Player) event.getWhoClicked();
+        int slot = event.getRawSlot();
+
+        // Permitir mover items solo en la zona de edición (slots 36-44)
+        if (slot >= 36 && slot <= 44) {
+            event.setCancelled(false);
+            return;
+        }
+
+        // Botón de guardar
+        if (slot == 49) {
+            ItemStack[] newLayout = new ItemStack[9];
+            Inventory inv = event.getInventory();
+            for (int i = 0; i < 9; i++) {
+                newLayout[i] = inv.getItem(i + 36);
+            }
+            ItemsManager.savePvPLayout(newLayout);
+            player.sendMessage(MessageUtils.getColor("&aInventario guardado correctamente!"));
+            player.closeInventory();
+            return;
+        }
+
+        // Botón de volver
+        if (slot == 45) {
+            MainMenu.openMenu(player);
+            return;
+        }
+
+        event.setCancelled(true);
     }
 }

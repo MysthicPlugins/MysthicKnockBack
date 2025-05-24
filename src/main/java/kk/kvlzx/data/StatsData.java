@@ -23,9 +23,7 @@ public class StatsData {
         
         section.set("kills", stats.getKills());
         section.set("deaths", stats.getDeaths());
-        section.set("kdr", stats.getKDR());
         section.set("elo", stats.getElo());
-        section.set("maxKillstreak", stats.getMaxKillstreak());
         section.set("playTime", stats.getPlayTimeHours());
         
         statsConfig.saveConfig();
@@ -36,10 +34,14 @@ public class StatsData {
         if (!statsConfig.getConfig().contains(path)) return;
         
         ConfigurationSection section = statsConfig.getConfig().getConfigurationSection(path);
-        stats.setKills(section.getInt("kills"));
-        stats.setDeaths(section.getInt("deaths"));
-        stats.setElo(section.getInt("elo"));
-        // No necesitamos cargar KDR ya que se calcula automáticamente
-        // El playTime y maxKillstreak se manejan internamente
+        if (section != null) {
+            stats.setKills(section.getInt("kills", 0));
+            stats.setDeaths(section.getInt("deaths", 0));
+            stats.setElo(section.getInt("elo", 500));
+        }
+    }
+
+    public ConfigurationSection getConfig() {
+        return statsConfig.getConfig();
     }
 }

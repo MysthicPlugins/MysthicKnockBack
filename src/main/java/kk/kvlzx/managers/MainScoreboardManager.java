@@ -29,6 +29,7 @@ public class MainScoreboardManager {
     private final int ARENA_TIME = 120;
     private final int[] COUNTDOWN_ALERTS = {60, 30, 10, 5, 4, 3, 2, 1};
     private final ScoreboardManager scoreboardManager;
+    private boolean arenaChanging = false; // Nueva variable
 
     public MainScoreboardManager(KvKnockback plugin) {
         this.plugin = plugin;
@@ -107,6 +108,10 @@ public class MainScoreboardManager {
         }.runTaskTimer(plugin, 20L, 20L);
     }
 
+    public boolean isArenaChanging() {
+        return arenaChanging;
+    }
+
     private void rotateArena() {
         ArenaManager arenaManager = plugin.getArenaManager();
         String currentArena = arenaManager.getCurrentArena();
@@ -130,6 +135,9 @@ public class MainScoreboardManager {
             player.playSound(player.getLocation(), Sound.PORTAL_TRIGGER, 1.0f, 1.0f);
         }
 
+        // Activar el estado de cambio de arena
+        arenaChanging = true;
+
         // Secuencia de animación
         new BukkitRunnable() {
             int step = 0;
@@ -141,6 +149,7 @@ public class MainScoreboardManager {
                 if (step >= loadingFrames.length + 2) {
                     this.cancel();
                     teleportPlayers(currentArena, nextArena, nextSpawn);
+                    arenaChanging = false; // Desactivar el estado de cambio cuando termina
                     return;
                 }
 
