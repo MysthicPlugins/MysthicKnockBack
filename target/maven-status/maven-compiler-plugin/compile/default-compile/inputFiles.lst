@@ -23,7 +23,6 @@ E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\listeners\PlayerListener.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\MainScoreboardManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\MenuManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\RankManager.java
-E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\StreakManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\TabManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\TopManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menus\InventoryEditorMenu.java
@@ -33,7 +32,6 @@ E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menus\StatsMenu.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menus\TopMenu.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menus\TopType.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\stats\PlayerStats.java
-E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\stats\Streak.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\utils\config\CustomConfig.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\utils\KnockbackUtils.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\utils\LocationUtils.java

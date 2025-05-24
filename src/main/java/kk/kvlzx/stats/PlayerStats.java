@@ -5,18 +5,28 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import net.minecraft.server.v1_8_R3.PacketPlayOutScoreboardTeam;
+import net.minecraft.server.v1_8_R3.Scoreboard;
+import net.minecraft.server.v1_8_R3.ScoreboardTeam;
 import org.bukkit.entity.Player;
 
 import kk.kvlzx.KvKnockback;
 import kk.kvlzx.data.StatsData;
 import kk.kvlzx.managers.RankManager;
+import kk.kvlzx.utils.MessageUtils;
 
 public class PlayerStats {
     private static Map<UUID, PlayerStats> stats = new HashMap<>();
+    private static final Map<UUID, ScoreboardTeam> teams = new HashMap<>();
+    private static final Scoreboard scoreboard = new Scoreboard();
     private final UUID uuid;
     private int kills;
     private int deaths;
     private int elo;
+    private int currentStreak;
+    private int maxStreak;
     private long playTime; // Tiempo en milisegundos
     private long lastJoin;
     private long lastDeathTime = 0;
@@ -70,15 +80,88 @@ public class PlayerStats {
         }
     }
 
+    public String getMvpTag() {
+        if (currentStreak < 5) return null; // No mostrar tag si tiene menos de 5 kills
+        if (currentStreak >= 500) return "&5MVP+";
+        else if (currentStreak >= 300) return "&cMVP";
+        else if (currentStreak >= 250) return "&6MVP";
+        else if (currentStreak >= 200) return "&eMVP";
+        else if (currentStreak >= 150) return "&bMVP";
+        else if (currentStreak >= 100) return "&aMVP";
+        else if (currentStreak >= 80) return "&9MVP";
+        else if (currentStreak >= 60) return "&dMVP";
+        else if (currentStreak >= 40) return "&7MVP";
+        return "&8MVP"; // Tag básico para rachas entre 5 y 39
+    }
+
+    private void updateNametag(Player player) {
+        if (player == null) return;
+        
+        String teamName = player.getName().substring(0, Math.min(player.getName().length(), 12));
+        ScoreboardTeam team = teams.computeIfAbsent(uuid, k -> {
+            ScoreboardTeam newTeam = new ScoreboardTeam(scoreboard, teamName);
+            newTeam.setNameTagVisibility(ScoreboardTeam.EnumNameTagVisibility.ALWAYS);
+            return newTeam;
+        });
+
+        // Solo mostrar tag y racha si tiene 5 o más kills
+        if (currentStreak >= 5) {
+            String mvpTag = getMvpTag();
+            String belowName = MessageUtils.getColor(mvpTag + " " + currentStreak + " &7⚔");
+            team.setPrefix("");
+            team.setSuffix(belowName);
+        } else {
+            team.setPrefix("");
+            team.setSuffix("");
+        }
+
+        PacketPlayOutScoreboardTeam packet = new PacketPlayOutScoreboardTeam(team, 2);
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            ((CraftPlayer) online).getHandle().playerConnection.sendPacket(packet);
+        }
+    }
+
     public void addKill() {
         this.kills++;
+        this.currentStreak++;
+        if (currentStreak > maxStreak) {
+            maxStreak = currentStreak;
+        }
+        
         int eloGained = (int)(Math.random() * 10) + 6; // Random entre 6-15
         this.elo += eloGained;
-        
-        // Actualizar rango si el jugador está online
+
+        // Notificar racha si es múltiplo de 5
+        if (currentStreak > 0 && currentStreak % 5 == 0) {
+            Bukkit.broadcastMessage(MessageUtils.getColor("&e" + Bukkit.getPlayer(uuid).getName() + 
+                " &fha alcanzado una racha de &a" + currentStreak + " &akills!"));
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                player.getWorld().playSound(player.getLocation(), Sound.ENDERDRAGON_GROWL, 1.0f, 1.0f);
+            }
+        }
+
+        // Actualizar nametag
         Player player = Bukkit.getPlayer(uuid);
         if (player != null && player.isOnline()) {
             RankManager.updatePlayerRank(player, this.elo);
+            updateNametag(player);
+        }
+    }
+
+    public void resetStreak() {
+        if (currentStreak >= 5) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                Bukkit.broadcastMessage(MessageUtils.getColor("&c☠ &f" + player.getName() + 
+                    " &7perdió su racha de &c" + currentStreak + " &7kills! &c☠"));
+                player.playSound(player.getLocation(), Sound.ENDERMAN_DEATH, 1.0f, 1.0f);
+            }
+        }
+        currentStreak = 0;
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null) {
+            updateNametag(player);
         }
     }
 
@@ -112,16 +195,8 @@ public class PlayerStats {
         return deaths == 0 ? kills : (double) kills / deaths;
     }
 
-    public int getMaxKillstreak() {
-        try {
-            Player player = Bukkit.getPlayer(uuid);
-            if (player != null && player.isOnline()) {
-                return KvKnockback.getInstance().getStreakManager().getStreak(player).getMaxKillstreak();
-            }
-        } catch (Exception e) {
-            // Si hay error, retornar 0
-        }
-        return 0;
+    public int getMaxStreak() {
+        return maxStreak;
     }
 
     public void setElo(int elo) {
@@ -156,5 +231,20 @@ public class PlayerStats {
 
     public double getPlayTimeHours() {
         return playTime / (1000.0 * 60 * 60);
+    }
+
+    public int getCurrentStreak() {
+        return currentStreak;
+    }
+
+    public static void cleanup() {
+        // Limpiar todos los teams al desactivar
+        for (ScoreboardTeam team : teams.values()) {
+            PacketPlayOutScoreboardTeam packet = new PacketPlayOutScoreboardTeam(team, 1);
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                ((CraftPlayer) online).getHandle().playerConnection.sendPacket(packet);
+            }
+        }
+        teams.clear();
     }
 }

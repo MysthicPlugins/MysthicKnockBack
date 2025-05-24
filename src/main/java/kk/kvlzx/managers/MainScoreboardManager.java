@@ -19,7 +19,6 @@ import kk.kvlzx.KvKnockback;
 import kk.kvlzx.arena.Arena;
 import kk.kvlzx.arena.ArenaManager;
 import kk.kvlzx.stats.PlayerStats;
-import kk.kvlzx.stats.Streak;
 import kk.kvlzx.utils.MessageUtils;
 import kk.kvlzx.utils.TitleUtils;
 
@@ -59,8 +58,6 @@ public class MainScoreboardManager {
         String currentArena = plugin.getArenaManager().getCurrentArena();
         if (currentArena == null) currentArena = "Ninguna";
         
-        Streak streak = plugin.getStreakManager().getStreak(player.getUniqueId());
-        
         int minutes = timeLeft / 60;
         int seconds = timeLeft % 60;
         String formattedTime = String.format("&a%02d:%02d", minutes, seconds);
@@ -77,7 +74,7 @@ public class MainScoreboardManager {
         setScore(obj, "&e☠ &fMuertes: &c" + stats.getDeaths(), 5);
         setScore(obj, "&e✦ &fElo: &6" + stats.getElo(), 4);
         setScore(obj, "&e❈ &fKDR: &b" + String.format("%.2f", stats.getKDR()), 3);
-        setScore(obj, "&e➜ &fRacha: &d" + streak.getKills() + (streak.getMaxKillstreak() > 0 ? " &7(" + streak.getMaxKillstreak() + ")" : ""), 2);
+        setScore(obj, "&e➜ &fRacha: &d" + stats.getCurrentStreak() + (stats.getMaxStreak() > 0 ? " &7(" + stats.getMaxStreak() + ")" : ""), 2);
         setScore(obj, "&e⌚ &fTiempo: " + formattedTime, 1);
         setScore(obj, "&6&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", 0);
 

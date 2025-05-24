@@ -19,7 +19,6 @@ import kk.kvlzx.listeners.ItemListener;
 import kk.kvlzx.listeners.PlayerListener;
 import kk.kvlzx.listeners.MenuListener;
 import kk.kvlzx.managers.MainScoreboardManager;
-import kk.kvlzx.managers.StreakManager;
 import kk.kvlzx.managers.TabManager;
 import kk.kvlzx.stats.PlayerStats;
 import kk.kvlzx.utils.MessageUtils;
@@ -36,7 +35,6 @@ public class KvKnockback extends JavaPlugin {
     private WorldEditPlugin worldEdit;
     private CombatListener combatListener;
     private MainScoreboardManager scoreboardManager;
-    private StreakManager streakManager;
     private TabManager tabManager;
 
     @Override
@@ -74,7 +72,7 @@ public class KvKnockback extends JavaPlugin {
         try {
             arenaManager.saveArenas();
             PlayerStats.saveAllStats();
-            streakManager.onDisable();
+            PlayerStats.cleanup();
         } catch (Exception e) {
             getLogger().severe("Error al guardar datos: " + e.getMessage());
             e.printStackTrace();
@@ -92,7 +90,6 @@ public class KvKnockback extends JavaPlugin {
     public void registerManagers() {
         arenaManager = new ArenaManager(this);
         scoreboardManager = new MainScoreboardManager(this);
-        streakManager = new StreakManager();
         tabManager = new TabManager(this);
     }
 
@@ -143,10 +140,6 @@ public class KvKnockback extends JavaPlugin {
 
     public MainScoreboardManager getScoreboardManager() {
         return scoreboardManager;
-    }
-
-    public StreakManager getStreakManager() {
-        return streakManager;
     }
 
     public TabManager getTabManager() {

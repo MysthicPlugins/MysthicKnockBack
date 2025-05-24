@@ -77,7 +77,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         stats.updatePlayTime();
-        plugin.getStreakManager().resetStreak(player); // Resetear racha al desconectarse
+        stats.resetStreak();
         
         String currentArena = plugin.getArenaManager().getCurrentArena();
         if (currentArena != null) {
@@ -211,13 +211,12 @@ public class PlayerListener implements Listener {
 
         PlayerStats killerStats = PlayerStats.getStats(killer.getUniqueId());
         killerStats.addKill();
-        plugin.getStreakManager().addKill(killer); // Agregar kill al sistema de rachas
     }
 
     private void respawnPlayerAtSpawn(Player player, Arena arena) {
         PlayerStats playerStats = PlayerStats.getStats(player.getUniqueId());
         playerStats.addDeath();
-        plugin.getStreakManager().resetStreak(player);
+        playerStats.resetStreak();
         
         // Resetear velocidad a la default
         player.setWalkSpeed(0.2f);

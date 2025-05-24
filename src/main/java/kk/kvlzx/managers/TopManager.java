@@ -25,7 +25,7 @@ public class TopManager {
                     values.put(uuid, (int)(stats.getKDR() * 100)); // Multiplicamos por 100 para ordenar
                     break;
                 case STREAK:
-                    values.put(uuid, stats.getMaxKillstreak());
+                    values.put(uuid, stats.getMaxStreak());
                     break;
                 case ELO:
                     values.put(uuid, stats.getElo());

@@ -39,7 +39,7 @@ public class StatsMenu {
         menu.setItem(11, createStatItem(Material.SKULL_ITEM, "&c☠ Muertes", stats.getDeaths()));
         menu.setItem(12, createStatItem(Material.GOLDEN_APPLE, "&6⚖ KDR", String.format("%.2f", stats.getKDR())));
         menu.setItem(14, createStatItem(Material.NETHER_STAR, "&e✦ ELO", stats.getElo()));
-        menu.setItem(15, createStatItem(Material.BLAZE_POWDER, "&c⚡ Racha Máxima", stats.getMaxKillstreak()));
+        menu.setItem(15, createStatItem(Material.BLAZE_POWDER, "&c⚡ Racha Máxima", stats.getMaxStreak()));
         menu.setItem(16, createStatItem(Material.WATCH, "&a⌚ Tiempo Jugado", stats.getFormattedPlayTime()));
 
         player.openInventory(menu);
