@@ -11,12 +11,12 @@ import kk.kvlzx.KvKnockback;
 public class KnockbackUtils {
     
     // Constantes de knockback
-    private static final double BASE_HORIZONTAL_KB = 0.25;
-    private static final double BASE_VERTICAL_KB = 0.25;
-    private static final double VERTICAL_LIMIT = 0.4;
-    private static final double SPRINT_BONUS = 0.1;
-    private static final double DISTANCE_BONUS_MULTIPLIER = 0.03;
-    private static final double KB_ENCHANTMENT_BONUS = 0.2;
+    private static final double BASE_HORIZONTAL_KB = 0.15; // Reducido de 0.25
+    private static final double BASE_VERTICAL_KB = 0.15; // Reducido de 0.25
+    private static final double VERTICAL_LIMIT = 0.3; // Reducido de 0.4
+    private static final double SPRINT_BONUS = 0.05; // Reducido de 0.1
+    private static final double DISTANCE_BONUS_MULTIPLIER = 0.02; // Reducido de 0.03
+    private static final double KB_ENCHANTMENT_BONUS = 0.1; // Reducido de 0.2
     
     /**
      * Aplica knockback personalizado a un jugador.
@@ -56,9 +56,6 @@ public class KnockbackUtils {
         }
         
         damaged.setVelocity(knockback);
-
-        attacker.sendMessage("Aplicando knockback custom a " + damaged.getName());
-        damaged.sendMessage("Recibiendo knockback custom de " + attacker.getName());
         
         // Cancelar daño
         event.setDamage(0.0D);

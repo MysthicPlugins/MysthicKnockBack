@@ -17,20 +17,28 @@ public class MainMenu {
     public static void openMenu(Player player) {
         Inventory menu = MenuManager.createInventory(MenuType.MAIN_MENU);
 
+        // Decoración de bordes
+        ItemStack border = createMenuItem(Material.STAINED_GLASS_PANE, "&7", "");
+        for (int i = 0; i < 45; i++) {
+            if (i < 9 || i > 35 || i % 9 == 0 || i % 9 == 8) {
+                menu.setItem(i, border);
+            }
+        }
+
         // Top Kills (Espada de Diamante)
-        menu.setItem(10, createMenuItem(Material.DIAMOND_SWORD, "&b⚔ Top Kills", "&7Click para ver el ranking"));
+        menu.setItem(11, createMenuItem(Material.DIAMOND_SWORD, "&b⚔ Top Kills", "&7Click para ver el ranking de kills"));
 
         // Top KDR (Manzana Dorada)
-        menu.setItem(12, createMenuItem(Material.GOLDEN_APPLE, "&6☠ Top KDR", "&7Click para ver el ranking"));
+        menu.setItem(13, createMenuItem(Material.GOLDEN_APPLE, "&6☠ Top KDR", "&7Click para ver el ranking de KDR"));
 
         // Top Rachas (Blaze Powder)
-        menu.setItem(14, createMenuItem(Material.BLAZE_POWDER, "&c⚡ Top Rachas", "&7Click para ver el ranking"));
+        menu.setItem(15, createMenuItem(Material.BLAZE_POWDER, "&c⚡ Top Rachas", "&7Click para ver el ranking de rachas"));
 
         // Top ELO (Estrella del Nether)
-        menu.setItem(16, createMenuItem(Material.NETHER_STAR, "&e✦ Top ELO", "&7Click para ver el ranking"));
+        menu.setItem(21, createMenuItem(Material.NETHER_STAR, "&e✦ Top ELO", "&7Click para ver el ranking de ELO"));
 
         // Top Horas Jugadas (Reloj)
-        menu.setItem(15, createMenuItem(Material.WATCH, "&a⌚ Top Horas Jugadas", "&7Click para ver el ranking"));
+        menu.setItem(23, createMenuItem(Material.WATCH, "&a⌚ Top Horas Jugadas", "&7Click para ver el ranking de tiempo jugado"));
 
         // Tus Stats (Cabeza del jugador)
         ItemStack playerHead = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
@@ -39,7 +47,7 @@ public class MainMenu {
         meta.setDisplayName(MessageUtils.getColor("&a✪ Tus Estadísticas"));
         meta.setLore(Arrays.asList(MessageUtils.getColor("&7Click para ver tus stats")));
         playerHead.setItemMeta(meta);
-        menu.setItem(13, playerHead);
+        menu.setItem(31, playerHead);
 
         player.openInventory(menu);
     }

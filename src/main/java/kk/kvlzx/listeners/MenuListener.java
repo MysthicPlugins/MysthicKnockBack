@@ -16,6 +16,7 @@ import kk.kvlzx.menus.MainMenu;
 import kk.kvlzx.menus.MenuType;
 import kk.kvlzx.menus.TopMenu;
 import kk.kvlzx.menus.TopType;
+import kk.kvlzx.menus.StatsMenu;
 
 public class MenuListener implements Listener {
     private final KvKnockback plugin;
@@ -107,6 +108,9 @@ public class MenuListener implements Listener {
     private void handleMainMenuClick(ItemStack clicked, Player player) {
         Material type = clicked.getType();
         switch (type) {
+            case SKULL_ITEM:
+                StatsMenu.openMenu(player);
+                break;
             case DIAMOND_SWORD:
                 TopMenu.openMenu(player, TopType.KILLS);
                 break;
@@ -121,6 +125,8 @@ public class MenuListener implements Listener {
                 break;
             case WATCH:
                 TopMenu.openMenu(player, TopType.PLAYTIME);
+                break;
+            default:
                 break;
         }
     }

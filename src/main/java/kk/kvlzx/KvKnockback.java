@@ -5,9 +5,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import kk.kvlzx.arena.ArenaManager;
 import kk.kvlzx.commands.ArenaCommand;
+import kk.kvlzx.commands.ArenaTabCompleter;
 import kk.kvlzx.commands.MainCommand;
+import kk.kvlzx.commands.MainTabCompleter;
 import kk.kvlzx.commands.ReportCommand;
+import kk.kvlzx.commands.ReportTabCompleter;
 import kk.kvlzx.commands.StatsCommand;
+import kk.kvlzx.commands.StatsTabCompleter;
 import kk.kvlzx.listeners.ChatListener;
 import kk.kvlzx.listeners.CombatListener;
 import kk.kvlzx.listeners.ItemListener;
@@ -16,6 +20,7 @@ import kk.kvlzx.listeners.MenuListener;
 import kk.kvlzx.managers.MainScoreboardManager;
 import kk.kvlzx.managers.StreakManager;
 import kk.kvlzx.managers.TabManager;
+import kk.kvlzx.stats.PlayerStats;
 import kk.kvlzx.utils.MessageUtils;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
@@ -48,6 +53,8 @@ public class KvKnockback extends JavaPlugin {
         arenaManager.loadArenas(); // Cargar arenas después de registrar managers
         registerCommands();
         registerEvents();
+        PlayerStats.initializeStatsData(this);
+        PlayerStats.loadAllStats();
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&b=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
@@ -65,6 +72,7 @@ public class KvKnockback extends JavaPlugin {
         arenaManager.saveArenas(); // Guardar arenas antes de desactivar
         // Eliminar la scoreboard
         streakManager.onDisable();
+        PlayerStats.saveAllStats();
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&c=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
@@ -84,9 +92,13 @@ public class KvKnockback extends JavaPlugin {
 
     public void registerCommands() {
         getCommand("kvknockback").setExecutor(new MainCommand(this));
+        getCommand("kvknockback").setTabCompleter(new MainTabCompleter());
         getCommand("report").setExecutor(new ReportCommand(this));
+        getCommand("report").setTabCompleter(new ReportTabCompleter());
         getCommand("arena").setExecutor(new ArenaCommand(this));
-        getCommand("stats").setExecutor(new StatsCommand(this)); // Cambiado de setelo a stats
+        getCommand("arena").setTabCompleter(new ArenaTabCompleter(this));
+        getCommand("stats").setExecutor(new StatsCommand(this));
+        getCommand("stats").setTabCompleter(new StatsTabCompleter());
     }
 
     public void registerEvents() {

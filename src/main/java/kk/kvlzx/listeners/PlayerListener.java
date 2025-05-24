@@ -102,8 +102,12 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
-        if (event.getClickedInventory() != null && event.getClickedInventory().getType() == InventoryType.PLAYER) {
-            event.setCancelled(true); // Evitar que el jugador mueva items en su inventario
+        
+        // Cancelar cualquier click en el inventario del jugador
+        if (event.getClickedInventory() != null && 
+            (event.getClickedInventory().getType() == InventoryType.PLAYER || 
+                event.getClick().isKeyboardClick())) {
+            event.setCancelled(true);
         }
     }
 
@@ -156,10 +160,12 @@ public class PlayerListener implements Listener {
                         case "spawn":
                             player.sendMessage(MessageUtils.getColor("&aHas entrado a la zona de Spawn de la arena " + foundArena));
                             ItemsManager.giveSpawnItems(player);
+                            player.spigot().setCollidesWithEntities(false); // Desactivar colisiones en spawn
                             break;
                         case "pvp":
                             player.sendMessage(MessageUtils.getColor("&cHas entrado a la zona de PvP de la arena " + foundArena));
                             ItemsManager.givePvPItems(player);
+                            player.spigot().setCollidesWithEntities(true); // Activar colisiones en pvp
                             break;
                         case "void":
                             player.sendMessage(MessageUtils.getColor("&7Has entrado a la zona de Void de la arena " + foundArena));
@@ -203,6 +209,9 @@ public class PlayerListener implements Listener {
         playerStats.addDeath();
         plugin.getStreakManager().resetStreak(player);
         
+        // Resetear velocidad a la default
+        player.setWalkSpeed(0.2f);
+        
         Location spawnLoc = arena.getSpawnLocation();
         if (spawnLoc != null) {
             new BukkitRunnable() {
@@ -210,13 +219,12 @@ public class PlayerListener implements Listener {
                 public void run() {
                     player.spigot().respawn();
                     player.teleport(spawnLoc);
-                    player.setVelocity(new Vector(0, 0, 0)); // Cancelar cualquier velocidad
-                    player.setFallDistance(0); // Resetear distancia de caída
+                    player.setVelocity(new Vector(0, 0, 0));
+                    player.setFallDistance(0);
                     ItemsManager.giveSpawnItems(player);
                     RankManager.updatePlayerRank(player, playerStats.getElo());
                     
-                    // Dar invulnerabilidad temporal
-                    player.setNoDamageTicks(40); // 2 segundos de invulnerabilidad
+                    player.setNoDamageTicks(40);
                 }
             }.runTaskLater(plugin, 1L);
         }

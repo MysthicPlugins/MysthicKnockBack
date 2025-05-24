@@ -3,11 +3,15 @@ package kk.kvlzx.listeners;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -34,6 +38,7 @@ public class ItemListener implements Listener {
     private final Map<UUID, ItemStack> savedArrows = new HashMap<>();
     private final Map<Location, BukkitRunnable> plateTimers = new HashMap<>();
     private final Map<UUID, List<BukkitRunnable>> cooldownTasks = new HashMap<>();
+    private final Map<UUID, BukkitRunnable> speedTasks = new HashMap<>(); // Nuevo mapa para las tasks de speed
 
     public ItemListener(KvKnockback plugin) {
         this.plugin = plugin;
@@ -119,6 +124,11 @@ public class ItemListener implements Listener {
             if (isOnCooldown(player, COOLDOWN_FEATHER)) return;
 
             if (feather != null) {
+                // Cancelar task anterior si existe
+                if (speedTasks.containsKey(player.getUniqueId())) {
+                    speedTasks.get(player.getUniqueId()).cancel();
+                }
+
                 player.setWalkSpeed(0.4f);
                 feather.setAmount(1);
                 player.getInventory().setItem(featherSlot, feather);
@@ -126,11 +136,16 @@ public class ItemListener implements Listener {
                 setCooldown(player, COOLDOWN_FEATHER, COOLDOWN_SECONDS);
                 startCooldownVisual(player, feather, featherSlot, COOLDOWN_SECONDS);
 
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    if (player.isOnline()) {
-                        player.setWalkSpeed(0.2f);
+                // Nueva task para resetear velocidad
+                BukkitRunnable speedTask = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        resetPlayerSpeed(player.getUniqueId());
+                        speedTasks.remove(player.getUniqueId());
                     }
-                }, COOLDOWN_SECONDS * 20L);
+                };
+                speedTask.runTaskLater(plugin, COOLDOWN_SECONDS * 20L);
+                speedTasks.put(player.getUniqueId(), speedTask);
             }
         }
     }
@@ -185,7 +200,6 @@ public class ItemListener implements Listener {
                     startPlateTimer(block.getLocation());
                 } else {
                     stack.setAmount(64); // Siempre mantener en 64 los bloques
-                    player.sendMessage("Haz colocado un bloque: " + blockType);
                 }
                 player.getInventory().setItem(itemSlot, stack);
                 player.updateInventory();
@@ -249,18 +263,22 @@ public class ItemListener implements Listener {
                     return;
                 }
 
+                // Verificar si el jugador está muerto
+                if (player.isDead()) {
+                    cancel();
+                    return;
+                }
+
                 // Verificar si el jugador está en spawn o no está en pvp
                 String zone = plugin.getArenaManager().getPlayerZone(player);
                 if (zone == null || !zone.equals(ZoneType.PVP.getId())) {
-                    // Restaurar item y cancelar cooldown
+                    // Restaurar item inmediatamente y cancelar cooldown
                     ItemStack restoredItem = original.clone();
                     restoredItem.setAmount(1);
                     player.getInventory().setItem(slot, restoredItem);
                     player.updateInventory();
-                    Map<String, Long> playerCooldowns = cooldowns.get(player.getUniqueId());
-                    if (playerCooldowns != null) {
-                        playerCooldowns.clear();
-                    }
+                    // Limpiar cooldowns
+                    cooldowns.get(player.getUniqueId()).clear();
                     cancel();
                     return;
                 }
@@ -282,5 +300,31 @@ public class ItemListener implements Listener {
 
         task.runTaskTimer(plugin, 0, 20);
         cooldownTasks.computeIfAbsent(player.getUniqueId(), k -> new ArrayList<>()).add(task);
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        
+        // Resetear velocidad si muere
+        if (speedTasks.containsKey(player.getUniqueId())) {
+            speedTasks.get(player.getUniqueId()).cancel();
+            speedTasks.remove(player.getUniqueId());
+            resetPlayerSpeed(player.getUniqueId());
+        }
+
+        // Eliminar perlas lanzadas
+        player.getWorld().getEntities().stream()
+            .filter(entity -> entity.getType() == EntityType.ENDER_PEARL)
+            .filter(entity -> ((EnderPearl) entity).getShooter() == player)
+            .forEach(entity -> entity.remove());
+    }
+
+    // Método para resetear la velocidad del jugador
+    private void resetPlayerSpeed(UUID uuid) {
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+        if (offlinePlayer.isOnline() && offlinePlayer.getPlayer() != null) {
+            offlinePlayer.getPlayer().setWalkSpeed(0.2f);
+        }
     }
 }

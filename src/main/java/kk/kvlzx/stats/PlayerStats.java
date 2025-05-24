@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import kk.kvlzx.KvKnockback;
+import kk.kvlzx.data.StatsData;
 import kk.kvlzx.managers.RankManager;
 
 public class PlayerStats {
@@ -20,6 +21,7 @@ public class PlayerStats {
     private long lastJoin;
     private long lastDeathTime = 0;
     private static final long DEATH_COOLDOWN = 500; // 500ms cooldown
+    private static StatsData statsData;
 
     public PlayerStats(UUID uuid) {
         this.uuid = uuid;
@@ -36,6 +38,30 @@ public class PlayerStats {
 
     public static Set<UUID> getAllStats() {
         return stats.keySet();
+    }
+
+    public static void initializeStatsData(KvKnockback plugin) {
+        statsData = new StatsData(plugin);
+    }
+
+    public static void loadAllStats() {
+        if (statsData == null) return;
+        for (UUID uuid : stats.keySet()) {
+            statsData.loadStats(uuid, stats.get(uuid));
+        }
+    }
+
+    public static void saveAllStats() {
+        if (statsData == null) return;
+        for (UUID uuid : stats.keySet()) {
+            statsData.saveStats(uuid, stats.get(uuid));
+        }
+    }
+
+    public void saveStats() {
+        if (statsData != null) {
+            statsData.saveStats(uuid, this);
+        }
     }
 
     public void addKill() {

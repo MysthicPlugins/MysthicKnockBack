@@ -1,10 +1,11 @@
 package kk.kvlzx.menus;
 
 public enum MenuType {
-    MAIN_MENU("&8• &a&lMenú Principal &8•", 27),
-    TOP_MENU("&8• &b&lTop %s &8•", 45);
+    MAIN_MENU("&8• &a&lMenú Principal &8•", 45),
+    TOP_MENU("", 27),
+    STATS_MENU("&8• &b&lEstadísticas &8•", 27);
 
-    private final String title;
+    private String title;
     private final int size;
 
     MenuType(String title, int size) {
@@ -16,8 +17,8 @@ public enum MenuType {
         return title;
     }
 
-    public String getFormattedTitle(Object... args) {
-        return String.format(title, args);
+    public void setFormattedTitle(String... args) {
+        this.title = String.format(title, (Object[]) args);
     }
 
     public int getSize() {

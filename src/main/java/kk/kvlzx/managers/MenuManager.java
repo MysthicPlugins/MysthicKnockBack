@@ -24,6 +24,7 @@ public class MenuManager {
         if (inventory == null) return null;
         String title = inventory.getTitle();
         
+        // Verificar si el título coincide con algún menú
         for (MenuType type : MenuType.values()) {
             if (MessageUtils.getColor(type.getTitle()).equals(title)) {
                 return type;
@@ -32,7 +33,11 @@ public class MenuManager {
         return null;
     }
 
+    public static Inventory createInventory(MenuType type, String title) {
+        return Bukkit.createInventory(null, type.getSize(), MessageUtils.getColor(title));
+    }
+
     public static Inventory createInventory(MenuType type) {
-        return Bukkit.createInventory(null, type.getSize(), MessageUtils.getColor(type.getTitle()));
+        return createInventory(type, type.getTitle());
     }
 }
