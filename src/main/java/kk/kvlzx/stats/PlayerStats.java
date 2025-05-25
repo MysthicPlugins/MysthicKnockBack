@@ -4,10 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import kk.kvlzx.KvKnockback;
 import kk.kvlzx.data.StatsData;
@@ -28,6 +34,7 @@ public class PlayerStats {
     private long lastDeathTime = 0;
     private static final long DEATH_COOLDOWN = 500; // 500ms cooldown
     private static StatsData statsData;
+    private static final Map<UUID, ArmorStand> playerMvpTags = new HashMap<>(); // Mapa para rastrear los ArmorStands
 
     public PlayerStats(UUID uuid) {
         this.uuid = uuid;
@@ -80,6 +87,14 @@ public class PlayerStats {
                 e.printStackTrace();
             }
         });
+
+        // Limpiar todos los ArmorStands al guardar/desactivar
+        for (ArmorStand armorStand : playerMvpTags.values()) {
+            if (armorStand != null && !armorStand.isDead()) {
+                armorStand.remove();
+            }
+        }
+        playerMvpTags.clear();
     }
 
     public void saveStats() {
@@ -139,10 +154,72 @@ public class PlayerStats {
             }
         }
 
-        // Actualizar solo el rango
+        // Actualizar el tag de MVP y el ArmorStand
         Player player = Bukkit.getPlayer(uuid);
         if (player != null && player.isOnline()) {
+            updateMvpTag(player);
+        }
+
+        // Actualizar solo el rango
+        if (player != null && player.isOnline()) {
             RankManager.updatePlayerRank(player, this.elo);
+        }
+    }
+
+    private void updateMvpTag(Player player) {
+        if (player == null || !player.isOnline()) return;
+        
+        UUID uuid = player.getUniqueId();
+        String mvpTag = getMvpTag();
+
+        // Gestionar el ArmorStand
+        int kills = currentStreak;
+        if (kills >= 5) { // Umbral mínimo para mostrar MVP
+            // Remover el ArmorStand anterior si existe
+            if (playerMvpTags.containsKey(uuid)) {
+                ArmorStand oldTag = playerMvpTags.get(uuid);
+                if (oldTag != null && !oldTag.isDead()) {
+                    oldTag.remove();
+                }
+                playerMvpTags.remove(uuid);
+            }
+
+            // Crear el ArmorStand
+            Location loc = player.getLocation().add(0, 2.2, 0); // Ajustar altura sobre el jugador
+            ArmorStand armorStand = (ArmorStand) player.getWorld().spawnEntity(loc, EntityType.ARMOR_STAND);
+            armorStand.setVisible(false); // Hacer el ArmorStand invisible
+            armorStand.setGravity(false); // Desactivar gravedad
+            armorStand.setCustomNameVisible(true); // Mostrar el nombre personalizado
+            armorStand.setSmall(true); // Hacer el ArmorStand más pequeño para mejor visibilidad
+            armorStand.setMarker(true); // Hacerlo un marcador
+            armorStand.setCustomName(MessageUtils.getColor(mvpTag + " &7- Kills: " + kills + "\n" + ChatColor.WHITE + player.getName()));
+
+            // Guardar el ArmorStand en el mapa
+            playerMvpTags.put(uuid, armorStand);
+
+            // Hacer que el ArmorStand siga al jugador
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Player p = Bukkit.getPlayer(uuid);
+                    if (p == null || !p.isOnline() || p.isDead() || currentStreak < 5) {
+                        armorStand.remove();
+                        playerMvpTags.remove(uuid);
+                        cancel();
+                        return;
+                    }
+                    armorStand.teleport(p.getLocation().add(0, 2.2, 0));
+                }
+            }.runTaskTimer(KvKnockback.getInstance(), 0L, 1L);
+        } else {
+            // Remover el ArmorStand si no hay MVP
+            if (playerMvpTags.containsKey(uuid)) {
+                ArmorStand oldTag = playerMvpTags.get(uuid);
+                if (oldTag != null && !oldTag.isDead()) {
+                    oldTag.remove();
+                }
+                playerMvpTags.remove(uuid);
+            }
         }
     }
 
@@ -156,6 +233,15 @@ public class PlayerStats {
             }
         }
         currentStreak = 0;
+
+        // Remover el ArmorStand al resetear la racha
+        if (playerMvpTags.containsKey(uuid)) {
+            ArmorStand oldTag = playerMvpTags.get(uuid);
+            if (oldTag != null && !oldTag.isDead()) {
+                oldTag.remove();
+            }
+            playerMvpTags.remove(uuid);
+        }
     }
 
     public boolean canDie() {
