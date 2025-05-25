@@ -3,6 +3,7 @@ package kk.kvlzx;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import kk.kvlzx.arena.ArenaManager;
 import kk.kvlzx.commands.ArenaCommand;
@@ -49,8 +50,16 @@ public class KvKnockback extends JavaPlugin {
         }
 
         registerManagers();
+        // Primero inicializar los datos
         PlayerStats.initializeStatsData(this);
-        PlayerStats.loadAllStats();
+        // Luego cargar las estadísticas
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                PlayerStats.loadAllStats(); // Mover después de que el servidor esté completamente iniciado
+            }
+        }.runTaskLater(this, 20L); // Esperar 1 segundo para asegurar que todo esté listo
+        
         arenaManager.loadArenas();
         registerCommands();
         registerEvents();
@@ -72,7 +81,6 @@ public class KvKnockback extends JavaPlugin {
         try {
             arenaManager.saveArenas();
             PlayerStats.saveAllStats();
-            PlayerStats.cleanup();
         } catch (Exception e) {
             getLogger().severe("Error al guardar datos: " + e.getMessage());
             e.printStackTrace();

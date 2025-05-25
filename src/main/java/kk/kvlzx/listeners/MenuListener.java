@@ -51,8 +51,18 @@ public class MenuListener implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (!(event.getPlayer() instanceof Player)) return;
-        // Aquí puedes manejar el cierre de inventarios específicos si es necesario
+        Player player = (Player) event.getPlayer();
+        
+        MenuType menuType = MenuManager.getMenuType(event.getInventory());
+        if (menuType == MenuType.INVENTORY_EDITOR) {
+            ItemStack[] newLayout = new ItemStack[9];
+            Inventory inv = event.getInventory();
+            for (int i = 0; i < 9; i++) {
+                newLayout[i] = inv.getItem(i);
+            }
+            ItemsManager.savePvPLayout(newLayout);
+            player.sendMessage(MessageUtils.getColor("&aInventorio guardado correctamente!"));
+        }
     }
 
     @EventHandler
@@ -92,9 +102,8 @@ public class MenuListener implements Listener {
             handleMenuInteraction(clicked.getType(), player);
         } else if (menuType == MenuType.INVENTORY_EDITOR) {
             handleInventoryEditorClick(event);
-            return;
         }
-        // Los otros menús son solo visuales, no necesitan manejo de clicks
+        // Los menús de top son solo visuales, no necesitan manejo de clicks
     }
 
     private void handleMenuInteraction(Material type, Player player) {
@@ -126,34 +135,6 @@ public class MenuListener implements Listener {
     }
 
     private void handleInventoryEditorClick(InventoryClickEvent event) {
-        Player player = (Player) event.getWhoClicked();
-        int slot = event.getRawSlot();
-
-        // Permitir mover items solo en la zona de edición (slots 36-44)
-        if (slot >= 36 && slot <= 44) {
-            event.setCancelled(false);
-            return;
-        }
-
-        // Botón de guardar
-        if (slot == 49) {
-            ItemStack[] newLayout = new ItemStack[9];
-            Inventory inv = event.getInventory();
-            for (int i = 0; i < 9; i++) {
-                newLayout[i] = inv.getItem(i + 36);
-            }
-            ItemsManager.savePvPLayout(newLayout);
-            player.sendMessage(MessageUtils.getColor("&aInventario guardado correctamente!"));
-            player.closeInventory();
-            return;
-        }
-
-        // Botón de volver
-        if (slot == 45) {
-            MainMenu.openMenu(player);
-            return;
-        }
-
-        event.setCancelled(true);
+        event.setCancelled(false); // Permitir todos los clicks en el editor
     }
 }

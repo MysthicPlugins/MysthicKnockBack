@@ -4,6 +4,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.entity.EnderPearl;
@@ -25,7 +26,6 @@ import kk.kvlzx.KvKnockback;
 import kk.kvlzx.arena.ZoneType;
 import kk.kvlzx.items.CustomItem;
 import kk.kvlzx.items.CustomItem.ItemType;
-import kk.kvlzx.utils.MessageUtils;
 
 public class ItemListener implements Listener {
     private static final int COOLDOWN_SECONDS = 10;
@@ -82,6 +82,12 @@ public class ItemListener implements Listener {
         if (!(event.getEntity() instanceof Player)) return;
         Player player = (Player) event.getEntity();
 
+        // Verificar si la arena está cambiando
+        if (plugin.getScoreboardManager().isArenaChanging()) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (isOnCooldown(player, COOLDOWN_BOW)) {
             event.setCancelled(true);
             return;
@@ -114,6 +120,12 @@ public class ItemListener implements Listener {
     @EventHandler
     public void onFeatherUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
+
+        // Verificar si la arena está cambiando
+        if (plugin.getScoreboardManager().isArenaChanging()) {
+            event.setCancelled(true);
+            return;
+        }
 
         ItemStack feather = findItemByType(player, Material.FEATHER);
         int featherSlot = findSlotByType(player, Material.FEATHER);
@@ -153,6 +165,13 @@ public class ItemListener implements Listener {
     @EventHandler
     public void onStepPlate(PlayerInteractEvent event) {
         if (event.getAction() != Action.PHYSICAL) return;
+        
+        // Verificar si la arena está cambiando
+        if (plugin.getScoreboardManager().isArenaChanging()) {
+            event.setCancelled(true);
+            return;
+        }
+
         Block block = event.getClickedBlock();
         Player player = event.getPlayer();
         if (block == null) return;
@@ -169,7 +188,7 @@ public class ItemListener implements Listener {
 
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 block.setType(Material.AIR);
-            }, 1L);
+            }, COOLDOWN_SECONDS * 20L);
 
             plateTimers.get(block.getLocation()).cancel();
             plateTimers.remove(block.getLocation());
@@ -181,6 +200,12 @@ public class ItemListener implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Material blockType = block.getType();
+
+        // Verificar si la arena está cambiando
+        if (plugin.getScoreboardManager().isArenaChanging()) {
+            event.setCancelled(true);
+            return;
+        }
 
         if (blockType.isBlock()) {
             int itemSlot = findSlotByType(player, blockType);
@@ -202,7 +227,21 @@ public class ItemListener implements Listener {
                 player.getInventory().setItem(itemSlot, stack);
                 player.updateInventory();
             }
+            // Programar la eliminación del bloque después de 5 segundos (20 ticks = 1 segundo)
             Bukkit.getScheduler().runTaskLater(plugin, () -> block.setType(Material.AIR), 100L);
+        }
+    }
+
+    @EventHandler
+    public void onPearlLaunch(ProjectileLaunchEvent event) {
+        if (!(event.getEntity() instanceof EnderPearl)) return;
+        EnderPearl pearl = (EnderPearl) event.getEntity();
+        if (!(pearl.getShooter() instanceof Player)) return;
+
+        // Verificar si la arena está cambiando
+        if (plugin.getScoreboardManager().isArenaChanging()) {
+            event.setCancelled(true);
+            return;
         }
     }
 

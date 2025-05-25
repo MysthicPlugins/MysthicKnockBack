@@ -24,7 +24,12 @@ public class MenuManager {
         if (inventory == null) return null;
         String title = inventory.getTitle();
         
-        // Verificar si el título coincide con algún menú
+        // Verificar primero tops ya que tienen títulos dinámicos
+        if (title.contains("Top")) {
+            return MenuType.TOP_MENU;
+        }
+        
+        // Para los demás menús, verificar título exacto
         for (MenuType type : MenuType.values()) {
             if (MessageUtils.getColor(type.getTitle()).equals(title)) {
                 return type;

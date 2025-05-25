@@ -24,6 +24,8 @@ public class StatsData {
         section.set("kills", stats.getKills());
         section.set("deaths", stats.getDeaths());
         section.set("elo", stats.getElo());
+        section.set("maxStreak", stats.getMaxStreak());
+        section.set("currentStreak", stats.getCurrentStreak());
         section.set("playTime", stats.getPlayTimeHours());
         
         statsConfig.saveConfig();
@@ -35,9 +37,7 @@ public class StatsData {
         
         ConfigurationSection section = statsConfig.getConfig().getConfigurationSection(path);
         if (section != null) {
-            stats.setKills(section.getInt("kills", 0));
-            stats.setDeaths(section.getInt("deaths", 0));
-            stats.setElo(section.getInt("elo", 500));
+            stats.loadStats(this);
         }
     }
 
