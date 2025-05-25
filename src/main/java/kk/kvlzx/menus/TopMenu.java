@@ -15,11 +15,12 @@ import kk.kvlzx.managers.TopManager;
 import kk.kvlzx.utils.MessageUtils;
 
 public class TopMenu {
-    private static final int[] TOP_SLOTS = {10, 11, 12, 13, 14, 15, 16, // Primera fila (7 slots)
-                                          21, 22, 23}; // Segunda fila centrada (3 slots)
+    private static final int[] TOP_SLOTS = {10, 11, 12, 13, 14, 15, 16, 21, 22, 23};
 
-    public static void openMenu(Player player, TopType type) {
-        Inventory menu = MenuManager.createInventory(MenuType.TOP_MENU, type.getMenuTitle());
+    public static void openMenu(Player player, MenuType type) {
+        if (!type.isTopMenu()) return;
+        
+        Inventory menu = MenuManager.createInventory(type);
         List<Map.Entry<UUID, Integer>> top = TopManager.getTop(type, 10);
 
         // Decoración de bordes
@@ -44,10 +45,10 @@ public class TopMenu {
         backButton.setItemMeta(backMeta);
         menu.setItem(18, backButton);
 
-        player.openInventory(menu);
+        MenuManager.openMenu(player, type);
     }
 
-    private static ItemStack createBorderItem(TopType type) {
+    private static ItemStack createBorderItem(MenuType type) {
         ItemStack border = new ItemStack(Material.STAINED_GLASS_PANE, 1, getBorderColor(type));
         ItemMeta meta = border.getItemMeta();
         meta.setDisplayName(" ");
@@ -55,13 +56,13 @@ public class TopMenu {
         return border;
     }
 
-    private static byte getBorderColor(TopType type) {
+    private static byte getBorderColor(MenuType type) {
         switch(type) {
-            case KILLS: return 11; // Azul
-            case KDR: return 1; // Naranja
-            case STREAK: return 14; // Rojo
-            case ELO: return 4; // Amarillo
-            case PLAYTIME: return 5; // Verde
+            case TOP_KILLS: return 11; // Azul
+            case TOP_KDR: return 1; // Naranja
+            case TOP_STREAK: return 14; // Rojo
+            case TOP_ELO: return 4; // Amarillo
+            case TOP_PLAYTIME: return 5; // Verde
             default: return 15; // Negro
         }
     }

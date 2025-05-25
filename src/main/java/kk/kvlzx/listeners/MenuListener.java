@@ -17,7 +17,6 @@ import kk.kvlzx.managers.MenuManager;
 import kk.kvlzx.menus.MainMenu;
 import kk.kvlzx.menus.MenuType;
 import kk.kvlzx.menus.TopMenu;
-import kk.kvlzx.menus.TopType;
 import kk.kvlzx.menus.StatsMenu;
 import kk.kvlzx.menus.InventoryEditorMenu;
 import kk.kvlzx.utils.MessageUtils;
@@ -43,8 +42,9 @@ public class MenuListener implements Listener {
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
-
-        if (MenuManager.isPluginInventory(event.getInventory())) {
+        
+        Player player = (Player) event.getWhoClicked();
+        if (MenuManager.isInMenu(player)) {
             event.setCancelled(true);
         }
     }
@@ -52,9 +52,9 @@ public class MenuListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         Player player = (Player) event.getPlayer();
+        MenuManager.debugPlayerMenu(player); // Debug antes de cerrar el menú
         
-        MenuType menuType = MenuManager.getMenuType(event.getInventory());
-        if (menuType == MenuType.INVENTORY_EDITOR) {
+        if (MenuManager.isInMenuType(player, MenuType.INVENTORY_EDITOR)) {
             ItemStack[] newLayout = new ItemStack[9];
             Inventory inv = event.getInventory();
             for (int i = 0; i < 9; i++) {
@@ -63,6 +63,9 @@ public class MenuListener implements Listener {
             ItemsManager.savePvPLayout(newLayout);
             player.sendMessage(MessageUtils.getColor("&aInventorio guardado correctamente!"));
         }
+        
+        MenuManager.removePlayer(player);
+        MenuManager.debugPlayerMenu(player); // Debug después de cerrar el menú
     }
 
     @EventHandler
@@ -70,7 +73,7 @@ public class MenuListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
         Player player = (Player) event.getWhoClicked();
 
-        if (!MenuManager.isPluginInventory(event.getInventory())) return;
+        if (!MenuManager.isInMenu(player)) return;
 
         // Prevenir clicks en el inventario del jugador
         if (event.getClickedInventory() != event.getView().getTopInventory()) {
@@ -78,18 +81,16 @@ public class MenuListener implements Listener {
             return;
         }
 
-        // Cancelar todo tipo de clicks
-        event.setCancelled(true);
-
         // Si no hay item clickeado, retornar
         ItemStack clicked = event.getCurrentItem();
         if (clicked == null || clicked.getType() == Material.AIR) return;
 
-        MenuType menuType = MenuManager.getMenuType(event.getInventory());
+        MenuType menuType = MenuManager.getPlayerMenuType(player);
         if (menuType == null) return;
 
-        // Manejar el botón de retorno para todos los menús
-        if (clicked.getType() == Material.ARROW && 
+        // Manejar el botón de retorno para todos los menús excepto el principal
+        if (menuType != MenuType.MAIN && 
+            clicked.getType() == Material.ARROW && 
             clicked.hasItemMeta() && 
             clicked.getItemMeta().hasDisplayName() &&
             clicked.getItemMeta().getDisplayName().contains("Volver")) {
@@ -97,34 +98,54 @@ public class MenuListener implements Listener {
             return;
         }
 
-        // Solo procesar clicks en el menú principal
-        if (menuType == MenuType.MAIN_MENU) {
-            handleMenuInteraction(clicked.getType(), player);
-        } else if (menuType == MenuType.INVENTORY_EDITOR) {
-            handleInventoryEditorClick(event);
+        // Manejar clicks según el tipo de menú
+        switch (menuType) {
+            case MAIN:
+                handleMainMenuClick(clicked.getType(), player);
+                break;
+            case INVENTORY_EDITOR:
+                event.setCancelled(false);
+                break;
+            case STATS:
+                event.setCancelled(true);
+                break;
+            case TOP_ELO:
+                event.setCancelled(true);
+                break;
+            case TOP_KDR:
+                event.setCancelled(true);
+                break;
+            case TOP_KILLS:
+                event.setCancelled(true);
+                break;
+            case TOP_PLAYTIME:
+                event.setCancelled(true);
+                break;
+            case TOP_STREAK:
+                event.setCancelled(true);
+                break;
         }
-        // Los menús de top son solo visuales, no necesitan manejo de clicks
     }
 
-    private void handleMenuInteraction(Material type, Player player) {
+    private void handleMainMenuClick(Material type, Player player) {
         switch (type) {
             case SKULL_ITEM:
                 StatsMenu.openMenu(player);
                 break;
             case DIAMOND_SWORD:
-                TopMenu.openMenu(player, TopType.KILLS);
+                TopMenu.openMenu(player, MenuType.TOP_KILLS);
                 break;
             case GOLDEN_APPLE:
-                TopMenu.openMenu(player, TopType.KDR);
+                TopMenu.openMenu(player, MenuType.TOP_KDR);
                 break;
             case BLAZE_POWDER:
-                TopMenu.openMenu(player, TopType.STREAK);
+                TopMenu.openMenu(player, MenuType.TOP_STREAK);
                 break;
             case NETHER_STAR:
-                TopMenu.openMenu(player, TopType.ELO);
+                TopMenu.openMenu(player, MenuType.TOP_ELO);
                 break;
             case WATCH:
-                TopMenu.openMenu(player, TopType.PLAYTIME);
+                TopMenu.openMenu(player, MenuType.TOP_PLAYTIME);
                 break;
             case REDSTONE:
                 InventoryEditorMenu.openMenu(player);
@@ -132,9 +153,6 @@ public class MenuListener implements Listener {
             default:
                 break;
         }
-    }
-
-    private void handleInventoryEditorClick(InventoryClickEvent event) {
-        event.setCancelled(false); // Permitir todos los clicks en el editor
+        MenuManager.debugPlayerMenu(player); // Debug después del cambio
     }
 }

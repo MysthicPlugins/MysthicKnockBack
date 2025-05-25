@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 
 import kk.kvlzx.KvKnockback;
 import kk.kvlzx.arena.ZoneType;
-import kk.kvlzx.utils.KnockbackUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,11 +61,48 @@ public class CombatListener implements Listener {
             return;
         }
 
+        // Registrar el último atacante
         lastAttacker.put(victim.getUniqueId(), attacker.getUniqueId());
         lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
 
-        // Aplicar knockback custom
-        KnockbackUtils.applyCustomKnockback(event, victim, attacker, plugin);
+        // Aplicar knockback personalizado
+        applyCustomKnockback(event, victim, attacker);
+    }
+
+    private void applyCustomKnockback(EntityDamageByEntityEvent event, Player victim, Player attacker) {
+        // Constantes de knockback
+        final double BASE_HORIZONTAL = 0.4;
+        final double BASE_VERTICAL = 0.4;
+        final double SPRINT_BONUS = 0.15;
+        
+        // Obtener la dirección del knockback
+        double dx = victim.getLocation().getX() - attacker.getLocation().getX();
+        double dz = victim.getLocation().getZ() - attacker.getLocation().getZ();
+        double distance = Math.sqrt(dx * dx + dz * dz);
+        
+        // Normalizar la dirección
+        if (distance > 0) {
+            dx = dx / distance;
+            dz = dz / distance;
+        }
+
+        // Calcular multiplicadores
+        double horizontalMultiplier = BASE_HORIZONTAL;
+        double verticalMultiplier = BASE_VERTICAL;
+
+        // Bonus por sprint
+        if (attacker.isSprinting()) {
+            horizontalMultiplier += SPRINT_BONUS;
+        }
+
+        // Aplicar velocidad final
+        victim.setVelocity(victim.getVelocity()
+            .setX(dx * horizontalMultiplier)
+            .setY(verticalMultiplier)
+            .setZ(dz * horizontalMultiplier));
+
+        // Cancelar el daño vanilla
+        event.setDamage(0.0D);
     }
 
     public Player getLastAttacker(Player victim) {

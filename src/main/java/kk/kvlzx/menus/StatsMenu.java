@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 public class StatsMenu {
     public static void openMenu(Player player) {
-        Inventory menu = MenuManager.createInventory(MenuType.STATS_MENU);
+        Inventory menu = MenuManager.createInventory(MenuType.STATS);
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
         // Decoración de bordes
@@ -42,7 +42,11 @@ public class StatsMenu {
         menu.setItem(15, createStatItem(Material.BLAZE_POWDER, "&c⚡ Racha Máxima", stats.getMaxStreak()));
         menu.setItem(16, createStatItem(Material.WATCH, "&a⌚ Tiempo Jugado", stats.getFormattedPlayTime()));
 
-        player.openInventory(menu);
+        // Botón de retorno
+        ItemStack backButton = createMenuItem(Material.ARROW, "&c← Volver al menú principal");
+        menu.setItem(18, backButton);
+
+        MenuManager.openMenu(player, MenuType.STATS);
     }
 
     private static ItemStack createMenuItem(Material material, String name, String... lore) {

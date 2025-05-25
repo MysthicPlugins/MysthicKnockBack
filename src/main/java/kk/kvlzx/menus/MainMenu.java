@@ -15,7 +15,7 @@ import kk.kvlzx.utils.MessageUtils;
 
 public class MainMenu {
     public static void openMenu(Player player) {
-        Inventory menu = MenuManager.createInventory(MenuType.MAIN_MENU);
+        Inventory menu = MenuManager.createInventory(MenuType.MAIN);
 
         // Decoración de bordes
         ItemStack border = createMenuItem(Material.STAINED_GLASS_PANE, "&7", "");
@@ -25,19 +25,11 @@ public class MainMenu {
             }
         }
 
-        // Top Kills (Espada de Diamante)
+        // Items del menú
         menu.setItem(11, createMenuItem(Material.DIAMOND_SWORD, "&b⚔ Top Kills", "&7Click para ver el ranking de kills"));
-
-        // Top KDR (Manzana Dorada)
         menu.setItem(13, createMenuItem(Material.GOLDEN_APPLE, "&6☠ Top KDR", "&7Click para ver el ranking de KDR"));
-
-        // Top Rachas (Blaze Powder)
         menu.setItem(15, createMenuItem(Material.BLAZE_POWDER, "&c⚡ Top Rachas", "&7Click para ver el ranking de rachas"));
-
-        // Top ELO (Estrella del Nether)
         menu.setItem(21, createMenuItem(Material.NETHER_STAR, "&e✦ Top ELO", "&7Click para ver el ranking de ELO"));
-
-        // Top Horas Jugadas (Reloj)
         menu.setItem(23, createMenuItem(Material.WATCH, "&a⌚ Top Horas Jugadas", "&7Click para ver el ranking de tiempo jugado"));
 
         // Tus Stats (Cabeza del jugador)
@@ -52,7 +44,7 @@ public class MainMenu {
         // Editor de Inventario
         menu.setItem(40, createMenuItem(Material.REDSTONE, "&c⚙ Editor de Inventario", "&7Click para editar el inventario"));
 
-        player.openInventory(menu);
+        MenuManager.openMenu(player, MenuType.MAIN);
     }
 
     private static ItemStack createMenuItem(Material material, String name, String... lore) {

@@ -7,31 +7,34 @@ import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 
 import kk.kvlzx.stats.PlayerStats;
-import kk.kvlzx.menus.TopType;
 import kk.kvlzx.items.CustomItem;
+import kk.kvlzx.menus.MenuType;
 
 public class TopManager {
     
-    public static List<Map.Entry<UUID, Integer>> getTop(TopType type, int limit) {
+    public static List<Map.Entry<UUID, Integer>> getTop(MenuType menuType, int limit) {
+        if (!menuType.isTopMenu()) return new ArrayList<>();
         Map<UUID, Integer> values = new HashMap<>();
         
         for (UUID uuid : PlayerStats.getAllStats()) {
             PlayerStats stats = PlayerStats.getStats(uuid);
-            switch (type) {
-                case KILLS:
+            switch (menuType) {
+                case TOP_KILLS:
                     values.put(uuid, stats.getKills());
                     break;
-                case KDR:
-                    values.put(uuid, (int)(stats.getKDR() * 100)); // Multiplicamos por 100 para ordenar
+                case TOP_KDR:
+                    values.put(uuid, (int)(stats.getKDR() * 100));
                     break;
-                case STREAK:
+                case TOP_STREAK:
                     values.put(uuid, stats.getMaxStreak());
                     break;
-                case ELO:
+                case TOP_ELO:
                     values.put(uuid, stats.getElo());
                     break;
-                case PLAYTIME:
+                case TOP_PLAYTIME:
                     values.put(uuid, (int)stats.getPlayTimeHours());
+                    break;
+                default:
                     break;
             }
         }
@@ -43,39 +46,43 @@ public class TopManager {
                     .collect(Collectors.toList());
     }
 
-    public static ItemStack createTopSkull(int position, UUID uuid, int value, TopType type) {
+    public static ItemStack createTopSkull(int position, UUID uuid, int value, MenuType menuType) {
         String playerName = Bukkit.getOfflinePlayer(uuid).getName();
-        String posStr;
-        switch (position) {
-            case 1:
-                posStr = "&6[1°]";
-                break;
-            case 2:
-                posStr = "&7[2°]";
-                break;
-            case 3:
-                posStr = "&c[3°]";
-                break;
-            default:
-                posStr = "&7[" + position + "°]";
-                break;
-        }
-        
-        String valueStr;
-        switch (type) {
-            case KDR:
-                valueStr = String.format("%.2f", value / 100.0);
-                break;
-            case PLAYTIME:
-                valueStr = value + "h";
-                break;
-            default:
-                valueStr = String.valueOf(value);
-                break;
-        }
+        String posStr = getPositionString(position);
+        String valueStr = getFormattedValue(value, menuType);
+        String statName = getStatName(menuType);
 
         return CustomItem.createSkullFromUUID(uuid, 
             posStr + " &f" + playerName,
-            "&7" + type.getTitle() + ": &e" + valueStr);
+            "&7" + statName + ": &e" + valueStr);
+    }
+
+    private static String getStatName(MenuType menuType) {
+        switch (menuType) {
+            case TOP_KILLS: return "Kills";
+            case TOP_KDR: return "KDR";
+            case TOP_STREAK: return "Racha";
+            case TOP_ELO: return "ELO";
+            case TOP_PLAYTIME: return "Horas";
+            default: return "";
+        }
+    }
+
+    private static String getPositionString(int position) {
+        switch (position) {
+            case 1: return "&6[1°]";
+            case 2: return "&7[2°]";
+            case 3: return "&c[3°]";
+            default: return "&7[" + position + "°]";
+        }
+    }
+
+    private static String getFormattedValue(int value, MenuType menuType) {
+        if (menuType == MenuType.TOP_KDR) {
+            return String.format("%.2f", value / 100.0);
+        } else if (menuType == MenuType.TOP_PLAYTIME) {
+            return value + "h";
+        }
+        return String.valueOf(value);
     }
 }
