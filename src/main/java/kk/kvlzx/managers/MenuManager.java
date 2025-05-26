@@ -1,53 +1,70 @@
 package kk.kvlzx.managers;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.UUID;
 
-import kk.kvlzx.menus.MenuType;
-import kk.kvlzx.utils.MessageUtils;
+import kk.kvlzx.KvKnockback;
+import kk.kvlzx.menu.MainMenu;
+import kk.kvlzx.menu.Menu;
+import kk.kvlzx.menu.TopKillsMenu;
+import kk.kvlzx.menu.TopKDRMenu;
+import kk.kvlzx.menu.TopEloMenu;
+import kk.kvlzx.menu.TopStreakMenu;
+import kk.kvlzx.menu.TopTimeMenu;
+import kk.kvlzx.menu.HotbarEditMenu;
+import kk.kvlzx.menu.StatsMenu;
 
 public class MenuManager {
-    private static final Map<UUID, MenuType> playerMenus = new HashMap<>();
-    
-    public static Inventory createInventory(MenuType type) {
-        return Bukkit.createInventory(null, type.getSize(), MessageUtils.getColor(type.getTitle()));
+    private final KvKnockback plugin;
+    private final Map<UUID, Menu> playerMenus;
+    private final Map<String, Menu> registeredMenus;
+
+    public MenuManager(KvKnockback plugin) {
+        this.plugin = plugin;
+        this.playerMenus = new HashMap<>();
+        this.registeredMenus = new HashMap<>();
+        registerDefaultMenus();
     }
 
-    public static void openMenu(Player player, MenuType type, Inventory menu) {
-        // Registrar al jugador en el mapa de menús
-        playerMenus.put(player.getUniqueId(), type);
-        
-        // Abrir el menú
-        player.openInventory(menu);
+    private void registerDefaultMenus() {
+        registerMenu("main", new MainMenu(plugin));
+        registerMenu("top_kills", new TopKillsMenu(plugin));
+        registerMenu("top_elo", new TopEloMenu(plugin));
+        registerMenu("top_streak", new TopStreakMenu(plugin));
+        registerMenu("top_kdr", new TopKDRMenu(plugin));
+        registerMenu("top_time", new TopTimeMenu(plugin));
+        registerMenu("stats", new StatsMenu(plugin));
+        registerMenu("hotbar_edit", new HotbarEditMenu(plugin));
+        // Aquí registraremos los demás menús
     }
 
-    public static MenuType getPlayerMenuType(Player player) {
+    public void registerMenu(String id, Menu menu) {
+        registeredMenus.put(id.toLowerCase(), menu);
+    }
+
+    public Menu getMenu(String id) {
+        return registeredMenus.get(id.toLowerCase());
+    }
+
+    public void openMenu(Player player, String menuId) {
+        Menu menu = getMenu(menuId);
+        if (menu != null) {
+            Inventory inv = menu.getInventory(player);
+            player.openInventory(inv);
+            playerMenus.put(player.getUniqueId(), menu);
+        }
+    }
+
+    public Menu getOpenMenu(Player player) {
         return playerMenus.get(player.getUniqueId());
     }
 
-    public static void removePlayer(Player player) {
+    public void closeMenu(Player player) {
         playerMenus.remove(player.getUniqueId());
-    }
-
-    public static boolean isInMenu(Player player) {
-        return playerMenus.containsKey(player.getUniqueId());
-    }
-
-    public static boolean isInMenuType(Player player, MenuType type) {
-        MenuType currentType = playerMenus.get(player.getUniqueId());
-        return currentType == type;
-    }
-
-    public static void debugPlayerMenu(Player player) {
-        MenuType currentMenu = playerMenus.get(player.getUniqueId());
-        if (currentMenu != null) {
-            player.sendMessage("Estás en el menú: " + currentMenu.name());
-        } else {
-            player.sendMessage("DEBUG: No estás en ningún menú");
-        }
     }
 }

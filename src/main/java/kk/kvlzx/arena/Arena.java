@@ -3,11 +3,13 @@ package kk.kvlzx.arena;
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 public class Arena {
     private final String name;
     private final Map<ZoneType, Zone> zones; // Cambiado de String a ZoneType
     private Location spawnPoint;
+    private VirtualBorder border;
 
     public Arena(String name) {
         this.name = name;
@@ -47,5 +49,25 @@ public class Arena {
             (min.getZ() + max.getZ()) / 2,
             0, 0
         );
+    }
+
+    public void setBorder(Location center, double size) {
+        this.border = new VirtualBorder(center, size);
+    }
+
+    public void showBorder(Player player) {
+        if (border != null) {
+            border.show(player);
+        }
+    }
+
+    public void hideBorder(Player player) {
+        if (border != null) {
+            border.hide(player);
+        }
+    }
+
+    public boolean hasBorder() {
+        return border != null;
     }
 }

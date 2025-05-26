@@ -1,5 +1,6 @@
 package kk.kvlzx.commands;
 
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -7,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import kk.kvlzx.KvKnockback;
 import kk.kvlzx.arena.Arena;
+import kk.kvlzx.arena.Zone;
 import kk.kvlzx.utils.MessageUtils;
 
 public class ArenaCommand implements CommandExecutor {
@@ -77,6 +79,47 @@ public class ArenaCommand implements CommandExecutor {
                     sender.sendMessage(MessageUtils.getColor("&cLa arena no existe."));
                 }
                 break;
+            case "setborder":
+                if (args.length < 3) {
+                    sender.sendMessage(MessageUtils.getColor("&cUso: /arena setborder <arena> <tamaño>"));
+                    return true;
+                }
+                try {
+                    double size = Double.parseDouble(args[2]);
+                    Arena arena = plugin.getArenaManager().getArena(arenaName);
+                    if (arena == null) {
+                        sender.sendMessage(MessageUtils.getColor("&cLa arena no existe."));
+                        return true;
+                    }
+                    
+                    Location center;
+                    Zone pvpZone = arena.getZone("pvp");
+                    if (pvpZone != null) {
+                        // Usar el centro de la zona PvP
+                        Location min = pvpZone.getMin();
+                        Location max = pvpZone.getMax();
+                        center = new Location(
+                            min.getWorld(),
+                            (min.getX() + max.getX()) / 2,
+                            min.getY(),
+                            (min.getZ() + max.getZ()) / 2
+                        );
+                    } else {
+                        // Usar la ubicación del jugador
+                        center = player.getLocation();
+                    }
+                    
+                    arena.setBorder(center, size);
+                    sender.sendMessage(MessageUtils.getColor("&aBorde establecido para la arena " + arenaName));
+                    
+                    // Mostrar el borde a todos los jugadores en la arena
+                    for (Player p : plugin.getArenaManager().getPlayersInArena(arenaName)) {
+                        arena.showBorder(p);
+                    }
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(MessageUtils.getColor("&cEl tamaño debe ser un número válido."));
+                }
+                break;
             default:
                 sendHelp(sender);
                 break;
@@ -100,5 +143,6 @@ public class ArenaCommand implements CommandExecutor {
         sender.sendMessage(MessageUtils.getColor("&f/arena setzone <arena> <spawn/pvp/void> &7- Establece/actualiza una zona"));
         sender.sendMessage(MessageUtils.getColor("&f/arena setspawn <arena> &7- Establece el punto de spawn"));
         sender.sendMessage(MessageUtils.getColor("&f/arena delete <arena> &7- Elimina una arena"));
+        sender.sendMessage(MessageUtils.getColor("&f/arena setborder <arena> <tamaño> &7- Establece el borde de la arena"));
     }
 }

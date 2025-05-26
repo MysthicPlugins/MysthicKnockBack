@@ -192,6 +192,12 @@ public class PlayerListener implements Listener {
     }
 
     private void givePearlToKiller(Player killer) {
+        // Verificar si el killer está en zona pvp
+        String killerZone = plugin.getArenaManager().getPlayerZone(killer);
+        if (killerZone == null || !killerZone.equals("pvp")) {
+            return; // No dar perla si no está en zona pvp
+        }
+
         int pearlSlot = 8;
         ItemStack currentItem = killer.getInventory().getItem(pearlSlot);
 

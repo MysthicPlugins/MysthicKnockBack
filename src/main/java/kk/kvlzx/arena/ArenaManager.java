@@ -108,11 +108,19 @@ public class ArenaManager {
 
     public void addPlayerToArena(Player player, String arenaName) {
         arenaPlayers.get(arenaName).add(player.getUniqueId());
+        Arena arena = getArena(arenaName);
+        if (arena != null && arena.hasBorder()) {
+            arena.showBorder(player);
+        }
     }
 
     public void removePlayerFromArena(Player player, String arenaName) {
         if (arenaPlayers.containsKey(arenaName)) {
             arenaPlayers.get(arenaName).remove(player.getUniqueId());
+            Arena arena = getArena(arenaName);
+            if (arena != null && arena.hasBorder()) {
+                arena.hideBorder(player);
+            }
         }
     }
 

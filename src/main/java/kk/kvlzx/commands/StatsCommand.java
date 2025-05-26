@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import kk.kvlzx.KvKnockback;
+import kk.kvlzx.managers.RankManager;
 import kk.kvlzx.stats.PlayerStats;
 import kk.kvlzx.utils.MessageUtils;
 
@@ -88,12 +89,19 @@ public class StatsCommand implements CommandExecutor {
     }
 
     private void showStats(CommandSender sender, Player target) {
+        // Mostrar siempre en formato texto
         PlayerStats stats = PlayerStats.getStats(target.getUniqueId());
-        sender.sendMessage(MessageUtils.getColor("&a=== Estadísticas de " + target.getName() + " ==="));
+        String rankPrefix = RankManager.getRankPrefix(stats.getElo());
+        
+        sender.sendMessage(MessageUtils.getColor("&b&l=== Estadísticas de " + target.getName() + " &b&l==="));
+        sender.sendMessage(MessageUtils.getColor("&fRango: " + rankPrefix));
         sender.sendMessage(MessageUtils.getColor("&fKills: &a" + stats.getKills()));
         sender.sendMessage(MessageUtils.getColor("&fMuertes: &c" + stats.getDeaths()));
-        sender.sendMessage(MessageUtils.getColor("&fELO: &6" + stats.getElo()));
         sender.sendMessage(MessageUtils.getColor("&fKDR: &b" + String.format("%.2f", stats.getKDR())));
+        sender.sendMessage(MessageUtils.getColor("&fELO: &6" + stats.getElo()));
+        sender.sendMessage(MessageUtils.getColor("&fRacha actual: &d" + stats.getCurrentStreak()));
+        sender.sendMessage(MessageUtils.getColor("&fMejor racha: &d" + stats.getMaxStreak()));
+        sender.sendMessage(MessageUtils.getColor("&fTiempo jugado: &e" + stats.getFormattedPlayTime()));
     }
 
     private void sendHelp(CommandSender sender) {

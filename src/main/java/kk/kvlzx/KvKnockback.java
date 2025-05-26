@@ -21,6 +21,7 @@ import kk.kvlzx.listeners.PlayerListener;
 import kk.kvlzx.listeners.MenuListener;
 import kk.kvlzx.managers.MainScoreboardManager;
 import kk.kvlzx.managers.TabManager;
+import kk.kvlzx.managers.MenuManager;
 import kk.kvlzx.stats.PlayerStats;
 import kk.kvlzx.utils.MessageUtils;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
@@ -37,6 +38,7 @@ public class KvKnockback extends JavaPlugin {
     private CombatListener combatListener;
     private MainScoreboardManager scoreboardManager;
     private TabManager tabManager;
+    private MenuManager menuManager;
 
     @Override
     public void onEnable() {
@@ -102,6 +104,7 @@ public class KvKnockback extends JavaPlugin {
         arenaManager = new ArenaManager(this);
         scoreboardManager = new MainScoreboardManager(this);
         tabManager = new TabManager(this);
+        menuManager = new MenuManager(this); // Añadir esta línea
     }
 
     private void startPlaytimeUpdater() {
@@ -129,8 +132,8 @@ public class KvKnockback extends JavaPlugin {
         combatListener = new CombatListener(this);
         getServer().getPluginManager().registerEvents(combatListener, this);
         getServer().getPluginManager().registerEvents(new ItemListener(this), this);
-        getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
+        getServer().getPluginManager().registerEvents(new MenuListener(this), this);
     }
 
     public static KvKnockback getInstance() {
@@ -155,5 +158,9 @@ public class KvKnockback extends JavaPlugin {
 
     public TabManager getTabManager() {
         return tabManager;
+    }
+
+    public MenuManager getMenuManager() {
+        return menuManager;
     }
 }

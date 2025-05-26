@@ -184,7 +184,6 @@ public class PlayerStats {
             StreakManager.setMaxStreak(uuid, section.getInt("maxStreak", 0));
             StreakManager.setStreak(uuid, section.getInt("currentStreak", 0));
             this.playTime = section.getLong("playTime", 0);
-            if (this.elo < 500) this.elo = 500;
         }
     }
 }
