@@ -32,7 +32,7 @@ public class TopManager {
                     values.put(uuid, stats.getElo());
                     break;
                 case TOP_PLAYTIME:
-                    values.put(uuid, (int)stats.getPlayTimeHours());
+                    values.put(uuid, (int)(stats.getPlayTime() / 60)); // Convertir a horas para el ranking
                     break;
                 default:
                     break;

@@ -45,7 +45,7 @@ public class TopMenu {
         backButton.setItemMeta(backMeta);
         menu.setItem(18, backButton);
 
-        MenuManager.openMenu(player, type);
+        MenuManager.openMenu(player, type, menu);
     }
 
     private static ItemStack createBorderItem(MenuType type) {

@@ -39,6 +39,7 @@ public class ItemListener implements Listener {
     private final Map<Location, BukkitRunnable> plateTimers = new HashMap<>();
     private final Map<UUID, List<BukkitRunnable>> cooldownTasks = new HashMap<>();
     private final Map<UUID, BukkitRunnable> speedTasks = new HashMap<>(); // Nuevo mapa para las tasks de speed
+    private static final Set<Location> placedBlocks = new HashSet<>(); // Set para almacenar bloques colocados
 
     public ItemListener(KvKnockback plugin) {
         this.plugin = plugin;
@@ -166,7 +167,6 @@ public class ItemListener implements Listener {
     public void onStepPlate(PlayerInteractEvent event) {
         if (event.getAction() != Action.PHYSICAL) return;
         
-        // Verificar si la arena está cambiando
         if (plugin.getScoreboardManager().isArenaChanging()) {
             event.setCancelled(true);
             return;
@@ -174,25 +174,14 @@ public class ItemListener implements Listener {
 
         Block block = event.getClickedBlock();
         Player player = event.getPlayer();
-        if (block == null) return;
+        if (block == null || block.getType() != Material.GOLD_PLATE) return;
 
-        if (block.getType() == Material.GOLD_PLATE && plateTimers.containsKey(block.getLocation())) {
-
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                Vector direction = player.getLocation().getDirection().setY(0).normalize().multiply(0.6);
-                Vector velocity = new Vector(direction.getX(), 1.2, direction.getZ());
-                player.setVelocity(velocity);
-            }, 1L);
-
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Vector direction = player.getLocation().getDirection().setY(0).normalize().multiply(0.6);
+            Vector velocity = new Vector(direction.getX(), 1.2, direction.getZ());
+            player.setVelocity(velocity);
             player.playSound(player.getLocation(), Sound.FIREWORK_TWINKLE2, 1.0f, 1.0f);
-
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                block.setType(Material.AIR);
-            }, COOLDOWN_SECONDS * 20L);
-
-            plateTimers.get(block.getLocation()).cancel();
-            plateTimers.remove(block.getLocation());
-        }
+        }, 1L);
     }
 
     @EventHandler
@@ -223,12 +212,16 @@ public class ItemListener implements Listener {
                     startPlateTimer(block.getLocation());
                 } else {
                     stack.setAmount(64); // Siempre mantener en 64 los bloques
+                    placedBlocks.add(block.getLocation()); // Añadir bloque a la lista
                 }
                 player.getInventory().setItem(itemSlot, stack);
                 player.updateInventory();
             }
             // Programar la eliminación del bloque después de 5 segundos (20 ticks = 1 segundo)
-            Bukkit.getScheduler().runTaskLater(plugin, () -> block.setType(Material.AIR), 100L);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                block.setType(Material.AIR);
+                placedBlocks.remove(block.getLocation()); // Remover de la lista cuando se elimina
+            }, 100L);
         }
     }
 
@@ -253,9 +246,10 @@ public class ItemListener implements Listener {
                     location.getBlock().setType(Material.AIR);
                 }
                 plateTimers.remove(location);
+                placedBlocks.remove(location);
             }
         };
-        timer.runTaskLater(plugin, 20L * 10);
+        timer.runTaskLater(plugin, 20L * 10); // 10 segundos
         plateTimers.put(location, timer);
     }
 
@@ -363,5 +357,13 @@ public class ItemListener implements Listener {
         if (offlinePlayer.isOnline() && offlinePlayer.getPlayer() != null) {
             offlinePlayer.getPlayer().setWalkSpeed(0.2f);
         }
+    }
+
+    public static void cleanup() {
+        // Eliminar todos los bloques colocados
+        for (Location loc : placedBlocks) {
+            loc.getBlock().setType(Material.AIR);
+        }
+        placedBlocks.clear();
     }
 }

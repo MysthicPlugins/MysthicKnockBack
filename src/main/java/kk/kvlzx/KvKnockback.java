@@ -79,6 +79,9 @@ public class KvKnockback extends JavaPlugin {
     @Override
     public void onDisable() {
         try {
+            // Limpiar bloques antes de guardar
+            ItemListener.cleanup();
+            
             arenaManager.saveArenas();
             PlayerStats.saveAllStats();
         } catch (Exception e) {

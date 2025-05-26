@@ -26,7 +26,7 @@ public class StatsData {
         section.set("elo", stats.getElo());
         section.set("maxStreak", stats.getMaxStreak());
         section.set("currentStreak", stats.getCurrentStreak());
-        section.set("playTime", stats.getPlayTimeHours());
+        section.set("playTime", stats.getPlayTime()); // Guardamos los minutos directamente
         
         statsConfig.saveConfig();
     }

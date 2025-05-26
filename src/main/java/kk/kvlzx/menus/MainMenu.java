@@ -15,6 +15,7 @@ import kk.kvlzx.utils.MessageUtils;
 
 public class MainMenu {
     public static void openMenu(Player player) {
+        // Primero crear y configurar el inventario
         Inventory menu = MenuManager.createInventory(MenuType.MAIN);
 
         // Decoración de bordes
@@ -44,7 +45,8 @@ public class MainMenu {
         // Editor de Inventario
         menu.setItem(40, createMenuItem(Material.REDSTONE, "&c⚙ Editor de Inventario", "&7Click para editar el inventario"));
 
-        MenuManager.openMenu(player, MenuType.MAIN);
+        // Abrir el menú ya configurado
+        MenuManager.openMenu(player, MenuType.MAIN, menu);
     }
 
     private static ItemStack createMenuItem(Material material, String name, String... lore) {

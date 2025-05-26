@@ -46,7 +46,7 @@ public class StatsMenu {
         ItemStack backButton = createMenuItem(Material.ARROW, "&c← Volver al menú principal");
         menu.setItem(18, backButton);
 
-        MenuManager.openMenu(player, MenuType.STATS);
+        MenuManager.openMenu(player, MenuType.STATS, menu);
     }
 
     private static ItemStack createMenuItem(Material material, String name, String... lore) {

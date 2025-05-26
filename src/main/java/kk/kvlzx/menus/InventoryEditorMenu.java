@@ -19,6 +19,6 @@ public class InventoryEditorMenu {
             }
         }
 
-        player.openInventory(menu);
+        MenuManager.openMenu(player, MenuType.INVENTORY_EDITOR, menu);
     }
 }

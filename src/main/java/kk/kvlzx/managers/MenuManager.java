@@ -17,14 +17,11 @@ public class MenuManager {
         return Bukkit.createInventory(null, type.getSize(), MessageUtils.getColor(type.getTitle()));
     }
 
-    public static void openMenu(Player player, MenuType type) {
-        // Crear el inventario
-        Inventory menu = createInventory(type);
-
-        // El put() sobrescribirá automáticamente si ya existe una entrada para este UUID
+    public static void openMenu(Player player, MenuType type, Inventory menu) {
+        // Registrar al jugador en el mapa de menús
         playerMenus.put(player.getUniqueId(), type);
         
-        // Abrir el nuevo menú
+        // Abrir el menú
         player.openInventory(menu);
     }
 
@@ -48,9 +45,9 @@ public class MenuManager {
     public static void debugPlayerMenu(Player player) {
         MenuType currentMenu = playerMenus.get(player.getUniqueId());
         if (currentMenu != null) {
-            player.sendMessage(MessageUtils.getColor("&7DEBUG: Estás en el menú: " + currentMenu.name()));
+            player.sendMessage("Estás en el menú: " + currentMenu.name());
         } else {
-            player.sendMessage(MessageUtils.getColor("&7DEBUG: No estás en ningún menú"));
+            player.sendMessage("DEBUG: No estás en ningún menú");
         }
     }
 }
