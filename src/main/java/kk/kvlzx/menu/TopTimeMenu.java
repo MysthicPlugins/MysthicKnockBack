@@ -20,11 +20,35 @@ import kk.kvlzx.items.CustomItem;
 public class TopTimeMenu extends Menu {
 
     public TopTimeMenu(KvKnockback plugin) {
-        super(plugin, "&8• &b&lTop Tiempo Jugado &8•", 27);
+        super(plugin, "&8• &7&lTop Tiempo &8•", 45);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
+        // Crear los items de relleno
+        ItemStack darkGray = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7); // Gris oscuro
+        ItemStack lightGray = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 8); // Gris claro
+
+        // Colocar el borde exterior (gris oscuro)
+        for (int i = 0; i < 9; i++) {
+            inv.setItem(i, darkGray);
+            inv.setItem(36 + i, darkGray);
+        }
+        for (int i = 0; i < 45; i += 9) {
+            inv.setItem(i, darkGray);
+            inv.setItem(i + 8, darkGray);
+        }
+
+        // Colocar el borde interior (gris claro)
+        for (int i = 1; i < 8; i++) {
+            inv.setItem(9 + i, lightGray);
+            inv.setItem(27 + i, lightGray);
+        }
+        for (int i = 9; i < 36; i += 9) {
+            inv.setItem(i + 1, lightGray);
+            inv.setItem(i + 7, lightGray);
+        }
+
         List<UUID> topPlayers = new ArrayList<>(PlayerStats.getAllStats());
         topPlayers.sort((uuid1, uuid2) -> {
             PlayerStats stats1 = PlayerStats.getStats(uuid1);

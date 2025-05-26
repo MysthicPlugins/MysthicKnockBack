@@ -20,11 +20,36 @@ import kk.kvlzx.items.CustomItem;
 public class TopKillsMenu extends Menu {
 
     public TopKillsMenu(KvKnockback plugin) {
-        super(plugin, "&8• &a&lTop Kills &8•", 27);
+        super(plugin, "&8• &a&lTop Kills &8•", 45);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
+        // Crear los items de relleno
+        ItemStack darkGreen = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 13); // Verde oscuro
+        ItemStack lightGreen = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 5); // Verde claro
+
+        // Colocar el borde exterior (verde oscuro)
+        for (int i = 0; i < 9; i++) {
+            inv.setItem(i, darkGreen); // Primera fila
+            inv.setItem(36 + i, darkGreen); // Última fila
+        }
+        for (int i = 0; i < 45; i += 9) {
+            inv.setItem(i, darkGreen); // Primera columna
+            inv.setItem(i + 8, darkGreen); // Última columna
+        }
+
+        // Colocar el borde interior (verde claro)
+        for (int i = 1; i < 8; i++) {
+            inv.setItem(9 + i, lightGreen); // Segunda fila
+            inv.setItem(27 + i, lightGreen); // Penúltima fila
+        }
+        for (int i = 9; i < 36; i += 9) {
+            inv.setItem(i + 1, lightGreen); // Segunda columna
+            inv.setItem(i + 7, lightGreen); // Penúltima columna
+        }
+
+        // Obtener y ordenar los top jugadores
         List<UUID> topPlayers = new ArrayList<>(PlayerStats.getAllStats());
         topPlayers.sort((uuid1, uuid2) -> {
             PlayerStats stats1 = PlayerStats.getStats(uuid1);
@@ -32,7 +57,8 @@ public class TopKillsMenu extends Menu {
             return Integer.compare(stats2.getKills(), stats1.getKills());
         });
 
-        // Mostrar los primeros 10 jugadores o cabezas vacías
+        // Colocar las cabezas de los jugadores (10 slots centrales)
+        int[] slots = {11, 12, 13, 14, 15, 20, 21, 22, 23, 24};
         for (int i = 0; i < 10; i++) {
             ItemStack skull;
             if (i < topPlayers.size()) {
@@ -48,30 +74,25 @@ public class TopKillsMenu extends Menu {
                     "&a" + playerName,
                     lore.toArray(new String[0]));
             } else {
-                // Crear cabeza vacía para posiciones sin jugador
                 skull = CustomItem.createEmptyTopSkull(i + 1, "&7Sin datos", 
                     "&7Posición: &f#" + (i + 1),
                     "&7Kills: &a0");
             }
             
-            inv.setItem(10 + i, skull);
+            inv.setItem(slots[i], skull);
         }
 
-        // Botón para volver al menú principal
+        // Botón para volver centrado en la última fila
         ItemStack backButton = createItem(Material.ARROW, "&c← Volver", 
             "&7Click para volver al menú principal");
-        inv.setItem(22, backButton);
-
-        // Relleno verde claro (datos: 5)
-        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 5);
-        fillEmptySlots(inv, filler);
+        inv.setItem(40, backButton);
     }
 
     @Override
     public void handleClick(InventoryClickEvent event) {
         event.setCancelled(true);
         
-        if (event.getSlot() == 22) { // Botón de volver
+        if (event.getSlot() == 40) { // Botón de volver
             Player player = (Player) event.getWhoClicked();
             plugin.getMenuManager().openMenu(player, "main");
         }

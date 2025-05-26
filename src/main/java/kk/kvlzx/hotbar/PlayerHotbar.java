@@ -7,12 +7,14 @@ import java.util.UUID;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import kk.kvlzx.data.InventoryData;
 import kk.kvlzx.items.CustomItem;
 import kk.kvlzx.items.CustomItem.ItemType;
 
 public class PlayerHotbar {
     private static final Map<UUID, ItemStack[]> playerLayouts = new HashMap<>();
     private static final ItemStack[] DEFAULT_LAYOUT = new ItemStack[9];
+    private static InventoryData inventoryData;
 
     static {
         // Layout por defecto
@@ -24,13 +26,30 @@ public class PlayerHotbar {
         DEFAULT_LAYOUT[8] = CustomItem.create(ItemType.PEARL);
     }
 
+    public static void init(InventoryData data) {
+        inventoryData = data;
+    }
+
     public static void setPlayerLayout(UUID uuid, ItemStack[] layout) {
         ItemStack[] copy = new ItemStack[9];
         System.arraycopy(layout, 0, copy, 0, 9);
         playerLayouts.put(uuid, copy);
+        
+        // Guardar en archivo
+        if (inventoryData != null) {
+            inventoryData.saveLayout(uuid, copy);
+        }
     }
 
     public static ItemStack[] getPlayerLayout(UUID uuid) {
+        if (!playerLayouts.containsKey(uuid) && inventoryData != null) {
+            // Intentar cargar del archivo si no está en memoria
+            if (inventoryData.hasLayout(uuid)) {
+                ItemStack[] layout = inventoryData.loadLayout(uuid);
+                playerLayouts.put(uuid, layout);
+                return layout.clone();
+            }
+        }
         return playerLayouts.getOrDefault(uuid, DEFAULT_LAYOUT).clone();
     }
 

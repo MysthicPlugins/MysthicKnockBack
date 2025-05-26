@@ -108,14 +108,16 @@ public class ArenaCommand implements CommandExecutor {
                         // Usar la ubicación del jugador
                         center = player.getLocation();
                     }
-                    
-                    arena.setBorder(center, size);
-                    sender.sendMessage(MessageUtils.getColor("&aBorde establecido para la arena " + arenaName));
-                    
-                    // Mostrar el borde a todos los jugadores en la arena
-                    for (Player p : plugin.getArenaManager().getPlayersInArena(arenaName)) {
-                        arena.showBorder(p);
+
+                    // Si la arena ya tiene un borde, actualizar su tamaño en vez de crear uno nuevo
+                    if (arena.hasBorder()) {
+                        arena.updateBorderSize(size);
+                    } else {
+                        arena.setBorder(center, size);
                     }
+                    
+                    sender.sendMessage(MessageUtils.getColor("&aBorde " + (arena.hasBorder() ? "actualizado" : "establecido") + " para la arena " + arenaName));
+                    
                 } catch (NumberFormatException e) {
                     sender.sendMessage(MessageUtils.getColor("&cEl tamaño debe ser un número válido."));
                 }

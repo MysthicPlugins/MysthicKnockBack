@@ -14,6 +14,8 @@ import kk.kvlzx.commands.ReportCommand;
 import kk.kvlzx.commands.ReportTabCompleter;
 import kk.kvlzx.commands.StatsCommand;
 import kk.kvlzx.commands.StatsTabCompleter;
+import kk.kvlzx.data.InventoryData;
+import kk.kvlzx.hotbar.PlayerHotbar;
 import kk.kvlzx.listeners.ChatListener;
 import kk.kvlzx.listeners.CombatListener;
 import kk.kvlzx.listeners.ItemListener;
@@ -54,6 +56,11 @@ public class KvKnockback extends JavaPlugin {
         registerManagers();
         // Primero inicializar los datos
         PlayerStats.initializeStatsData(this);
+        
+        // Inicializar InventoryData antes de cargar estadísticas
+        InventoryData inventoryData = new InventoryData(this);
+        PlayerHotbar.init(inventoryData);
+        
         // Luego cargar las estadísticas
         new BukkitRunnable() {
             @Override

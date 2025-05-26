@@ -20,11 +20,35 @@ import kk.kvlzx.items.CustomItem;
 public class TopKDRMenu extends Menu {
 
     public TopKDRMenu(KvKnockback plugin) {
-        super(plugin, "&8• &e&lTop KDR &8•", 27);
+        super(plugin, "&8• &b&lTop KDR &8•", 45);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
+        // Crear los items de relleno
+        ItemStack darkBlue = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 9); // Azul oscuro
+        ItemStack lightBlue = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 3); // Celeste
+
+        // Colocar el borde exterior (azul oscuro)
+        for (int i = 0; i < 9; i++) {
+            inv.setItem(i, darkBlue);
+            inv.setItem(36 + i, darkBlue);
+        }
+        for (int i = 0; i < 45; i += 9) {
+            inv.setItem(i, darkBlue);
+            inv.setItem(i + 8, darkBlue);
+        }
+
+        // Colocar el borde interior (celeste)
+        for (int i = 1; i < 8; i++) {
+            inv.setItem(9 + i, lightBlue);
+            inv.setItem(27 + i, lightBlue);
+        }
+        for (int i = 9; i < 36; i += 9) {
+            inv.setItem(i + 1, lightBlue);
+            inv.setItem(i + 7, lightBlue);
+        }
+
         List<UUID> topPlayers = new ArrayList<>(PlayerStats.getAllStats());
         topPlayers.sort((uuid1, uuid2) -> {
             PlayerStats stats1 = PlayerStats.getStats(uuid1);

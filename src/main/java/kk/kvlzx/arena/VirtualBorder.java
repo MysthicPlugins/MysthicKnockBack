@@ -22,7 +22,7 @@ public class VirtualBorder {
     private final Set<UUID> playersWithBorder = new HashSet<>();
     private final WorldBorder border;
     private final Location center;
-    private final double size;
+    private double size;
 
     public VirtualBorder(Location center, double size) {
         this.center = center;
@@ -52,10 +52,29 @@ public class VirtualBorder {
     }
 
     private void sendBorderPackets(CraftPlayer craftPlayer) {
-        craftPlayer.getHandle().playerConnection.sendPacket(new PacketPlayOutWorldBorder(border, PacketPlayOutWorldBorder.EnumWorldBorderAction.SET_SIZE));
+        // Primero enviamos el centro para evitar animaciones no deseadas
         craftPlayer.getHandle().playerConnection.sendPacket(new PacketPlayOutWorldBorder(border, PacketPlayOutWorldBorder.EnumWorldBorderAction.SET_CENTER));
+        
+        // Enviamos el tamaño inmediato sin animación
+        craftPlayer.getHandle().playerConnection.sendPacket(new PacketPlayOutWorldBorder(border, PacketPlayOutWorldBorder.EnumWorldBorderAction.INITIALIZE));
+        
+        // Luego enviamos el resto de las propiedades
         craftPlayer.getHandle().playerConnection.sendPacket(new PacketPlayOutWorldBorder(border, PacketPlayOutWorldBorder.EnumWorldBorderAction.SET_WARNING_BLOCKS));
         craftPlayer.getHandle().playerConnection.sendPacket(new PacketPlayOutWorldBorder(border, PacketPlayOutWorldBorder.EnumWorldBorderAction.SET_WARNING_TIME));
+    }
+
+    // Método para actualizar el tamaño sin animación
+    public void updateSize(double newSize) {
+        this.size = newSize;
+        updateBorder();
+        
+        // Actualizar para todos los jugadores que tienen el borde
+        for (UUID uuid : playersWithBorder) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null && player.isOnline()) {
+                sendBorderPackets((CraftPlayer) player);
+            }
+        }
     }
 
     public void hide(Player player) {
@@ -90,7 +109,7 @@ public class VirtualBorder {
                 }
             }
         };
-        refreshTask.runTaskTimer(KvKnockback.getInstance(), 100L, 100L); // Refrescar cada 5 segundos
+        refreshTask.runTaskTimer(KvKnockback.getInstance(), 40L, 40L); // Refrescar cada 22 segundos
     }
 
     public void cleanup() {

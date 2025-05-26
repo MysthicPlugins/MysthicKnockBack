@@ -2,8 +2,12 @@ package kk.kvlzx.arena;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+
+import kk.kvlzx.KvKnockback;
 
 public class Arena {
     private final String name;
@@ -52,7 +56,18 @@ public class Arena {
     }
 
     public void setBorder(Location center, double size) {
+        if (this.border != null) {
+            this.border.cleanup();
+        }
         this.border = new VirtualBorder(center, size);
+        
+        // Mostrar el nuevo borde a todos los jugadores en la arena
+        for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+            String playerArena = KvKnockback.getInstance().getArenaManager().getPlayerArena(player);
+            if (playerArena != null && playerArena.equals(this.name)) {
+                showBorder(player);
+            }
+        }
     }
 
     public void showBorder(Player player) {
@@ -81,6 +96,12 @@ public class Arena {
     public void refreshBorder(Player player) {
         if (border != null && player.isOnline()) {
             border.show(player);
+        }
+    }
+
+    public void updateBorderSize(double size) {
+        if (border != null) {
+            border.updateSize(size);
         }
     }
 }

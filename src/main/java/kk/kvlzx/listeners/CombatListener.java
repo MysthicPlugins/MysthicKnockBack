@@ -4,6 +4,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.util.Vector;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -47,9 +48,7 @@ public class CombatListener implements Listener {
         Player attacker = (Player) event.getDamager();
 
         // Verificar si la arena está cambiando o si algún jugador tiene NoDamageTicks altos
-        if (plugin.getScoreboardManager().isArenaChanging() || 
-            victim.getNoDamageTicks() > victim.getMaximumNoDamageTicks() / 2 ||
-            attacker.getNoDamageTicks() > attacker.getMaximumNoDamageTicks() / 2) {
+        if (plugin.getScoreboardManager().isArenaChanging()) {
             event.setCancelled(true);
             return;
         }
@@ -77,7 +76,6 @@ public class CombatListener implements Listener {
         final double BASE_HORIZONTAL = 0.45;    // Mantener horizontal
         final double BASE_VERTICAL = 0.25;      // Reducido de 0.42 a 0.25
         final double SPRINT_BONUS = 0.2;        // Mantener sprint bonus
-        final double FEATHER_BONUS = 0.15;      // Mantener feather bonus
         final double Y_REDUCTION = 0.45;        // Aumentado la reducción de Y
         final double MAX_Y_VELOCITY = 0.35;     // Nuevo: límite máximo de velocidad vertical
         
@@ -101,11 +99,6 @@ public class CombatListener implements Listener {
             horizontalMultiplier += SPRINT_BONUS;
         }
 
-        // Bonus por pluma (velocidad aumentada)
-        if (attacker.getWalkSpeed() > 0.2f) {
-            horizontalMultiplier += FEATHER_BONUS;
-        }
-
         // Reducir Y cuando el jugador está cayendo y limitar velocidad vertical máxima
         if (!((LivingEntity)victim).isOnGround() && victim.getVelocity().getY() < 0) {
             verticalMultiplier *= Y_REDUCTION;
@@ -114,11 +107,10 @@ public class CombatListener implements Listener {
         // Limitar la velocidad vertical máxima
         verticalMultiplier = Math.min(verticalMultiplier, MAX_Y_VELOCITY);
 
-        // Aplicar velocidad con el nuevo sistema de knockback
-        victim.setVelocity(victim.getVelocity()
-            .setX(dx * horizontalMultiplier)
-            .setY(verticalMultiplier)
-            .setZ(dz * horizontalMultiplier));
+        // Aplicar velocidad con el nuevo knockback
+
+        Vector knockback = new Vector(dx * horizontalMultiplier, verticalMultiplier, dz * horizontalMultiplier);
+        victim.setVelocity(knockback);
 
         // Cancelar el daño vanilla
         event.setDamage(0.0D);

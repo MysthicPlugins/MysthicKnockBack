@@ -18,6 +18,7 @@ import kk.kvlzx.menu.TopStreakMenu;
 import kk.kvlzx.menu.TopTimeMenu;
 import kk.kvlzx.menu.HotbarEditMenu;
 import kk.kvlzx.menu.StatsMenu;
+import kk.kvlzx.menu.ReportMenu;
 
 public class MenuManager {
     private final KvKnockback plugin;
@@ -40,6 +41,7 @@ public class MenuManager {
         registerMenu("top_time", new TopTimeMenu(plugin));
         registerMenu("stats", new StatsMenu(plugin));
         registerMenu("hotbar_edit", new HotbarEditMenu(plugin));
+        registerMenu("report", new ReportMenu(plugin, null));
         // Aquí registraremos los demás menús
     }
 

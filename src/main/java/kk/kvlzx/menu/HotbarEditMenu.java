@@ -7,7 +7,6 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -30,8 +29,8 @@ public class HotbarEditMenu extends Menu {
         inv.setItem(9, CustomItem.create(ItemType.KNOCKER));
         inv.setItem(10, CustomItem.create(ItemType.BLOCKS));
         inv.setItem(11, CustomItem.create(ItemType.BOW));
-        inv.setItem(15, CustomItem.create(ItemType.FEATHER));
-        inv.setItem(16, CustomItem.create(ItemType.PLATE));
+        inv.setItem(15, CustomItem.create(ItemType.PLATE));
+        inv.setItem(16, CustomItem.create(ItemType.FEATHER));
         inv.setItem(17, CustomItem.create(ItemType.PEARL));
 
         // Separador
@@ -57,10 +56,17 @@ public class HotbarEditMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         int slot = event.getSlot();
 
-        // Permitir mover items solo en la zona de hotbar
-        if (event.getSlotType() != InventoryType.SlotType.QUICKBAR && 
-            (slot < 36 || slot >= 45)) {
+        // Cancelar shift clicks
+        if (event.isShiftClick()) {
             event.setCancelled(true);
+            return;
+        }
+
+        // Permitir mover items solo en la zona de hotbar y solo dentro del inventario superior
+        if (event.getClickedInventory() == event.getView().getTopInventory()) {
+            if (slot < 36 || slot >= 45) {
+                event.setCancelled(true);
+            }
         }
 
         switch (slot) {
