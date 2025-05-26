@@ -70,4 +70,17 @@ public class Arena {
     public boolean hasBorder() {
         return border != null;
     }
+
+    public void cleanup() {
+        if (border != null) {
+            border.cleanup();
+        }
+    }
+    
+    // Método para refrescar el borde a un jugador específico
+    public void refreshBorder(Player player) {
+        if (border != null && player.isOnline()) {
+            border.show(player);
+        }
+    }
 }

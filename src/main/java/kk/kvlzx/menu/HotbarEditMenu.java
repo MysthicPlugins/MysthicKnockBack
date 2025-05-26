@@ -26,13 +26,13 @@ public class HotbarEditMenu extends Menu {
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
-        // Items disponibles
-        inv.setItem(10, CustomItem.create(ItemType.KNOCKER));
-        inv.setItem(11, CustomItem.create(ItemType.BLOCKS));
-        inv.setItem(12, CustomItem.create(ItemType.BOW));
-        inv.setItem(13, CustomItem.create(ItemType.PEARL));
-        inv.setItem(14, CustomItem.create(ItemType.FEATHER));
-        inv.setItem(15, CustomItem.create(ItemType.PLATE));
+        // Items visuales
+        inv.setItem(9, CustomItem.create(ItemType.KNOCKER));
+        inv.setItem(10, CustomItem.create(ItemType.BLOCKS));
+        inv.setItem(11, CustomItem.create(ItemType.BOW));
+        inv.setItem(15, CustomItem.create(ItemType.FEATHER));
+        inv.setItem(16, CustomItem.create(ItemType.PLATE));
+        inv.setItem(17, CustomItem.create(ItemType.PEARL));
 
         // Separador
         ItemStack separator = createItem(Material.STAINED_GLASS_PANE, "&7• Tu Hotbar •", (byte) 15);
@@ -71,7 +71,6 @@ public class HotbarEditMenu extends Menu {
                 break;
             case 46: // Restablecer
                 PlayerHotbar.resetLayout(player.getUniqueId());
-                PlayerHotbar.applyLayout(player);
                 player.closeInventory();
                 player.sendMessage(MessageUtils.getColor("&aHotbar restablecida al default"));
                 break;
@@ -94,7 +93,6 @@ public class HotbarEditMenu extends Menu {
                     .filter(item -> item != null)
                     .allMatch(this::isValidItem)) {
             PlayerHotbar.setPlayerLayout(player.getUniqueId(), hotbar);
-            PlayerHotbar.applyLayout(player);
         }
     }
 

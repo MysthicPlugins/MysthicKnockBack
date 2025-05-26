@@ -38,6 +38,7 @@ public class MainScoreboardManager {
     }
 
     private void setupScoreboard() {
+        // Cambiar el intervalo de actualización a 2L (0.1 segundos)
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -45,7 +46,7 @@ public class MainScoreboardManager {
                     updatePlayerScoreboard(player);
                 }
             }
-        }.runTaskTimer(plugin, 20L, 20L);
+        }.runTaskTimer(plugin, 2L, 2L);
     }
 
     private void updatePlayerScoreboard(Player player) {
@@ -88,21 +89,29 @@ public class MainScoreboardManager {
 
     private void startArenaRotation() {
         new BukkitRunnable() {
+            private long lastSecond = System.currentTimeMillis() / 1000;
+
             @Override
             public void run() {
-                timeLeft--;
+                long currentSecond = System.currentTimeMillis() / 1000;
                 
-                // Alertas de tiempo solo en chat
-                if (Arrays.stream(COUNTDOWN_ALERTS).anyMatch(t -> t == timeLeft)) {
-                    Bukkit.broadcastMessage(MessageUtils.getColor("&a¡La arena cambiará en &c" + timeLeft + " &asegundos!"));
-                }
+                // Solo actualizar cuando realmente haya pasado un segundo
+                if (currentSecond > lastSecond) {
+                    timeLeft--;
+                    lastSecond = currentSecond;
+                    
+                    // Alertas de tiempo
+                    if (Arrays.stream(COUNTDOWN_ALERTS).anyMatch(t -> t == timeLeft)) {
+                        Bukkit.broadcastMessage(MessageUtils.getColor("&a¡La arena cambiará en &c" + timeLeft + " &asegundos!"));
+                    }
 
-                if (timeLeft <= 0) {
-                    rotateArena();
-                    timeLeft = ARENA_TIME;
+                    if (timeLeft <= 0) {
+                        rotateArena();
+                        timeLeft = ARENA_TIME;
+                    }
                 }
             }
-        }.runTaskTimer(plugin, 20L, 20L);
+        }.runTaskTimer(plugin, 20L, 1L); // Actualizar cada tick pero controlar el tiempo con currentTimeMillis
     }
 
     public boolean isArenaChanging() {
@@ -110,26 +119,35 @@ public class MainScoreboardManager {
     }
 
     private void rotateArena() {
+        // Activar el estado de cambio de arena ANTES de cualquier otra operación
+        arenaChanging = true;
+
         ArenaManager arenaManager = plugin.getArenaManager();
         String currentArena = arenaManager.getCurrentArena();
         String nextArena = arenaManager.getNextArena();
         
-        if (nextArena == null || currentArena == null) return;
+        if (nextArena == null || currentArena == null) {
+            arenaChanging = false;
+            return;
+        }
 
         Arena nextArenaObj = arenaManager.getArena(nextArena);
         Location nextSpawn = nextArenaObj.getSpawnLocation();
         
         if (nextSpawn == null) {
             Bukkit.broadcastMessage(MessageUtils.getColor("&cError: La arena " + nextArena + " no tiene un punto de spawn configurado."));
+            arenaChanging = false;
             return;
         }
 
         // Congelar y preparar a todos los jugadores
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setWalkSpeed(0.0f);
-            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 60, 128, false, false));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 1, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 128, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 1, false, false));
             player.playSound(player.getLocation(), Sound.PORTAL_TRIGGER, 1.0f, 1.0f);
+            // Dar invulnerabilidad temporal
+            player.setNoDamageTicks(100);
         }
 
         // Activar el estado de cambio de arena
@@ -184,21 +202,19 @@ public class MainScoreboardManager {
                 public void run() {
                     player.teleport(nextSpawn);
                     plugin.getArenaManager().addPlayerToArena(player, nextArena);
+                    player.setNoDamageTicks(60); // Asegurar invulnerabilidad por 3 segundos después del teleport
                     
-                    // Efectos visuales y sonoros
-                    player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1.0f, 1.0f);
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 1, false, false));
-                    
-                    // Restaurar movimiento después de 1 segundo
+                    // Restaurar movimiento después de 1.5 segundos
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
                         player.setWalkSpeed(0.2f);
+                        arenaChanging = false; // Desactivar el estado de cambio solo después de restaurar todo
                         TitleUtils.sendTitle(player, 
                             "&a&l¡Arena " + nextArena + "!", 
                             "&e¡Buena suerte!",
                             10, 40, 10
                         );
                         player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 1.0f);
-                    }, 20L);
+                    }, 30L);
                 }
             }.runTaskLater(plugin, 2L);
         }

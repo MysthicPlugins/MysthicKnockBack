@@ -15,8 +15,9 @@ import kk.kvlzx.arena.Arena;
 
 public class ArenaTabCompleter implements TabCompleter {
     private final KvKnockback plugin;
-    private final String[] COMMANDS = { "create", "setzone", "setspawn", "delete" };
+    private final String[] COMMANDS = { "create", "setzone", "setspawn", "setborder", "delete" };
     private final String[] ZONE_TYPES = { "spawn", "pvp", "void" };
+    private final String[] BORDER_SIZES = { "50", "100", "150", "200", "250", "300" };
 
     public ArenaTabCompleter(KvKnockback plugin) {
         this.plugin = plugin;
@@ -44,9 +45,14 @@ public class ArenaTabCompleter implements TabCompleter {
             if (!args[0].equalsIgnoreCase("create")) {
                 StringUtil.copyPartialMatches(args[1], arenas, completions);
             }
-        } else if (args.length == 3 && args[0].equalsIgnoreCase("setzone")) {
-            // Tercer argumento para setzone: tipos de zona
-            StringUtil.copyPartialMatches(args[2], Arrays.asList(ZONE_TYPES), completions);
+        } else if (args.length == 3) {
+            if (args[0].equalsIgnoreCase("setzone")) {
+                // Tercer argumento para setzone: tipos de zona
+                StringUtil.copyPartialMatches(args[2], Arrays.asList(ZONE_TYPES), completions);
+            } else if (args[0].equalsIgnoreCase("setborder")) {
+                // Tercer argumento para setborder: tamaños predefinidos
+                StringUtil.copyPartialMatches(args[2], Arrays.asList(BORDER_SIZES), completions);
+            }
         }
 
         return completions;

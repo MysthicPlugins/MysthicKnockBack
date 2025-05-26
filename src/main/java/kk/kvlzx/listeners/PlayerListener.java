@@ -13,6 +13,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -251,5 +253,31 @@ public class PlayerListener implements Listener {
         // Actualizar el rango en el respawn por si acaso
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         RankManager.updatePlayerRank(player, stats.getElo());
+        
+        // Refrescar el borde después del respawn
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            String currentArena = plugin.getArenaManager().getPlayerArena(player);
+            if (currentArena != null) {
+                Arena arena = plugin.getArenaManager().getArena(currentArena);
+                if (arena != null && arena.hasBorder()) {
+                    arena.refreshBorder(player);
+                }
+            }
+        }, 5L);
+    }
+
+    @EventHandler
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        Player player = event.getPlayer();
+        // Refrescar el borde después de la teletransportación
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            String currentArena = plugin.getArenaManager().getPlayerArena(player);
+            if (currentArena != null) {
+                Arena arena = plugin.getArenaManager().getArena(currentArena);
+                if (arena != null && arena.hasBorder()) {
+                    arena.refreshBorder(player);
+                }
+            }
+        }, 5L);
     }
 }

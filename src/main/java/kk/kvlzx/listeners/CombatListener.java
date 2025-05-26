@@ -4,6 +4,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import kk.kvlzx.KvKnockback;
@@ -45,8 +46,10 @@ public class CombatListener implements Listener {
         Player victim = (Player) event.getEntity();
         Player attacker = (Player) event.getDamager();
 
-        // Verificar si la arena está cambiando
-        if (plugin.getScoreboardManager().isArenaChanging()) {
+        // Verificar si la arena está cambiando o si algún jugador tiene NoDamageTicks altos
+        if (plugin.getScoreboardManager().isArenaChanging() || 
+            victim.getNoDamageTicks() > victim.getMaximumNoDamageTicks() / 2 ||
+            attacker.getNoDamageTicks() > attacker.getMaximumNoDamageTicks() / 2) {
             event.setCancelled(true);
             return;
         }
@@ -70,10 +73,13 @@ public class CombatListener implements Listener {
     }
 
     private void applyCustomKnockback(EntityDamageByEntityEvent event, Player victim, Player attacker) {
-        // Constantes de knockback
-        final double BASE_HORIZONTAL = 0.4;
-        final double BASE_VERTICAL = 0.4;
-        final double SPRINT_BONUS = 0.15;
+        // Constantes de knockback mejoradas
+        final double BASE_HORIZONTAL = 0.45;    // Mantener horizontal
+        final double BASE_VERTICAL = 0.25;      // Reducido de 0.42 a 0.25
+        final double SPRINT_BONUS = 0.2;        // Mantener sprint bonus
+        final double FEATHER_BONUS = 0.15;      // Mantener feather bonus
+        final double Y_REDUCTION = 0.45;        // Aumentado la reducción de Y
+        final double MAX_Y_VELOCITY = 0.35;     // Nuevo: límite máximo de velocidad vertical
         
         // Obtener la dirección del knockback
         double dx = victim.getLocation().getX() - attacker.getLocation().getX();
@@ -95,7 +101,20 @@ public class CombatListener implements Listener {
             horizontalMultiplier += SPRINT_BONUS;
         }
 
-        // Aplicar velocidad final
+        // Bonus por pluma (velocidad aumentada)
+        if (attacker.getWalkSpeed() > 0.2f) {
+            horizontalMultiplier += FEATHER_BONUS;
+        }
+
+        // Reducir Y cuando el jugador está cayendo y limitar velocidad vertical máxima
+        if (!((LivingEntity)victim).isOnGround() && victim.getVelocity().getY() < 0) {
+            verticalMultiplier *= Y_REDUCTION;
+        }
+        
+        // Limitar la velocidad vertical máxima
+        verticalMultiplier = Math.min(verticalMultiplier, MAX_Y_VELOCITY);
+
+        // Aplicar velocidad con el nuevo sistema de knockback
         victim.setVelocity(victim.getVelocity()
             .setX(dx * horizontalMultiplier)
             .setY(verticalMultiplier)

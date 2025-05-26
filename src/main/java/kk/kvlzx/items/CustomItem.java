@@ -89,4 +89,16 @@ public class CustomItem {
         skull.setItemMeta(meta);
         return skull;
     }
+
+    public static ItemStack createEmptyTopSkull(int position, String name, String... lore) {
+        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
+        SkullMeta meta = (SkullMeta) skull.getItemMeta();
+        meta.setOwner("MHF_Question");
+        meta.setDisplayName(MessageUtils.getColor(name));
+        meta.setLore(Arrays.asList(lore).stream()
+                    .map(MessageUtils::getColor)
+                    .collect(Collectors.toList()));
+        skull.setItemMeta(meta);
+        return skull;
+    }
 }

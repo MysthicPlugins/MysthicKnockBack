@@ -1,7 +1,6 @@
 package kk.kvlzx.menu;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +25,6 @@ public class TopKillsMenu extends Menu {
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
-        // Obtener y ordenar los jugadores por kills
         List<UUID> topPlayers = new ArrayList<>(PlayerStats.getAllStats());
         topPlayers.sort((uuid1, uuid2) -> {
             PlayerStats stats1 = PlayerStats.getStats(uuid1);
@@ -34,20 +32,27 @@ public class TopKillsMenu extends Menu {
             return Integer.compare(stats2.getKills(), stats1.getKills());
         });
 
-        // Mostrar los primeros 10 jugadores
-        for (int i = 0; i < Math.min(10, topPlayers.size()); i++) {
-            UUID uuid = topPlayers.get(i);
-            PlayerStats stats = PlayerStats.getStats(uuid);
-            String playerName = Bukkit.getOfflinePlayer(uuid).getName();
-            
-            List<String> lore = new ArrayList<>();
-            lore.add("&7Posición: &f#" + (i + 1));
-            lore.add("&7Kills: &a" + stats.getKills());
-            
-            // Crear cabeza del jugador con stats
-            ItemStack skull = CustomItem.createSkullFromUUID(uuid, 
-                "&a" + playerName,
-                lore.toArray(new String[0]));
+        // Mostrar los primeros 10 jugadores o cabezas vacías
+        for (int i = 0; i < 10; i++) {
+            ItemStack skull;
+            if (i < topPlayers.size()) {
+                UUID uuid = topPlayers.get(i);
+                PlayerStats stats = PlayerStats.getStats(uuid);
+                String playerName = Bukkit.getOfflinePlayer(uuid).getName();
+                
+                List<String> lore = new ArrayList<>();
+                lore.add("&7Posición: &f#" + (i + 1));
+                lore.add("&7Kills: &a" + stats.getKills());
+                
+                skull = CustomItem.createSkullFromUUID(uuid, 
+                    "&a" + playerName,
+                    lore.toArray(new String[0]));
+            } else {
+                // Crear cabeza vacía para posiciones sin jugador
+                skull = CustomItem.createEmptyTopSkull(i + 1, "&7Sin datos", 
+                    "&7Posición: &f#" + (i + 1),
+                    "&7Kills: &a0");
+            }
             
             inv.setItem(10 + i, skull);
         }
@@ -57,8 +62,8 @@ public class TopKillsMenu extends Menu {
             "&7Click para volver al menú principal");
         inv.setItem(22, backButton);
 
-        // Rellenar espacios vacíos
-        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
+        // Relleno verde claro (datos: 5)
+        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 5);
         fillEmptySlots(inv, filler);
     }
 

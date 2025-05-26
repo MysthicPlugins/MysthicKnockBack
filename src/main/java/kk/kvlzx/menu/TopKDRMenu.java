@@ -32,20 +32,27 @@ public class TopKDRMenu extends Menu {
             return Double.compare(stats2.getKDR(), stats1.getKDR());
         });
 
-        for (int i = 0; i < Math.min(10, topPlayers.size()); i++) {
-            UUID uuid = topPlayers.get(i);
-            PlayerStats stats = PlayerStats.getStats(uuid);
-            String playerName = Bukkit.getOfflinePlayer(uuid).getName();
-            
-            List<String> lore = new ArrayList<>();
-            lore.add("&7Posición: &f#" + (i + 1));
-            lore.add("&7KDR: &e" + String.format("%.2f", stats.getKDR()));
-            lore.add("&7Kills: &a" + stats.getKills());
-            lore.add("&7Muertes: &c" + stats.getDeaths());
-            
-            ItemStack skull = CustomItem.createSkullFromUUID(uuid, 
-                "&e" + playerName,
-                lore.toArray(new String[0]));
+        for (int i = 0; i < 10; i++) {
+            ItemStack skull;
+            if (i < topPlayers.size()) {
+                UUID uuid = topPlayers.get(i);
+                PlayerStats stats = PlayerStats.getStats(uuid);
+                String playerName = Bukkit.getOfflinePlayer(uuid).getName();
+                
+                List<String> lore = new ArrayList<>();
+                lore.add("&7Posición: &f#" + (i + 1));
+                lore.add("&7KDR: &e" + String.format("%.2f", stats.getKDR()));
+                lore.add("&7Kills: &a" + stats.getKills());
+                lore.add("&7Muertes: &c" + stats.getDeaths());
+                
+                skull = CustomItem.createSkullFromUUID(uuid, 
+                    "&e" + playerName,
+                    lore.toArray(new String[0]));
+            } else {
+                skull = CustomItem.createEmptyTopSkull(i + 1, "&7Sin datos", 
+                    "&7Posición: &f#" + (i + 1),
+                    "&7KDR: &b0.00");
+            }
             
             inv.setItem(10 + i, skull);
         }
@@ -54,7 +61,8 @@ public class TopKDRMenu extends Menu {
             "&7Click para volver al menú principal");
         inv.setItem(22, backButton);
 
-        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
+        // Relleno azul claro (datos: 3)
+        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 3);
         fillEmptySlots(inv, filler);
     }
 
