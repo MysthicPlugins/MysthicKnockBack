@@ -19,6 +19,7 @@ import kk.kvlzx.listeners.CombatListener;
 import kk.kvlzx.listeners.ItemListener;
 import kk.kvlzx.listeners.PlayerListener;
 import kk.kvlzx.listeners.MenuListener;
+import kk.kvlzx.managers.CooldownManager;
 import kk.kvlzx.managers.MainScoreboardManager;
 import kk.kvlzx.managers.TabManager;
 import kk.kvlzx.managers.MenuManager;
@@ -41,6 +42,7 @@ public class KvKnockback extends JavaPlugin {
     private TabManager tabManager;
     private MenuManager menuManager;
     private ReportManager reportManager;
+    private CooldownManager cooldownManager;
 
     @Override
     public void onEnable() {
@@ -113,6 +115,7 @@ public class KvKnockback extends JavaPlugin {
         tabManager = new TabManager(this);
         menuManager = new MenuManager(this);
         reportManager = new ReportManager(this);
+        cooldownManager = new CooldownManager(this);
     }
 
     private void startPlaytimeUpdater() {
@@ -172,5 +175,9 @@ public class KvKnockback extends JavaPlugin {
 
     public ReportManager getReportManager() {
         return reportManager;
+    }
+
+    public CooldownManager getCooldownManager() {
+        return cooldownManager;
     }
 }

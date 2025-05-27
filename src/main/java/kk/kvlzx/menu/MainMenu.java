@@ -39,21 +39,27 @@ public class MainMenu extends Menu {
         inv.setItem(24, createItem(Material.WATCH, "&e&lTop Tiempo",
             "&7Click para ver el top 10 de tiempo jugado"));
 
-        // Botones principales - Tercera fila
-        inv.setItem(31, CustomItem.createSkull(player, "&a&lMis Estadísticas",
-            "&7Click para ver tus estadísticas"));
-
         // Hotbar edit - Cuarta fila
-        inv.setItem(40, createItem(Material.DIAMOND_SWORD, "&e&lEditar Hotbar",
+        inv.setItem(39, createItem(Material.DIAMOND_SWORD, "&e&lEditar Hotbar",
             "&7Click para personalizar tu hotbar",
             "",
             "&8➥ Personaliza la posición de tus items"));
 
-        // Añadir botón de reportes (antes del relleno)
+        // Mis Estadísticas
+        inv.setItem(40, CustomItem.createSkull(player, "&a&lMis Estadísticas",
+            "&7Click para ver tus estadísticas"));
+
+        // Añadir botón de reportes
         inv.setItem(41, createItem(Material.BOOK_AND_QUILL, "&c&lReportar Jugador",
             "&7Click para reportar a un jugador",
             "",
             "&8➥ Reporta comportamiento inadecuado"));
+
+        // Añadir botón de tienda antes del relleno
+        inv.setItem(42, createItem(Material.EMERALD, "&a&lTienda", 
+            "&7Click para abrir la tienda",
+            "",
+            "&8➥ ¡Compra cosméticos y más!"));
 
         // Relleno
         ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
@@ -81,14 +87,17 @@ public class MainMenu extends Menu {
             case 24: // Top Tiempo
                 plugin.getMenuManager().openMenu(player, "top_time");
                 break;
-            case 31: // Mis Estadísticas
-                plugin.getMenuManager().openMenu(player, "stats");
-                break;
-            case 40: // Editar Hotbar
+            case 39: // Editar Hotbar
                 plugin.getMenuManager().openMenu(player, "hotbar_edit");
+                break;
+            case 40: // Mis Estadísticas
+                plugin.getMenuManager().openMenu(player, "stats");
                 break;
             case 41: // Reportar Jugador
                 plugin.getMenuManager().openMenu(player, "player_list");
+                break;
+            case 42: // Tienda
+                plugin.getMenuManager().openMenu(player, "shop");
                 break;
         }
     }

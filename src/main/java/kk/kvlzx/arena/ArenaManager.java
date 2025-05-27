@@ -142,7 +142,27 @@ public class ArenaManager {
     }
 
     public void setCurrentArena(String arenaName) {
+        // Ocultar el borde de la arena anterior si existe
+        if (this.currentArena != null) {
+            Arena oldArena = getArena(this.currentArena);
+            if (oldArena != null && oldArena.hasBorder()) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    oldArena.hideBorder(player);
+                }
+            }
+        }
+
         this.currentArena = arenaName;
+
+        // Mostrar el borde de la nueva arena si tiene uno
+        if (arenaName != null) {
+            Arena newArena = getArena(arenaName);
+            if (newArena != null && newArena.hasBorder()) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    newArena.showBorder(player);
+                }
+            }
+        }
     }
 
     public String getNextArena() {
@@ -208,9 +228,9 @@ public class ArenaManager {
 
         String activeArena = arenaData.loadActiveArena();
         if (activeArena != null && arenas.containsKey(activeArena)) {
-            currentArena = activeArena;
+            setCurrentArena(activeArena); // Usar el método modificado en vez de asignación directa
         } else if (!arenas.isEmpty()) {
-            currentArena = arenas.keySet().iterator().next();
+            setCurrentArena(arenas.keySet().iterator().next());
         }
     }
 

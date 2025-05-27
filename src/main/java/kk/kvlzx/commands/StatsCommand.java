@@ -73,6 +73,10 @@ public class StatsCommand implements CommandExecutor {
                         stats.setDeaths(value);
                         sender.sendMessage(MessageUtils.getColor("&aMuertes de " + target.getName() + " establecidas a " + value));
                         break;
+                    case "setcoins":
+                        stats.setKGCoins(value);
+                        sender.sendMessage(MessageUtils.getColor("&aKGCoins de " + target.getName() + " establecidos a " + value));
+                        break;
                     default:
                         sendHelp(sender);
                         break;
@@ -102,6 +106,7 @@ public class StatsCommand implements CommandExecutor {
         sender.sendMessage(MessageUtils.getColor("&fRacha actual: &d" + stats.getCurrentStreak()));
         sender.sendMessage(MessageUtils.getColor("&fMejor racha: &d" + stats.getMaxStreak()));
         sender.sendMessage(MessageUtils.getColor("&fTiempo jugado: &e" + stats.getFormattedPlayTime()));
+        sender.sendMessage(MessageUtils.getColor("&fKGCoins: &e" + stats.getKGCoins()));
     }
 
     private void sendHelp(CommandSender sender) {
@@ -111,6 +116,7 @@ public class StatsCommand implements CommandExecutor {
             sender.sendMessage(MessageUtils.getColor("&f/stats setelo <jugador> <cantidad> &7- Establecer ELO"));
             sender.sendMessage(MessageUtils.getColor("&f/stats setkills <jugador> <cantidad> &7- Establecer kills"));
             sender.sendMessage(MessageUtils.getColor("&f/stats setdeaths <jugador> <cantidad> &7- Establecer muertes"));
+            sender.sendMessage(MessageUtils.getColor("&f/stats setcoins <jugador> <cantidad> &7- Establecer KGCoins"));
         }
     }
 }

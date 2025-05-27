@@ -23,7 +23,7 @@ public class StatsTabCompleter implements TabCompleter {
             availableCommands.add("view");
             
             if (sender.hasPermission("kvknockback.stats.modify")) {
-                availableCommands.addAll(Arrays.asList("setelo", "setkills", "setdeaths"));
+                availableCommands.addAll(Arrays.asList("setelo", "setkills", "setdeaths", "setcoins"));
             }
             
             StringUtil.copyPartialMatches(args[0], availableCommands, completions);
@@ -42,6 +42,8 @@ public class StatsTabCompleter implements TabCompleter {
                     break;
                 case "setkills":
                 case "setdeaths":
+                case "setcoins":
+                    // Valores comunes para kills, deaths y coins
                     completions.addAll(Arrays.asList("0", "10", "50", "100"));
                     break;
             }

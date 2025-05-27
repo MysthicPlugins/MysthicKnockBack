@@ -13,6 +13,7 @@ import kk.kvlzx.KvKnockback;
 import kk.kvlzx.data.StatsData;
 import kk.kvlzx.managers.RankManager;
 import kk.kvlzx.managers.StreakManager;
+import kk.kvlzx.utils.MessageUtils;
 
 public class PlayerStats {
     private static Map<UUID, PlayerStats> stats = new HashMap<>();
@@ -25,6 +26,7 @@ public class PlayerStats {
     private long lastDeathTime = 0;
     private static final long DEATH_COOLDOWN = 500;
     private static StatsData statsData;
+    private int kgCoins;
 
     public PlayerStats(UUID uuid) {
         this.uuid = uuid;
@@ -33,6 +35,7 @@ public class PlayerStats {
         this.elo = 500;
         this.playTime = 0;
         this.lastJoin = System.currentTimeMillis();
+        this.kgCoins = 0;
     }
 
     public static PlayerStats getStats(UUID uuid) {
@@ -92,8 +95,18 @@ public class PlayerStats {
         int eloGained = (int)(Math.random() * 10) + 6;
         this.elo += eloGained;
 
-        // Actualizar el rango del jugador
+        // Añadir KGCoins por kill (entre 4-12)
+        int coinsGained = (int)(Math.random() * 9) + 4;
+        this.kgCoins += coinsGained;
+        
+        // Notificar al jugador
         Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            player.sendMessage(MessageUtils.getColor("&a+" + coinsGained + " KGCoins"));
+        }
+
+        // Actualizar el rango del jugador
+        player = Bukkit.getPlayer(uuid);
         if (player != null && player.isOnline()) {
             RankManager.updatePlayerRank(player, this.elo);
         }
@@ -184,6 +197,27 @@ public class PlayerStats {
             StreakManager.setMaxStreak(uuid, section.getInt("maxStreak", 0));
             StreakManager.setStreak(uuid, section.getInt("currentStreak", 0));
             this.playTime = section.getLong("playTime", 0);
+            this.kgCoins = section.getInt("kgcoins", 0);
         }
+    }
+
+    public int getKGCoins() {
+        return kgCoins;
+    }
+
+    public void setKGCoins(int amount) {
+        this.kgCoins = Math.max(0, amount);
+    }
+
+    public void addKGCoins(int amount) {
+        this.kgCoins = Math.max(0, this.kgCoins + amount);
+    }
+
+    public boolean removeKGCoins(int amount) {
+        if (this.kgCoins >= amount) {
+            this.kgCoins -= amount;
+            return true;
+        }
+        return false;
     }
 }

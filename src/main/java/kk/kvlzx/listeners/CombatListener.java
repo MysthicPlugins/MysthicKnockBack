@@ -5,7 +5,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.util.Vector;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.enchantments.Enchantment;
@@ -77,9 +76,8 @@ public class CombatListener implements Listener {
     private void applyCustomKnockback(EntityDamageByEntityEvent event, Player victim, Player attacker) {
         // Constantes de knockback mejoradas
         double BASE_HORIZONTAL = 0.45;    // Base horizontal
-        double BASE_VERTICAL = 0.25;      // Base vertical
+        double BASE_VERTICAL = 0.35;      // Base vertical
         final double SPRINT_BONUS = 0.2;  // Sprint bonus
-        final double Y_REDUCTION = 0.45;  // Reducción Y
         final double MAX_Y_VELOCITY = 0.35; // Máxima velocidad vertical
 
         // Reducir knockback si el atacante usa el palo con knockback
@@ -108,11 +106,6 @@ public class CombatListener implements Listener {
         // Bonus por sprint
         if (attacker.isSprinting()) {
             horizontalMultiplier += SPRINT_BONUS;
-        }
-
-        // Reducir Y cuando el jugador está cayendo
-        if (!((LivingEntity)victim).isOnGround() && victim.getVelocity().getY() < 0) {
-            verticalMultiplier *= Y_REDUCTION;
         }
         
         // Limitar la velocidad vertical máxima

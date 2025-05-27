@@ -1,5 +1,6 @@
 package kk.kvlzx.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.event.block.Action;
 
 import kk.kvlzx.KvKnockback;
+import kk.kvlzx.menu.HotbarEditMenu;
 import kk.kvlzx.menu.Menu;
 
 public class MenuListener implements Listener {
@@ -35,7 +37,24 @@ public class MenuListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         if (!(event.getPlayer() instanceof Player)) return;
-        plugin.getMenuManager().closeMenu((Player) event.getPlayer());
+        Player player = (Player) event.getPlayer();
+        Menu menu = plugin.getMenuManager().getOpenMenu(player);
+        
+        // Verificar si tenía un menú abierto
+        if (menu != null) {
+            // Verificar específicamente si es el menú de hotbar y tiene un item en el cursor
+            if (menu instanceof HotbarEditMenu && player.getItemOnCursor() != null && 
+                player.getItemOnCursor().getType() != Material.AIR) {
+                
+                // Reabrir el inventario en el siguiente tick para evitar problemas
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    plugin.getMenuManager().openMenu(player, "hotbar_edit");
+                });
+                return;
+            }
+            
+            plugin.getMenuManager().closeMenu(player);
+        }
     }
 
     @EventHandler

@@ -25,6 +25,9 @@ public class PlayerListMenu extends Menu {
         List<Player> onlinePlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
         onlinePlayers.remove(player); // Remover al jugador que está reportando
 
+        plugin.getLogger().info("[Menú de Reportes] Jugador " + player.getName() + " abrió la lista de jugadores");
+        plugin.getLogger().info("[Menú de Reportes] Jugadores disponibles para reportar: " + onlinePlayers.size());
+
         int slot = 10;
         for (Player target : onlinePlayers) {
             if (slot > 43) break; // Límite de slots
@@ -61,12 +64,14 @@ public class PlayerListMenu extends Menu {
 
         if (event.getCurrentItem() != null) {
             if (event.getSlot() == 49) {
+                plugin.getLogger().info("[Menú de Reportes] " + player.getName() + " volvió al menú principal");
                 plugin.getMenuManager().openMenu(player, "main");
                 return;
             }
 
             if (event.getCurrentItem().getType() == Material.SKULL_ITEM) {
                 String targetName = MessageUtils.stripColor(event.getCurrentItem().getItemMeta().getDisplayName());
+                plugin.getLogger().info("[Menú de Reportes] " + player.getName() + " seleccionó reportar a " + targetName);
                 plugin.getReportManager().setReportTarget(player.getUniqueId(), targetName);
                 plugin.getMenuManager().openMenu(player, "report_reason");
             }

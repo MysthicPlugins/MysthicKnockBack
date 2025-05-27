@@ -75,6 +75,7 @@ public class MainScoreboardManager {
         setScore(obj, "&e☠ &fMuertes: &c" + stats.getDeaths(), 5);
         setScore(obj, "&e✦ &fElo: &6" + stats.getElo(), 4);
         setScore(obj, "&e❈ &fKDR: &b" + String.format("%.2f", stats.getKDR()), 3);
+        setScore(obj, "&e$ &fKGCoins: &a" + stats.getKGCoins(), 2);
         setScore(obj, "&e➜ &fRacha: &d" + stats.getCurrentStreak() + (stats.getMaxStreak() > 0 ? " &7(" + stats.getMaxStreak() + ")" : ""), 2);
         setScore(obj, "&e⌚ &fTiempo: " + formattedTime, 1);
         setScore(obj, "&6&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", 0);

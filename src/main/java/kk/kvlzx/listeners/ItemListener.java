@@ -16,9 +16,11 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.util.Vector;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.Bukkit;
+import org.bukkit.Effect;
 
 import java.util.*;
 
@@ -26,6 +28,8 @@ import kk.kvlzx.KvKnockback;
 import kk.kvlzx.arena.ZoneType;
 import kk.kvlzx.items.CustomItem;
 import kk.kvlzx.items.CustomItem.ItemType;
+import net.minecraft.server.v1_8_R3.BlockPosition;
+import net.minecraft.server.v1_8_R3.PacketPlayOutBlockBreakAnimation;
 
 public class ItemListener implements Listener {
     private static final int COOLDOWN_SECONDS = 10;
@@ -34,10 +38,8 @@ public class ItemListener implements Listener {
     private static final String COOLDOWN_PLATE = "PLATE";
 
     private final KvKnockback plugin;
-    private final Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();
     private final Map<UUID, ItemStack> savedArrows = new HashMap<>();
     private final Map<Location, BukkitRunnable> plateTimers = new HashMap<>();
-    private final Map<UUID, List<BukkitRunnable>> cooldownTasks = new HashMap<>();
     private final Map<UUID, BukkitRunnable> speedTasks = new HashMap<>(); // Nuevo mapa para las tasks de speed
     private static final Set<Location> placedBlocks = new HashSet<>(); // Set para almacenar bloques colocados
 
@@ -45,16 +47,40 @@ public class ItemListener implements Listener {
         this.plugin = plugin;
     }
 
-    // Método para verificar si un jugador está en cooldown para un tipo de ítem
-    private boolean isOnCooldown(Player player, String type) {
-        Map<String, Long> playerCooldowns = cooldowns.get(player.getUniqueId());
-        return playerCooldowns != null && playerCooldowns.getOrDefault(type, 0L) > System.currentTimeMillis();
-    }
+    @EventHandler
+    public void onEntityShootBow(EntityShootBowEvent event) {
+        if (!(event.getEntity() instanceof Player)) return;
+        Player player = (Player) event.getEntity();
 
-    // Método para establecer un cooldown para un tipo de ítem
-    private void setCooldown(Player player, String type, int seconds) {
-        cooldowns.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>())
-                 .put(type, System.currentTimeMillis() + seconds * 1000);
+        if (plugin.getScoreboardManager().isArenaChanging()) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (plugin.getCooldownManager().isOnCooldown(player, COOLDOWN_BOW)) {
+            event.setCancelled(true);
+            return;
+        }
+
+        UUID uuid = player.getUniqueId();
+        ItemStack arrow = findItemByType(player, Material.ARROW);
+        int arrowSlot = findSlotByType(player, Material.ARROW);
+
+        if (arrow != null) {
+            savedArrows.put(uuid, arrow.clone());
+            player.getInventory().setItem(arrowSlot, null);
+        }
+
+        ItemStack bow = findItemByType(player, Material.BOW);
+        int bowSlot = findSlotByType(player, Material.BOW);
+
+        if (bow != null) {
+            bow.setAmount(1);
+            player.getInventory().setItem(bowSlot, bow);
+            plugin.getCooldownManager().setCooldown(player, COOLDOWN_BOW, COOLDOWN_SECONDS);
+            plugin.getCooldownManager().startCooldownVisual(player, bow, bowSlot, COOLDOWN_SECONDS, COOLDOWN_BOW);
+            restoreArrowAndBowLater(player, arrowSlot, bowSlot);
+        }
     }
 
     // Método para encontrar un ítem por tipo en el inventario
@@ -79,50 +105,9 @@ public class ItemListener implements Listener {
     }
 
     @EventHandler
-    public void onEntityShootBow(EntityShootBowEvent event) {
-        if (!(event.getEntity() instanceof Player)) return;
-        Player player = (Player) event.getEntity();
-
-        // Verificar si la arena está cambiando
-        if (plugin.getScoreboardManager().isArenaChanging()) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (isOnCooldown(player, COOLDOWN_BOW)) {
-            event.setCancelled(true);
-            return;
-        }
-
-        UUID uuid = player.getUniqueId();
-
-        ItemStack arrow = findItemByType(player, Material.ARROW);
-        int arrowSlot = findSlotByType(player, Material.ARROW);
-
-        if (arrow != null) {
-            savedArrows.put(uuid, arrow.clone());
-            player.getInventory().setItem(arrowSlot, null);
-            player.updateInventory();
-        }
-
-        ItemStack bow = findItemByType(player, Material.BOW);
-        int bowSlot = findSlotByType(player, Material.BOW);
-
-        if (bow != null) {
-            bow.setAmount(1);
-            player.getInventory().setItem(bowSlot, bow);
-            player.updateInventory();
-            setCooldown(player, COOLDOWN_BOW, COOLDOWN_SECONDS);
-            startCooldownVisual(player, bow, bowSlot, COOLDOWN_SECONDS);
-            restoreArrowAndBowLater(player, arrowSlot, bowSlot);
-        }
-    }
-
-    @EventHandler
     public void onFeatherUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
-        // Verificar si la arena está cambiando
         if (plugin.getScoreboardManager().isArenaChanging()) {
             event.setCancelled(true);
             return;
@@ -134,10 +119,9 @@ public class ItemListener implements Listener {
         if (event.getItem() != null && event.getItem().getType() == Material.FEATHER &&
                 (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
 
-            if (isOnCooldown(player, COOLDOWN_FEATHER)) return;
+            if (plugin.getCooldownManager().isOnCooldown(player, COOLDOWN_FEATHER)) return;
 
             if (feather != null) {
-                // Cancelar task anterior si existe
                 if (speedTasks.containsKey(player.getUniqueId())) {
                     speedTasks.get(player.getUniqueId()).cancel();
                 }
@@ -145,11 +129,9 @@ public class ItemListener implements Listener {
                 player.setWalkSpeed(0.4f);
                 feather.setAmount(1);
                 player.getInventory().setItem(featherSlot, feather);
-                player.updateInventory();
-                setCooldown(player, COOLDOWN_FEATHER, COOLDOWN_SECONDS);
-                startCooldownVisual(player, feather, featherSlot, COOLDOWN_SECONDS);
+                plugin.getCooldownManager().setCooldown(player, COOLDOWN_FEATHER, COOLDOWN_SECONDS);
+                plugin.getCooldownManager().startCooldownVisual(player, feather, featherSlot, COOLDOWN_SECONDS, COOLDOWN_FEATHER);
 
-                // Nueva task para resetear velocidad
                 BukkitRunnable speedTask = new BukkitRunnable() {
                     @Override
                     public void run() {
@@ -190,7 +172,6 @@ public class ItemListener implements Listener {
         Block block = event.getBlock();
         Material blockType = block.getType();
 
-        // Verificar si la arena está cambiando
         if (plugin.getScoreboardManager().isArenaChanging()) {
             event.setCancelled(true);
             return;
@@ -202,26 +183,21 @@ public class ItemListener implements Listener {
 
             if (stack != null) {
                 if (blockType == Material.GOLD_PLATE) {
-                    if (isOnCooldown(player, COOLDOWN_PLATE)) {
+                    if (plugin.getCooldownManager().isOnCooldown(player, COOLDOWN_PLATE)) {
                         event.setCancelled(true);
                         return;
                     }
-                    stack.setAmount(1);
-                    setCooldown(player, COOLDOWN_PLATE, COOLDOWN_SECONDS);
-                    startCooldownVisual(player, stack, itemSlot, COOLDOWN_SECONDS);
+                    plugin.getCooldownManager().setCooldown(player, COOLDOWN_PLATE, COOLDOWN_SECONDS);
+                    plugin.getCooldownManager().startCooldownVisual(player, stack, itemSlot, COOLDOWN_SECONDS, COOLDOWN_PLATE);
                     startPlateTimer(block.getLocation());
                 } else {
-                    stack.setAmount(64); // Siempre mantener en 64 los bloques
-                    placedBlocks.add(block.getLocation()); // Añadir bloque a la lista
+                    stack.setAmount(64);
+                    placedBlocks.add(block.getLocation());
+                    startBlockBreakAnimation(block);
                 }
                 player.getInventory().setItem(itemSlot, stack);
                 player.updateInventory();
             }
-            // Programar la eliminación del bloque después de 5 segundos (20 ticks = 1 segundo)
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                block.setType(Material.AIR);
-                placedBlocks.remove(block.getLocation()); // Remover de la lista cuando se elimina
-            }, 100L);
         }
     }
 
@@ -265,72 +241,68 @@ public class ItemListener implements Listener {
                     if (player.getInventory().getItem(arrowSlot) == null) {
                         player.getInventory().setItem(arrowSlot, arrow);
                     }
-                    player.updateInventory();
                 }
 
                 ItemStack restoredBow = CustomItem.create(ItemType.BOW);
                 restoredBow.setDurability((short) 0);
                 restoredBow.setAmount(1);
                 player.getInventory().setItem(bowSlot, restoredBow);
-                player.updateInventory();
             }
         }.runTaskLater(plugin, COOLDOWN_SECONDS * 20L);
     }
 
-    // Método para iniciar el cooldown visual
-    private void startCooldownVisual(Player player, ItemStack original, int slot, int seconds) {
-        if (original == null) return;
-        ItemStack cooldownItem = original.clone();
-        cooldownItem.setAmount(seconds);
-        player.getInventory().setItem(slot, cooldownItem);
-        player.updateInventory();
+    // Método para resetear la velocidad del jugador
+    private void resetPlayerSpeed(UUID uuid) {
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+        if (offlinePlayer.isOnline() && offlinePlayer.getPlayer() != null) {
+            offlinePlayer.getPlayer().setWalkSpeed(0.2f);
+        }
+    }
 
-        BukkitRunnable task = new BukkitRunnable() {
-            int timeLeft = seconds;
-            @Override
-            public void run() {
-                if (!player.isOnline()) {
-                    cancel();
-                    return;
-                }
+    public static void cleanup() {
+        // Eliminar todos los bloques colocados
+        for (Location loc : placedBlocks) {
+            loc.getBlock().setType(Material.AIR);
+        }
+        placedBlocks.clear();
+    }
 
-                // Verificar si el jugador está muerto
-                if (player.isDead()) {
-                    cancel();
-                    return;
-                }
+    private void startBlockBreakAnimation(Block block) {
+        byte[] stages = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        int[] delays = {0, 40, 30, 20, 10, 10, 5, 5, 5, 5}; // Delays en ticks entre cada etapa
+        int totalDelay = 0;
 
-                // Verificar si el jugador está en spawn o no está en pvp
-                String zone = plugin.getArenaManager().getPlayerZone(player);
-                if (zone == null || !zone.equals(ZoneType.PVP.getId())) {
-                    // Restaurar item inmediatamente y cancelar cooldown
-                    ItemStack restoredItem = original.clone();
-                    restoredItem.setAmount(0);
-                    player.getInventory().setItem(slot, restoredItem);
-                    player.updateInventory();
-                    // Limpiar cooldowns
-                    cooldowns.get(player.getUniqueId()).clear();
-                    cancel();
-                    return;
+        // Programar cada etapa de la animación
+        for (byte stage : stages) {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (block.getType() != Material.AIR) {
+                    // Enviar el paquete de animación a todos los jugadores cercanos
+                    for (Player player : block.getWorld().getPlayers()) {
+                        if (player.getLocation().distance(block.getLocation()) <= 32) { // Solo jugadores en un radio de 32 bloques
+                            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(
+                                new PacketPlayOutBlockBreakAnimation(
+                                    block.hashCode(),
+                                    new BlockPosition(block.getX(), block.getY(), block.getZ()),
+                                    stage
+                                )
+                            );
+                        }
+                    }
                 }
+            }, totalDelay);
+            
+            totalDelay += delays[stage];
+        }
 
-                if (timeLeft <= 0) {
-                    ItemStack restoredItem = original.clone();
-                    restoredItem.setAmount(1);
-                    player.getInventory().setItem(slot, restoredItem);
-                    player.updateInventory();
-                    cancel();
-                    return;
-                }
-                cooldownItem.setAmount(timeLeft);
-                player.getInventory().setItem(slot, cooldownItem);
-                player.updateInventory();
-                timeLeft--;
+        // Eliminar el bloque después de completar la animación
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (block.getType() != Material.AIR) {
+                block.setType(Material.AIR);
+                placedBlocks.remove(block.getLocation());
+                // Efecto de partículas al romperse
+                block.getWorld().playEffect(block.getLocation(), Effect.STEP_SOUND, block.getType());
             }
-        };
-
-        task.runTaskTimer(plugin, 0, 20);
-        cooldownTasks.computeIfAbsent(player.getUniqueId(), k -> new ArrayList<>()).add(task);
+        }, 100L); // 5 segundos en total
     }
 
     @EventHandler
@@ -349,21 +321,5 @@ public class ItemListener implements Listener {
             .filter(entity -> entity.getType() == EntityType.ENDER_PEARL)
             .filter(entity -> ((EnderPearl) entity).getShooter() == player)
             .forEach(entity -> entity.remove());
-    }
-
-    // Método para resetear la velocidad del jugador
-    private void resetPlayerSpeed(UUID uuid) {
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-        if (offlinePlayer.isOnline() && offlinePlayer.getPlayer() != null) {
-            offlinePlayer.getPlayer().setWalkSpeed(0.2f);
-        }
-    }
-
-    public static void cleanup() {
-        // Eliminar todos los bloques colocados
-        for (Location loc : placedBlocks) {
-            loc.getBlock().setType(Material.AIR);
-        }
-        placedBlocks.clear();
     }
 }

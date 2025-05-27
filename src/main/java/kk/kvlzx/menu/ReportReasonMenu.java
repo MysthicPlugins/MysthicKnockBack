@@ -23,6 +23,7 @@ public class ReportReasonMenu extends Menu {
     @Override
     protected void setupItems(Player player, Inventory inv) {
         String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
+        plugin.getLogger().info("[Menú de Reportes] " + player.getName() + " está seleccionando razón para reportar a " + targetName);
         
         // Información del jugador a reportar
         inv.setItem(4, createItem(Material.BOOK, "&cReportando a: &f" + targetName,
@@ -57,12 +58,14 @@ public class ReportReasonMenu extends Menu {
 
         String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
         if (targetName == null) {
+            plugin.getLogger().info("[Menú de Reportes] Error: No se encontró objetivo para " + player.getName());
             player.closeInventory();
             player.sendMessage(MessageUtils.getColor("&cError: No se encontró el jugador a reportar"));
             return;
         }
 
-        if (event.getSlot() == 31) { // Botón volver
+        if (event.getSlot() == 31) {
+            plugin.getLogger().info("[Menú de Reportes] " + player.getName() + " canceló el reporte y volvió a la lista");
             plugin.getMenuManager().openMenu(player, "player_list");
             return;
         }
@@ -73,6 +76,7 @@ public class ReportReasonMenu extends Menu {
 
         ReportReason reason = ReportReason.getByDisplayName(clickedName);
         if (reason != null) {
+            plugin.getLogger().info("[Menú de Reportes] " + player.getName() + " reportó a " + targetName + " por " + reason.name());
             plugin.getReportManager().submitReport(player, targetName, reason);
             player.closeInventory();
         }

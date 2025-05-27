@@ -47,13 +47,18 @@ public class StatsMenu extends Menu {
             "&7Muertes totales: &c" + stats.getDeaths(),
             "&7KDR: &b" + String.format("%.2f", stats.getKDR())));
 
+        // KGCoins (nueva estadística)
+        inv.setItem(14, createItem(Material.GOLD_INGOT, "&e&lKGCoins",
+            "&7Balance actual: &e" + stats.getKGCoins(),
+            "&7Moneda exclusiva del servidor"));
+
         // ELO
-        inv.setItem(14, createItem(Material.NETHER_STAR, "&6&lELO",
+        inv.setItem(16, createItem(Material.NETHER_STAR, "&6&lELO",
             "&7ELO actual: &6" + stats.getElo(),
             "&7Rango: " + getRankLine(stats.getElo())));
 
         // Tiempo jugado
-        inv.setItem(16, createItem(Material.WATCH, "&e&lTiempo Jugado",
+        inv.setItem(18, createItem(Material.WATCH, "&e&lTiempo Jugado",
             "&7Tiempo total: &e" + stats.getFormattedPlayTime()));
 
         // Botón para volver

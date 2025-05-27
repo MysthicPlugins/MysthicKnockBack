@@ -33,15 +33,15 @@ public class MainCommand implements CommandExecutor{
         Player player = (Player) sender;
 
         if(args.length >= 1){
-            if(args[0].equalsIgnoreCase("Nashe")){
+            if(args[0].equalsIgnoreCase("nashe")){
                 sender.sendMessage(MessageUtils.getColor(KvKnockback.prefix +"&f ≽^•⩊•^≼ &b" + player.getName()));
 
-            } else if(args[0].equalsIgnoreCase("Fecha")){
+            } else if(args[0].equalsIgnoreCase("fecha")){
                 DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 String date = dateFormat.format(new Date());
                 sender.sendMessage(MessageUtils.getColor(KvKnockback.prefix + "Fecha y hora actual: &e"+ date));
 
-            } else if(args[0].equalsIgnoreCase("Get")){
+            } else if(args[0].equalsIgnoreCase("get")){
                 // /kvknockback get <Author/Version>
                 subCommandGet(sender, args);
 
@@ -61,20 +61,20 @@ public class MainCommand implements CommandExecutor{
 
     public void help(CommandSender sender){
         sender.sendMessage(MessageUtils.getColor("--------&r &b&lComandos IntKnock &8&m--------"));
-        sender.sendMessage(MessageUtils.getColor("/IntKnock Nashe"));
-        sender.sendMessage(MessageUtils.getColor("/IntKnock Fecha"));
-        sender.sendMessage(MessageUtils.getColor("/IntKnock Get <Author/Version>"));
+        sender.sendMessage(MessageUtils.getColor("/IntKnock nashe"));
+        sender.sendMessage(MessageUtils.getColor("/IntKnock fecha"));
+        sender.sendMessage(MessageUtils.getColor("/IntKnock get <Author/Version>"));
         sender.sendMessage(MessageUtils.getColor("/IntKnock VicioKB"));
         sender.sendMessage(MessageUtils.getColor("--------&r &b&lComandos IntKnock &8&m--------"));
     }
 
     public void subCommandGet(CommandSender sender, String[] args){
-        if(!(sender.hasPermission("IntKnock.command.get"))){
+        if(!(sender.hasPermission("kvknockback.command.get"))){
             sender.sendMessage(MessageUtils.getColor(KvKnockback.prefix +"&c No tienes permisos para usar este comando."));
             return;
         }
-        if(args.length ==1){
-            sender.sendMessage(MessageUtils.getColor(KvKnockback.prefix +"&c Debes usar &7 /IntKnock Get author/Version>"));
+        if(args.length == 1){
+            sender.sendMessage(MessageUtils.getColor(KvKnockback.prefix +"&c Debes usar &7 /kvknockback get author/version>"));
             return;
         }
         if(args[1].equalsIgnoreCase("Author")){
@@ -84,7 +84,7 @@ public class MainCommand implements CommandExecutor{
             sender.sendMessage(MessageUtils.getColor(KvKnockback.prefix +"&f La version del plugin es: &b" + plugin.getDescription().getVersion()));
 
         }else{
-            sender.sendMessage(MessageUtils.getColor(KvKnockback.prefix +"&c Debes usar &7 /IntKnock Get author/Version>"));
+            sender.sendMessage(MessageUtils.getColor(KvKnockback.prefix +"&c Debes usar &7 /kvknockback get author/version>"));
 
         }
     }

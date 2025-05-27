@@ -19,6 +19,7 @@ import kk.kvlzx.menu.HotbarEditMenu;
 import kk.kvlzx.menu.StatsMenu;
 import kk.kvlzx.menu.PlayerListMenu;
 import kk.kvlzx.menu.ReportReasonMenu;
+import kk.kvlzx.menu.ShopMenu;
 
 public class MenuManager {
     private final KvKnockback plugin;
@@ -43,6 +44,7 @@ public class MenuManager {
         registerMenu("hotbar_edit", new HotbarEditMenu(plugin));
         registerMenu("player_list", new PlayerListMenu(plugin));
         registerMenu("report_reason", new ReportReasonMenu(plugin));
+        registerMenu("shop", new ShopMenu(plugin));
         // Aquí registraremos los demás menús
     }
 
