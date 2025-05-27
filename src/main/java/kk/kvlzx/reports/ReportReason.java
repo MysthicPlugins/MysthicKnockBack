@@ -2,6 +2,8 @@ package kk.kvlzx.reports;
 
 import org.bukkit.Material;
 
+import kk.kvlzx.utils.MessageUtils;
+
 public enum ReportReason {
     HACKS(Material.DIAMOND_SWORD, "&c&lHacks", "Uso de hacks o ventajas injustas"),
     TOXIC(Material.POISONOUS_POTATO, "&e&lToxicidad", "Comportamiento tóxico o irrespetuoso"),
@@ -33,8 +35,14 @@ public enum ReportReason {
     }
 
     public static ReportReason getByDisplayName(String name) {
+        if (name == null) return null;
+        
+        // Remover el formateo de color que pueda quedar
+        name = MessageUtils.stripColor(name);
+        
         for (ReportReason reason : values()) {
-            if (reason.displayName.equals(name)) {
+            String reasonName = MessageUtils.stripColor(reason.displayName);
+            if (reasonName.equals(name)) {
                 return reason;
             }
         }

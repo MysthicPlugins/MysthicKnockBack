@@ -51,24 +51,30 @@ public class ReportReasonMenu extends Menu {
     public void handleClick(InventoryClickEvent event) {
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
-
         ItemStack clicked = event.getCurrentItem();
-        if (clicked != null) {
-            if (event.getSlot() == 31) {
-                plugin.getMenuManager().openMenu(player, "player_list");
-                return;
-            }
 
-            // Verificar si clickeó una razón
-            ReportReason reason = ReportReason.getByDisplayName(
-                MessageUtils.stripColor(clicked.getItemMeta().getDisplayName())
-            );
+        if (clicked == null) return;
 
-            if (reason != null) {
-                String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
-                plugin.getReportManager().submitReport(player, targetName, reason);
-                player.closeInventory();
-            }
+        String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
+        if (targetName == null) {
+            player.closeInventory();
+            player.sendMessage(MessageUtils.getColor("&cError: No se encontró el jugador a reportar"));
+            return;
+        }
+
+        if (event.getSlot() == 31) { // Botón volver
+            plugin.getMenuManager().openMenu(player, "player_list");
+            return;
+        }
+
+        // Verificar si clickeó una razón válida
+        String clickedName = clicked.getItemMeta() != null ? 
+            MessageUtils.stripColor(clicked.getItemMeta().getDisplayName()) : null;
+
+        ReportReason reason = ReportReason.getByDisplayName(clickedName);
+        if (reason != null) {
+            plugin.getReportManager().submitReport(player, targetName, reason);
+            player.closeInventory();
         }
     }
 

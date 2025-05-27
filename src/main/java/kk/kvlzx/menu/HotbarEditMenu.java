@@ -84,16 +84,29 @@ public class HotbarEditMenu extends Menu {
         // Manejar botones
         switch (slot) {
             case 45: // Guardar
+                if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
+                    event.setCancelled(true);
+                    return;
+                }
                 saveHotbar(player);
                 player.closeInventory();
                 player.sendMessage(MessageUtils.getColor("&aHotbar guardada correctamente"));
                 break;
             case 46: // Restablecer
+                if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
+                    event.setCancelled(true);
+                    return;
+                }
                 PlayerHotbar.resetLayout(player.getUniqueId());
                 player.closeInventory();
                 player.sendMessage(MessageUtils.getColor("&aHotbar restablecida al default"));
                 break;
             case 49: // Volver
+                // Si tiene un item en el cursor, no permitir salir
+                if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
+                    event.setCancelled(true);
+                    return;
+                }
                 plugin.getMenuManager().openMenu(player, "main");
                 break;
         }

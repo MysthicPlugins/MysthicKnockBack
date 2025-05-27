@@ -7,6 +7,9 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.util.Vector;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.Material;
 
 import kk.kvlzx.KvKnockback;
 import kk.kvlzx.arena.ZoneType;
@@ -73,11 +76,19 @@ public class CombatListener implements Listener {
 
     private void applyCustomKnockback(EntityDamageByEntityEvent event, Player victim, Player attacker) {
         // Constantes de knockback mejoradas
-        final double BASE_HORIZONTAL = 0.45;    // Mantener horizontal
-        final double BASE_VERTICAL = 0.25;      // Reducido de 0.42 a 0.25
-        final double SPRINT_BONUS = 0.2;        // Mantener sprint bonus
-        final double Y_REDUCTION = 0.45;        // Aumentado la reducción de Y
-        final double MAX_Y_VELOCITY = 0.35;     // Nuevo: límite máximo de velocidad vertical
+        double BASE_HORIZONTAL = 0.45;    // Base horizontal
+        double BASE_VERTICAL = 0.25;      // Base vertical
+        final double SPRINT_BONUS = 0.2;  // Sprint bonus
+        final double Y_REDUCTION = 0.45;  // Reducción Y
+        final double MAX_Y_VELOCITY = 0.35; // Máxima velocidad vertical
+
+        // Reducir knockback si el atacante usa el palo con knockback
+        ItemStack weapon = attacker.getItemInHand();
+        if (weapon != null && weapon.getType() == Material.STICK && 
+            weapon.getEnchantmentLevel(Enchantment.KNOCKBACK) > 0) {
+            BASE_HORIZONTAL *= 0.6; // Reducir a 60% del knockback base
+            BASE_VERTICAL *= 0.7;   // Reducir a 70% del knockback vertical
+        }
         
         // Obtener la dirección del knockback
         double dx = victim.getLocation().getX() - attacker.getLocation().getX();
@@ -99,7 +110,7 @@ public class CombatListener implements Listener {
             horizontalMultiplier += SPRINT_BONUS;
         }
 
-        // Reducir Y cuando el jugador está cayendo y limitar velocidad vertical máxima
+        // Reducir Y cuando el jugador está cayendo
         if (!((LivingEntity)victim).isOnGround() && victim.getVelocity().getY() < 0) {
             verticalMultiplier *= Y_REDUCTION;
         }
@@ -107,8 +118,7 @@ public class CombatListener implements Listener {
         // Limitar la velocidad vertical máxima
         verticalMultiplier = Math.min(verticalMultiplier, MAX_Y_VELOCITY);
 
-        // Aplicar velocidad con el nuevo knockback
-
+        // Aplicar velocidad
         Vector knockback = new Vector(dx * horizontalMultiplier, verticalMultiplier, dz * horizontalMultiplier);
         victim.setVelocity(knockback);
 
