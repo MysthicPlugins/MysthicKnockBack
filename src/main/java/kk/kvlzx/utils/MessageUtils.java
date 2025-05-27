@@ -12,4 +12,8 @@ public class MessageUtils {
     public static void sendMsg(CommandSender sender, String msg) {
         sender.sendMessage(getColor(msg));
     }
+
+    public static String stripColor(String msg) {
+        return ChatColor.stripColor(msg);
+    }
 }

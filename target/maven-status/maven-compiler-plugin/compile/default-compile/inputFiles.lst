@@ -7,8 +7,6 @@ E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\ArenaCommand.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\ArenaTabCompleter.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\MainCommand.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\MainTabCompleter.java
-E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\ReportCommand.java
-E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\ReportTabCompleter.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\StatsCommand.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\StatsTabCompleter.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\data\ArenaData.java
@@ -31,6 +29,7 @@ E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\TabManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menu\HotbarEditMenu.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menu\MainMenu.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menu\Menu.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menu\PlayerListMenu.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menu\ReportMenu.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menu\StatsMenu.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menu\TopEloMenu.java

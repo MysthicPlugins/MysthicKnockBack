@@ -10,8 +10,6 @@ import kk.kvlzx.commands.ArenaCommand;
 import kk.kvlzx.commands.ArenaTabCompleter;
 import kk.kvlzx.commands.MainCommand;
 import kk.kvlzx.commands.MainTabCompleter;
-import kk.kvlzx.commands.ReportCommand;
-import kk.kvlzx.commands.ReportTabCompleter;
 import kk.kvlzx.commands.StatsCommand;
 import kk.kvlzx.commands.StatsTabCompleter;
 import kk.kvlzx.data.InventoryData;
@@ -126,8 +124,6 @@ public class KvKnockback extends JavaPlugin {
     public void registerCommands() {
         getCommand("kvknockback").setExecutor(new MainCommand(this));
         getCommand("kvknockback").setTabCompleter(new MainTabCompleter());
-        getCommand("report").setExecutor(new ReportCommand(this));
-        getCommand("report").setTabCompleter(new ReportTabCompleter());
         getCommand("arena").setExecutor(new ArenaCommand(this));
         getCommand("arena").setTabCompleter(new ArenaTabCompleter(this));
         getCommand("stats").setExecutor(new StatsCommand(this));

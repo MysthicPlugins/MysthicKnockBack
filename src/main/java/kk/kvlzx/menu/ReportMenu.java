@@ -3,7 +3,6 @@ package kk.kvlzx.menu;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -18,26 +17,54 @@ public class ReportMenu extends Menu {
     private final Player reportedPlayer;
 
     public ReportMenu(KvKnockback plugin, Player reportedPlayer) {
-        super(plugin, "&8• &c&lReportar a " + reportedPlayer.getName() + " &8•", 27);
+        super(plugin, reportedPlayer != null ? "&8• &c&lReportar a " + reportedPlayer.getName() + " &8•" : "&8• &c&lReporte &8•", 36);
         this.reportedPlayer = reportedPlayer;
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
-        // Razones de hack
-        inv.setItem(10, createItem(Material.DIAMOND_SWORD, "&c&lKillAura", "&7Click para reportar por KillAura"));
-        inv.setItem(11, createItem(Material.FEATHER, "&c&lSpeed/Fly", "&7Click para reportar por Speed/Fly"));
-        inv.setItem(12, createItem(Material.STICK, "&c&lReach", "&7Click para reportar por Reach"));
-        inv.setItem(13, createItem(Material.WOOL, "&c&lAntiKB", "&7Click para reportar por AntiKnockback"));
+        // Items para hacks
+        inv.setItem(10, createItem(Material.DIAMOND_SWORD, "&c&lKillAura", 
+            "&7Click para reportar por KillAura",
+            "",
+            "&8➥ Uso de hacks de combate"));
 
-        // Razones de comportamiento
-        inv.setItem(14, createItem(Material.BOOK_AND_QUILL, "&e&lToxicidad", "&7Click para reportar por comportamiento tóxico"));
-        inv.setItem(15, createItem(Material.PAPER, "&e&lSpam", "&7Click para reportar por spam"));
-        inv.setItem(16, createItem(Material.NAME_TAG, "&e&lInsultos", "&7Click para reportar por insultos"));
-        inv.setItem(17, createItem(Material.GHAST_TEAR, "&c&lEx", "&7Click para reportar por ex molesto"));
+        inv.setItem(11, createItem(Material.FEATHER, "&c&lSpeed/Fly", 
+            "&7Click para reportar por Speed/Fly",
+            "",
+            "&8➥ Movimiento no natural"));
 
-        // Botón para cancelar
-        inv.setItem(22, createItem(Material.BARRIER, "&c&lCancelar", "&7Click para cancelar el reporte"));
+        inv.setItem(12, createItem(Material.STICK, "&c&lReach/Velocity", 
+            "&7Click para reportar por Reach/Velocity",
+            "",
+            "&8➥ Alcance o KB sospechoso"));
+
+        inv.setItem(13, createItem(Material.WOOL, "&c&lAntiKB", 
+            "&7Click para reportar por AntiKnockback",
+            "",
+            "&8➥ No recibe knockback"));
+
+        // Items para comportamiento
+        inv.setItem(14, createItem(Material.GHAST_TEAR, "&6&lEx", 
+            "&7Click para reportar a un ex",
+            "",
+            "&8➥ Es mi ex y me molesta"));
+
+        inv.setItem(15, createItem(Material.BOOK_AND_QUILL, "&e&lToxicidad", 
+            "&7Click para reportar por toxicidad",
+            "",
+            "&8➥ Insultos o acoso"));
+
+        inv.setItem(16, createItem(Material.NAME_TAG, "&e&lTeaming", 
+            "&7Click para reportar por team",
+            "",
+            "&8➥ Aliarse con otros jugadores"));
+
+        // Botón para volver
+        inv.setItem(31, createItem(Material.ARROW, "&c← Volver", 
+            "&7Click para volver",
+            "",
+            "&8➥ Volver a la lista de jugadores"));
 
         // Relleno
         ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 14);
@@ -48,49 +75,29 @@ public class ReportMenu extends Menu {
     public void handleClick(InventoryClickEvent event) {
         event.setCancelled(true);
         Player reporter = (Player) event.getWhoClicked();
+        ItemStack clicked = event.getCurrentItem();
 
-        if (event.getCurrentItem() == null) return;
+        if (clicked == null || clicked.getType() == Material.AIR) return;
 
-        String reason = "";
-        boolean isValid = true;
-
-        switch (event.getSlot()) {
-            case 10:
-                reason = "KillAura";
-                break;
-            case 11:
-                reason = "Speed/Fly";
-                break;
-            case 12:
-                reason = "Reach";
-                break;
-            case 13:
-                reason = "AntiKB";
-                break;
-            case 14:
-                reason = "Toxicidad";
-                break;
-            case 15:
-                reason = "Spam";
-                break;
-            case 16:
-                reason = "Insultos";
-                break;
-            case 17:
-                reason = "Es mi ex y me está acosando";
-                break;
-            case 22:
-                reporter.closeInventory();
-                reporter.sendMessage(MessageUtils.getColor("&cReporte cancelado."));
-                return;
-            default:
-                isValid = false;
-                break;
+        if (event.getSlot() == 31) {
+            plugin.getMenuManager().openMenu(reporter, "player_list");
+            return;
         }
 
-        if (isValid) {
-            reporter.closeInventory();
+        String reason = null;
+        switch (event.getSlot()) {
+            case 10: reason = "KillAura"; break;
+            case 11: reason = "Speed/Fly"; break;
+            case 12: reason = "Reach/Velocity"; break;
+            case 13: reason = "AntiKB"; break;
+            case 14: reason = "Es mi ex y me está acosando"; break;
+            case 15: reason = "Toxicidad"; break;
+            case 16: reason = "Teaming"; break;
+        }
+
+        if (reason != null) {
             notifyReport(reporter, reportedPlayer, reason);
+            reporter.closeInventory();
         }
     }
 
@@ -102,7 +109,7 @@ public class ReportMenu extends Menu {
         String staffMsg = String.format("&c[Reporte] &f%s &7ha reportado a &f%s &7por &f%s",
             reporter.getName(), reported.getName(), reason);
             
-        for (Player staff : Bukkit.getOnlinePlayers()) {
+        for (Player staff : plugin.getServer().getOnlinePlayers()) {
             if (staff.hasPermission("kvknockback.reports.receive")) {
                 staff.sendMessage(MessageUtils.getColor(staffMsg));
             }

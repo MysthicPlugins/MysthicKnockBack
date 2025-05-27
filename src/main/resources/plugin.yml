@@ -11,8 +11,6 @@ commands:
     aliases: 
       - kvk
       - kk
-  report:
-    description: Command to report a player
   arena:
     description: Command to define an arena
   stats:

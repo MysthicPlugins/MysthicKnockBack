@@ -49,6 +49,12 @@ public class MainMenu extends Menu {
             "",
             "&8➥ Personaliza la posición de tus items"));
 
+        // Añadir botón de reportes (antes del relleno)
+        inv.setItem(41, createItem(Material.BOOK_AND_QUILL, "&c&lReportar Jugador",
+            "&7Click para reportar a un jugador",
+            "",
+            "&8➥ Reporta comportamiento inadecuado"));
+
         // Relleno
         ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
         fillEmptySlots(inv, filler);
@@ -80,6 +86,9 @@ public class MainMenu extends Menu {
                 break;
             case 40: // Editar Hotbar
                 plugin.getMenuManager().openMenu(player, "hotbar_edit");
+                break;
+            case 41: // Reportar Jugador
+                plugin.getMenuManager().openMenu(player, "player_list");
                 break;
         }
     }
