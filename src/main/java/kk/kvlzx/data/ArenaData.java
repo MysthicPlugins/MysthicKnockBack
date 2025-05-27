@@ -39,6 +39,17 @@ public class ArenaData {
             arenaConfig.getConfig().set(basePath + ".spawnpoint", LocationUtils.serialize(spawn));
         }
 
+        // Guardar información del borde si existe
+        if (arena.hasBorder()) {
+            Location borderCenter = arena.getBorderCenter();
+            double borderSize = arena.getBorderSize();
+            
+            if (borderCenter != null) {
+                arenaConfig.getConfig().set(basePath + ".border.center", LocationUtils.serialize(borderCenter));
+                arenaConfig.getConfig().set(basePath + ".border.size", borderSize);
+            }
+        }
+
         arenaConfig.saveConfig();
     }
 
@@ -81,6 +92,18 @@ public class ArenaData {
             Location spawn = LocationUtils.deserialize(arenaConfig.getConfig().getString(spawnPath));
             if (spawn != null) {
                 arena.setSpawnPoint(spawn);
+            }
+        }
+
+        // Cargar información del borde
+        String borderPath = "arenas." + arenaName + ".border";
+        if (arenaConfig.getConfig().contains(borderPath)) {
+            String centerStr = arenaConfig.getConfig().getString(borderPath + ".center");
+            double size = arenaConfig.getConfig().getDouble(borderPath + ".size");
+            
+            Location center = LocationUtils.deserialize(centerStr);
+            if (center != null) {
+                arena.setBorder(center, size);
             }
         }
     }

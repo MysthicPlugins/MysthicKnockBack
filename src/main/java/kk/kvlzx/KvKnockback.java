@@ -22,6 +22,7 @@ import kk.kvlzx.listeners.MenuListener;
 import kk.kvlzx.managers.MainScoreboardManager;
 import kk.kvlzx.managers.TabManager;
 import kk.kvlzx.managers.MenuManager;
+import kk.kvlzx.managers.ReportManager;
 import kk.kvlzx.stats.PlayerStats;
 import kk.kvlzx.utils.MessageUtils;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
@@ -39,6 +40,7 @@ public class KvKnockback extends JavaPlugin {
     private MainScoreboardManager scoreboardManager;
     private TabManager tabManager;
     private MenuManager menuManager;
+    private ReportManager reportManager;
 
     @Override
     public void onEnable() {
@@ -109,7 +111,8 @@ public class KvKnockback extends JavaPlugin {
         arenaManager = new ArenaManager(this);
         scoreboardManager = new MainScoreboardManager(this);
         tabManager = new TabManager(this);
-        menuManager = new MenuManager(this); // Añadir esta línea
+        menuManager = new MenuManager(this);
+        reportManager = new ReportManager(this);
     }
 
     private void startPlaytimeUpdater() {
@@ -165,5 +168,9 @@ public class KvKnockback extends JavaPlugin {
 
     public MenuManager getMenuManager() {
         return menuManager;
+    }
+
+    public ReportManager getReportManager() {
+        return reportManager;
     }
 }

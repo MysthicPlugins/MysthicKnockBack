@@ -56,19 +56,32 @@ public class HotbarEditMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         int slot = event.getSlot();
 
-        // Cancelar shift clicks
+        // Prevenir shift-clicks
         if (event.isShiftClick()) {
             event.setCancelled(true);
             return;
         }
 
-        // Permitir mover items solo en la zona de hotbar y solo dentro del inventario superior
+        // Prevenir clicks en el inventario del jugador
+        if (event.getClickedInventory() != event.getView().getTopInventory()) {
+            event.setCancelled(true);
+            return;
+        }
+
+        // Prevenir mover items desde el área de muestra (slots 9-17)
+        if (slot >= 9 && slot <= 17) {
+            event.setCancelled(true);
+            return;
+        }
+
+        // Permitir mover items solo en la zona de hotbar (slots 36-44)
         if (event.getClickedInventory() == event.getView().getTopInventory()) {
             if (slot < 36 || slot >= 45) {
                 event.setCancelled(true);
             }
         }
 
+        // Manejar botones
         switch (slot) {
             case 45: // Guardar
                 saveHotbar(player);

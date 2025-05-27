@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -18,8 +17,8 @@ import kk.kvlzx.menu.TopStreakMenu;
 import kk.kvlzx.menu.TopTimeMenu;
 import kk.kvlzx.menu.HotbarEditMenu;
 import kk.kvlzx.menu.StatsMenu;
-import kk.kvlzx.menu.ReportMenu;
 import kk.kvlzx.menu.PlayerListMenu;
+import kk.kvlzx.menu.ReportReasonMenu;
 
 public class MenuManager {
     private final KvKnockback plugin;
@@ -42,8 +41,8 @@ public class MenuManager {
         registerMenu("top_time", new TopTimeMenu(plugin));
         registerMenu("stats", new StatsMenu(plugin));
         registerMenu("hotbar_edit", new HotbarEditMenu(plugin));
-        registerMenu("report", new ReportMenu(plugin, null));
         registerMenu("player_list", new PlayerListMenu(plugin));
+        registerMenu("report_reason", new ReportReasonMenu(plugin));
         // Aquí registraremos los demás menús
     }
 

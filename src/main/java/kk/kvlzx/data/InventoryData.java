@@ -53,4 +53,10 @@ public class InventoryData {
     public boolean hasLayout(UUID uuid) {
         return inventoryConfig.getConfig().contains("inventories." + uuid);
     }
+
+    public void removeLayout(UUID uuid) {
+        // Eliminar toda la sección del jugador
+        inventoryConfig.getConfig().set("inventories." + uuid, null);
+        inventoryConfig.saveConfig();
+    }
 }

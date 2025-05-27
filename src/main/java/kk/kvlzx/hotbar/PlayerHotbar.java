@@ -67,5 +67,9 @@ public class PlayerHotbar {
 
     public static void resetLayout(UUID uuid) {
         playerLayouts.remove(uuid);
+        // También eliminar del archivo de configuración
+        if (inventoryData != null) {
+            inventoryData.removeLayout(uuid);
+        }
     }
 }

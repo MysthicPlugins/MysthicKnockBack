@@ -56,6 +56,8 @@ public class TopTimeMenu extends Menu {
             return Long.compare(stats2.getPlayTime(), stats1.getPlayTime());
         });
 
+        // Usar las mismas ubicaciones que los otros tops
+        int[] slots = {11, 12, 13, 14, 15, 20, 21, 22, 23, 24};
         for (int i = 0; i < 10; i++) {
             ItemStack skull;
             if (i < topPlayers.size()) {
@@ -76,12 +78,12 @@ public class TopTimeMenu extends Menu {
                     "&7Tiempo: &e0h 00m");
             }
             
-            inv.setItem(10 + i, skull);
+            inv.setItem(slots[i], skull);
         }
 
         ItemStack backButton = createItem(Material.ARROW, "&c← Volver", 
             "&7Click para volver al menú principal");
-        inv.setItem(22, backButton);
+        inv.setItem(40, backButton); // Actualizar ubicación
 
         // Relleno amarillo claro (datos: 8)
         ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 8);
@@ -91,7 +93,8 @@ public class TopTimeMenu extends Menu {
     @Override
     public void handleClick(InventoryClickEvent event) {
         event.setCancelled(true);
-        if (event.getSlot() == 22) {
+        
+        if (event.getSlot() == 40) { // Botón de volver
             Player player = (Player) event.getWhoClicked();
             plugin.getMenuManager().openMenu(player, "main");
         }

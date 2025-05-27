@@ -14,6 +14,8 @@ public class Arena {
     private final Map<ZoneType, Zone> zones; // Cambiado de String a ZoneType
     private Location spawnPoint;
     private VirtualBorder border;
+    private Location borderCenter;
+    private double borderSize;
 
     public Arena(String name) {
         this.name = name;
@@ -56,6 +58,9 @@ public class Arena {
     }
 
     public void setBorder(Location center, double size) {
+        this.borderCenter = center;
+        this.borderSize = size;
+        
         if (this.border != null) {
             this.border.cleanup();
         }
@@ -103,5 +108,13 @@ public class Arena {
         if (border != null) {
             border.updateSize(size);
         }
+    }
+
+    public Location getBorderCenter() {
+        return borderCenter;
+    }
+
+    public double getBorderSize() {
+        return borderSize;
     }
 }
