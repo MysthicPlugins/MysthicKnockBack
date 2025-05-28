@@ -148,25 +148,36 @@ public class ArenaManager {
         Arena newArena = getArena(arenaName);
         if (newArena == null) return;
 
-        // Obtener la arena anterior
         Arena oldArena = this.currentArena != null ? getArena(this.currentArena) : null;
-
-        // Primero configurar la nueva arena antes de mostrar cualquier borde
         this.currentArena = arenaName;
 
-        // Ocultar el borde antiguo y mostrar el nuevo simultáneamente
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (oldArena != null && oldArena.hasBorder()) {
-                oldArena.hideBorder(player);
-            }
-            
-            // Pequeño delay antes de mostrar el nuevo borde para evitar la animación
-            if (newArena.hasBorder()) {
-                Bukkit.getScheduler().runTaskLater(KvKnockback.getInstance(), () -> {
-                    if (player.isOnline()) {
-                        newArena.showBorder(player);
+        // Ocultar borde solo a los jugadores de la arena antigua
+        if (oldArena != null && oldArena.hasBorder()) {
+            Set<UUID> oldPlayers = arenaPlayers.get(oldArena.getName());
+            if (oldPlayers != null) {
+                for (UUID uuid : oldPlayers) {
+                    Player player = Bukkit.getPlayer(uuid);
+                    if (player != null && player.isOnline()) {
+                        oldArena.hideBorder(player);
                     }
-                }, 2L);
+                }
+            }
+        }
+
+        // Mostrar borde solo a los jugadores de la nueva arena
+        if (newArena.hasBorder()) {
+            Set<UUID> newPlayers = arenaPlayers.get(newArena.getName());
+            if (newPlayers != null) {
+                for (UUID uuid : newPlayers) {
+                    Player player = Bukkit.getPlayer(uuid);
+                    if (player != null && player.isOnline()) {
+                        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                            if (player.isOnline()) {
+                                newArena.showBorder(player);
+                            }
+                        }, 2L);
+                    }
+                }
             }
         }
     }

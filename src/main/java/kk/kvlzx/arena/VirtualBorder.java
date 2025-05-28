@@ -78,23 +78,29 @@ public class VirtualBorder {
     }
 
     public void hide(Player player) {
+        UUID id = player.getUniqueId();
+        if (!playersWithBorder.remove(id)) return;  // Si el jugador ya no está, salir
+
         if (!player.isOnline()) return;
         
         WorldBorder emptyBorder = new WorldBorder();
         emptyBorder.world = ((CraftWorld) center.getWorld()).getHandle();
-        emptyBorder.setCenter(6.0E7D, 6.0E7D); // Mover el borde muy lejos en vez de hacerlo grande
-        emptyBorder.setSize(1.0D); // Tamaño mínimo
+        emptyBorder.setCenter(6.0E7D, 6.0E7D);
+        emptyBorder.setSize(1.0D);
         
         CraftPlayer craftPlayer = (CraftPlayer) player;
-        // Enviar el centro primero
         craftPlayer.getHandle().playerConnection.sendPacket(
             new PacketPlayOutWorldBorder(emptyBorder, PacketPlayOutWorldBorder.EnumWorldBorderAction.SET_CENTER)
         );
-        // Luego el tamaño
         craftPlayer.getHandle().playerConnection.sendPacket(
             new PacketPlayOutWorldBorder(emptyBorder, PacketPlayOutWorldBorder.EnumWorldBorderAction.SET_SIZE)
         );
-        playersWithBorder.remove(player.getUniqueId());
+
+        // Cancelar la tarea de refresco si no quedan jugadores
+        if (playersWithBorder.isEmpty() && refreshTask != null) {
+            refreshTask.cancel();
+            refreshTask = null;
+        }
     }
 
     private void startRefreshTask() {

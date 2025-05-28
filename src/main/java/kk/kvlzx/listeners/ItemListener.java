@@ -194,6 +194,7 @@ public class ItemListener implements Listener {
                     plugin.getCooldownManager().startCooldownVisual(player, stack, itemSlot, COOLDOWN_SECONDS, COOLDOWN_PLATE);
                     startPlateTimer(block.getLocation());
                 } else {
+                    // Solo aplicar animación y añadir a placedBlocks si NO es una placa
                     stack.setAmount(64);
                     placedBlocks.add(block.getLocation());
                     startBlockBreakAnimation(block);
@@ -239,6 +240,9 @@ public class ItemListener implements Listener {
             public void run() {
                 if (!player.isOnline()) return;
 
+                String zone = plugin.getArenaManager().getPlayerZone(player);
+                if (zone != null && zone.equals("spawn")) return;
+
                 if (savedArrows.containsKey(uuid)) {
                     ItemStack arrow = savedArrows.remove(uuid);
                     if (player.getInventory().getItem(arrowSlot) == null) {
@@ -247,8 +251,10 @@ public class ItemListener implements Listener {
                 }
 
                 ItemStack restoredBow = CustomItem.create(ItemType.BOW);
+                // Asegurar que el arco esté completamente nuevo
                 restoredBow.setDurability((short) 0);
-                restoredBow.setAmount(1);
+                // Añadir esto para forzar la actualización visual del arco
+                player.getInventory().setItem(bowSlot, null);
                 player.getInventory().setItem(bowSlot, restoredBow);
             }
         }.runTaskLater(plugin, COOLDOWN_SECONDS * 20L);

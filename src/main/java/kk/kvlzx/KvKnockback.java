@@ -12,6 +12,7 @@ import kk.kvlzx.commands.MainCommand;
 import kk.kvlzx.commands.MainTabCompleter;
 import kk.kvlzx.commands.StatsCommand;
 import kk.kvlzx.commands.StatsTabCompleter;
+import kk.kvlzx.cosmetics.CosmeticManager;
 import kk.kvlzx.data.InventoryData;
 import kk.kvlzx.hotbar.PlayerHotbar;
 import kk.kvlzx.listeners.ChatListener;
@@ -43,6 +44,7 @@ public class KvKnockback extends JavaPlugin {
     private MenuManager menuManager;
     private ReportManager reportManager;
     private CooldownManager cooldownManager;
+    private CosmeticManager cosmeticManager;
 
     @Override
     public void onEnable() {
@@ -95,6 +97,7 @@ public class KvKnockback extends JavaPlugin {
             
             arenaManager.saveArenas();
             PlayerStats.saveAllStats();
+            cosmeticManager.saveAll();
         } catch (Exception e) {
             getLogger().severe("Error al guardar datos: " + e.getMessage());
             e.printStackTrace();
@@ -116,6 +119,7 @@ public class KvKnockback extends JavaPlugin {
         menuManager = new MenuManager(this);
         reportManager = new ReportManager(this);
         cooldownManager = new CooldownManager(this);
+        cosmeticManager = new CosmeticManager(this);
     }
 
     private void startPlaytimeUpdater() {
@@ -179,5 +183,9 @@ public class KvKnockback extends JavaPlugin {
 
     public CooldownManager getCooldownManager() {
         return cooldownManager;
+    }
+
+    public CosmeticManager getCosmeticManager() {
+        return cosmeticManager;
     }
 }

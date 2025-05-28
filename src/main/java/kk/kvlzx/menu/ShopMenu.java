@@ -34,7 +34,7 @@ public class ShopMenu extends Menu {
             "",
             "&8➥ Precio: &a1000 KGCoins",
             "&8➥ Bloques exclusivos para construcción",
-            "&cNo disponible actualmente"));
+            "&aDisponible!"));
 
         inv.setItem(13, createItem(Material.SKULL_ITEM, "&c&lEfectos de Muerte", (byte) 0,
             "&7Click para ver efectos de muerte",
@@ -64,7 +64,7 @@ public class ShopMenu extends Menu {
         
         switch(event.getSlot()) {
             case 11: // Bloques
-                player.sendMessage(MessageUtils.getColor("&cEsta función estará disponible próximamente."));
+                plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
             case 13: // Efectos de muerte
             case 15: // Efectos de kill

@@ -17,57 +17,67 @@ import kk.kvlzx.utils.MessageUtils;
 public class StatsMenu extends Menu {
 
     public StatsMenu(KvKnockback plugin) {
-        super(plugin, "&8• &b&lMis Estadísticas &8•", 27);
+        super(plugin, "&8• &b&lMis Estadísticas &8•", 36);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Cabeza del jugador en el centro
+        // Primero colocar todos los items
+        // Cabeza del jugador
         ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
         skullMeta.setOwner(player.getName());
         skullMeta.setDisplayName(MessageUtils.getColor("&b" + player.getName()));
         List<String> skullLore = new ArrayList<>();
-        skullLore.add(MessageUtils.getColor("&7Estas son tus estadísticas generales"));
+        skullLore.add(MessageUtils.getColor("&7Estas son tus estadísticas"));
         skullLore.add(MessageUtils.getColor("&7¡Sigue mejorando!"));
         skullMeta.setLore(skullLore);
         skull.setItemMeta(skullMeta);
-        inv.setItem(13, skull);
+        inv.setItem(4, skull);
 
-        // Kills
-        inv.setItem(10, createItem(Material.DIAMOND_SWORD, "&a&lKills",
-            "&7Kills totales: &a" + stats.getKills(),
-            "&7Racha actual: &a" + stats.getCurrentStreak(),
-            "&7Mejor racha: &a" + stats.getMaxStreak()));
+        // Stats principales
+        inv.setItem(11, createItem(Material.DIAMOND_SWORD, "&a&lKills",
+            "&8▪ &7Kills totales: &a" + stats.getKills(),
+            "&8▪ &7Racha actual: &a" + stats.getCurrentStreak(),
+            "&8▪ &7Mejor racha: &a" + stats.getMaxStreak()));
 
-        // Muertes
-        inv.setItem(12, createItem(Material.SKULL_ITEM, "&c&lMuertes",
-            "&7Muertes totales: &c" + stats.getDeaths(),
-            "&7KDR: &b" + String.format("%.2f", stats.getKDR())));
+        inv.setItem(13, createItem(Material.NETHER_STAR, "&6&lELO",
+            "&8▪ &7ELO actual: &6" + stats.getElo(),
+            "&8▪ &7Rango: " + getRankLine(stats.getElo())));
 
-        // KGCoins (nueva estadística)
-        inv.setItem(14, createItem(Material.GOLD_INGOT, "&e&lKGCoins",
-            "&7Balance actual: &e" + stats.getKGCoins(),
-            "&7Moneda exclusiva del servidor"));
+        inv.setItem(15, createItem(Material.SKULL_ITEM, "&c&lMuertes", (byte) 0,
+            "&8▪ &7Muertes totales: &c" + stats.getDeaths(),
+            "&8▪ &7KDR: &b" + String.format("%.2f", stats.getKDR())));
 
-        // ELO
-        inv.setItem(16, createItem(Material.NETHER_STAR, "&6&lELO",
-            "&7ELO actual: &6" + stats.getElo(),
-            "&7Rango: " + getRankLine(stats.getElo())));
+        inv.setItem(21, createItem(Material.GOLD_INGOT, "&e&lKGCoins",
+            "&8▪ &7Balance actual: &e" + stats.getKGCoins(),
+            "&8▪ &7Moneda del servidor"));
 
-        // Tiempo jugado
-        inv.setItem(18, createItem(Material.WATCH, "&e&lTiempo Jugado",
-            "&7Tiempo total: &e" + stats.getFormattedPlayTime()));
+        inv.setItem(23, createItem(Material.WATCH, "&e&lTiempo Jugado",
+            "&8▪ &7Tiempo total: &e" + stats.getFormattedPlayTime()));
 
         // Botón para volver
-        inv.setItem(22, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver al menú principal"));
+        inv.setItem(31, createItem(Material.ARROW, "&c← Volver", 
+            "&7Click para volver al menú"));
 
-        // Relleno
-        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
-        fillEmptySlots(inv, filler);
+        // Luego colocar el borde y relleno
+        ItemStack darkBlue = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 11);
+        ItemStack lightBlue = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 3);
+
+        // Borde exterior
+        for (int i = 0; i < 9; i++) {
+            inv.setItem(i, darkBlue);
+            inv.setItem(27 + i, darkBlue);
+        }
+        for (int i = 0; i < 36; i += 9) {
+            inv.setItem(i, darkBlue);
+            inv.setItem(i + 8, darkBlue);
+        }
+
+        // Finalmente rellenar espacios vacíos
+        fillEmptySlots(inv, lightBlue);
     }
 
     private String getRankLine(int elo) {
@@ -78,7 +88,7 @@ public class StatsMenu extends Menu {
     @Override
     public void handleClick(InventoryClickEvent event) {
         event.setCancelled(true);
-        if (event.getSlot() == 22) {
+        if (event.getSlot() == 31) {
             Player player = (Player) event.getWhoClicked();
             plugin.getMenuManager().openMenu(player, "main");
         }

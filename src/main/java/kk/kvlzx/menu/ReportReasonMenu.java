@@ -17,35 +17,47 @@ import kk.kvlzx.utils.MessageUtils;
 public class ReportReasonMenu extends Menu {
 
     public ReportReasonMenu(KvKnockback plugin) {
-        super(plugin, "&8• &c&lSeleccionar Razón &8•", 36);
+        super(plugin, "&8• &c&lSeleccionar Razón &8•", 45);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
-        plugin.getLogger().info("[Menú de Reportes] " + player.getName() + " está seleccionando razón para reportar a " + targetName);
         
+        // Primero colocar los elementos principales
         // Información del jugador a reportar
-        inv.setItem(4, createItem(Material.BOOK, "&cReportando a: &f" + targetName,
-            "&7Selecciona una razón para el reporte"));
+        inv.setItem(4, createItem(Material.BOOK, "&c&lReportando a: &f" + targetName,
+            "&8▪ &7Selecciona una razón para el reporte",
+            "",
+            "&8➥ &7Elige cuidadosamente"));
 
-        // Razones de reporte
-        int slot = 10;
+        // Razones de reporte en círculo
+        int[] slots = {11, 12, 13, 14, 15, 21, 22, 23};
+        int index = 0;
         for (ReportReason reason : ReportReason.values()) {
-            inv.setItem(slot++, createItem(reason.getIcon(), reason.getDisplayName(), 
-                "&7Click para seleccionar esta razón",
+            if (index >= slots.length) break;
+            
+            inv.setItem(slots[index], createItem(reason.getIcon(), reason.getDisplayName(), 
+                "&8▪ &7Click para seleccionar",
                 "",
-                "&8" + reason.getDescription()));
-            if ((slot - 9) % 9 == 8) slot += 2;
+                "&8➥ &7" + reason.getDescription()));
+            index++;
         }
 
         // Botón para volver
-        inv.setItem(31, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver a la lista de jugadores"));
+        inv.setItem(40, createItem(Material.ARROW, "&c← Cancelar", 
+            "&7Click para volver a la lista"));
 
-        // Relleno
-        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 14);
-        fillEmptySlots(inv, filler);
+        // Después colocar el borde exterior (rojo oscuro)
+        ItemStack darkRed = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 14);
+        for (int i = 0; i < 9; i++) {
+            inv.setItem(i, darkRed);
+            inv.setItem(36 + i, darkRed);
+        }
+        for (int i = 0; i < 45; i += 9) {
+            inv.setItem(i, darkRed);
+            inv.setItem(i + 8, darkRed);
+        }
     }
 
     @Override
@@ -64,7 +76,7 @@ public class ReportReasonMenu extends Menu {
             return;
         }
 
-        if (event.getSlot() == 31) {
+        if (event.getSlot() == 40) {
             plugin.getLogger().info("[Menú de Reportes] " + player.getName() + " canceló el reporte y volvió a la lista");
             plugin.getMenuManager().openMenu(player, "player_list");
             return;

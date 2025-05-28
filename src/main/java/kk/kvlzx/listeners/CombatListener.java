@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.Material;
+import org.bukkit.entity.Arrow;
 
 import kk.kvlzx.KvKnockback;
 import kk.kvlzx.arena.ZoneType;
@@ -44,12 +45,23 @@ public class CombatListener implements Listener {
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
-        if (!(event.getDamager() instanceof Player)) return;
 
         Player victim = (Player) event.getEntity();
-        Player attacker = (Player) event.getDamager();
+        Player attacker = null;
 
-        // Verificar si la arena está cambiando o si algún jugador tiene NoDamageTicks altos
+        // Verificar si el daño es directo o por proyectil
+        if (event.getDamager() instanceof Player) {
+            attacker = (Player) event.getDamager();
+        } else if (event.getDamager() instanceof Arrow) {
+            Arrow arrow = (Arrow) event.getDamager();
+            if (arrow.getShooter() instanceof Player) {
+                attacker = (Player) arrow.getShooter();
+            }
+        }
+
+        if (attacker == null) return;
+
+        // Verificar si la arena está cambiando
         if (plugin.getScoreboardManager().isArenaChanging()) {
             event.setCancelled(true);
             return;
@@ -76,9 +88,8 @@ public class CombatListener implements Listener {
     private void applyCustomKnockback(EntityDamageByEntityEvent event, Player victim, Player attacker) {
         // Constantes de knockback mejoradas
         double BASE_HORIZONTAL = 0.45;    // Base horizontal
-        double BASE_VERTICAL = 0.35;      // Base vertical
+        double BASE_VERTICAL = 0.55;      // Base vertical
         final double SPRINT_BONUS = 0.2;  // Sprint bonus
-        final double MAX_Y_VELOCITY = 0.35; // Máxima velocidad vertical
 
         // Reducir knockback si el atacante usa el palo con knockback
         ItemStack weapon = attacker.getItemInHand();
@@ -107,9 +118,6 @@ public class CombatListener implements Listener {
         if (attacker.isSprinting()) {
             horizontalMultiplier += SPRINT_BONUS;
         }
-        
-        // Limitar la velocidad vertical máxima
-        verticalMultiplier = Math.min(verticalMultiplier, MAX_Y_VELOCITY);
 
         // Aplicar velocidad
         Vector knockback = new Vector(dx * horizontalMultiplier, verticalMultiplier, dz * horizontalMultiplier);

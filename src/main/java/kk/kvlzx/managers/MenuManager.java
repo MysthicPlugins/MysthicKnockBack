@@ -20,6 +20,7 @@ import kk.kvlzx.menu.StatsMenu;
 import kk.kvlzx.menu.PlayerListMenu;
 import kk.kvlzx.menu.ReportReasonMenu;
 import kk.kvlzx.menu.ShopMenu;
+import kk.kvlzx.menu.BlockShopMenu;
 
 public class MenuManager {
     private final KvKnockback plugin;
@@ -45,6 +46,7 @@ public class MenuManager {
         registerMenu("player_list", new PlayerListMenu(plugin));
         registerMenu("report_reason", new ReportReasonMenu(plugin));
         registerMenu("shop", new ShopMenu(plugin));
+        registerMenu("block_shop", new BlockShopMenu(plugin));
         // Aquí registraremos los demás menús
     }
 

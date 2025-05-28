@@ -9,6 +9,8 @@ E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\MainCommand.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\MainTabCompleter.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\StatsCommand.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\StatsTabCompleter.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\cosmetics\BlockShopItem.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\cosmetics\CosmeticManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\data\ArenaData.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\data\InventoryData.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\data\StatsData.java
@@ -28,6 +30,7 @@ E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\RankManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\ReportManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\StreakManager.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\managers\TabManager.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menu\BlockShopMenu.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menu\HotbarEditMenu.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menu\MainMenu.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menu\Menu.java
