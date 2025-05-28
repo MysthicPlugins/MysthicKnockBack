@@ -78,12 +78,22 @@ public class VirtualBorder {
     }
 
     public void hide(Player player) {
+        if (!player.isOnline()) return;
+        
         WorldBorder emptyBorder = new WorldBorder();
         emptyBorder.world = ((CraftWorld) center.getWorld()).getHandle();
-        emptyBorder.setSize(6.0E7D); // Tamaño default de Minecraft
+        emptyBorder.setCenter(6.0E7D, 6.0E7D); // Mover el borde muy lejos en vez de hacerlo grande
+        emptyBorder.setSize(1.0D); // Tamaño mínimo
         
         CraftPlayer craftPlayer = (CraftPlayer) player;
-        craftPlayer.getHandle().playerConnection.sendPacket(new PacketPlayOutWorldBorder(emptyBorder, PacketPlayOutWorldBorder.EnumWorldBorderAction.SET_SIZE));
+        // Enviar el centro primero
+        craftPlayer.getHandle().playerConnection.sendPacket(
+            new PacketPlayOutWorldBorder(emptyBorder, PacketPlayOutWorldBorder.EnumWorldBorderAction.SET_CENTER)
+        );
+        // Luego el tamaño
+        craftPlayer.getHandle().playerConnection.sendPacket(
+            new PacketPlayOutWorldBorder(emptyBorder, PacketPlayOutWorldBorder.EnumWorldBorderAction.SET_SIZE)
+        );
         playersWithBorder.remove(player.getUniqueId());
     }
 
@@ -109,7 +119,7 @@ public class VirtualBorder {
                 }
             }
         };
-        refreshTask.runTaskTimer(KvKnockback.getInstance(), 40L, 40L); // Refrescar cada 22 segundos
+        refreshTask.runTaskTimer(KvKnockback.getInstance(), 40L, 40L); // Refrescar cada 2 segundos
     }
 
     public void cleanup() {

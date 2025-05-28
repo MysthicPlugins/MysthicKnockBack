@@ -46,6 +46,9 @@ public class MenuListener implements Listener {
             if (menu instanceof HotbarEditMenu && player.getItemOnCursor() != null && 
                 player.getItemOnCursor().getType() != Material.AIR) {
                 
+                // Eliminar el item del cursor
+                player.setItemOnCursor(null);
+                
                 // Reabrir el inventario en el siguiente tick para evitar problemas
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     plugin.getMenuManager().openMenu(player, "hotbar_edit");

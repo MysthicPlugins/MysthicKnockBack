@@ -25,7 +25,6 @@ import org.bukkit.Effect;
 import java.util.*;
 
 import kk.kvlzx.KvKnockback;
-import kk.kvlzx.arena.ZoneType;
 import kk.kvlzx.items.CustomItem;
 import kk.kvlzx.items.CustomItem.ItemType;
 import net.minecraft.server.v1_8_R3.BlockPosition;
@@ -42,6 +41,7 @@ public class ItemListener implements Listener {
     private final Map<Location, BukkitRunnable> plateTimers = new HashMap<>();
     private final Map<UUID, BukkitRunnable> speedTasks = new HashMap<>(); // Nuevo mapa para las tasks de speed
     private static final Set<Location> placedBlocks = new HashSet<>(); // Set para almacenar bloques colocados
+    private final Map<Location, List<BukkitRunnable>> blockAnimationTasks = new HashMap<>();
 
     public ItemListener(KvKnockback plugin) {
         this.plugin = plugin;
@@ -177,6 +177,9 @@ public class ItemListener implements Listener {
             return;
         }
 
+        // Cancelar cualquier animación anterior en esa ubicación
+        cancelBlockAnimation(block.getLocation());
+
         if (blockType.isBlock()) {
             int itemSlot = findSlotByType(player, blockType);
             ItemStack stack = player.getInventory().getItem(itemSlot);
@@ -259,26 +262,48 @@ public class ItemListener implements Listener {
         }
     }
 
-    public static void cleanup() {
-        // Eliminar todos los bloques colocados
-        for (Location loc : placedBlocks) {
-            loc.getBlock().setType(Material.AIR);
+    private void cancelBlockAnimation(Location location) {
+        List<BukkitRunnable> tasks = blockAnimationTasks.remove(location);
+        if (tasks != null) {
+            tasks.forEach(BukkitRunnable::cancel);
+            
+            // Limpiar la animación enviando stage 0
+            Block block = location.getBlock();
+            for (Player player : block.getWorld().getPlayers()) {
+                if (player.getLocation().distance(location) <= 32) {
+                    ((CraftPlayer) player).getHandle().playerConnection.sendPacket(
+                        new PacketPlayOutBlockBreakAnimation(
+                            block.hashCode(),
+                            new BlockPosition(block.getX(), block.getY(), block.getZ()),
+                            -1
+                        )
+                    );
+                }
+            }
         }
-        placedBlocks.clear();
     }
 
     private void startBlockBreakAnimation(Block block) {
-        byte[] stages = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-        int[] delays = {0, 40, 30, 20, 10, 10, 5, 5, 5, 5}; // Delays en ticks entre cada etapa
-        int totalDelay = 0;
+        List<BukkitRunnable> tasks = new ArrayList<>();
+        blockAnimationTasks.put(block.getLocation(), tasks);
 
-        // Programar cada etapa de la animación
-        for (byte stage : stages) {
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (block.getType() != Material.AIR) {
-                    // Enviar el paquete de animación a todos los jugadores cercanos
+        final int TOTAL_TIME = 100; // 5 segundos
+        final int STAGES = 10;
+        final int DELAY_PER_STAGE = TOTAL_TIME / STAGES;
+
+        // Crear una animación con intervalos uniformes
+        for (int i = 0; i < STAGES; i++) {
+            final byte stage = (byte)i;
+            BukkitRunnable task = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (block.getType() == Material.AIR) {
+                        cancel();
+                        return;
+                    }
+
                     for (Player player : block.getWorld().getPlayers()) {
-                        if (player.getLocation().distance(block.getLocation()) <= 32) { // Solo jugadores en un radio de 32 bloques
+                        if (player.getLocation().distance(block.getLocation()) <= 32) {
                             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(
                                 new PacketPlayOutBlockBreakAnimation(
                                     block.hashCode(),
@@ -289,20 +314,33 @@ public class ItemListener implements Listener {
                         }
                     }
                 }
-            }, totalDelay);
-            
-            totalDelay += delays[stage];
+            };
+            task.runTaskLater(plugin, i * DELAY_PER_STAGE);
+            tasks.add(task);
         }
 
-        // Eliminar el bloque después de completar la animación
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (block.getType() != Material.AIR) {
-                block.setType(Material.AIR);
-                placedBlocks.remove(block.getLocation());
-                // Efecto de partículas al romperse
-                block.getWorld().playEffect(block.getLocation(), Effect.STEP_SOUND, block.getType());
+        // Tarea final para romper el bloque
+        BukkitRunnable breakTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (block.getType() != Material.AIR) {
+                    block.setType(Material.AIR);
+                    placedBlocks.remove(block.getLocation());
+                    block.getWorld().playEffect(block.getLocation(), Effect.STEP_SOUND, block.getType());
+                }
+                blockAnimationTasks.remove(block.getLocation());
             }
-        }, 100L); // 5 segundos en total
+        };
+        breakTask.runTaskLater(plugin, TOTAL_TIME);
+        tasks.add(breakTask);
+    }
+
+    public static void cleanup() {
+        // Eliminar todos los bloques colocados
+        for (Location loc : placedBlocks) {
+            loc.getBlock().setType(Material.AIR);
+        }
+        placedBlocks.clear();
     }
 
     @EventHandler

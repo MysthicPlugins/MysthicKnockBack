@@ -22,48 +22,52 @@ public class MainMenu extends Menu {
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
-        // Tops - Primera fila
-        inv.setItem(11, createItem(Material.DIAMOND_SWORD, "&a&lTop Kills",
+        // TOP ROW - Tops más importantes
+        inv.setItem(12, createItem(Material.DIAMOND_SWORD, "&a&lTop Kills",
             "&7Click para ver el top 10 de kills"));
         
-        inv.setItem(13, createItem(Material.GOLDEN_APPLE, "&b&lTop KDR",
-            "&7Click para ver el top 10 de KDR"));
-        
-        inv.setItem(15, createItem(Material.NETHER_STAR, "&6&lTop ELO",
+        inv.setItem(13, createItem(Material.NETHER_STAR, "&6&lTop ELO",
             "&7Click para ver el top 10 de ELO"));
-            
-        // Tops - Segunda fila
-        inv.setItem(20, createItem(Material.DIAMOND, "&d&lTop Rachas",
+        
+        inv.setItem(14, createItem(Material.DIAMOND, "&d&lTop Rachas",
             "&7Click para ver el top 10 de rachas"));
+
+        // MIDDLE ROW - Tops secundarios
+        inv.setItem(21, createItem(Material.GOLDEN_APPLE, "&b&lTop KDR",
+            "&7Click para ver el top 10 de KDR"));
             
-        inv.setItem(24, createItem(Material.WATCH, "&e&lTop Tiempo",
+        inv.setItem(23, createItem(Material.WATCH, "&e&lTop Tiempo",
             "&7Click para ver el top 10 de tiempo jugado"));
 
-        // Hotbar edit - Cuarta fila
-        inv.setItem(39, createItem(Material.DIAMOND_SWORD, "&e&lEditar Hotbar",
+        // BOTTOM ROW - Acciones personales
+        inv.setItem(37, createItem(Material.DIAMOND_SWORD, "&e&lEditar Hotbar",
             "&7Click para personalizar tu hotbar",
             "",
             "&8➥ Personaliza la posición de tus items"));
 
-        // Mis Estadísticas
-        inv.setItem(40, CustomItem.createSkull(player, "&a&lMis Estadísticas",
+        inv.setItem(39, CustomItem.createSkull(player, "&a&lMis Estadísticas",
             "&7Click para ver tus estadísticas"));
 
-        // Añadir botón de reportes
         inv.setItem(41, createItem(Material.BOOK_AND_QUILL, "&c&lReportar Jugador",
             "&7Click para reportar a un jugador",
             "",
             "&8➥ Reporta comportamiento inadecuado"));
 
-        // Añadir botón de tienda antes del relleno
-        inv.setItem(42, createItem(Material.EMERALD, "&a&lTienda", 
+        inv.setItem(43, createItem(Material.EMERALD, "&a&lTienda", 
             "&7Click para abrir la tienda",
             "",
             "&8➥ ¡Compra cosméticos y más!"));
 
-        // Relleno
-        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
-        fillEmptySlots(inv, filler);
+        // Relleno con diseño
+        ItemStack darkGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
+        ItemStack lightGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7);
+        
+        // Patrón de relleno alternado
+        for (int i = 0; i < inv.getSize(); i++) {
+            if (inv.getItem(i) == null) {
+                inv.setItem(i, (i % 2 == 0) ? darkGlass : lightGlass);
+            }
+        }
     }
 
     @Override
@@ -72,31 +76,31 @@ public class MainMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         
         switch (event.getSlot()) {
-            case 11: // Top Kills
+            case 12: // Top Kills
                 plugin.getMenuManager().openMenu(player, "top_kills");
                 break;
-            case 13: // Top KDR
-                plugin.getMenuManager().openMenu(player, "top_kdr");
-                break;
-            case 15: // Top Elo
+            case 13: // Top Elo
                 plugin.getMenuManager().openMenu(player, "top_elo");
                 break;
-            case 20: // Top Rachas
+            case 14: // Top Rachas
                 plugin.getMenuManager().openMenu(player, "top_streak");
                 break;
-            case 24: // Top Tiempo
+            case 21: // Top KDR
+                plugin.getMenuManager().openMenu(player, "top_kdr");
+                break;
+            case 23: // Top Tiempo
                 plugin.getMenuManager().openMenu(player, "top_time");
                 break;
-            case 39: // Editar Hotbar
+            case 37: // Editar Hotbar
                 plugin.getMenuManager().openMenu(player, "hotbar_edit");
                 break;
-            case 40: // Mis Estadísticas
+            case 39: // Mis Estadísticas
                 plugin.getMenuManager().openMenu(player, "stats");
                 break;
             case 41: // Reportar Jugador
                 plugin.getMenuManager().openMenu(player, "player_list");
                 break;
-            case 42: // Tienda
+            case 43: // Tienda
                 plugin.getMenuManager().openMenu(player, "shop");
                 break;
         }

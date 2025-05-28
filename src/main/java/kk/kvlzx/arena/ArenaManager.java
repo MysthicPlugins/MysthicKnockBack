@@ -142,25 +142,31 @@ public class ArenaManager {
     }
 
     public void setCurrentArena(String arenaName) {
-        // Ocultar el borde de la arena anterior si existe
-        if (this.currentArena != null) {
-            Arena oldArena = getArena(this.currentArena);
-            if (oldArena != null && oldArena.hasBorder()) {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    oldArena.hideBorder(player);
-                }
-            }
-        }
+        // Verificar si es la misma arena
+        if (this.currentArena != null && this.currentArena.equals(arenaName)) return;
 
+        Arena newArena = getArena(arenaName);
+        if (newArena == null) return;
+
+        // Obtener la arena anterior
+        Arena oldArena = this.currentArena != null ? getArena(this.currentArena) : null;
+
+        // Primero configurar la nueva arena antes de mostrar cualquier borde
         this.currentArena = arenaName;
 
-        // Mostrar el borde de la nueva arena si tiene uno
-        if (arenaName != null) {
-            Arena newArena = getArena(arenaName);
-            if (newArena != null && newArena.hasBorder()) {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    newArena.showBorder(player);
-                }
+        // Ocultar el borde antiguo y mostrar el nuevo simultáneamente
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (oldArena != null && oldArena.hasBorder()) {
+                oldArena.hideBorder(player);
+            }
+            
+            // Pequeño delay antes de mostrar el nuevo borde para evitar la animación
+            if (newArena.hasBorder()) {
+                Bukkit.getScheduler().runTaskLater(KvKnockback.getInstance(), () -> {
+                    if (player.isOnline()) {
+                        newArena.showBorder(player);
+                    }
+                }, 2L);
             }
         }
     }

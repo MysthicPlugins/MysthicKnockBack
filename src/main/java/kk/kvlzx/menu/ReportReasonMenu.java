@@ -54,7 +54,7 @@ public class ReportReasonMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (clicked == null) return;
+        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE) return;
 
         String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
         if (targetName == null) {
@@ -70,15 +70,14 @@ public class ReportReasonMenu extends Menu {
             return;
         }
 
-        // Verificar si clickeó una razón válida
-        String clickedName = clicked.getItemMeta() != null ? 
-            MessageUtils.stripColor(clicked.getItemMeta().getDisplayName()) : null;
-
-        ReportReason reason = ReportReason.getByDisplayName(clickedName);
-        if (reason != null) {
-            plugin.getLogger().info("[Menú de Reportes] " + player.getName() + " reportó a " + targetName + " por " + reason.name());
-            plugin.getReportManager().submitReport(player, targetName, reason);
-            player.closeInventory();
+        // Buscar la razón que coincida con el ítem clickeado
+        for (ReportReason reason : ReportReason.values()) {
+            if (clicked.getType() == reason.getIcon()) {
+                plugin.getLogger().info("[Menú de Reportes] " + player.getName() + " reportó a " + targetName + " por " + reason.name());
+                plugin.getReportManager().submitReport(player, targetName, reason);
+                player.closeInventory();
+                return;
+            }
         }
     }
 
