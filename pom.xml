@@ -57,6 +57,7 @@
                     <include>data/arenas.yml</include>
                     <include>data/stats.yml</include>
                     <include>data/inventories.yml</include>
+                    <include>data/cosmetics.yml</include>
                 </includes>
             </resource>
         </resources>

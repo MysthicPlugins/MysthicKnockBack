@@ -52,7 +52,7 @@ public class MainScoreboardManager {
     private void updatePlayerScoreboard(Player player) {
         Scoreboard board = scoreboardManager.getNewScoreboard();
         Objective obj = board.registerNewObjective("main", "dummy");
-        obj.setDisplayName(MessageUtils.getColor("&e☆ &6&lKnockbackFFA"));
+        obj.setDisplayName(MessageUtils.getColor("&b&lKnockback&3&lFFA"));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
@@ -61,24 +61,26 @@ public class MainScoreboardManager {
         
         int minutes = timeLeft / 60;
         int seconds = timeLeft % 60;
-        String formattedTime = String.format("&a%02d:%02d", minutes, seconds);
+        String formattedTime = String.format("&e%02d:%02d", minutes, seconds);
 
-        // Las líneas se agregan en orden inverso debido a cómo funciona el sistema de scores
-        setScore(obj, "&6&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", 13);
-        setScore(obj, "", 12);
-        setScore(obj, "&e☆ &fJugador: &b" + player.getName(), 11);
-        setScore(obj, "", 10);
-        setScore(obj, "&e⚡ &fArena: &a" + currentArena, 9);
-        setScore(obj, "&e❋ &fRango: " + RankManager.getRankPrefix(stats.getElo()), 8);
-        setScore(obj, "", 7);
-        setScore(obj, "&e⚔ &fKills: &a" + stats.getKills(), 6);
-        setScore(obj, "&e☠ &fMuertes: &c" + stats.getDeaths(), 5);
-        setScore(obj, "&e✦ &fElo: &6" + stats.getElo(), 4);
-        setScore(obj, "&e❈ &fKDR: &b" + String.format("%.2f", stats.getKDR()), 3);
-        setScore(obj, "&e$ &fKGCoins: &a" + stats.getKGCoins(), 2);
-        setScore(obj, "&e➜ &fRacha: &d" + stats.getCurrentStreak() + (stats.getMaxStreak() > 0 ? " &7(" + stats.getMaxStreak() + ")" : ""), 2);
-        setScore(obj, "&e⌚ &fTiempo: " + formattedTime, 1);
-        setScore(obj, "&6&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", 0);
+        // Las líneas se agregan en orden inverso
+        setScore(obj, "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", 16);
+        setScore(obj, "", 15);
+        setScore(obj, "&b❈ &fJugador: &b" + player.getName(), 14);
+        setScore(obj, "", 13);
+        setScore(obj, "&b☁ &fArena: &b" + currentArena, 12);
+        setScore(obj, "&b⏳ &fTiempo: " + formattedTime, 11);
+        setScore(obj, "&b✧ &fRango: " + RankManager.getRankPrefix(stats.getElo()), 10);
+        setScore(obj, "", 9);
+        setScore(obj, "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", 8);
+        setScore(obj, "&b⚔ &fKills: &a" + stats.getKills(), 7);
+        setScore(obj, "&b☠ &fMuertes: &c" + stats.getDeaths(), 6);
+        setScore(obj, "&b⭐ &fElo: &6" + stats.getElo(), 5);
+        setScore(obj, "&b⚖ &fKDR: &b" + String.format("%.2f", stats.getKDR()), 4);
+        setScore(obj, "&b⚡ &fRacha: &d" + stats.getCurrentStreak(), 3);
+        setScore(obj, "&b$ &fCoins: &e" + stats.getKGCoins(), 2);
+        setScore(obj, "", 1);
+        setScore(obj, "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", 0);
 
         player.setScoreboard(board);
     }
