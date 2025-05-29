@@ -88,7 +88,7 @@ public class CombatListener implements Listener {
     private void applyCustomKnockback(EntityDamageByEntityEvent event, Player victim, Player attacker) {
         // Constantes de knockback mejoradas
         double BASE_HORIZONTAL = 0.45;    // Base horizontal
-        double BASE_VERTICAL = 0.55;      // Base vertical
+        double BASE_VERTICAL = 0.75;      // Base vertical
         final double SPRINT_BONUS = 0.2;  // Sprint bonus
 
         // Reducir knockback si el atacante usa el palo con knockback

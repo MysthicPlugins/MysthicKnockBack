@@ -24,6 +24,10 @@ public class StatsMenu extends Menu {
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
+        // Crear los items de relleno
+        ItemStack darkGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15); // Negro
+        ItemStack lightGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7);  // Gris
+
         // Cabeza del jugador (centrada)
         ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
@@ -34,7 +38,7 @@ public class StatsMenu extends Menu {
         skullLore.add(MessageUtils.getColor("&7¡Sigue mejorando!"));
         skullMeta.setLore(skullLore);
         skull.setItemMeta(skullMeta);
-        inv.setItem(13, skull); // Centro del inventario
+        inv.setItem(13, skull);
 
         // Stats alrededor de la cabeza
         inv.setItem(10, createItem(Material.DIAMOND_SWORD, "&a&lKills",
@@ -61,22 +65,14 @@ public class StatsMenu extends Menu {
         inv.setItem(31, createItem(Material.ARROW, "&c← Volver", 
             "&8▪ &7Click para volver al menú principal"));
 
-        // Borde y relleno
-        ItemStack darkBlue = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 11);
-        ItemStack lightBlue = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 3);
-
-        // Borde exterior
-        for (int i = 0; i < 9; i++) {
-            inv.setItem(i, darkBlue);
-            inv.setItem(27 + i, darkBlue);
+        // Patrón de relleno alternado
+        for (int i = 0; i < inv.getSize(); i++) {
+            if (inv.getItem(i) == null) {
+                // Alternar entre vidrio oscuro y claro basado en posición
+                boolean isDark = ((i / 9) + (i % 9)) % 2 == 0;
+                inv.setItem(i, isDark ? darkGlass : lightGlass);
+            }
         }
-        for (int i = 0; i < 36; i += 9) {
-            inv.setItem(i, darkBlue);
-            inv.setItem(i + 8, darkBlue);
-        }
-
-        // Rellenar espacios vacíos
-        fillEmptySlots(inv, lightBlue);
     }
 
     private String getRankLine(int elo) {
