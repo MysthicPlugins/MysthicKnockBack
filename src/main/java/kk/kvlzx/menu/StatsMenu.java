@@ -24,8 +24,7 @@ public class StatsMenu extends Menu {
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Primero colocar todos los items
-        // Cabeza del jugador
+        // Cabeza del jugador (centrada)
         ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
         skullMeta.setOwner(player.getName());
@@ -35,34 +34,34 @@ public class StatsMenu extends Menu {
         skullLore.add(MessageUtils.getColor("&7¡Sigue mejorando!"));
         skullMeta.setLore(skullLore);
         skull.setItemMeta(skullMeta);
-        inv.setItem(4, skull);
+        inv.setItem(13, skull); // Centro del inventario
 
-        // Stats principales
-        inv.setItem(11, createItem(Material.DIAMOND_SWORD, "&a&lKills",
+        // Stats alrededor de la cabeza
+        inv.setItem(10, createItem(Material.DIAMOND_SWORD, "&a&lKills",
             "&8▪ &7Kills totales: &a" + stats.getKills(),
             "&8▪ &7Racha actual: &a" + stats.getCurrentStreak(),
             "&8▪ &7Mejor racha: &a" + stats.getMaxStreak()));
 
-        inv.setItem(13, createItem(Material.NETHER_STAR, "&6&lELO",
-            "&8▪ &7ELO actual: &6" + stats.getElo(),
-            "&8▪ &7Rango: " + getRankLine(stats.getElo())));
-
-        inv.setItem(15, createItem(Material.SKULL_ITEM, "&c&lMuertes", (byte) 0,
+        inv.setItem(12, createItem(Material.SKULL_ITEM, "&c&lMuertes", (byte) 0,
             "&8▪ &7Muertes totales: &c" + stats.getDeaths(),
             "&8▪ &7KDR: &b" + String.format("%.2f", stats.getKDR())));
 
-        inv.setItem(21, createItem(Material.GOLD_INGOT, "&e&lKGCoins",
+        inv.setItem(14, createItem(Material.NETHER_STAR, "&6&lELO",
+            "&8▪ &7ELO actual: &6" + stats.getElo(),
+            "&8▪ &7Rango: " + getRankLine(stats.getElo())));
+
+        inv.setItem(16, createItem(Material.GOLD_INGOT, "&e&lKGCoins",
             "&8▪ &7Balance actual: &e" + stats.getKGCoins(),
             "&8▪ &7Moneda del servidor"));
 
-        inv.setItem(23, createItem(Material.WATCH, "&e&lTiempo Jugado",
+        inv.setItem(22, createItem(Material.WATCH, "&e&lTiempo Jugado",
             "&8▪ &7Tiempo total: &e" + stats.getFormattedPlayTime()));
 
-        // Botón para volver
+        // Botón de volver al menú principal
         inv.setItem(31, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver al menú"));
+            "&8▪ &7Click para volver al menú principal"));
 
-        // Luego colocar el borde y relleno
+        // Borde y relleno
         ItemStack darkBlue = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 11);
         ItemStack lightBlue = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 3);
 
@@ -76,7 +75,7 @@ public class StatsMenu extends Menu {
             inv.setItem(i + 8, darkBlue);
         }
 
-        // Finalmente rellenar espacios vacíos
+        // Rellenar espacios vacíos
         fillEmptySlots(inv, lightBlue);
     }
 

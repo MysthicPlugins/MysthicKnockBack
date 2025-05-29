@@ -1,6 +1,5 @@
 package kk.kvlzx.commands;
 
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -8,7 +7,6 @@ import org.bukkit.entity.Player;
 
 import kk.kvlzx.KvKnockback;
 import kk.kvlzx.arena.Arena;
-import kk.kvlzx.arena.Zone;
 import kk.kvlzx.utils.MessageUtils;
 
 public class ArenaCommand implements CommandExecutor {
@@ -85,41 +83,20 @@ public class ArenaCommand implements CommandExecutor {
                     return true;
                 }
                 try {
-                    double size = Double.parseDouble(args[2]);
+                    int size = Integer.parseInt(args[2]);
+                    if (size < 10 || size > 500) {
+                        sender.sendMessage(MessageUtils.getColor("&cEl tamaño debe estar entre 10 y 500 bloques."));
+                        return true;
+                    }
                     Arena arena = plugin.getArenaManager().getArena(arenaName);
                     if (arena == null) {
                         sender.sendMessage(MessageUtils.getColor("&cLa arena no existe."));
                         return true;
                     }
-                    
-                    Location center;
-                    Zone pvpZone = arena.getZone("pvp");
-                    if (pvpZone != null) {
-                        // Usar el centro de la zona PvP
-                        Location min = pvpZone.getMin();
-                        Location max = pvpZone.getMax();
-                        center = new Location(
-                            min.getWorld(),
-                            (min.getX() + max.getX()) / 2,
-                            min.getY(),
-                            (min.getZ() + max.getZ()) / 2
-                        );
-                    } else {
-                        // Usar la ubicación del jugador
-                        center = player.getLocation();
-                    }
-
-                    // Si la arena ya tiene un borde, actualizar su tamaño en vez de crear uno nuevo
-                    if (arena.hasBorder()) {
-                        arena.updateBorderSize(size);
-                    } else {
-                        arena.setBorder(center, size);
-                    }
-                    
-                    sender.sendMessage(MessageUtils.getColor("&aBorde " + (arena.hasBorder() ? "actualizado" : "establecido") + " para la arena " + arenaName));
-                    
+                    arena.setBorderSize(size);
+                    sender.sendMessage(MessageUtils.getColor("&aBorde establecido a " + size + " bloques para la arena " + arenaName));
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(MessageUtils.getColor("&cEl tamaño debe ser un número válido."));
+                    sender.sendMessage(MessageUtils.getColor("&cDebes especificar un número válido."));
                 }
                 break;
             default:

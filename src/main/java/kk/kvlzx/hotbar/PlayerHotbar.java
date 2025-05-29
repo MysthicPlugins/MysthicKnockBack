@@ -4,26 +4,34 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import kk.kvlzx.KvKnockback;
 import kk.kvlzx.data.InventoryData;
 import kk.kvlzx.items.CustomItem;
 import kk.kvlzx.items.CustomItem.ItemType;
 
 public class PlayerHotbar {
     private static final Map<UUID, ItemStack[]> playerLayouts = new HashMap<>();
-    private static final ItemStack[] DEFAULT_LAYOUT = new ItemStack[9];
     private static InventoryData inventoryData;
 
-    static {
-        // Layout por defecto
-        DEFAULT_LAYOUT[0] = CustomItem.create(ItemType.KNOCKER);
-        DEFAULT_LAYOUT[1] = CustomItem.create(ItemType.BLOCKS);
-        DEFAULT_LAYOUT[2] = CustomItem.create(ItemType.BOW);
-        DEFAULT_LAYOUT[6] = CustomItem.create(ItemType.PLATE);
-        DEFAULT_LAYOUT[7] = CustomItem.create(ItemType.FEATHER);
-        DEFAULT_LAYOUT[8] = CustomItem.create(ItemType.PEARL);
+    // Eliminar el DEFAULT_LAYOUT estático y reemplazarlo con un método
+    private static ItemStack[] getDefaultLayout(UUID uuid) {
+        ItemStack[] layout = new ItemStack[9];
+        // Obtener el bloque cosmético del jugador
+        Material blockType = KvKnockback.getInstance().getCosmeticManager().getPlayerBlock(uuid);
+        ItemStack blocks = new ItemStack(blockType, 64);
+        
+        layout[0] = CustomItem.create(ItemType.KNOCKER);
+        layout[1] = blocks;
+        layout[2] = CustomItem.create(ItemType.BOW);
+        layout[6] = CustomItem.create(ItemType.PLATE);
+        layout[7] = CustomItem.create(ItemType.FEATHER);
+        layout[8] = CustomItem.create(ItemType.PEARL);
+        
+        return layout;
     }
 
     public static void init(InventoryData data) {
@@ -50,7 +58,7 @@ public class PlayerHotbar {
                 return layout.clone();
             }
         }
-        return playerLayouts.getOrDefault(uuid, DEFAULT_LAYOUT).clone();
+        return playerLayouts.getOrDefault(uuid, getDefaultLayout(uuid)).clone();
     }
 
     public static void applyLayout(Player player) {
@@ -66,7 +74,8 @@ public class PlayerHotbar {
     }
 
     public static void resetLayout(UUID uuid) {
-        playerLayouts.remove(uuid);
+        playerLayouts.put(uuid, getDefaultLayout(uuid));
+        
         // También eliminar del archivo de configuración
         if (inventoryData != null) {
             inventoryData.removeLayout(uuid);

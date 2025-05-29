@@ -108,19 +108,11 @@ public class ArenaManager {
 
     public void addPlayerToArena(Player player, String arenaName) {
         arenaPlayers.get(arenaName).add(player.getUniqueId());
-        Arena arena = getArena(arenaName);
-        if (arena != null && arena.hasBorder()) {
-            arena.showBorder(player);
-        }
     }
 
     public void removePlayerFromArena(Player player, String arenaName) {
         if (arenaPlayers.containsKey(arenaName)) {
             arenaPlayers.get(arenaName).remove(player.getUniqueId());
-            Arena arena = getArena(arenaName);
-            if (arena != null && arena.hasBorder()) {
-                arena.hideBorder(player);
-            }
         }
     }
 
@@ -141,33 +133,8 @@ public class ArenaManager {
         return currentArena;
     }
 
-    public void clearArenaForPlayer(Player player, String arenaName) {
-        Arena arena = arenas.get(arenaName);
-        if (arena != null && arena.hasBorder()) {
-            arena.hideBorder(player);
-        }
-    }
-
     public void setCurrentArena(String arenaName) {
-        if (currentArena != null) {
-            // Esconder el borde de la arena anterior para todos los jugadores
-            Arena oldArena = arenas.get(currentArena);
-            if (oldArena != null && oldArena.hasBorder()) {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    oldArena.hideBorder(player);
-                }
-            }
-        }
-        
         this.currentArena = arenaName;
-        
-        // Mostrar el borde de la nueva arena para todos los jugadores
-        Arena newArena = arenas.get(currentArena);
-        if (newArena != null && newArena.hasBorder()) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                newArena.showBorder(player);
-            }
-        }
     }
 
     public String getNextArena() {

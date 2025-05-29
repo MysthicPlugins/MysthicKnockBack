@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -90,10 +92,11 @@ public class BlockShopMenu extends Menu {
         if (hasBlock) {
             if (isSelected) {
                 lore.add("&aSeleccionado actualmente");
+                lore.add("&8➥ Usando este bloque");
             } else {
                 lore.add("&eClick para seleccionar");
+                lore.add("&8➥ Ya posees este bloque");
             }
-            lore.add("&8➥ Ya posees este bloque");
         } else {
             lore.add("&7Click para comprar");
             lore.add("");
@@ -101,7 +104,18 @@ public class BlockShopMenu extends Menu {
         }
 
         String displayName = (isSelected ? "&b" : item.getRarityColor()) + item.getName();
-        inv.setItem(slot, createItem(item.getMaterial(), displayName, lore.toArray(new String[0])));
+        ItemStack buttonItem = createItem(item.getMaterial(), displayName, lore.toArray(new String[0]));
+        
+        // Añadir encantamiento visual si es el bloque seleccionado
+        if (isSelected) {
+            buttonItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            // Ocultar el texto del encantamiento
+            ItemMeta meta = buttonItem.getItemMeta();
+            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            buttonItem.setItemMeta(meta);
+        }
+
+        inv.setItem(slot, buttonItem);
     }
 
     @Override

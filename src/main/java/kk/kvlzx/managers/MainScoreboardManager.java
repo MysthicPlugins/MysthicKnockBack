@@ -151,7 +151,6 @@ public class MainScoreboardManager {
             player.playSound(player.getLocation(), Sound.PORTAL_TRIGGER, 1.0f, 1.0f);
             // Dar invulnerabilidad temporal
             player.setNoDamageTicks(100);
-            arenaManager.clearArenaForPlayer(player, currentArena);
         }
 
         // Activar el estado de cambio de arena

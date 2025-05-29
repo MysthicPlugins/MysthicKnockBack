@@ -39,16 +39,8 @@ public class ArenaData {
             arenaConfig.getConfig().set(basePath + ".spawnpoint", LocationUtils.serialize(spawn));
         }
 
-        // Guardar información del borde si existe
-        if (arena.hasBorder()) {
-            Location borderCenter = arena.getBorderCenter();
-            double borderSize = arena.getBorderSize();
-            
-            if (borderCenter != null) {
-                arenaConfig.getConfig().set(basePath + ".border.center", LocationUtils.serialize(borderCenter));
-                arenaConfig.getConfig().set(basePath + ".border.size", borderSize);
-            }
-        }
+        // Guardar tamaño del borde
+        arenaConfig.getConfig().set(basePath + ".borderSize", arena.getBorderSize());
 
         arenaConfig.saveConfig();
     }
@@ -95,16 +87,10 @@ public class ArenaData {
             }
         }
 
-        // Cargar información del borde
-        String borderPath = "arenas." + arenaName + ".border";
+        // Cargar tamaño del borde
+        String borderPath = "arenas." + arenaName + ".borderSize";
         if (arenaConfig.getConfig().contains(borderPath)) {
-            String centerStr = arenaConfig.getConfig().getString(borderPath + ".center");
-            double size = arenaConfig.getConfig().getDouble(borderPath + ".size");
-            
-            Location center = LocationUtils.deserialize(centerStr);
-            if (center != null) {
-                arena.setBorder(center, size);
-            }
+            arena.setBorderSize(arenaConfig.getConfig().getInt(borderPath, 50));
         }
     }
 

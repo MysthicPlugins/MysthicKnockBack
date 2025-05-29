@@ -96,7 +96,6 @@ public class CombatListener implements Listener {
         if (weapon != null && weapon.getType() == Material.STICK && 
             weapon.getEnchantmentLevel(Enchantment.KNOCKBACK) > 0) {
             BASE_HORIZONTAL *= 0.6; // Reducir a 60% del knockback base
-            BASE_VERTICAL *= 0.7;   // Reducir a 70% del knockback vertical
         }
         
         // Obtener la dirección del knockback
