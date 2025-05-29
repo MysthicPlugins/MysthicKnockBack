@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import kk.kvlzx.KvKnockback;
+import kk.kvlzx.items.CustomItem;
 import kk.kvlzx.reports.ReportReason;
 import kk.kvlzx.utils.MessageUtils;
 
@@ -23,40 +24,58 @@ public class ReportReasonMenu extends Menu {
     @Override
     protected void setupItems(Player player, Inventory inv) {
         String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
-        
-        // Primero colocar los elementos principales
-        // Información del jugador a reportar
-        inv.setItem(4, createItem(Material.BOOK, "&c&lReportando a: &f" + targetName,
+
+        // Cabeza del jugador a reportar
+        ItemStack targetHead = CustomItem.createSkullFromUUID(
+            plugin.getServer().getPlayer(targetName).getUniqueId(),
+            "&c&lReportando a: &f" + targetName,
             "&8▪ &7Selecciona una razón para el reporte",
             "",
-            "&8➥ &7Elige cuidadosamente"));
+            "&8➥ &7Elige cuidadosamente"
+        );
+        inv.setItem(4, targetHead);
 
-        // Razones de reporte en círculo
-        int[] slots = {11, 12, 13, 14, 15, 21, 22, 23};
+        // Razones de reporte en forma de U
+        int[] reasonSlots = {19, 20, 21, 22, 23, 24, 25, 34};
         int index = 0;
         for (ReportReason reason : ReportReason.values()) {
-            if (index >= slots.length) break;
+            if (index >= reasonSlots.length) break;
             
-            inv.setItem(slots[index], createItem(reason.getIcon(), reason.getDisplayName(), 
-                "&8▪ &7Click para seleccionar",
-                "",
-                "&8➥ &7" + reason.getDescription()));
+            List<String> lore = new ArrayList<>();
+            lore.add("&8▪ &7Click para seleccionar este motivo");
+            lore.add("");
+            lore.add("&8➥ &7" + reason.getDescription());
+            
+            inv.setItem(reasonSlots[index], createItem(
+                reason.getIcon(),
+                reason.getDisplayName(),
+                lore.toArray(new String[0])
+            ));
             index++;
+        }
+
+        // Separadores decorativos
+        ItemStack lightRed = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 1);
+        for (int i : new int[]{1, 2, 3, 5, 6, 7}) {
+            inv.setItem(i, lightRed);
         }
 
         // Botón para volver
         inv.setItem(40, createItem(Material.ARROW, "&c← Cancelar", 
-            "&7Click para volver a la lista"));
+            "&7Click para volver a la lista de jugadores"));
 
-        // Después colocar el borde exterior (rojo oscuro)
+        // Crear bordes con patrón
         ItemStack darkRed = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 14);
+        ItemStack red = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 6);
+        
+        // Patrón de borde exterior
         for (int i = 0; i < 9; i++) {
-            inv.setItem(i, darkRed);
-            inv.setItem(36 + i, darkRed);
+            inv.setItem(i, i % 2 == 0 ? darkRed : red);
+            inv.setItem(36 + i, i % 2 == 0 ? darkRed : red);
         }
         for (int i = 0; i < 45; i += 9) {
-            inv.setItem(i, darkRed);
-            inv.setItem(i + 8, darkRed);
+            inv.setItem(i, i % 18 == 0 ? darkRed : red);
+            inv.setItem(i + 8, i % 18 == 0 ? darkRed : red);
         }
     }
 
@@ -70,14 +89,12 @@ public class ReportReasonMenu extends Menu {
 
         String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
         if (targetName == null) {
-            plugin.getLogger().info("[Menú de Reportes] Error: No se encontró objetivo para " + player.getName());
             player.closeInventory();
             player.sendMessage(MessageUtils.getColor("&cError: No se encontró el jugador a reportar"));
             return;
         }
 
         if (event.getSlot() == 40) {
-            plugin.getLogger().info("[Menú de Reportes] " + player.getName() + " canceló el reporte y volvió a la lista");
             plugin.getMenuManager().openMenu(player, "player_list");
             return;
         }
@@ -85,7 +102,6 @@ public class ReportReasonMenu extends Menu {
         // Buscar la razón que coincida con el ítem clickeado
         for (ReportReason reason : ReportReason.values()) {
             if (clicked.getType() == reason.getIcon()) {
-                plugin.getLogger().info("[Menú de Reportes] " + player.getName() + " reportó a " + targetName + " por " + reason.name());
                 plugin.getReportManager().submitReport(player, targetName, reason);
                 player.closeInventory();
                 return;

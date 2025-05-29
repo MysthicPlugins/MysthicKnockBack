@@ -129,6 +129,29 @@ public class HotbarEditMenu extends Menu {
     }
 
     private boolean isValidItem(ItemStack item) {
+        // Primero verificar si es un bloque decorativo
+        Material[] decorativeBlocks = {
+            Material.SANDSTONE,
+            Material.GLASS,
+            Material.STAINED_CLAY,
+            Material.QUARTZ_BLOCK,
+            Material.SMOOTH_BRICK,
+            Material.WOOD,
+            Material.WOOL,
+            Material.SNOW_BLOCK,
+            Material.GLOWSTONE,
+            Material.NETHER_BRICK,
+            Material.PRISMARINE,
+            Material.SEA_LANTERN,
+            Material.ENDER_STONE,
+            Material.PACKED_ICE
+        };
+
+        if (Arrays.asList(decorativeBlocks).contains(item.getType())) {
+            return true;
+        }
+
+        // Si no es un bloque decorativo, verificar si es un CustomItem
         return Arrays.stream(ItemType.values())
                     .anyMatch(type -> {
                         ItemStack validItem = CustomItem.create(type);

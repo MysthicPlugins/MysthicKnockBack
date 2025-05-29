@@ -141,43 +141,31 @@ public class ArenaManager {
         return currentArena;
     }
 
+    public void clearArenaForPlayer(Player player, String arenaName) {
+        Arena arena = arenas.get(arenaName);
+        if (arena != null && arena.hasBorder()) {
+            arena.hideBorder(player);
+        }
+    }
+
     public void setCurrentArena(String arenaName) {
-        // Verificar si es la misma arena
-        if (this.currentArena != null && this.currentArena.equals(arenaName)) return;
-
-        Arena newArena = getArena(arenaName);
-        if (newArena == null) return;
-
-        Arena oldArena = this.currentArena != null ? getArena(this.currentArena) : null;
-        this.currentArena = arenaName;
-
-        // Ocultar borde solo a los jugadores de la arena antigua
-        if (oldArena != null && oldArena.hasBorder()) {
-            Set<UUID> oldPlayers = arenaPlayers.get(oldArena.getName());
-            if (oldPlayers != null) {
-                for (UUID uuid : oldPlayers) {
-                    Player player = Bukkit.getPlayer(uuid);
-                    if (player != null && player.isOnline()) {
-                        oldArena.hideBorder(player);
-                    }
+        if (currentArena != null) {
+            // Esconder el borde de la arena anterior para todos los jugadores
+            Arena oldArena = arenas.get(currentArena);
+            if (oldArena != null && oldArena.hasBorder()) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    oldArena.hideBorder(player);
                 }
             }
         }
-
-        // Mostrar borde solo a los jugadores de la nueva arena
-        if (newArena.hasBorder()) {
-            Set<UUID> newPlayers = arenaPlayers.get(newArena.getName());
-            if (newPlayers != null) {
-                for (UUID uuid : newPlayers) {
-                    Player player = Bukkit.getPlayer(uuid);
-                    if (player != null && player.isOnline()) {
-                        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                            if (player.isOnline()) {
-                                newArena.showBorder(player);
-                            }
-                        }, 2L);
-                    }
-                }
+        
+        this.currentArena = arenaName;
+        
+        // Mostrar el borde de la nueva arena para todos los jugadores
+        Arena newArena = arenas.get(currentArena);
+        if (newArena != null && newArena.hasBorder()) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                newArena.showBorder(player);
             }
         }
     }
