@@ -80,7 +80,7 @@ public class MysthicKnockBack extends JavaPlugin {
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&b=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&bKvKnockback &fv" + version);
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&bMysthicKnockBack &fv" + version);
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&fEstado: &aActivado");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&fDesarrollado por: &bKvlzx & Gabo");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&fSoporte Discord: kvlzx, gaboh_");
@@ -105,7 +105,7 @@ public class MysthicKnockBack extends JavaPlugin {
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&c=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&bKvKnockback &fv" + version);
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&bMysthicKnockBack &fv" + version);
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&fEstado: &cDesactivado");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&c≽^•⩊•^≼");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&c=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
@@ -132,8 +132,8 @@ public class MysthicKnockBack extends JavaPlugin {
     }
 
     public void registerCommands() {
-        getCommand("kvknockback").setExecutor(new MainCommand(this));
-        getCommand("kvknockback").setTabCompleter(new MainTabCompleter());
+        getCommand("mysthicknockback").setExecutor(new MainCommand(this));
+        getCommand("mysthicknockback").setTabCompleter(new MainTabCompleter());
         getCommand("arena").setExecutor(new ArenaCommand(this));
         getCommand("arena").setTabCompleter(new ArenaTabCompleter(this));
         getCommand("stats").setExecutor(new StatsCommand(this));
