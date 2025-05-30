@@ -1,16 +1,17 @@
-main: kk.kvlzx.KvKnockback
+main: mk.kvlzx.MysthicKnockBack
 version: 1.0.0-SNAPSHOT
-name: KvKnockback
+name: MysthicKnockBack
 authors: [Kvlzx, Gabo]
 api-version: 1.13
 depend: [WorldEdit]
 
 commands:
-  kvknockback:
+  mysthicknockback:
     description: Main command
     aliases: 
-      - kvk
-      - kk
+      - mk
+      - kb
+      - kbffa
   arena:
     description: Command to define an arena
   stats:
