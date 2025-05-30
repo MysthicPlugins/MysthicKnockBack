@@ -84,19 +84,21 @@ public class ArenaCommand implements CommandExecutor {
                 }
                 try {
                     int size = Integer.parseInt(args[2]);
-                    if (size < 10 || size > 500) {
-                        sender.sendMessage(MessageUtils.getColor("&cEl tamaño debe estar entre 10 y 500 bloques."));
+                    if (size <= 0) {
+                        sender.sendMessage(MessageUtils.getColor("&cEl tamaño debe ser mayor a 0."));
                         return true;
                     }
-                    Arena arena = plugin.getArenaManager().getArena(arenaName);
-                    if (arena == null) {
+                    if (plugin.getArenaManager().setBorder(arenaName, size)) {
+                        sender.sendMessage(MessageUtils.getColor("&aBorde establecido para la arena " + arenaName));
+                        // Si es la arena actual, actualizar el borde inmediatamente
+                        if (arenaName.equals(plugin.getArenaManager().getCurrentArena())) {
+                            plugin.getArenaManager().setCurrentArena(arenaName);
+                        }
+                    } else {
                         sender.sendMessage(MessageUtils.getColor("&cLa arena no existe."));
-                        return true;
                     }
-                    arena.setBorderSize(size);
-                    sender.sendMessage(MessageUtils.getColor("&aBorde establecido a " + size + " bloques para la arena " + arenaName));
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(MessageUtils.getColor("&cDebes especificar un número válido."));
+                    sender.sendMessage(MessageUtils.getColor("&cEl tamaño debe ser un número válido."));
                 }
                 break;
             default:

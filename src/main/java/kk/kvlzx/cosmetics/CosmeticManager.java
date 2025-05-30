@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 
 import kk.kvlzx.KvKnockback;
 import kk.kvlzx.hotbar.PlayerHotbar;
+import kk.kvlzx.utils.BlockUtils;
 import kk.kvlzx.utils.config.CustomConfig;
 
 public class CosmeticManager {
@@ -58,36 +59,12 @@ public class CosmeticManager {
     }
 
     private int findBlockSlot(ItemStack[] layout) {
-        Material[] decorativeBlocks = {
-            Material.SANDSTONE,
-            Material.GLASS,
-            Material.STAINED_CLAY,
-            Material.QUARTZ_BLOCK,
-            Material.SMOOTH_BRICK,
-            Material.WOOD,
-            Material.WOOL,
-            Material.SNOW_BLOCK,
-            Material.GLOWSTONE,
-            Material.NETHER_BRICK,
-            Material.PRISMARINE,
-            Material.SEA_LANTERN,
-            Material.ENDER_STONE,
-            Material.PACKED_ICE,
-            Material.SANDSTONE
-        };
-
         for (int i = 0; i < layout.length; i++) {
-            if (layout[i] != null) {
-                for (Material blockType : decorativeBlocks) {
-                    if (layout[i].getType() == blockType) {
-                        return i;
-                    }
-                }
+            if (layout[i] != null && BlockUtils.isDecorativeBlock(layout[i].getType())) {
+                return i;
             }
         }
-        
-        // Si no encontramos ningún bloque decorativo, usar el slot por defecto (1)
-        return 1;
+        return 1; // Default slot
     }
 
     private void savePlayerBlock(UUID uuid) {

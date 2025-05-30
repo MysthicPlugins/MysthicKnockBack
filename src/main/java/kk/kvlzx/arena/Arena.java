@@ -9,12 +9,11 @@ public class Arena {
     private final String name;
     private final Map<ZoneType, Zone> zones; // Cambiado de String a ZoneType
     private Location spawnPoint;
-    private Integer borderSize; // Cambiar a Integer para poder ser null
+    private int borderSize = 0; // Nuevo campo para el tamaño del borde
 
     public Arena(String name) {
         this.name = name;
         this.zones = new HashMap<>();
-        this.borderSize = null; // Inicialmente null hasta que se defina
     }
 
     public void setZone(ZoneType type, Zone zone) { // Cambiado de String a ZoneType
@@ -52,33 +51,12 @@ public class Arena {
         );
     }
 
+    // Metodos para manejar el borde de la arena
     public void setBorderSize(int size) {
         this.borderSize = size;
     }
 
-    public Integer getBorderSize() {
-        return borderSize;
-    }
-
-    public boolean hasBorder() {
-        return borderSize != null;
-    }
-
-    public boolean isInsideBorder(Location playerLoc) {
-        if (!hasBorder()) return true;
-        
-        Location center;
-        if (spawnPoint != null) {
-            center = spawnPoint;
-        } else {
-            center = playerLoc;
-        }
-        
-        // Verificar si está dentro del cuadrado usando coordenadas X y Z
-        int xDiff = Math.abs(playerLoc.getBlockX() - center.getBlockX());
-        int zDiff = Math.abs(playerLoc.getBlockZ() - center.getBlockZ());
-        
-        // Si cualquier diferencia es mayor que el tamaño del borde, está fuera
-        return xDiff <= borderSize && zDiff <= borderSize;
+    public int getBorderSize() {
+        return this.borderSize;
     }
 }

@@ -39,9 +39,6 @@ public class ArenaData {
             arenaConfig.getConfig().set(basePath + ".spawnpoint", LocationUtils.serialize(spawn));
         }
 
-        // Guardar tamaño del borde
-        arenaConfig.getConfig().set(basePath + ".borderSize", arena.getBorderSize());
-
         arenaConfig.saveConfig();
     }
 
@@ -85,12 +82,6 @@ public class ArenaData {
             if (spawn != null) {
                 arena.setSpawnPoint(spawn);
             }
-        }
-
-        // Cargar tamaño del borde
-        String borderPath = "arenas." + arenaName + ".borderSize";
-        if (arenaConfig.getConfig().contains(borderPath)) {
-            arena.setBorderSize(arenaConfig.getConfig().getInt(borderPath, 50));
         }
     }
 

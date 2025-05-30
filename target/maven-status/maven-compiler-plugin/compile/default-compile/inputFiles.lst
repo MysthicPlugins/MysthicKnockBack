@@ -1,5 +1,6 @@
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\arena\Arena.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\arena\ArenaManager.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\arena\WorldBorder.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\arena\Zone.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\arena\ZoneType.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\commands\ArenaCommand.java
@@ -44,6 +45,7 @@ E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menu\TopStreakMenu.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\menu\TopTimeMenu.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\reports\ReportReason.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\stats\PlayerStats.java
+E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\utils\BlockUtils.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\utils\config\CustomConfig.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\utils\LocationUtils.java
 E:\Plugins\KvKnockback\src\main\java\kk\kvlzx\utils\MessageUtils.java

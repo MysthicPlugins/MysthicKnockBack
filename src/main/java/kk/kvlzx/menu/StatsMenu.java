@@ -25,8 +25,8 @@ public class StatsMenu extends Menu {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
         // Crear los items de relleno
-        ItemStack darkGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15); // Negro
-        ItemStack lightGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7);  // Gris
+        ItemStack darkGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 11); // Azul oscuro
+        ItemStack lightGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 3);  // Celeste
 
         // Cabeza del jugador (centrada)
         ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short)3);

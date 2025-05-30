@@ -26,10 +26,9 @@ import org.bukkit.GameMode;
 import java.util.*;
 
 import kk.kvlzx.KvKnockback;
-import kk.kvlzx.arena.Arena;
 import kk.kvlzx.items.CustomItem;
 import kk.kvlzx.items.CustomItem.ItemType;
-import kk.kvlzx.utils.MessageUtils;
+import kk.kvlzx.utils.BlockUtils;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.PacketPlayOutBlockBreakAnimation;
 
@@ -175,36 +174,19 @@ public class ItemListener implements Listener {
         Block block = event.getBlock();
         Material blockType = block.getType();
 
-        // Información de depuración
-        String zone = plugin.getArenaManager().getPlayerZone(player);
-        plugin.getLogger().info("[Debug] Colocación de Bloque - Jugador: " + player.getName());
-        plugin.getLogger().info("[Debug] Zona Actual: " + zone);
-        plugin.getLogger().info("[Debug] Tipo de Bloque: " + blockType.name());
-        plugin.getLogger().info("[Debug] Es Creativo: " + player.getGameMode().equals(GameMode.CREATIVE));
+        if (player.getGameMode() == GameMode.CREATIVE) return; // No hacer nada si está creativo 
 
         if (plugin.getScoreboardManager().isArenaChanging()) {
-            plugin.getLogger().info("[Debug] Bloque cancelado - La arena está cambiando");
             event.setCancelled(true);
             return;
         }
+
+        String zone = plugin.getArenaManager().getPlayerZone(player);
 
         // Verificar si el jugador está en zona PvP
         if (zone == null || !zone.equals("pvp")) {
-            plugin.getLogger().info("[Debug] Bloque cancelado - Jugador no está en zona PvP");
             event.setCancelled(true);
             return;
-        }
-
-        // Verificar si está dentro del borde
-        String currentArena = plugin.getArenaManager().getPlayerArena(player);
-        if (currentArena != null) {
-            Arena arena = plugin.getArenaManager().getArena(currentArena);
-            if (arena != null && arena.hasBorder() && !arena.isInsideBorder(block.getLocation())) {
-                plugin.getLogger().info("[Debug] Bloque cancelado - Fuera del borde de la arena");
-                event.setCancelled(true);
-                player.sendMessage(MessageUtils.getColor("&c¡No puedes construir fuera del borde de la arena!"));
-                return;
-            }
         }
 
         // Cancelar cualquier animación anterior en esa ubicación
@@ -213,7 +195,6 @@ public class ItemListener implements Listener {
         if (blockType.isBlock()) {
             int itemSlot = findSlotByType(player, blockType);
             ItemStack stack = player.getInventory().getItem(itemSlot);
-            plugin.getLogger().info("[Debug] Objeto encontrado en ranura: " + itemSlot);
 
             if (stack != null) {
                 if (blockType == Material.GOLD_PLATE) {
@@ -231,8 +212,6 @@ public class ItemListener implements Listener {
                     startBlockBreakAnimation(block);
                 }
                 player.getInventory().setItem(itemSlot, stack);
-            } else {
-                plugin.getLogger().info("[Debug] No se encontró un objeto válido en el inventario");
             }
         }
     }
@@ -283,10 +262,6 @@ public class ItemListener implements Listener {
                 }
 
                 ItemStack restoredBow = CustomItem.create(ItemType.BOW);
-                // Asegurar que el arco esté completamente nuevo
-                restoredBow.setDurability((short) 0);
-                // Añadir esto para forzar la actualización visual del arco
-                player.getInventory().setItem(bowSlot, null);
                 player.getInventory().setItem(bowSlot, restoredBow);
             }
         }.runTaskLater(plugin, COOLDOWN_SECONDS * 20L);
@@ -376,7 +351,10 @@ public class ItemListener implements Listener {
     public static void cleanup() {
         // Eliminar todos los bloques colocados
         for (Location loc : placedBlocks) {
-            loc.getBlock().setType(Material.AIR);
+            Block block = loc.getBlock();
+            if (BlockUtils.isDecorativeBlock(block.getType())) {
+                block.setType(Material.AIR);
+            }
         }
         placedBlocks.clear();
     }

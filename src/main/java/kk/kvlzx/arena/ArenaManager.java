@@ -133,8 +133,57 @@ public class ArenaManager {
         return currentArena;
     }
 
+    public boolean setBorder(String arenaName, int size) {
+        Arena arena = arenas.get(arenaName);
+        if (arena == null) return false;
+        arena.setBorderSize(size);
+        return true;
+    }
+
+    private void showArenaBorder(Arena arena) {
+        if (arena == null || arena.getBorderSize() <= 0) return;
+
+        // Esperar 5 ticks antes de mostrar el nuevo borde
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Location spawn = arena.getSpawnLocation();
+            if (spawn == null) return;
+
+            int size = arena.getBorderSize();
+            WorldBorder border = new WorldBorder(spawn, size);
+            
+            // Solo mostrar a los jugadores en esta arena
+            for (UUID playerUUID : arenaPlayers.get(arena.getName())) {
+                Player player = Bukkit.getPlayer(playerUUID);
+                if (player != null && player.isOnline()) {
+                    border.show(player);
+                }
+            }
+        }, 5L);
+    }
+
+    private void hideCurrentBorder() {
+        if (currentArena == null) return;
+        Arena arena = arenas.get(currentArena);
+        if (arena == null || arena.getBorderSize() <= 0) return;
+
+        // Solo ocultar a los jugadores que estaban en esta arena
+        Set<UUID> players = arenaPlayers.get(currentArena);
+        if (players != null) {
+            for (UUID playerUUID : players) {
+                Player player = Bukkit.getPlayer(playerUUID);
+                if (player != null && player.isOnline()) {
+                    WorldBorder.removeBorder(player);
+                }
+            }
+        }
+    }
+
     public void setCurrentArena(String arenaName) {
-        this.currentArena = arenaName;
+        hideCurrentBorder(); // Primero ocultar el borde a los jugadores de la arena actual
+        this.currentArena = arenaName; // Actualizar la arena actual
+        if (arenaName != null) {
+            showArenaBorder(getArena(arenaName)); // Mostrar el nuevo borde a los jugadores de la nueva arena
+        }
     }
 
     public String getNextArena() {

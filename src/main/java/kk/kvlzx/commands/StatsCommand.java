@@ -1,5 +1,7 @@
 package kk.kvlzx.commands;
 
+import java.util.stream.Collectors;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,8 +34,8 @@ public class StatsCommand implements CommandExecutor {
 
         String subCommand = args[0].toLowerCase();
 
-        // Ver stats de un jugador
-        if (args.length == 2 && subCommand.equals("view")) {
+        // Ver stats no requiere permiso especial
+        if (subCommand.equals("view") && args.length == 2) {
             Player target = Bukkit.getPlayer(args[1]);
             if (target == null) {
                 sender.sendMessage(MessageUtils.getColor("&cJugador no encontrado."));
@@ -43,52 +45,71 @@ public class StatsCommand implements CommandExecutor {
             return true;
         }
 
-        // Modificar stats
-        if (args.length == 3) {
-            Player target = Bukkit.getPlayer(args[1]);
-            if (target == null) {
-                sender.sendMessage(MessageUtils.getColor("&cJugador no encontrado."));
-                return true;
-            }
-
-            if (!sender.hasPermission("kvknockback.stats.modify")) {
-                sender.sendMessage(MessageUtils.getColor("&cNo tienes permiso para modificar estadísticas."));
-                return true;
-            }
-
-            try {
-                int value = Integer.parseInt(args[2]);
-                PlayerStats stats = PlayerStats.getStats(target.getUniqueId());
-
-                switch (subCommand) {
-                    case "setelo":
-                        stats.setElo(value);
-                        sender.sendMessage(MessageUtils.getColor("&aELO de " + target.getName() + " establecido a " + value));
-                        break;
-                    case "setkills":
-                        stats.setKills(value);
-                        sender.sendMessage(MessageUtils.getColor("&aKills de " + target.getName() + " establecidas a " + value));
-                        break;
-                    case "setdeaths":
-                        stats.setDeaths(value);
-                        sender.sendMessage(MessageUtils.getColor("&aMuertes de " + target.getName() + " establecidas a " + value));
-                        break;
-                    case "setcoins":
-                        stats.setKGCoins(value);
-                        sender.sendMessage(MessageUtils.getColor("&aKGCoins de " + target.getName() + " establecidos a " + value));
-                        break;
-                    default:
-                        sendHelp(sender);
-                        break;
-                }
-                return true;
-            } catch (NumberFormatException e) {
-                sender.sendMessage(MessageUtils.getColor("&cDebes ingresar un número válido."));
-                return true;
-            }
+        // Todos los demás comandos requieren permiso de modificación
+        if (!sender.hasPermission("kvknockback.stats.modify")) {
+            sender.sendMessage(MessageUtils.getColor("&cNo tienes permiso para modificar estadísticas."));
+            return true;
         }
 
-        sendHelp(sender);
+        if (args.length < 2) {
+            sendHelp(sender);
+            return true;
+        }
+
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
+            sender.sendMessage(MessageUtils.getColor("&cJugador no encontrado."));
+            return true;
+        }
+
+        PlayerStats stats = PlayerStats.getStats(target.getUniqueId());
+
+        switch (subCommand) {
+            case "setelo":
+            case "setkills":
+            case "setdeaths":
+            case "setcoins":
+                if (args.length != 3) {
+                    sender.sendMessage(MessageUtils.getColor("&cUso: /stats " + subCommand + " <jugador> <cantidad>"));
+                    return true;
+                }
+                try {
+                    int value = Integer.parseInt(args[2]);
+                    switch (subCommand) {
+                        case "setelo":
+                            stats.setElo(value);
+                            sender.sendMessage(MessageUtils.getColor("&aELO de " + target.getName() + " establecido a " + value));
+                            break;
+                        case "setkills":
+                            stats.setKills(value);
+                            sender.sendMessage(MessageUtils.getColor("&aKills de " + target.getName() + " establecidas a " + value));
+                            break;
+                        case "setdeaths":
+                            stats.setDeaths(value);
+                            sender.sendMessage(MessageUtils.getColor("&aMuertes de " + target.getName() + " establecidas a " + value));
+                            break;
+                        case "setcoins":
+                            stats.setKGCoins(value);
+                            sender.sendMessage(MessageUtils.getColor("&aKGCoins de " + target.getName() + " establecidos a " + value));
+                            break;
+                    }
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(MessageUtils.getColor("&cDebes ingresar un número válido."));
+                }
+                break;
+            case "reset":
+                resetPlayerStats(target);
+                sender.sendMessage(MessageUtils.getColor("&aEstadísticas de " + target.getName() + " reseteadas."));
+                break;
+            case "resetall":
+                resetAllStats();
+                sender.sendMessage(MessageUtils.getColor("&aEstadísticas de todos los jugadores reseteadas."));
+                break;
+            default:
+                sendHelp(sender);
+                break;
+        }
+
         return true;
     }
 
@@ -109,6 +130,27 @@ public class StatsCommand implements CommandExecutor {
         sender.sendMessage(MessageUtils.getColor("&fKGCoins: &e" + stats.getKGCoins()));
     }
 
+    private void resetPlayerStats(Player player) {
+        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        stats.setKills(0);
+        stats.setDeaths(0);
+        stats.setElo(500);
+        stats.resetStreak();
+        stats.setKGCoins(0);
+        RankManager.updatePlayerRank(player, 500); // Actualizar el rango al default
+    }
+
+    private void resetAllStats() {
+        for (PlayerStats stats : PlayerStats.getAllStats().stream()
+                .map(PlayerStats::getStats)
+                .collect(Collectors.toList())) {
+            Player player = Bukkit.getPlayer(stats.getUUID());
+            if (player != null && player.isOnline()) {
+                resetPlayerStats(player);
+            }
+        }
+    }
+
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(MessageUtils.getColor("&b=== Comandos de Stats ==="));
         sender.sendMessage(MessageUtils.getColor("&f/stats view <jugador> &7- Ver estadísticas"));
@@ -117,6 +159,12 @@ public class StatsCommand implements CommandExecutor {
             sender.sendMessage(MessageUtils.getColor("&f/stats setkills <jugador> <cantidad> &7- Establecer kills"));
             sender.sendMessage(MessageUtils.getColor("&f/stats setdeaths <jugador> <cantidad> &7- Establecer muertes"));
             sender.sendMessage(MessageUtils.getColor("&f/stats setcoins <jugador> <cantidad> &7- Establecer KGCoins"));
+        }
+        if (sender.hasPermission("kvknockback.stats.reset")) {
+            sender.sendMessage(MessageUtils.getColor("&f/stats reset <jugador> &7- Resetear estadísticas"));
+        }
+        if (sender.hasPermission("kvknockback.stats.resetall")) {
+            sender.sendMessage(MessageUtils.getColor("&f/stats resetall &7- Resetear todas las estadísticas"));
         }
     }
 }

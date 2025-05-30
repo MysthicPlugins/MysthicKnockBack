@@ -127,16 +127,6 @@ public class PlayerListener implements Listener {
         Location to = event.getTo();
         String currentArena = plugin.getArenaManager().getPlayerArena(player);
 
-        // Verificar borde de arena
-        if (currentArena != null) {
-            Arena arena = plugin.getArenaManager().getArena(currentArena);
-            if (arena != null && arena.hasBorder() && !arena.isInsideBorder(to)) {
-                event.setCancelled(true);
-                player.sendMessage(MessageUtils.getColor("&c¡No puedes alejarte más de la arena!"));
-                return;
-            }
-        }
-
         String currentZone = plugin.getArenaManager().getPlayerZone(player);
         
         for (Arena arena : plugin.getArenaManager().getArenas()) {

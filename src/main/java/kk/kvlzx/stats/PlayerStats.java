@@ -220,4 +220,8 @@ public class PlayerStats {
         }
         return false;
     }
+
+    public UUID getUUID() {
+        return uuid;
+    }
 }
