@@ -63,7 +63,7 @@ public class ShopMenu extends Menu {
         
         switch(event.getSlot()) {
             case 11: // Bloques
-                plugin.getMenuManager().openMenu(player, "block_shop");
+                plugin.getMenuManager().openMenu(player, "block_categories");
                 break;
             case 13: // Efectos de muerte
             case 15: // Efectos de kill

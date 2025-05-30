@@ -21,6 +21,7 @@ import mk.kvlzx.menu.PlayerListMenu;
 import mk.kvlzx.menu.ReportReasonMenu;
 import mk.kvlzx.menu.ShopMenu;
 import mk.kvlzx.menu.BlockShopMenu;
+import mk.kvlzx.menu.BlockCategoriesMenu;
 
 public class MenuManager {
     private final MysthicKnockBack plugin;
@@ -47,6 +48,7 @@ public class MenuManager {
         registerMenu("report_reason", new ReportReasonMenu(plugin));
         registerMenu("shop", new ShopMenu(plugin));
         registerMenu("block_shop", new BlockShopMenu(plugin));
+        registerMenu("block_categories", new BlockCategoriesMenu(plugin));
         // Aquí registraremos los demás menús
     }
 

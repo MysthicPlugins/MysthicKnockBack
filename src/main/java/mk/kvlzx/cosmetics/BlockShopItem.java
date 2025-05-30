@@ -16,11 +16,17 @@ public class BlockShopItem {
     private final String rarity;
     private final String rarityColor;
     private final String description;
+    private final byte data;
 
     private static final List<BlockShopItem> ALL_BLOCKS = new ArrayList<>();
 
     public BlockShopItem(Material material, String name, int price, String rarity, String rarityColor, String description) {
+        this(material, (byte)0, name, price, rarity, rarityColor, description);
+    }
+
+    public BlockShopItem(Material material, byte data, String name, int price, String rarity, String rarityColor, String description) {
         this.material = material;
+        this.data = data;
         this.name = name;
         this.price = price;
         this.rarity = rarity;
@@ -44,7 +50,7 @@ public class BlockShopItem {
     }
 
     public ItemStack createItemStack() {
-        ItemStack item = new ItemStack(material);
+        ItemStack item = new ItemStack(material, 1, data);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(MessageUtils.getColor(rarityColor + name));
         List<String> lore = new ArrayList<>();

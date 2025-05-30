@@ -2,6 +2,7 @@ package mk.kvlzx.menu;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -19,90 +20,135 @@ import mk.kvlzx.utils.MessageUtils;
 
 public class BlockShopMenu extends Menu {
     private final List<BlockShopItem> shopItems;
+    private static String currentCategory = "COMÚN";
 
     public BlockShopMenu(MysthicKnockBack plugin) {
         super(plugin, "&8• &e&lTienda de Bloques &8•", 45);
         this.shopItems = initializeShopItems();
     }
 
+    public static void setCurrentCategory(String category) {
+        currentCategory = category;
+    }
+
     private List<BlockShopItem> initializeShopItems() {
         List<BlockShopItem> items = new ArrayList<>();
         
-        // Común - Color gris - Precio bajo
-        items.add(new BlockShopItem(Material.GLASS, "Vidrio", 1000, "COMÚN", "&7", "&bForjado en el aliento de un dragón celestial."));
-        items.add(new BlockShopItem(Material.WOOD, "Madera", 1000, "COMÚN", "&7", "&6Tallada del árbol del mundo, Yggdrasil."));
-        items.add(new BlockShopItem(Material.SANDSTONE, "Arenisca", 1000, "COMÚN", "&7", "&eMoldeada por los vientos del desierto infinito."));
-        items.add(new BlockShopItem(Material.COBBLESTONE, "Piedra", 1000, "COMÚN", "&7", "&7Extraída del corazón de una montaña viviente."));
-        items.add(new BlockShopItem(Material.BRICK, "Ladrillo", 1000, "COMÚN", "&7", "&cCocido en el fuego de un volcán sagrado."));
+        // Común - Color gris - 1000
+        addCommonBlocks(items);
         
-        // Poco común - Color verde - Precio medio
-        items.add(new BlockShopItem(Material.SMOOTH_BRICK, "Ladrillos de Piedra", 2500, "POCO COMÚN", "&a", "&aPulido por las manos de un gigante de piedra."));
-        items.add(new BlockShopItem(Material.STAINED_CLAY, "Arcilla Teñida", 2500, "POCO COMÚN", "&a", "&aTeñida con los colores del amanecer eterno."));
-        items.add(new BlockShopItem(Material.WOOL, "Lana", 2500, "POCO COMÚN", "&a", "&aTejida con el vellón de un carnero celestial."));
-        items.add(new BlockShopItem(Material.MOSSY_COBBLESTONE, "Piedra Musgosa", 2500, "POCO COMÚN", "&a", "&aCubierto por el musgo de un bosque sagrado."));
-        items.add(new BlockShopItem(Material.CLAY, "Arcilla", 2500, "POCO COMÚN", "&a", "&aMoldeada en el lecho de un río divino."));
+        // Poco común - Color verde - 2500
+        addUncommonBlocks(items);
         
-        // Raro - Color azul - Precio alto
-        items.add(new BlockShopItem(Material.QUARTZ_BLOCK, "Bloque de Cuarzo", 5000, "RARO", "&9", "&9Forjado en las profundidades del Nether eterno."));
-        items.add(new BlockShopItem(Material.SNOW_BLOCK, "Bloque de Nieve", 5000, "RARO", "&9", "&9Congelado en el aliento de un dragón de hielo."));
-        items.add(new BlockShopItem(Material.PACKED_ICE, "Hielo Compacto", 5000, "RARO", "&9", "&9Hielo que nunca se derrite, sellado por magia."));
-        items.add(new BlockShopItem(Material.EMERALD_BLOCK, "Bloque de Esmeralda", 5000, "RARO", "&9", "&9Forjado con gemas de un tesoro perdido."));
-        items.add(new BlockShopItem(Material.DIAMOND_BLOCK, "Bloque de Diamante", 5000, "RARO", "&9", "&9Cristalizado bajo la presión de mil eras."));
+        // Raro - Color azul - 5000
+        addRareBlocks(items);
         
-        // Épico - Color morado - Precio muy alto
-        items.add(new BlockShopItem(Material.PRISMARINE, "Prismarina", 7500, "ÉPICO", "&5", "&5Extraída del templo de un guardián abisal."));
-        items.add(new BlockShopItem(Material.SEA_LANTERN, "Linterna Marina", 7500, "ÉPICO", "&5", "&5Ilumina con el brillo de un océano perdido."));
-        items.add(new BlockShopItem(Material.GLOWSTONE, "Piedra Luminosa", 7500, "ÉPICO", "&5", "&5Brilla con el polvo de estrellas caídas."));
-        items.add(new BlockShopItem(Material.OBSIDIAN, "Obsidiana", 7500, "ÉPICO", "&5", "&5Forjada en el cruce de lava y agua eterna."));
-        items.add(new BlockShopItem(Material.GOLD_BLOCK, "Bloque de Oro", 7500, "ÉPICO", "&5", "&5Forjado con el oro de un rey inmortal."));
+        // Épico - Color morado - 7500
+        addEpicBlocks(items);
         
-        // Legendario - Color dorado - Precio extremo
-        items.add(new BlockShopItem(Material.ENDER_STONE, "Piedra del End", 10000, "LEGENDARIO", "&6", "&6Extraída del vacío del fin del mundo."));
-        items.add(new BlockShopItem(Material.NETHER_BRICK, "Ladrillo del Nether", 10000, "LEGENDARIO", "&6", "&6Cocido en los fuegos del Nether eterno."));
-        items.add(new BlockShopItem(Material.COAL_BLOCK, "Bloque de Carbón", 10000, "LEGENDARIO", "&6", "&6Forjado con el carbón de un bosque quemado."));
-        items.add(new BlockShopItem(Material.REDSTONE_BLOCK, "Bloque de Redstone", 10000, "LEGENDARIO", "&6", "&6Pulsa con la energía de la tierra viva."));
+        // Legendario - Color dorado - 10000
+        addLegendaryBlocks(items);
+        
+        // Bedrock - Especial
+        items.add(new BlockShopItem(Material.BEDROCK, "Bedrock", 50000, "ESPECIAL", "&4", 
+            "&4&lDesbloqueado al obtener todos los demás bloques"));
         
         return items;
     }
+
+    private void addCommonBlocks(List<BlockShopItem> items) {
+        // Bloques de Madera
+        items.add(new BlockShopItem(Material.WOOD, (byte)0, "Madera de Roble", 1000, "COMÚN", "&7", "&6Tallada del árbol más antiguo del bosque"));
+        items.add(new BlockShopItem(Material.WOOD, (byte)1, "Madera de Abeto", 1000, "COMÚN", "&7", "&6Extraída de los bosques nevados"));
+        items.add(new BlockShopItem(Material.WOOD, (byte)2, "Madera de Abedul", 1000, "COMÚN", "&7", "&6Cortada de los árboles más altos"));
+        items.add(new BlockShopItem(Material.WOOD, (byte)3, "Madera de Jungla", 1000, "COMÚN", "&7", "&6Encontrada en las profundidades de la selva"));
+        items.add(new BlockShopItem(Material.WOOD, (byte)4, "Madera de Acacia", 1000, "COMÚN", "&7", "&6Proveniente de las sabanas ardientes"));
+        items.add(new BlockShopItem(Material.WOOD, (byte)5, "Madera Oscura", 1000, "COMÚN", "&7", "&6Extraída del bosque tenebroso"));
+
+        // Bloques Básicos
+        items.add(new BlockShopItem(Material.STONE, "Piedra Lisa", 1000, "COMÚN", "&7", "&7Pulida por los antiguos constructores"));
+        items.add(new BlockShopItem(Material.COBBLESTONE, "Piedra", 1000, "COMÚN", "&7", "&7Extraída de las montañas más resistentes"));
+        items.add(new BlockShopItem(Material.GLASS, "Vidrio", 1000, "COMÚN", "&7", "&7Forjado en las arenas más puras"));
+        items.add(new BlockShopItem(Material.SANDSTONE, "Arenisca", 0, "COMÚN", "&7", "&7Moldeada por los vientos del desierto"));
+        items.add(new BlockShopItem(Material.BRICK, "Ladrillos", 1000, "COMÚN", "&7", "&7Horneados en los hornos ancestrales"));
+    }
+
+    private void addUncommonBlocks(List<BlockShopItem> items) {
+        // Lanas de Colores
+        items.add(new BlockShopItem(Material.WOOL, (byte)0, "Lana Blanca", 2500, "POCO_COMÚN", "&a", "&fTejida con el vellón más puro"));
+        items.add(new BlockShopItem(Material.WOOL, (byte)1, "Lana Naranja", 2500, "POCO_COMÚN", "&a", "&6Teñida con el ocaso"));
+        items.add(new BlockShopItem(Material.WOOL, (byte)4, "Lana Amarilla", 2500, "POCO_COMÚN", "&a", "&eTocada por el sol"));
+        items.add(new BlockShopItem(Material.WOOL, (byte)11, "Lana Azul", 2500, "POCO_COMÚN", "&a", "&9Tejida con el cielo"));
+        items.add(new BlockShopItem(Material.WOOL, (byte)14, "Lana Roja", 2500, "POCO_COMÚN", "&a", "&cTeñida con pasión"));
+
+        // Arcillas Teñidas
+        items.add(new BlockShopItem(Material.STAINED_CLAY, (byte)0, "Arcilla Blanca", 2500, "POCO_COMÚN", "&a", "&fMoldeada en las nubes"));
+        items.add(new BlockShopItem(Material.STAINED_CLAY, (byte)4, "Arcilla Amarilla", 2500, "POCO_COMÚN", "&a", "&eEndurecida por el sol"));
+        items.add(new BlockShopItem(Material.STAINED_CLAY, (byte)14, "Arcilla Roja", 2500, "POCO_COMÚN", "&a", "&cCocida en lava"));
+
+        // Otros
+        items.add(new BlockShopItem(Material.SMOOTH_BRICK, "Ladrillos de Piedra", 2500, "POCO_COMÚN", "&a", "&7Tallados por maestros canteros"));
+        items.add(new BlockShopItem(Material.MOSSY_COBBLESTONE, "Piedra Musgosa", 2500, "POCO_COMÚN", "&a", "&2Cubierta por el paso del tiempo"));
+    }
+
+    private void addRareBlocks(List<BlockShopItem> items) {
+        // Bloques Premium
+        items.add(new BlockShopItem(Material.QUARTZ_BLOCK, "Bloque de Cuarzo", 5000, "RARO", "&9", "&fExtraído del Nether más profundo"));
+        items.add(new BlockShopItem(Material.PACKED_ICE, "Hielo Compacto", 5000, "RARO", "&9", "&bCongelado por dragones de hielo"));
+        items.add(new BlockShopItem(Material.SNOW_BLOCK, "Nieve Eterna", 5000, "RARO", "&9", "&fNunca se derrite"));
+        
+        // Vidrios de Colores
+        items.add(new BlockShopItem(Material.STAINED_GLASS, (byte)0, "Cristal Místico", 5000, "RARO", "&9", "&fTransparente como el alma"));
+        items.add(new BlockShopItem(Material.STAINED_GLASS, (byte)11, "Cristal Oceánico", 5000, "RARO", "&9", "&bReflejos del mar profundo"));
+        items.add(new BlockShopItem(Material.STAINED_GLASS, (byte)14, "Cristal Carmesí", 5000, "RARO", "&9", "&cTintado con sangre de dragón"));
+    }
+
+    private void addEpicBlocks(List<BlockShopItem> items) {
+        // Bloques Especiales
+        items.add(new BlockShopItem(Material.PRISMARINE, "Prismarina", 7500, "ÉPICO", "&5", "&3Cristalizada en las profundidades"));
+        items.add(new BlockShopItem(Material.SEA_LANTERN, "Linterna Marina", 7500, "ÉPICO", "&5", "&bIluminada por almas marinas"));
+        items.add(new BlockShopItem(Material.GLOWSTONE, "Piedra Luminosa", 7500, "ÉPICO", "&5", "&eEmana luz eterna"));
+        items.add(new BlockShopItem(Material.OBSIDIAN, "Obsidiana", 7500, "ÉPICO", "&5", "&8Forjada en el núcleo del mundo"));
+        items.add(new BlockShopItem(Material.EMERALD_BLOCK, "Bloque de Esmeralda", 7500, "ÉPICO", "&5", "&aComprimido con riqueza pura"));
+    }
+
+    private void addLegendaryBlocks(List<BlockShopItem> items) {
+        // Bloques Legendarios
+        items.add(new BlockShopItem(Material.DIAMOND_BLOCK, "Bloque de Diamante", 10000, "LEGENDARIO", "&6", "&bForjado con los cristales más puros"));
+        items.add(new BlockShopItem(Material.GOLD_BLOCK, "Bloque de Oro", 10000, "LEGENDARIO", "&6", "&eComprimido con oro divino"));
+        items.add(new BlockShopItem(Material.ENDER_STONE, "Piedra del End", 10000, "LEGENDARIO", "&6", "&fExtraída del vacío mismo"));
+        items.add(new BlockShopItem(Material.NETHER_BRICK, "Ladrillo del Nether", 10000, "LEGENDARIO", "&6", "&cForjado en el infierno"));
+        items.add(new BlockShopItem(Material.COAL_BLOCK, "Bloque de Carbón", 10000, "LEGENDARIO", "&6", "&8Comprimido durante eones"));
+        items.add(new BlockShopItem(Material.REDSTONE_BLOCK, "Bloque de Redstone", 10000, "LEGENDARIO", "&6", "&cPalpita con energía antigua"));
+    }
+
+    // Implementar los otros métodos add*Blocks de manera similar
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Balance
+        // Balance actual
         inv.setItem(4, createItem(Material.EMERALD, "&a&lTu Balance",
-            "&7Balance actual: &e" + stats.getKGCoins() + " KGCoins"));
+            "&7Balance actual: &e" + stats.getKGCoins() + " KGCoins",
+            "",
+            "&7Categoría actual: " + currentCategory));
 
-        // Bloques disponibles
+        // Filtrar bloques por categoría
         Material currentBlock = plugin.getCosmeticManager().getPlayerBlock(player.getUniqueId());
         int slot = 10;
         for (BlockShopItem item : shopItems) {
-            if (slot > 34) break; // Prevenir overflow
-            setupBlockButton(inv, slot, item, player, currentBlock);
-            slot++;
-            if ((slot + 1) % 9 == 0) slot += 2;
-        }
-
-        // Comprobar si tiene todos los bloques para mostrar la bedrock
-        boolean hasAllBlocks = true;
-        for (BlockShopItem item : shopItems) {
-            if (!plugin.getCosmeticManager().hasPlayerBlock(player.getUniqueId(), item.getMaterial())) {
-                hasAllBlocks = false;
-                break;
+            if (item.getRarity().equals(currentCategory)) {
+                if (slot > 34) break;
+                setupBlockButton(inv, slot, item, player, currentBlock);
+                slot++;
+                if ((slot + 1) % 9 == 0) slot += 2;
             }
         }
 
-        // Añadir bedrock si tiene todos los bloques
-        if (hasAllBlocks) {
-            inv.setItem(31, createItem(Material.BEDROCK, "&4&l⚝ &8Bedrock &4&l⚝",
-                "&7Bloque exclusivo por tener",
-                "&7toda la colección completada",
-                "",
-                "&8➥ Click para seleccionar"));
-        }
-
-        // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", "&7Click para volver a la tienda"));
+        // Botones de navegación
+        inv.setItem(39, createItem(Material.ARROW, "&c← Volver", 
+            "&7Click para volver a las categorías"));
 
         // Relleno
         ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
@@ -110,7 +156,7 @@ public class BlockShopMenu extends Menu {
     }
 
     private void setupBlockButton(Inventory inv, int slot, BlockShopItem item, Player player, Material currentBlock) {
-        boolean hasBlock = plugin.getCosmeticManager().hasPlayerBlock(player.getUniqueId(), item.getMaterial());
+        boolean hasBlock = item.getMaterial() == Material.SANDSTONE || plugin.getCosmeticManager().hasPlayerBlock(player.getUniqueId(), item.getMaterial());
         boolean isSelected = currentBlock == item.getMaterial();
         
         List<String> lore = new ArrayList<>();
@@ -118,7 +164,17 @@ public class BlockShopMenu extends Menu {
         lore.add(item.getRarityColor() + "✦ Rareza: " + item.getRarity());
         lore.add("");
         
-        if (hasBlock) {
+        if (item.getMaterial() == Material.SANDSTONE) {
+            lore.add("&aBloque por defecto");
+            lore.add("&8➥ Siempre disponible");
+            if (isSelected) {
+                lore.add("");
+                lore.add("&aSeleccionado actualmente");
+            } else {
+                lore.add("");
+                lore.add("&eClick para seleccionar");
+            }
+        } else if (hasBlock) {
             if (isSelected) {
                 lore.add("&aSeleccionado actualmente");
                 lore.add("&8➥ Usando este bloque");
@@ -153,6 +209,11 @@ public class BlockShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
+        if (event.getSlot() == 39) {
+            plugin.getMenuManager().openMenu(player, "block_categories");
+            return;
+        }
+
         if (event.getSlot() == 40) {
             plugin.getMenuManager().openMenu(player, "shop");
             return;
@@ -160,14 +221,6 @@ public class BlockShopMenu extends Menu {
 
         if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE || 
             clicked.getType() == Material.EMERALD) return;
-
-        // Manejar click en bedrock
-        if (clicked.getType() == Material.BEDROCK) {
-            plugin.getCosmeticManager().setPlayerBlock(player.getUniqueId(), Material.BEDROCK);
-            player.sendMessage(MessageUtils.getColor("&4&l⚝ &aHas seleccionado el bloque de &8Bedrock"));
-            player.closeInventory();
-            return;
-        }
 
         BlockShopItem shopItem = findShopItem(clicked.getType());
         if (shopItem == null) return;
@@ -188,6 +241,14 @@ public class BlockShopMenu extends Menu {
                 player.closeInventory();
             } else {
                 player.sendMessage(MessageUtils.getColor("&cNo tienes suficientes KGCoins para comprar este bloque."));
+            }
+        }
+        
+        // Verificación especial para Bedrock
+        if (shopItem.getMaterial() == Material.BEDROCK) {
+            if (!hasAllBlocks(player.getUniqueId())) {
+                player.sendMessage(MessageUtils.getColor("&c¡Necesitas desbloquear todos los demás bloques primero!"));
+                return;
             }
         }
     }
@@ -218,5 +279,18 @@ public class BlockShopMenu extends Menu {
         
         item.setItemMeta(meta);
         return item;
+    }
+
+    private boolean hasAllBlocks(UUID uuid) {
+        int totalBlocks = (int) shopItems.stream()
+            .filter(item -> item.getMaterial() != Material.BEDROCK)
+            .count();
+            
+        int ownedBlocks = (int) shopItems.stream()
+            .filter(item -> item.getMaterial() != Material.BEDROCK)
+            .filter(item -> plugin.getCosmeticManager().hasPlayerBlock(uuid, item.getMaterial()))
+            .count();
+            
+        return totalBlocks == ownedBlocks;
     }
 }

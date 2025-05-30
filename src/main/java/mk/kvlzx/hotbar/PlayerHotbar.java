@@ -13,6 +13,7 @@ import mk.kvlzx.cosmetics.BlockShopItem;
 import mk.kvlzx.data.InventoryData;
 import mk.kvlzx.items.CustomItem;
 import mk.kvlzx.items.CustomItem.ItemType;
+import mk.kvlzx.utils.BlockUtils;
 
 public class PlayerHotbar {
     private static final Map<UUID, ItemStack[]> playerLayouts = new HashMap<>();
@@ -36,7 +37,7 @@ public class PlayerHotbar {
         }
         
         layout[0] = CustomItem.create(ItemType.KNOCKER);
-        layout[1] = blocks;
+        layout[1] = blocks.clone(); // Importante: clonar para evitar referencias
         layout[2] = CustomItem.create(ItemType.BOW);
         layout[6] = CustomItem.create(ItemType.PLATE);
         layout[7] = CustomItem.create(ItemType.FEATHER);
@@ -65,11 +66,32 @@ public class PlayerHotbar {
             // Intentar cargar del archivo si no está en memoria
             if (inventoryData.hasLayout(uuid)) {
                 ItemStack[] layout = inventoryData.loadLayout(uuid);
+                updateBlocksInLayout(layout, uuid); // Nuevo método para actualizar los bloques
                 playerLayouts.put(uuid, layout);
                 return layout.clone();
             }
         }
         return playerLayouts.getOrDefault(uuid, getDefaultLayout(uuid)).clone();
+    }
+
+    // Nuevo método para actualizar los bloques en un layout existente
+    private static void updateBlocksInLayout(ItemStack[] layout, UUID uuid) {
+        if (layout == null) return;
+        
+        Material blockType = MysthicKnockBack.getInstance().getCosmeticManager().getPlayerBlock(uuid);
+        BlockShopItem shopItem = BlockShopItem.getByMaterial(blockType);
+        
+        if (shopItem != null) {
+            ItemStack blocks = shopItem.createItemStack();
+            blocks.setAmount(64);
+            
+            // Actualizar todos los slots que contengan el bloque
+            for (int i = 0; i < layout.length; i++) {
+                if (layout[i] != null && BlockUtils.isDecorativeBlock(layout[i].getType())) {
+                    layout[i] = blocks.clone();
+                }
+            }
+        }
     }
 
     public static void applyLayout(Player player) {
