@@ -48,12 +48,21 @@ public class CosmeticManager {
 
     private void updatePlayerLayout(Player player) {
         ItemStack[] layout = PlayerHotbar.getPlayerLayout(player.getUniqueId());
-        
-        // Buscar el slot de bloques comparando todos los bloques decorativos posibles
+
         int blockSlot = findBlockSlot(layout);
         if (blockSlot != -1) {
             Material newBlock = getPlayerBlock(player.getUniqueId());
-            layout[blockSlot] = new ItemStack(newBlock, 64);
+            BlockShopItem shopItem = BlockShopItem.getByMaterial(newBlock);
+
+            ItemStack updated;
+            if (shopItem != null) {
+                updated = shopItem.createItemStack();
+                updated.setAmount(64);
+            } else {
+                updated = new ItemStack(newBlock, 64);
+            }
+
+            layout[blockSlot] = updated;
             PlayerHotbar.setPlayerLayout(player.getUniqueId(), layout);
         }
     }

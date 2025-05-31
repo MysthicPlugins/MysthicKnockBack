@@ -2,6 +2,7 @@ package mk.kvlzx.listeners;
 
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.util.Vector;
@@ -41,7 +42,7 @@ public class CombatListener implements Listener {
         event.setDamage(0.0D);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
 
@@ -81,48 +82,39 @@ public class CombatListener implements Listener {
         lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
 
         // Aplicar knockback personalizado
-        applyCustomKnockback(event, victim, attacker);
+        applyCustomKnockback(victim, attacker);
+        event.setDamage(0.0D);
     }
 
-    private void applyCustomKnockback(EntityDamageByEntityEvent event, Player victim, Player attacker) {
-        // Constantes de knockback mejoradas
-        double BASE_HORIZONTAL = 0.45;    // Base horizontal
-        double BASE_VERTICAL = 0.75;      // Base vertical
-        final double SPRINT_BONUS = 0.2;  // Sprint bonus
+    private void applyCustomKnockback(Player victim, Player attacker) {
+        double baseH = 0.45;
+        double baseV = 0.75;
+        final double sprintBonus = 0.2;
 
-        // Reducir knockback si el atacante usa el palo con knockback
+        // Si el palo tiene Empuje, reducimos ambos
         ItemStack weapon = attacker.getItemInHand();
-        if (weapon != null && weapon.getType() == Material.STICK && 
-            weapon.getEnchantmentLevel(Enchantment.KNOCKBACK) > 0) {
-            BASE_HORIZONTAL *= 0.6; // Reducir a 60% del knockback base
-        }
-        
-        // Obtener la dirección del knockback
-        double dx = victim.getLocation().getX() - attacker.getLocation().getX();
-        double dz = victim.getLocation().getZ() - attacker.getLocation().getZ();
-        double distance = Math.sqrt(dx * dx + dz * dz);
-        
-        // Normalizar la dirección
-        if (distance > 0) {
-            dx = dx / distance;
-            dz = dz / distance;
+        int kbLevel = (weapon != null && weapon.getType() == Material.STICK)
+                        ? weapon.getEnchantmentLevel(Enchantment.KNOCKBACK)
+                        : 0;
+        if (kbLevel > 0) {
+            baseH *= 0.6;
+            baseV *= 0.6;   // <--- reducimos también la vertical
         }
 
-        // Calcular multiplicadores
-        double horizontalMultiplier = BASE_HORIZONTAL;
-        double verticalMultiplier = BASE_VERTICAL;
+        // Dirección normalizada
+        Vector dir = victim.getLocation().toVector()
+                        .subtract(attacker.getLocation().toVector())
+                        .setY(0)
+                        .normalize();
 
-        // Bonus por sprint
-        if (attacker.isSprinting()) {
-            horizontalMultiplier += SPRINT_BONUS;
-        }
+        double hMult = baseH + (attacker.isSprinting() ? sprintBonus : 0);
+        double vMult = baseV;
 
-        // Aplicar velocidad
-        Vector knockback = new Vector(dx * horizontalMultiplier, verticalMultiplier, dz * horizontalMultiplier);
-        victim.setVelocity(knockback);
+        // **Clamp**: evitar verticales superiores a 0.9
+        vMult = Math.min(vMult, 0.9);
 
-        // Cancelar el daño vanilla
-        event.setDamage(0.0D);
+        Vector kb = new Vector(dir.getX()*hMult, vMult, dir.getZ()*hMult);
+        victim.setVelocity(kb);
     }
 
     public Player getLastAttacker(Player victim) {

@@ -54,8 +54,8 @@ public class BlockShopItem {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(MessageUtils.getColor(rarityColor + name));
         List<String> lore = new ArrayList<>();
-        lore.add(rarityColor + "✦ " + rarity);
-        lore.add(description);
+        lore.add(MessageUtils.getColor(rarityColor + "✦ " + rarity));
+        lore.add(MessageUtils.getColor(description));
         meta.setLore(lore);
         item.setItemMeta(meta);
         return item;

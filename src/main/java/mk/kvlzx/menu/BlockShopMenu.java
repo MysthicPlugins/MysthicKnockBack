@@ -39,7 +39,7 @@ public class BlockShopMenu extends Menu {
         addRareBlocks(items);
         addEpicBlocks(items);
         addLegendaryBlocks(items);
-        addTrollBlocks(items); // Nueva categoría
+        addTrollBlocks(items);
         
         items.add(new BlockShopItem(Material.BEDROCK, "Bedrock", 50000, "ESPECIAL", "&4", 
             "&4&lDesbloqueado al obtener todos los demás bloques"));
@@ -91,6 +91,7 @@ public class BlockShopMenu extends Menu {
 
     private void addEpicBlocks(List<BlockShopItem> items) {
         items.add(new BlockShopItem(Material.PRISMARINE, "Prismarina", 7500, "ÉPICO", "&5", "&3Tesoro de las profundidades marinas"));
+        items.add(new BlockShopItem(Material.PRISMARINE, (byte)2, "Prismarina Oscura", 7500, "ÉPICO", "&5", "&3Forjada en las profundidades abisales"));
         items.add(new BlockShopItem(Material.ENDER_STONE, "Piedra del End", 7500, "ÉPICO", "&5", "&fForjada en las tierras del vacío"));
         items.add(new BlockShopItem(Material.SPONGE, "Esponja Ancestral", 7500, "ÉPICO", "&5", "&eAbsorbe la esencia del océano"));
         items.add(new BlockShopItem(Material.SEA_LANTERN, "Linterna Marina", 7500, "ÉPICO", "&5", "&bBrilla con luz de las profundidades"));
@@ -203,6 +204,14 @@ public class BlockShopMenu extends Menu {
 
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
+        // Verificación especial para Bedrock
+        if (shopItem.getMaterial() == Material.BEDROCK) {
+            if (!hasAllBlocks(player.getUniqueId())) {
+                player.sendMessage(MessageUtils.getColor("&c¡Necesitas desbloquear todos los demás bloques primero!"));
+                return;
+            }
+        }
+
         if (plugin.getCosmeticManager().hasPlayerBlock(player.getUniqueId(), shopItem.getMaterial())) {
             plugin.getCosmeticManager().setPlayerBlock(player.getUniqueId(), shopItem.getMaterial());
             player.sendMessage(MessageUtils.getColor("&aHas seleccionado el bloque de " + shopItem.getName()));
@@ -217,14 +226,6 @@ public class BlockShopMenu extends Menu {
                 player.closeInventory();
             } else {
                 player.sendMessage(MessageUtils.getColor("&cNo tienes suficientes KGCoins para comprar este bloque."));
-            }
-        }
-        
-        // Verificación especial para Bedrock
-        if (shopItem.getMaterial() == Material.BEDROCK) {
-            if (!hasAllBlocks(player.getUniqueId())) {
-                player.sendMessage(MessageUtils.getColor("&c¡Necesitas desbloquear todos los demás bloques primero!"));
-                return;
             }
         }
     }

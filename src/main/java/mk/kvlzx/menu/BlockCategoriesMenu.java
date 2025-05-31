@@ -69,6 +69,14 @@ public class BlockCategoriesMenu extends Menu {
             "&8➥ &4&lRequiere todos los bloques anteriores",
             "&7Click para ver requisitos"));
 
+        // Añadir el botón de bloques troll (slot 25)
+        inv.setItem(25, createItem(Material.HOPPER, "&d&lBloques Troll",
+            "&8▪ &7Precio: &f15,000 KGCoins",
+            "&8▪ &7Rareza: &dTROLL",
+            "",
+            "&8➥ &7¡Bloques con efectos especiales!",
+            "&7Click para ver los bloques"));
+
         // Botón para volver
         inv.setItem(31, createItem(Material.ARROW, "&c← Volver", 
             "&7Click para volver a la tienda"));
@@ -106,6 +114,10 @@ public class BlockCategoriesMenu extends Menu {
                 break;
             case 23: // Bedrock
                 BlockShopMenu.setCurrentCategory("ESPECIAL");
+                plugin.getMenuManager().openMenu(player, "block_shop");
+                break;
+            case 25: // Bloques Troll
+                BlockShopMenu.setCurrentCategory("TROLL");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
             case 31: // Volver
