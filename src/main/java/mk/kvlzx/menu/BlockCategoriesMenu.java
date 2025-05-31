@@ -89,7 +89,7 @@ public class BlockCategoriesMenu extends Menu {
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
             case 12: // Poco comunes
-                BlockShopMenu.setCurrentCategory("POCO_COMÚN");
+                BlockShopMenu.setCurrentCategory("POCO COMÚN");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
             case 14: // Raros

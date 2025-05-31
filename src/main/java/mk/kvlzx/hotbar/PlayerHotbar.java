@@ -98,7 +98,17 @@ public class PlayerHotbar {
         ItemStack[] layout = getPlayerLayout(player.getUniqueId());
         for (int i = 0; i < 9; i++) {
             if (layout[i] != null) {
-                player.getInventory().setItem(i, layout[i].clone());
+                ItemStack item = layout[i].clone();
+                // Si es un bloque decorativo, recrear el item con los metadatos correctos
+                if (BlockUtils.isDecorativeBlock(item.getType())) {
+                    Material blockType = MysthicKnockBack.getInstance().getCosmeticManager().getPlayerBlock(player.getUniqueId());
+                    BlockShopItem shopItem = BlockShopItem.getByMaterial(blockType);
+                    if (shopItem != null) {
+                        item = shopItem.createItemStack();
+                        item.setAmount(64);
+                    }
+                }
+                player.getInventory().setItem(i, item);
             }
         }
         // Flechas siempre en el slot 9
