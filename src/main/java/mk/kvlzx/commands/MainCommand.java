@@ -61,12 +61,12 @@ public class MainCommand implements CommandExecutor{
     }
 
     public void help(CommandSender sender){
-        sender.sendMessage(MessageUtils.getColor("--------&r &b&lComandos IntKnock &8&m--------"));
-        sender.sendMessage(MessageUtils.getColor("/IntKnock nashe"));
-        sender.sendMessage(MessageUtils.getColor("/IntKnock fecha"));
-        sender.sendMessage(MessageUtils.getColor("/IntKnock get <Author/Version>"));
-        sender.sendMessage(MessageUtils.getColor("/IntKnock VicioKB"));
-        sender.sendMessage(MessageUtils.getColor("--------&r &b&lComandos IntKnock &8&m--------"));
+        sender.sendMessage(MessageUtils.getColor("--------&r &b&lComandos MysthicKnockBack &8&m--------"));
+        sender.sendMessage(MessageUtils.getColor("/kb nashe"));
+        sender.sendMessage(MessageUtils.getColor("/kb fecha"));
+        sender.sendMessage(MessageUtils.getColor("/kb get <author/version>"));
+        sender.sendMessage(MessageUtils.getColor("/kb VicioKB"));
+        sender.sendMessage(MessageUtils.getColor("--------&r &b&lComandos MysthicKnockBack &8&m--------"));
     }
 
     public void subCommandGet(CommandSender sender, String[] args){
@@ -75,7 +75,7 @@ public class MainCommand implements CommandExecutor{
             return;
         }
         if(args.length == 1){
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&c Debes usar &7 /mysthicknockback get author/version>"));
+            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&c Debes usar &7 /kb get author/version>"));
             return;
         }
         if(args[1].equalsIgnoreCase("author")){
@@ -85,7 +85,7 @@ public class MainCommand implements CommandExecutor{
             sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&f La version del plugin es: &b" + plugin.getDescription().getVersion()));
 
         }else{
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&c Debes usar &7 /mysthicknockback get author/version>"));
+            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&c Debes usar &7 /kb get author/version>"));
 
         }
     }

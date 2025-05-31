@@ -52,7 +52,6 @@ public class BlockShopMenu extends Menu {
         items.add(new BlockShopItem(Material.SANDSTONE, "Arenisca", 0, "COMÚN", "&7", "&7Moldeada por los vientos del desierto"));
         items.add(new BlockShopItem(Material.WOOD, "Madera de Roble", 1000, "COMÚN", "&7", "&6Tallada del árbol más antiguo del bosque"));
         items.add(new BlockShopItem(Material.WOOL, "Lana Blanca", 1000, "COMÚN", "&7", "&fTejida con el vellón más puro"));
-        items.add(new BlockShopItem(Material.GLASS, "Vidrio", 1000, "COMÚN", "&7", "&7Forjado en las arenas más puras"));
         items.add(new BlockShopItem(Material.MELON_BLOCK, "Bloque de Melón", 1000, "COMÚN", "&7", "&2Dulce y refrescante"));
         items.add(new BlockShopItem(Material.PUMPKIN, "Calabaza", 1000, "COMÚN", "&7", "&6Tallada en la noche de brujas"));
     }
@@ -61,7 +60,7 @@ public class BlockShopMenu extends Menu {
         items.add(new BlockShopItem(Material.SMOOTH_BRICK, "Ladrillos de Piedra", 2500, "POCO COMÚN", "&a", "&7Tallados por maestros canteros"));
         items.add(new BlockShopItem(Material.MOSSY_COBBLESTONE, "Piedra Musgosa", 2500, "POCO COMÚN", "&a", "&2Cubierta por el paso del tiempo"));
         items.add(new BlockShopItem(Material.NETHERRACK, "Piedra del Nether", 2500, "POCO COMÚN", "&a", "&cArdiente al tacto"));
-        items.add(new BlockShopItem(Material.SOUL_SAND, "Arena de Almas", 2500, "POCO COMÚN", "&a", "&8Susurra secretos antiguos"));
+        items.add(new BlockShopItem(Material.COAL_ORE, "Mineral de carbón", 2500, "POCO COMÚN", "&a", "&8Extraído de las profundidades de la tierra"));
         items.add(new BlockShopItem(Material.HAY_BLOCK, "Bloque de Heno", 2500, "POCO COMÚN", "&a", "&eCosechado en campos dorados"));
         items.add(new BlockShopItem(Material.IRON_BLOCK, "Bloque de Hierro", 2500, "POCO COMÚN", "&a", "&7Forjado con metal puro"));
     }
@@ -91,7 +90,7 @@ public class BlockShopMenu extends Menu {
 
     private void addEpicBlocks(List<BlockShopItem> items) {
         items.add(new BlockShopItem(Material.PRISMARINE, "Prismarina", 7500, "ÉPICO", "&5", "&3Tesoro de las profundidades marinas"));
-        items.add(new BlockShopItem(Material.PRISMARINE, (byte)2, "Prismarina Oscura", 7500, "ÉPICO", "&5", "&3Forjada en las profundidades abisales"));
+        items.add(new BlockShopItem(Material.COAL_BLOCK, "Bloque de Carbón", 7500, "ÉPICO", "&5", "&3Forjado en el corazón de un volcán"));
         items.add(new BlockShopItem(Material.ENDER_STONE, "Piedra del End", 7500, "ÉPICO", "&5", "&fForjada en las tierras del vacío"));
         items.add(new BlockShopItem(Material.SPONGE, "Esponja Ancestral", 7500, "ÉPICO", "&5", "&eAbsorbe la esencia del océano"));
         items.add(new BlockShopItem(Material.SEA_LANTERN, "Linterna Marina", 7500, "ÉPICO", "&5", "&bBrilla con luz de las profundidades"));
@@ -116,15 +115,24 @@ public class BlockShopMenu extends Menu {
             "",
             "&7Categoría actual: " + currentCategory));
 
-        // Filtrar bloques por categoría
-        Material currentBlock = plugin.getCosmeticManager().getPlayerBlock(player.getUniqueId());
-        int slot = 10;
-        for (BlockShopItem item : shopItems) {
-            if (item.getRarity().equals(currentCategory)) {
-                if (slot > 34) break;
-                setupBlockButton(inv, slot, item, player, currentBlock);
-                slot++;
-                if ((slot + 1) % 9 == 0) slot += 2;
+        // Si es la categoría ESPECIAL (Bedrock), mostrar en el centro
+        if (currentCategory.equals("ESPECIAL")) {
+            for (BlockShopItem item : shopItems) {
+                if (item.getRarity().equals("ESPECIAL")) {
+                    setupBlockButton(inv, 22, item, player, plugin.getCosmeticManager().getPlayerBlock(player.getUniqueId()));
+                    break;
+                }
+            }
+        } else {
+            // Para otras categorías, mantener el layout original
+            int slot = 10;
+            for (BlockShopItem item : shopItems) {
+                if (item.getRarity().equals(currentCategory)) {
+                    if (slot > 34) break;
+                    setupBlockButton(inv, slot, item, player, plugin.getCosmeticManager().getPlayerBlock(player.getUniqueId()));
+                    slot++;
+                    if ((slot + 1) % 9 == 0) slot += 2;
+                }
             }
         }
 

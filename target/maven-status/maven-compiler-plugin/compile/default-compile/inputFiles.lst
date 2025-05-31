@@ -11,6 +11,7 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\StatsCommand.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\StatsTabCompleter.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\BlockShopItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\CosmeticManager.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\KnockerShopItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\data\ArenaData.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\data\InventoryData.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\data\StatsData.java
@@ -32,6 +33,8 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\managers\TabManager.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\BlockCategoriesMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\BlockShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\HotbarEditMenu.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KnockerCategoriesMenu.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KnockerShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\MainMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\Menu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\PlayerListMenu.java

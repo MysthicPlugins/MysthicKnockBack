@@ -16,13 +16,13 @@ import mk.kvlzx.utils.MessageUtils;
 public class BlockCategoriesMenu extends Menu {
 
     public BlockCategoriesMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lCategorías de Bloques &8•", 36);
+        super(plugin, "&8• &e&lCategorías de Bloques &8•", 45);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         // Bloques comunes
-        inv.setItem(10, createItem(Material.WOOD, "&7Bloques Comunes",
+        inv.setItem(11, createItem(Material.WOOD, "&7Bloques Comunes",
             "&8▪ &7Precio: &f1,000 KGCoins",
             "&8▪ &7Rareza: &7COMÚN",
             "",
@@ -30,7 +30,7 @@ public class BlockCategoriesMenu extends Menu {
             "&7Click para ver los bloques"));
 
         // Poco comunes
-        inv.setItem(12, createItem(Material.SMOOTH_BRICK, "&aBloques Poco Comunes",
+        inv.setItem(13, createItem(Material.SMOOTH_BRICK, "&aBloques Poco Comunes",
             "&8▪ &7Precio: &f2,500 KGCoins",
             "&8▪ &7Rareza: &aPOCO COMÚN",
             "",
@@ -38,7 +38,7 @@ public class BlockCategoriesMenu extends Menu {
             "&7Click para ver los bloques"));
 
         // Raros
-        inv.setItem(14, createItem(Material.QUARTZ_BLOCK, "&9Bloques Raros",
+        inv.setItem(15, createItem(Material.QUARTZ_BLOCK, "&9Bloques Raros",
             "&8▪ &7Precio: &f5,000 KGCoins",
             "&8▪ &7Rareza: &9RARO",
             "",
@@ -46,31 +46,31 @@ public class BlockCategoriesMenu extends Menu {
             "&7Click para ver los bloques"));
 
         // Épicos
-        inv.setItem(16, createItem(Material.PRISMARINE, "&5Bloques Épicos",
+        inv.setItem(21, createItem(Material.PRISMARINE, "&5Bloques Épicos",
             "&8▪ &7Precio: &f7,500 KGCoins",
             "&8▪ &7Rareza: &5ÉPICO",
             "",
             "&8➥ Prismarina, obsidiana, bloques brillantes",
             "&7Click para ver los bloques"));
 
-        // Legendarios
-        inv.setItem(21, createItem(Material.ENDER_STONE, "&6Bloques Legendarios",
-            "&8▪ &7Precio: &f10,000 KGCoins",
-            "&8▪ &7Rareza: &6LEGENDARIO",
-            "",
-            "&8➥ End stone, bloques minerales, nether",
-            "&7Click para ver los bloques"));
-
-        // Bedrock (Especial)
-        inv.setItem(23, createItem(Material.BEDROCK, "&4&lBedrock",
+        // Bedrock (Especial) - Ahora en el centro
+        inv.setItem(22, createItem(Material.BEDROCK, "&4&lBedrock",
             "&8▪ &7Precio: &f50,000 KGCoins",
             "&8▪ &7Rareza: &4ESPECIAL",
             "",
             "&8➥ &4&lRequiere todos los bloques anteriores",
             "&7Click para ver requisitos"));
 
-        // Añadir el botón de bloques troll (slot 25)
-        inv.setItem(25, createItem(Material.HOPPER, "&d&lBloques Troll",
+        // Legendarios
+        inv.setItem(23, createItem(Material.ENDER_STONE, "&6Bloques Legendarios",
+            "&8▪ &7Precio: &f10,000 KGCoins",
+            "&8▪ &7Rareza: &6LEGENDARIO",
+            "",
+            "&8➥ End stone, bloques minerales, nether",
+            "&7Click para ver los bloques"));
+
+        // Bloques troll
+        inv.setItem(31, createItem(Material.HOPPER, "&d&lBloques Troll",
             "&8▪ &7Precio: &f15,000 KGCoins",
             "&8▪ &7Rareza: &dTROLL",
             "",
@@ -78,7 +78,7 @@ public class BlockCategoriesMenu extends Menu {
             "&7Click para ver los bloques"));
 
         // Botón para volver
-        inv.setItem(31, createItem(Material.ARROW, "&c← Volver", 
+        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
             "&7Click para volver a la tienda"));
 
         // Relleno
@@ -92,35 +92,35 @@ public class BlockCategoriesMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         
         switch(event.getSlot()) {
-            case 10: // Comunes
+            case 11: // Comunes
                 BlockShopMenu.setCurrentCategory("COMÚN");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
-            case 12: // Poco comunes
+            case 13: // Poco comunes
                 BlockShopMenu.setCurrentCategory("POCO COMÚN");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
-            case 14: // Raros
+            case 15: // Raros
                 BlockShopMenu.setCurrentCategory("RARO");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
-            case 16: // Épicos
+            case 21: // Épicos
                 BlockShopMenu.setCurrentCategory("ÉPICO");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
-            case 21: // Legendarios
-                BlockShopMenu.setCurrentCategory("LEGENDARIO");
-                plugin.getMenuManager().openMenu(player, "block_shop");
-                break;
-            case 23: // Bedrock
+            case 22: // Bedrock
                 BlockShopMenu.setCurrentCategory("ESPECIAL");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
-            case 25: // Bloques Troll
+            case 23: // Legendarios
+                BlockShopMenu.setCurrentCategory("LEGENDARIO");
+                plugin.getMenuManager().openMenu(player, "block_shop");
+                break;
+            case 31: // Bloques Troll
                 BlockShopMenu.setCurrentCategory("TROLL");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
-            case 31: // Volver
+            case 40: // Volver
                 plugin.getMenuManager().openMenu(player, "shop");
                 break;
         }

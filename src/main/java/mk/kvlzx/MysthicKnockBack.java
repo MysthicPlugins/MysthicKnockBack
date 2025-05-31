@@ -3,7 +3,6 @@ package mk.kvlzx;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import mk.kvlzx.arena.ArenaManager;
 import mk.kvlzx.commands.ArenaCommand;
@@ -50,68 +49,79 @@ public class MysthicKnockBack extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        worldEdit = (WorldEditPlugin) getServer().getPluginManager().getPlugin("WorldEdit");
-        if (worldEdit == null) {
-            getLogger().severe("WorldEdit no encontrado! Deshabilitando plugin...");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
+        // Nuevo banner ASCII grande
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&b██╗  ██╗██████╗ ███████╗███████╗ █████╗ ");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&b██║ ██╔╝██╔══██╗██╔════╝██╔════╝██╔══██╗");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&3█████╔╝ ██████╔╝█████╗  █████╗  ███████║");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&3██╔═██╗ ██╔══██╗██╔══╝  ██╔══╝  ██╔══██║");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&b██║  ██╗██████╔╝██║     ██║     ██║  ██║");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&b╚═╝  ╚═╝╚═════╝ ╚═╝     ╚═╝     ╚═╝  ╚═╝");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "               &b≽^•⩊•^≼");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Estado: &aIniciando");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Versión: &f" + version);
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
 
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b1&8] &7Registrando managers...");
         registerManagers();
-        // Primero inicializar los datos
+
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Inicializando datos...");
         PlayerStats.initializeStatsData(this);
-        
-        // Inicializar InventoryData antes de cargar estadísticas
         InventoryData inventoryData = new InventoryData(this);
         PlayerHotbar.init(inventoryData);
-        
-        // Luego cargar las estadísticas
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                PlayerStats.loadAllStats(); // Mover después de que el servidor esté completamente iniciado
-            }
-        }.runTaskLater(this, 20L); // Esperar 1 segundo para asegurar que todo esté listo
-        
+
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Cargando arenas...");
         arenaManager.loadArenas();
+
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b4&8] &7Registrando comandos y eventos...");
         registerCommands();
         registerEvents();
         startPlaytimeUpdater();
 
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&b=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&bMysthicKnockBack &fv" + version);
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&fEstado: &aActivado");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&fDesarrollado por: &bKvlzx & Gabo");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&fSoporte Discord: kvlzx, gaboh_");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&b≽^•⩊•^≼");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&b=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&a✔&8] &aPlugin iniciado correctamente");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Desarrollado por: &bKvlzx &8& &bGabo");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
     }
 
     @Override
     public void onDisable() {
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "                    &b&lKBFFA");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "                  &b≽^•⩊•^≼");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Estado: &cDesactivando");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Versión: &f" + version);
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+
         try {
-            // Limpiar bloques antes de guardar
-            ItemListener.cleanup();
-            
-            arenaManager.saveArenas();
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b1&8] &7Guardando datos...");
             PlayerStats.saveAllStats();
             cosmeticManager.saveAll();
+
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Guardando arenas...");
+            arenaManager.saveArenas();
+
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Limpiando bloques e items...");
+            ItemListener.cleanup();
         } catch (Exception e) {
-            getLogger().severe("Error al guardar datos: " + e.getMessage());
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&c!&8] &cError al guardar datos: " + e.getMessage());
             e.printStackTrace();
         }
 
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&c=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&bMysthicKnockBack &fv" + version);
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&fEstado: &cDesactivado");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&c≽^•⩊•^≼");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), prefix + "&c=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&r");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&c✕&8] &cPlugin desactivado correctamente");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
     }
-    
+
     public void registerManagers() {
         arenaManager = new ArenaManager(this);
         scoreboardManager = new MainScoreboardManager(this);

@@ -35,13 +35,19 @@ public class ShopMenu extends Menu {
             "&8➥ Bloques exclusivos para construcción",
             "&aDisponible!"));
 
-        inv.setItem(13, createItem(Material.SKULL_ITEM, "&c&lEfectos de Muerte", (byte) 0,
+        inv.setItem(13, createItem(Material.STICK, "&e&lKnockers Personalizados", 
+            "&7Click para ver los knockers disponibles",
+            "",
+            "&8➥ Palos de empuje exclusivos",
+            "&aDisponible!"));
+
+        inv.setItem(15, createItem(Material.SKULL_ITEM, "&c&lEfectos de Muerte", (byte) 0,
             "&7Click para ver efectos de muerte",
             "",
             "&8➥ Efectos visuales al morir",
             "&cPróximamente"));
 
-        inv.setItem(15, createItem(Material.DIAMOND_SWORD, "&b&lEfectos de Kill",
+        inv.setItem(29, createItem(Material.DIAMOND_SWORD, "&b&lEfectos de Kill",
             "&7Click para ver efectos de kill",
             "",
             "&8➥ Efectos al eliminar jugadores",
@@ -65,8 +71,11 @@ public class ShopMenu extends Menu {
             case 11: // Bloques
                 plugin.getMenuManager().openMenu(player, "block_categories");
                 break;
-            case 13: // Efectos de muerte
-            case 15: // Efectos de kill
+            case 13: // Knockers
+                plugin.getMenuManager().openMenu(player, "knocker_categories");
+                break;
+            case 15: // Efectos de muerte
+            case 29: // Efectos de kill
                 player.sendMessage(MessageUtils.getColor("&cPróximamente disponible."));
                 break;
             case 31: // Volver
