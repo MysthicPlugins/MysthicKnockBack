@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -12,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.cosmetics.KnockerShopItem;
 import mk.kvlzx.hotbar.PlayerHotbar;
 import mk.kvlzx.items.CustomItem;
 import mk.kvlzx.items.CustomItem.ItemType;
@@ -130,16 +132,24 @@ public class HotbarEditMenu extends Menu {
     }
 
     private boolean isValidItem(ItemStack item) {
+        // Si es un bloque decorativo
         if (BlockUtils.isDecorativeBlock(item.getType())) {
-            return true; // Si es un bloque decorativo, es válido
+            return true;
         }
 
-        // Si no es un bloque decorativo, verificar si es un CustomItem
+        // Si es un knocker personalizado (tiene encantamiento Knockback)
+        if (item.containsEnchantment(Enchantment.KNOCKBACK)) {
+            // Verificar si es un knocker válido comparando con los registrados
+            return Arrays.stream(ItemType.values()).anyMatch(type -> type == ItemType.KNOCKER) || 
+                    KnockerShopItem.getByMaterial(item.getType()) != null;
+        }
+
+        // Verificar otros items personalizados
         return Arrays.stream(ItemType.values())
                     .anyMatch(type -> {
                         ItemStack validItem = CustomItem.create(type);
                         return validItem.getType() == item.getType() &&
-                                validItem.getDurability() == item.getDurability();
+                            validItem.getDurability() == item.getDurability();
                     });
     }
 
