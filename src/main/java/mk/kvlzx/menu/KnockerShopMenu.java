@@ -18,20 +18,71 @@ import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 
 public class KnockerShopMenu extends Menu {
+    private final List<KnockerShopItem> shopItems;
     private static String currentCategory = "COMÚN";
 
     public KnockerShopMenu(MysthicKnockBack plugin) {
         super(plugin, "&8• &e&lTienda de Knockers &8•", 45);
+        this.shopItems = initializeShopItems();
     }
 
     public static void setCurrentCategory(String category) {
         currentCategory = category;
     }
 
+    private List<KnockerShopItem> initializeShopItems() {
+        List<KnockerShopItem> items = new ArrayList<>();
+        
+        addCommonKnockers(items);
+        addUncommonKnockers(items);
+        addRareKnockers(items);
+        addEpicKnockers(items);
+        addLegendaryKnockers(items);
+        
+        return items;
+    }
+
+    private void addCommonKnockers(List<KnockerShopItem> items) {
+        items.add(new KnockerShopItem(Material.STICK, "Palo Default", 0, "COMÚN", "&7", "&8El clásico palo de siempre"));
+        items.add(new KnockerShopItem(Material.BONE, "Hueso Knockeador", 5000, "COMÚN", "&7", "&e¡Los perros lo adoran!"));
+        items.add(new KnockerShopItem(Material.WOOD_SPADE, "Pala de Madera", 5000, "COMÚN", "&7", "&6¡Cavando tu victoria!"));
+        items.add(new KnockerShopItem(Material.BLAZE_ROD, "Vara de Blaze", 5000, "COMÚN", "&7", "&cArdiente al tacto"));
+        items.add(new KnockerShopItem(Material.CARROT_STICK, "Caña con Zanahoria", 5000, "COMÚN", "&7", "&6¡El favorito de los conejos!"));
+    }
+
+    private void addUncommonKnockers(List<KnockerShopItem> items) {
+        items.add(new KnockerShopItem(Material.GOLD_HOE, "Azada Dorada", 15000, "POCO COMÚN", "&a", "&e¡Brilla como el sol!"));
+        items.add(new KnockerShopItem(Material.IRON_SPADE, "Pala de Hierro", 15000, "POCO COMÚN", "&a", "&7Forjada en las montañas"));
+        items.add(new KnockerShopItem(Material.STONE_HOE, "Azada de Piedra", 15000, "POCO COMÚN", "&a", "&8Tan dura como la roca"));
+        items.add(new KnockerShopItem(Material.WOOD_HOE, "Azada de Madera", 15000, "POCO COMÚN", "&a", "&6Tallada a mano"));
+        items.add(new KnockerShopItem(Material.WOOD_SWORD, "Espada de Madera", 15000, "POCO COMÚN", "&a", "&6¡Perfecta para entrenar!"));
+    }
+
+    private void addRareKnockers(List<KnockerShopItem> items) {
+        items.add(new KnockerShopItem(Material.DIAMOND_HOE, "Azada de Diamante", 50000, "RARO", "&9", "&b¡La más brillante de todas!"));
+        items.add(new KnockerShopItem(Material.GOLD_SWORD, "Espada Dorada", 50000, "RARO", "&9", "&e¡El arma de los reyes!"));
+        items.add(new KnockerShopItem(Material.IRON_SWORD, "Espada de Hierro", 50000, "RARO", "&9", "&7Afilada como ninguna"));
+        items.add(new KnockerShopItem(Material.DIAMOND_SPADE, "Pala de Diamante", 50000, "RARO", "&9", "&bCavando con estilo"));
+        items.add(new KnockerShopItem(Material.GOLD_SPADE, "Pala Dorada", 50000, "RARO", "&9", "&e¡Reluciente como el oro!"));
+    }
+
+    private void addEpicKnockers(List<KnockerShopItem> items) {
+        items.add(new KnockerShopItem(Material.DIAMOND_SWORD, "Espada de Diamante", 500000, "ÉPICO", "&5", "&b¡La más poderosa de todas!"));
+        items.add(new KnockerShopItem(Material.IRON_AXE, "Hacha de Hierro", 500000, "ÉPICO", "&5", "&7¡Corta como mantequilla!"));
+        items.add(new KnockerShopItem(Material.DIAMOND_AXE, "Hacha de Diamante", 500000, "ÉPICO", "&5", "&b¡La destructora definitiva!"));
+        items.add(new KnockerShopItem(Material.GOLD_AXE, "Hacha Dorada", 500000, "ÉPICO", "&5", "&e¡Digna de un rey!"));
+    }
+
+    private void addLegendaryKnockers(List<KnockerShopItem> items) {
+        items.add(new KnockerShopItem(Material.NETHER_STAR, "Estrella del Nether", 1000000, "LEGENDARIO", "&6", "&c&l¡El poder del Wither!"));
+        items.add(new KnockerShopItem(Material.GHAST_TEAR, "Lágrima de Ghast", 1000000, "LEGENDARIO", "&6", "&f&l¡Lágrimas de poder!"));
+        items.add(new KnockerShopItem(Material.PRISMARINE_SHARD, "Fragmento de Prismarina", 1000000, "LEGENDARIO", "&6", "&3&l¡La fuerza del océano!"));
+        items.add(new KnockerShopItem(Material.EMERALD, "Esmeralda del Poder", 1000000, "LEGENDARIO", "&6", "&a&l¡La riqueza es poder!"));
+    }
+
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
-        KnockerShopItem currentKnocker = plugin.getCosmeticManager().getPlayerKnocker(player.getUniqueId());
 
         // Balance actual
         inv.setItem(4, createItem(Material.EMERALD, "&a&lTu Balance",
@@ -39,11 +90,12 @@ public class KnockerShopMenu extends Menu {
             "",
             "&7Categoría actual: " + currentCategory));
 
-        // Mostrar knockers de la categoría actual
+        // Mostrar knockers
         int slot = 10;
-        for (KnockerShopItem item : KnockerShopItem.getAllKnockers()) {
+        for (KnockerShopItem item : shopItems) {
             if (item.getRarity().equals(currentCategory)) {
-                setupKnockerButton(inv, slot, item, player, currentKnocker);
+                if (slot > 34) break;
+                setupKnockerButton(inv, slot, item, player, plugin.getCosmeticManager().getPlayerKnocker(player.getUniqueId()));
                 slot++;
                 if ((slot + 1) % 9 == 0) slot += 2;
             }
@@ -54,13 +106,12 @@ public class KnockerShopMenu extends Menu {
             "&7Click para volver a las categorías"));
 
         // Relleno
-        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
-        fillEmptySlots(inv, filler);
+        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
     }
 
-    private void setupKnockerButton(Inventory inv, int slot, KnockerShopItem item, Player player, KnockerShopItem currentKnocker) {
-        boolean hasKnocker = item.getMaterial() == Material.STICK || plugin.getCosmeticManager().getPlayerKnocker(player.getUniqueId()) == item;
-        boolean isSelected = currentKnocker != null && currentKnocker.getMaterial() == item.getMaterial() && currentKnocker.getData() == item.getData();
+    private void setupKnockerButton(Inventory inv, int slot, KnockerShopItem item, Player player, Material currentKnocker) {
+        boolean hasKnocker = item.getMaterial() == Material.STICK || plugin.getCosmeticManager().hasPlayerBlock(player.getUniqueId(), item.getMaterial());
+        boolean isSelected = currentKnocker == item.getMaterial();
         
         List<String> lore = new ArrayList<>();
         
@@ -120,33 +171,32 @@ public class KnockerShopMenu extends Menu {
         if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE || 
             clicked.getType() == Material.EMERALD) return;
 
-        KnockerShopItem shopItem = findKnockerItem(clicked);
+        KnockerShopItem shopItem = findShopItem(clicked);
         if (shopItem == null) return;
 
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
-        KnockerShopItem currentKnocker = plugin.getCosmeticManager().getPlayerKnocker(player.getUniqueId());
 
         // Si ya tiene el knocker o es el palo por defecto
-        if (shopItem.getMaterial() == Material.STICK || 
-            (currentKnocker != null && currentKnocker.getMaterial() == shopItem.getMaterial() && currentKnocker.getData() == shopItem.getData())) {
-            plugin.getCosmeticManager().setPlayerKnocker(player.getUniqueId(), shopItem);
-            player.sendMessage(MessageUtils.getColor("&aHas seleccionado el knocker " + shopItem.getName()));
+        if (plugin.getCosmeticManager().hasPlayerKnocker(player.getUniqueId(), shopItem.getMaterial())) {
+            plugin.getCosmeticManager().setPlayerKnocker(player.getUniqueId(), shopItem.getMaterial());
+            player.sendMessage(MessageUtils.getColor("&aHas seleccionado el bloque de " + shopItem.getName()));
             player.closeInventory();
         } else {
             if (stats.getKGCoins() >= shopItem.getPrice()) {
                 stats.removeKGCoins(shopItem.getPrice());
-                plugin.getCosmeticManager().setPlayerKnocker(player.getUniqueId(), shopItem);
-                player.sendMessage(MessageUtils.getColor("&a¡Has comprado y seleccionado el knocker " + 
+                plugin.getCosmeticManager().addPlayerKnocker(player.getUniqueId(), shopItem.getMaterial());
+                plugin.getCosmeticManager().setPlayerKnocker(player.getUniqueId(), shopItem.getMaterial());
+                player.sendMessage(MessageUtils.getColor("&a¡Has comprado y seleccionado el knocker de " + 
                     shopItem.getName() + " &apor &e" + shopItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor("&cNo tienes suficientes KGCoins para comprar este knocker."));
+                player.sendMessage(MessageUtils.getColor("&cNo tienes suficientes KGCoins para comprar este bloque."));
             }
         }
     }
 
-    private KnockerShopItem findKnockerItem(ItemStack clicked) {
-        return KnockerShopItem.getAllKnockers().stream()
+    private KnockerShopItem findShopItem(ItemStack clicked) {
+        return shopItems.stream()
             .filter(item -> item.getMaterial() == clicked.getType() && item.getData() == clicked.getDurability())
             .findFirst()
             .orElse(null);

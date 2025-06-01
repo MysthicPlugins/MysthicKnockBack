@@ -3,6 +3,7 @@ package mk.kvlzx;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import mk.kvlzx.arena.ArenaManager;
 import mk.kvlzx.commands.ArenaCommand;
@@ -74,6 +75,13 @@ public class MysthicKnockBack extends JavaPlugin {
         PlayerStats.initializeStatsData(this);
         InventoryData inventoryData = new InventoryData(this);
         PlayerHotbar.init(inventoryData);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                PlayerStats.loadAllStats(); // Mover después de que el servidor esté completamente iniciado
+            }
+        }.runTaskLater(this, 20L); // Esperar 1 segundo para asegurar que todo esté listo
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Cargando arenas...");
         arenaManager.loadArenas();
