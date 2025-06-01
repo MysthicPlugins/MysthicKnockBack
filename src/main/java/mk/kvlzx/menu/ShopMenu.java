@@ -41,11 +41,11 @@ public class ShopMenu extends Menu {
             "&8➥ Palos de empuje exclusivos",
             "&aDisponible!"));
 
-        inv.setItem(15, createItem(Material.SKULL_ITEM, "&c&lEfectos de Muerte", (byte) 0,
-            "&7Click para ver efectos de muerte",
+        inv.setItem(15, createItem(Material.BOOK_AND_QUILL, "&e&lMensajes de Muerte", 
+            "&7Click para ver mensajes de muerte",
             "",
-            "&8➥ Efectos visuales al morir",
-            "&cPróximamente"));
+            "&8➥ Mensajes personalizados al morir",
+            "&aDisponible!"));
 
         inv.setItem(29, createItem(Material.DIAMOND_SWORD, "&b&lEfectos de Kill",
             "&7Click para ver efectos de kill",
@@ -74,7 +74,9 @@ public class ShopMenu extends Menu {
             case 13: // Knockers
                 plugin.getMenuManager().openMenu(player, "knocker_categories");
                 break;
-            case 15: // Efectos de muerte
+            case 15: // Mensajes de muerte
+                plugin.getMenuManager().openMenu(player, "death_message_categories");
+                break;
             case 29: // Efectos de kill
                 player.sendMessage(MessageUtils.getColor("&cPróximamente disponible."));
                 break;

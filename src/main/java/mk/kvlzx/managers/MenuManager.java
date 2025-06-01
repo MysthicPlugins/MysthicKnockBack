@@ -24,6 +24,8 @@ import mk.kvlzx.menu.BlockShopMenu;
 import mk.kvlzx.menu.BlockCategoriesMenu;
 import mk.kvlzx.menu.KnockerCategoriesMenu;
 import mk.kvlzx.menu.KnockerShopMenu;
+import mk.kvlzx.menu.DeathMessageCategoriesMenu;
+import mk.kvlzx.menu.DeathMessageShopMenu;
 
 public class MenuManager {
     private final MysthicKnockBack plugin;
@@ -53,6 +55,8 @@ public class MenuManager {
         registerMenu("block_categories", new BlockCategoriesMenu(plugin));
         registerMenu("knocker_categories", new KnockerCategoriesMenu(plugin));
         registerMenu("knocker_shop", new KnockerShopMenu(plugin));
+        registerMenu("death_message_categories", new DeathMessageCategoriesMenu(plugin));
+        registerMenu("death_message_shop", new DeathMessageShopMenu(plugin));
         // Aquí registraremos los demás menús
     }
 

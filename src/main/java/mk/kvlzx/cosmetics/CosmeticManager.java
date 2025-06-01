@@ -1,5 +1,6 @@
 package mk.kvlzx.cosmetics;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +27,8 @@ public class CosmeticManager {
     private final Map<UUID, Set<Material>> playerOwnedBlocks = new HashMap<>();
     private final Map<UUID, Material> playerKnockers = new HashMap<>();
     private final Map<UUID, Set<Material>> playerOwnedKnockers = new HashMap<>();
+    private final Map<UUID, String> playerDeathMessages = new HashMap<>();
+    private final Map<UUID, Set<String>> playerOwnedMessages = new HashMap<>();
 
     public CosmeticManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -165,6 +168,43 @@ public class CosmeticManager {
         savePlayerKnocker(uuid);
     }
 
+    public String getPlayerDeathMessage(UUID uuid) {
+        return playerDeathMessages.getOrDefault(uuid, "default");
+    }
+
+    public void setPlayerDeathMessage(UUID uuid, String messageName) {
+        playerDeathMessages.put(uuid, messageName);
+        savePlayerDeathMessage(uuid);
+    }
+
+    public boolean hasPlayerDeathMessage(UUID uuid, String messageName) {
+        if (messageName.equals("default")) return true;
+        Set<String> ownedMessages = playerOwnedMessages.getOrDefault(uuid, new HashSet<>());
+        return ownedMessages.contains(messageName);
+    }
+
+    public void addPlayerDeathMessage(UUID uuid, String messageName) {
+        playerOwnedMessages.computeIfAbsent(uuid, k -> new HashSet<>()).add(messageName);
+        savePlayerDeathMessages(uuid);
+    }
+
+    private void savePlayerDeathMessage(UUID uuid) {
+        String message = playerDeathMessages.get(uuid);
+        if (message != null) {
+            cosmeticConfig.getConfig().set("death_messages." + uuid.toString(), message);
+            cosmeticConfig.saveConfig();
+        }
+    }
+
+    private void savePlayerDeathMessages(UUID uuid) {
+        Set<String> messages = playerOwnedMessages.get(uuid);
+        if (messages != null) {
+            cosmeticConfig.getConfig().set("owned_messages." + uuid.toString(), 
+                new ArrayList<>(messages));
+            cosmeticConfig.saveConfig();
+        }
+    }
+
     public void saveAll() {
         for (Map.Entry<UUID, Material> entry : playerBlocks.entrySet()) {
             cosmeticConfig.getConfig().set("blocks." + entry.getKey().toString(), entry.getValue().name());
@@ -181,6 +221,14 @@ public class CosmeticManager {
             cosmeticConfig.getConfig().set("owned_knockers." + uuid.toString(), blocks.stream()
                 .map(Material::name)
                 .collect(Collectors.toList()));
+        });
+        for (Map.Entry<UUID, String> entry : playerDeathMessages.entrySet()) {
+            cosmeticConfig.getConfig().set("death_messages." + entry.getKey().toString(), 
+                entry.getValue());
+        }
+        playerOwnedMessages.forEach((uuid, messages) -> {
+            cosmeticConfig.getConfig().set("owned_messages." + uuid.toString(), 
+                new ArrayList<>(messages));
         });
         cosmeticConfig.saveConfig();
     }
@@ -237,6 +285,31 @@ public class CosmeticManager {
                     playerOwnedKnockers.put(playerUUID, knockers);
                 } catch (IllegalArgumentException e) {
                     plugin.getLogger().warning("Error loading owned blocks for " + uuid);
+                }
+            }
+        }
+        ConfigurationSection messageSection = cosmeticConfig.getConfig().getConfigurationSection("death_messages");
+        if (messageSection != null) {
+            for (String uuid : messageSection.getKeys(false)) {
+                try {
+                    UUID playerUUID = UUID.fromString(uuid);
+                    String message = messageSection.getString(uuid);
+                    playerDeathMessages.put(playerUUID, message);
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Error loading death message for " + uuid);
+                }
+            }
+        }
+
+        ConfigurationSection ownedMessagesSection = cosmeticConfig.getConfig().getConfigurationSection("owned_messages");
+        if (ownedMessagesSection != null) {
+            for (String uuid : ownedMessagesSection.getKeys(false)) {
+                try {
+                    UUID playerUUID = UUID.fromString(uuid);
+                    List<String> messageNames = ownedMessagesSection.getStringList(uuid);
+                    playerOwnedMessages.put(playerUUID, new HashSet<>(messageNames));
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Error loading owned messages for " + uuid);
                 }
             }
         }

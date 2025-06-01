@@ -35,35 +35,36 @@ import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.utils.TitleUtils;
 import mk.kvlzx.arena.Arena;
 import mk.kvlzx.arena.Zone;
+import mk.kvlzx.cosmetics.DeathMessageItem;
 import mk.kvlzx.stats.PlayerStats;
 
 public class PlayerListener implements Listener {
     private final MysthicKnockBack plugin;
+
+    private final Random random = new Random();
     
     private static final List<String> DEATH_MESSAGES = Arrays.asList(
-        "%s se resbaló con una cáscara de plátano. ¡Qué torpe!",
-        "%s intentó volar, pero olvidó sus alas.",
-        "%s cayó al vacío gritando '¡Volveré!'",
-        "%s fue engañado por un espejismo y se estrelló.",
-        "%s quiso bailar en el borde y... ¡pum! Al suelo.",
-        "%s pensó que era inmortal. Spoiler: no lo era.",
-        "%s se tropezó con su propio ego.",
-        "%s fue vencido por la gravedad, su peor enemiga.",
-        "%s intentó un truco épico y acabó en el suelo.",
-        "%s se distrajo mirando un gatito y ¡adiós!",
-        "%s creyó que podía correr más rápido que el viento. Nop.",
-        "%s se cayó, como su Wi-Fi en plena partida.",
-        "%s quiso ser héroe, pero la física dijo 'nop'.",
-        "%s se lanzó al vacío con demasiada confianza.",
-        "%s fue traicionado por su propia coordinación.",
-        "%s pensó que el suelo era lava... y no estaba tan equivocado.",
-        "%s intentó un salto mortal y se quedó en mortal.",
-        "%s cayó en las mentiras de la plataforma invisible.",
-        "%s quiso impresionar y solo impresionó al suelo.",
-        "%s gritó '¡Soy invencible!' justo antes de caer."
+        "&b%s &ese resbaló con una cáscara de plátano. &6¡Qué torpe!",
+        "&b%s &einventó intentó volar, pero olvidó sus alas.",
+        "&b%s &ecayó al vacío gritando &6'¡Volveré!'",
+        "&b%s &efue engañado por un espejismo y se estrelló.",
+        "&b%s &equiso bailar en el borde y... &6¡pum! &eAl suelo.",
+        "&b%s &epensó que era inmortal. &6Spoiler: &eno lo era.",
+        "&b%s &ese tropezó con su propio ego.",
+        "&b%s &efue vencido por la gravedad, su peor enemiga.",
+        "&b%s &einventó un truco épico y acabó en el suelo.",
+        "&b%s &ese distrajo mirando un gatito y &6¡adiós!",
+        "&b%s &ecreyó que podía correr más rápido que el viento. &6Nop.",
+        "&b%s &ese cayó, como su Wi-Fi en plena partida.",
+        "&b%s &equiso ser héroe, pero la física dijo &6'nop'.",
+        "&b%s &ese lanzó al vacío con &6demasiada &econfianza.",
+        "&b%s &efue traicionado por su propia coordinación.",
+        "&b%s &epensó que el suelo era lava... y no estaba tan equivocado.",
+        "&b%s &einventó un salto mortal y se quedó en mortal.",
+        "&b%s &ecayó en las mentiras de la plataforma invisible.",
+        "&b%s &equiso impresionar y solo impresionó al suelo.",
+        "&b%s &egritó &6'¡Soy invencible!' &ejusto antes de caer."
     );
-    
-    private final Random random = new Random();
 
     public PlayerListener(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -71,17 +72,28 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        event.getDrops().clear(); // Evita que se dropeen items al morir
-        event.setDroppedExp(0); // Evita que se dropee experiencia
-        event.setDeathMessage(null); // Evita que se muestre el mensaje de muerte por defecto
+        event.getDrops().clear();
+        event.setDroppedExp(0);
+        event.setDeathMessage(null);
 
-        // Selecciona un mensaje de muerte aleatorio y reemplaza %s con el nombre del jugador
-        String playerName = event.getEntity().getName();
-        String randomMessage = DEATH_MESSAGES.get(random.nextInt(DEATH_MESSAGES.size()));
-        String formattedMessage = String.format(randomMessage, playerName);
+        Player victim = event.getEntity();
+        Player killer = plugin.getCombatListener().getLastAttacker(victim);
 
-        // Transmite el mensaje de muerte al servidor
-        Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
+        // Solo mostrar mensaje si murió solo
+        if (killer == null) {
+            String messageName = plugin.getCosmeticManager().getPlayerDeathMessage(victim.getUniqueId());
+            String deathMessage;
+            
+            if (messageName.equals("default")) {
+                deathMessage = DEATH_MESSAGES.get(random.nextInt(DEATH_MESSAGES.size()));
+            } else {
+                DeathMessageItem messageItem = DeathMessageItem.getByName(messageName);
+                deathMessage = messageItem != null ? messageItem.getMessage() : DEATH_MESSAGES.get(0);
+            }
+            
+            String formattedMessage = String.format(deathMessage, victim.getName());
+            Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
+        }
     }
 
     @EventHandler
