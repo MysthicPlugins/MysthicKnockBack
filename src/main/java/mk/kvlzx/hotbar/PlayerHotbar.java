@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.cosmetics.BlockShopItem;
+import mk.kvlzx.cosmetics.KnockerShopItem;
 import mk.kvlzx.data.InventoryData;
 import mk.kvlzx.items.CustomItem;
 import mk.kvlzx.items.CustomItem.ItemType;
@@ -22,13 +23,24 @@ public class PlayerHotbar {
     // Eliminar el DEFAULT_LAYOUT estático y reemplazarlo con un método
     private static ItemStack[] getDefaultLayout(UUID uuid) {
         ItemStack[] layout = new ItemStack[9];
+        
         // Obtener el bloque cosmético del jugador
         Material blockType = MysthicKnockBack.getInstance().getCosmeticManager().getPlayerBlock(uuid);
+        // Obtener el knocker cosmético del jugador
+        Material knockerType = MysthicKnockBack.getInstance().getCosmeticManager().getPlayerKnocker(uuid);
         
-        // Buscar el BlockShopItem correspondiente
+        // Crear el knocker
+        KnockerShopItem knockerItem = KnockerShopItem.getByMaterial(knockerType);
+        ItemStack knocker;
+        if (knockerItem != null) {
+            knocker = knockerItem.createItemStack();
+        } else {
+            knocker = CustomItem.create(ItemType.KNOCKER);
+        }
+        
+        // Crear el bloque
         BlockShopItem shopItem = BlockShopItem.getByMaterial(blockType);
         ItemStack blocks;
-        
         if (shopItem != null) {
             blocks = shopItem.createItemStack();
             blocks.setAmount(64);
@@ -36,8 +48,8 @@ public class PlayerHotbar {
             blocks = new ItemStack(blockType, 64);
         }
         
-        layout[0] = CustomItem.create(ItemType.KNOCKER);
-        layout[1] = blocks.clone(); // Importante: clonar para evitar referencias
+        layout[0] = knocker.clone();
+        layout[1] = blocks.clone();
         layout[2] = CustomItem.create(ItemType.BOW);
         layout[6] = CustomItem.create(ItemType.PLATE);
         layout[7] = CustomItem.create(ItemType.FEATHER);
