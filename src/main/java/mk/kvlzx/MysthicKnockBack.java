@@ -20,6 +20,7 @@ import mk.kvlzx.listeners.CombatListener;
 import mk.kvlzx.listeners.ItemListener;
 import mk.kvlzx.listeners.PlayerListener;
 import mk.kvlzx.listeners.MenuListener;
+import mk.kvlzx.managers.CombatManager;
 import mk.kvlzx.managers.CooldownManager;
 import mk.kvlzx.managers.MainScoreboardManager;
 import mk.kvlzx.managers.TabManager;
@@ -45,6 +46,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private ReportManager reportManager;
     private CooldownManager cooldownManager;
     private CosmeticManager cosmeticManager;
+    private CombatManager combatManager;
 
     @Override
     public void onEnable() {
@@ -113,6 +115,7 @@ public class MysthicKnockBack extends JavaPlugin {
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b1&8] &7Guardando datos...");
             PlayerStats.saveAllStats();
             cosmeticManager.saveAll();
+            combatManager.cleanup();
 
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Guardando arenas...");
             arenaManager.saveArenas();
@@ -138,6 +141,7 @@ public class MysthicKnockBack extends JavaPlugin {
         reportManager = new ReportManager(this);
         cooldownManager = new CooldownManager(this);
         cosmeticManager = new CosmeticManager(this);
+        combatManager = new CombatManager(this);
     }
 
     private void startPlaytimeUpdater() {
@@ -205,5 +209,9 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public CosmeticManager getCosmeticManager() {
         return cosmeticManager;
+    }
+
+    public CombatManager getCombatManager() {
+        return combatManager;
     }
 }

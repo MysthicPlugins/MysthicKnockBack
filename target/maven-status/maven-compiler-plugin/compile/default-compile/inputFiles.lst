@@ -12,6 +12,7 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\StatsTabCompleter.ja
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\BlockShopItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\CosmeticManager.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\DeathMessageItem.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\KillMessageItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\KnockerShopItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\data\ArenaData.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\data\InventoryData.java
@@ -24,6 +25,7 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\CombatListener.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\ItemListener.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\MenuListener.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\PlayerListener.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\managers\CombatManager.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\managers\CooldownManager.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\managers\MainScoreboardManager.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\managers\MenuManager.java
@@ -36,6 +38,8 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\BlockShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\DeathMessageCategoriesMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\DeathMessageShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\HotbarEditMenu.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KillMessageCategoriesMenu.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KillMessageShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KnockerCategoriesMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KnockerShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\MainMenu.java

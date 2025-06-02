@@ -29,6 +29,8 @@ public class CosmeticManager {
     private final Map<UUID, Set<Material>> playerOwnedKnockers = new HashMap<>();
     private final Map<UUID, String> playerDeathMessages = new HashMap<>();
     private final Map<UUID, Set<String>> playerOwnedMessages = new HashMap<>();
+    private final Map<UUID, String> playerKillMessages = new HashMap<>();
+    private final Map<UUID, Set<String>> playerOwnedKillMessages = new HashMap<>();
 
     public CosmeticManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -205,6 +207,43 @@ public class CosmeticManager {
         }
     }
 
+    public String getPlayerKillMessage(UUID uuid) {
+        return playerKillMessages.getOrDefault(uuid, "default");
+    }
+
+    public void setPlayerKillMessage(UUID uuid, String messageName) {
+        playerKillMessages.put(uuid, messageName);
+        savePlayerKillMessage(uuid);
+    }
+
+    public boolean hasPlayerKillMessage(UUID uuid, String messageName) {
+        if (messageName.equals("default")) return true;
+        Set<String> owned = playerOwnedKillMessages.getOrDefault(uuid, new HashSet<>());
+        return owned.contains(messageName);
+    }
+
+    public void addPlayerKillMessage(UUID uuid, String messageName) {
+        playerOwnedKillMessages.computeIfAbsent(uuid, k -> new HashSet<>()).add(messageName);
+        savePlayerKillMessages(uuid);
+    }
+
+    private void savePlayerKillMessage(UUID uuid) {
+        String message = playerKillMessages.get(uuid);
+        if (message != null) {
+            cosmeticConfig.getConfig().set("kill_messages." + uuid.toString(), message);
+            cosmeticConfig.saveConfig();
+        }
+    }
+
+    private void savePlayerKillMessages(UUID uuid) {
+        Set<String> messages = playerOwnedKillMessages.get(uuid);
+        if (messages != null) {
+            cosmeticConfig.getConfig().set("owned_kill_messages." + uuid.toString(), 
+                new ArrayList<>(messages));
+            cosmeticConfig.saveConfig();
+        }
+    }
+
     public void saveAll() {
         for (Map.Entry<UUID, Material> entry : playerBlocks.entrySet()) {
             cosmeticConfig.getConfig().set("blocks." + entry.getKey().toString(), entry.getValue().name());
@@ -228,6 +267,14 @@ public class CosmeticManager {
         }
         playerOwnedMessages.forEach((uuid, messages) -> {
             cosmeticConfig.getConfig().set("owned_messages." + uuid.toString(), 
+                new ArrayList<>(messages));
+        });
+        for (Map.Entry<UUID, String> entry : playerKillMessages.entrySet()) {
+            cosmeticConfig.getConfig().set("kill_messages." + entry.getKey().toString(), 
+                entry.getValue());
+        }
+        playerOwnedKillMessages.forEach((uuid, messages) -> {
+            cosmeticConfig.getConfig().set("owned_kill_messages." + uuid.toString(), 
                 new ArrayList<>(messages));
         });
         cosmeticConfig.saveConfig();
@@ -310,6 +357,31 @@ public class CosmeticManager {
                     playerOwnedMessages.put(playerUUID, new HashSet<>(messageNames));
                 } catch (IllegalArgumentException e) {
                     plugin.getLogger().warning("Error loading owned messages for " + uuid);
+                }
+            }
+        }
+        ConfigurationSection killMessageSection = cosmeticConfig.getConfig().getConfigurationSection("kill_messages");
+        if (killMessageSection != null) {
+            for (String uuid : killMessageSection.getKeys(false)) {
+                try {
+                    UUID playerUUID = UUID.fromString(uuid);
+                    String message = killMessageSection.getString(uuid);
+                    playerKillMessages.put(playerUUID, message);
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Error loading kill message for " + uuid);
+                }
+            }
+        }
+
+        ConfigurationSection ownedKillMessagesSection = cosmeticConfig.getConfig().getConfigurationSection("owned_kill_messages");
+        if (ownedKillMessagesSection != null) {
+            for (String uuid : ownedKillMessagesSection.getKeys(false)) {
+                try {
+                    UUID playerUUID = UUID.fromString(uuid);
+                    List<String> messageNames = ownedKillMessagesSection.getStringList(uuid);
+                    playerOwnedKillMessages.put(playerUUID, new HashSet<>(messageNames));
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Error loading owned kill messages for " + uuid);
                 }
             }
         }
