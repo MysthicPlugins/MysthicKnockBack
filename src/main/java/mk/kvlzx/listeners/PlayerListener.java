@@ -1,9 +1,8 @@
 package mk.kvlzx.listeners;
-
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -43,27 +42,40 @@ public class PlayerListener implements Listener {
 
     private final Random random = new Random();
     
-    private static final List<String> DEATH_MESSAGES = Arrays.asList(
-        "&b%s &fse resbaló con una cáscara de plátano. &a¡Qué torpe!",
-        "&b%s &finventó intentó volar, pero olvidó sus alas.",
-        "&b%s &fcayó al vacío gritando &a'¡Volveré!'",
-        "&b%s &ffue engañado por un espejismo y se estrelló.",
-        "&b%s &fquiso bailar en el borde y... &a¡pum! &fAl suelo.",
-        "&b%s &fpensó que era inmortal. &aSpoiler: &eno lo era.",
-        "&b%s &fse tropezó con su propio ego.",
-        "&b%s &ffue vencido por la gravedad, su peor enemiga.",
-        "&b%s &finventó un truco épico y acabó en el suelo.",
-        "&b%s &fse distrajo mirando un gatito y &a¡adiós!",
-        "&b%s &fcreyó que podía correr más rápido que el viento. &aNop.",
-        "&b%s &fse cayó, como su Wi-Fi en plena partida.",
-        "&b%s &fquiso ser héroe, pero la física dijo &a'nop'.",
-        "&b%s &fse lanzó al vacío con &ademasiada &fconfianza.",
-        "&b%s &ffue traicionado por su propia coordinación.",
-        "&b%s &fpensó que el suelo era lava... y no estaba tan equivocado.",
-        "&b%s &finventó un salto mortal y se quedó en mortal.",
-        "&b%s &fcayó en las mentiras de la plataforma invisible.",
-        "&b%s &fquiso impresionar y solo impresionó al suelo.",
-        "&b%s &fgritó &a'¡Soy invencible!' &fjusto antes de caer."
+private static final List<String> DEATH_MESSAGES = Arrays.asList(
+        "&b%s &fslipped on a banana peel. &aHow clumsy!",
+        "&b%s &finvented trying to fly, but forgot their wings.",
+        "&b%s &ffell into the void shouting &a'I’ll be back!'",
+        "&b%s &fwas tricked by a mirage and crashed.",
+        "&b%s &fwanted to dance on the edge and... &aouch! &fTo the ground.",
+        "&b%s &fthought they were immortal. &aSpoiler: &ethey weren’t.",
+        "&b%s &ftripped over their own ego.",
+        "&b%s &fwas defeated by gravity, their worst enemy.",
+        "&b%s &finvented an epic trick and ended up on the ground.",
+        "&b%s &fgot distracted watching a kitten and &a goodbye!",
+        "&b%s &fbelieved they could run faster than the wind. &aNop.",
+        "&b%s &ffell, just like their Wi-Fi in the middle of a match.",
+        "&b%s &fwanted to be a hero, but physics said &a'nope'.",
+        "&b%s &fjumped into the void with &atoo much &fconfidence.",
+        "&b%s &fwas betrayed by their own coordination.",
+        "&b%s &fthought the ground was lava... and wasn’t entirely wrong.",
+        "&b%s &finvented a somersault and stayed in mortal.",
+        "&b%s &ffell for the lies of the invisible platform.",
+        "&b%s &fwanted to impress and only impressed the ground.",
+        "&b%s &fshouted &a'I’m invincible!' &fjust before falling."
+    );
+
+    private static final List<String> kill_messages = Arrays.asList(
+        "&b{Killer} &fhas sent &b{Victim} &fon a one-way trip to the void!",
+        "&b{Victim} &ftried to fly, but &b{Killer} &fcut their wings.",
+        "&b{Killer} &fgave &b{Victim} &fan epic push to the beyond!",
+        "&b{Victim} &fthought they could, but &b{Killer} &fsaid '&aNOPE, to the ground!'",
+        "&b{Killer} &fturned &b{Victim} &finto a shooting star... that didn’t go far!",
+        "&b{Victim} &fwanted to dance with &b{Killer}&f, but ended up dancing with death.",
+        "&b{Killer} &ftaught &b{Victim} &fthat gravity doesn’t forgive!",
+        "&b{Victim} &fdreamed of victory, but &b{Killer} &fwoke them with a blow.",
+        "&b{Killer} &fsent &b{Victim} &fto explore the bottom of the map!",
+        "&b{Killer} &fgave &b{Victim} &fan express ticket to the lobby of the fallen!"
     );
 
     public PlayerListener(MysthicKnockBack plugin) {
@@ -79,7 +91,7 @@ public class PlayerListener implements Listener {
         Player victim = event.getEntity();
         Player killer = plugin.getCombatListener().getLastAttacker(victim);
 
-        // Solo mostrar mensaje si murió solo
+        // Mostrar mensaje según si murió solo o fue asesinado
         if (killer == null) {
             String messageName = plugin.getCosmeticManager().getPlayerDeathMessage(victim.getUniqueId());
             String deathMessage;
@@ -93,6 +105,10 @@ public class PlayerListener implements Listener {
             
             String formattedMessage = String.format(deathMessage, victim.getName());
             Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
+        } else {
+            String killMessage = kill_messages.get(random.nextInt(kill_messages.size()));
+            String formattedMessage = killMessage.replace("{Killer}", killer.getName()).replace("{Victim}", victim.getName());
+            Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
         }
     }
 
@@ -102,8 +118,8 @@ public class PlayerListener implements Listener {
         ItemsManager.giveSpawnItems(player);
         TitleUtils.sendTitle(
             player, 
-            "&a¡Bienvenido a &6KnockbackFFA&a!", 
-            "&fDomina la arena y deja tu marca.",
+            "&a Welcome to &6KnockbackFFA&a!", 
+            "&fDominate the arena and leave your mark!.",
             20, 60, 20
         );
         
@@ -172,76 +188,86 @@ public class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent event) {
-        Player player = event.getPlayer();
-        Location to = event.getTo();
-        String currentArena = plugin.getArenaManager().getPlayerArena(player);
+@EventHandler
+public void onPlayerMove(PlayerMoveEvent event) {
+    Player player = event.getPlayer();
+    Location to = event.getTo();
+    String currentArena = plugin.getArenaManager().getPlayerArena(player);
 
-        String currentZone = plugin.getArenaManager().getPlayerZone(player);
+    String currentZone = plugin.getArenaManager().getPlayerZone(player);
+    
+    for (Arena arena : plugin.getArenaManager().getArenas()) {
+        Zone voidZone = arena.getZone("void");
+        if (voidZone != null && voidZone.isInside(to)) {
+            PlayerStats playerStats = PlayerStats.getStats(player.getUniqueId());
+            if (!playerStats.canDie()) {
+                return; // Si el jugador está en cooldown de muerte, ignorar
+            }
+            CombatListener combatListener = plugin.getCombatListener();
+            Player killer = combatListener.getLastAttacker(player);
+            
+            if (killer != null && killer != player) {
+                givePearlToKiller(killer);
+                player.damage(1000.0, killer);
+
+                // Mensaje de muerte por kill
+                String killMessage = kill_messages.get(random.nextInt(kill_messages.size()));
+                String formattedMessage = killMessage.replace("{Killer}", killer.getName()).replace("{Victim}", player.getName());
+                Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
+            } else {
+                player.damage(1000.0);
+
+                // Mensaje de muerte por caída (sin killer)
+                String deathMessage = DEATH_MESSAGES.get(random.nextInt(DEATH_MESSAGES.size()));
+                String formattedMessage = String.format(deathMessage, player.getName());
+                Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
+            }
+            
+            // Teletransportar inmediatamente al jugador al spawn
+            respawnPlayerAtSpawn(player, arena);
+            return;
+        }
         
-        for (Arena arena : plugin.getArenaManager().getArenas()) {
-            Zone voidZone = arena.getZone("void");
-            if (voidZone != null && voidZone.isInside(to)) {
-                PlayerStats playerStats = PlayerStats.getStats(player.getUniqueId());
-                if (!playerStats.canDie()) {
-                    return; // Si el jugador está en cooldown de muerte, ignorar
-                }
-                CombatListener combatListener = plugin.getCombatListener();
-                Player killer = combatListener.getLastAttacker(player);
-                
-                if (killer != null && killer != player) {
-                    givePearlToKiller(killer);
-                    player.damage(1000.0, killer);
-                } else {
-                    player.damage(1000.0);
-                }
-                
-                // Teletransportar inmediatamente al jugador al spawn
-                respawnPlayerAtSpawn(player, arena);
-                return;
-            }
-            
-            String foundZone = null;
-            String foundArena = null;
-            
-            for (String zoneType : new String[]{"spawn", "pvp", "void"}) {
-                Zone zone = arena.getZone(zoneType);
-                if (zone != null && zone.isInside(to)) {
-                    foundZone = zoneType;
-                    foundArena = arena.getName();
-                    break;
-                }
-            }
-            
-            if (foundZone != null) {
-                if (!foundZone.equals(currentZone) || !foundArena.equals(currentArena)) {
-                    plugin.getArenaManager().setPlayerZone(player, foundArena, foundZone);
-                    
-                    switch (foundZone) {
-                        case "spawn":
-                            player.sendMessage(MessageUtils.getColor("&aHas entrado a la zona de Spawn de la arena " + foundArena));
-                            ItemsManager.giveSpawnItems(player);
-                            player.spigot().setCollidesWithEntities(false); // Desactivar colisiones en spawn
-                            break;
-                        case "pvp":
-                            player.sendMessage(MessageUtils.getColor("&cHas entrado a la zona de PvP de la arena " + foundArena));
-                            ItemsManager.givePvPItems(player);
-                            player.spigot().setCollidesWithEntities(true); // Activar colisiones en pvp
-                            break;
-                        case "void":
-                            player.sendMessage(MessageUtils.getColor("&7Has entrado a la zona de Void de la arena " + foundArena));
-                            break;
-                    }
-                }
-                return;
+        String foundZone = null;
+        String foundArena = null;
+        
+        for (String zoneType : new String[]{"spawn", "pvp", "void"}) {
+            Zone zone = arena.getZone(zoneType);
+            if (zone != null && zone.isInside(to)) {
+                foundZone = zoneType;
+                foundArena = arena.getName();
+                break;
             }
         }
         
-        if (currentZone != null) {
-            plugin.getArenaManager().setPlayerZone(player, null, null);
+        if (foundZone != null) {
+            if (!foundZone.equals(currentZone) || !foundArena.equals(currentArena)) {
+                plugin.getArenaManager().setPlayerZone(player, foundArena, foundZone);
+                
+                switch (foundZone) {
+                    case "spawn":
+                        player.sendMessage(MessageUtils.getColor("&aYou have entered the Spawn zone of the arena! " + foundArena));
+                        ItemsManager.giveSpawnItems(player);
+                        player.spigot().setCollidesWithEntities(false); // Desactivar colisiones en spawn
+                        break;
+                    case "pvp":
+                        player.sendMessage(MessageUtils.getColor("&cYou have entered the PvP zone of the arena! " + foundArena));
+                        ItemsManager.givePvPItems(player);
+                        player.spigot().setCollidesWithEntities(true); // Activar colisiones en pvp
+                        break;
+                    case "void":
+                        player.sendMessage(MessageUtils.getColor("&7You have entered the Void zone of the arena! " + foundArena));
+                        break;
+                }
+            }
+            return;
         }
     }
+    
+    if (currentZone != null) {
+        plugin.getArenaManager().setPlayerZone(player, null, null);
+    }
+}
 
     private void givePearlToKiller(Player killer) {
         // Verificar si el killer está en zona pvp

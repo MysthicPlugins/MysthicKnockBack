@@ -16,70 +16,70 @@ import mk.kvlzx.utils.MessageUtils;
 public class BlockCategoriesMenu extends Menu {
 
     public BlockCategoriesMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lCategorías de Bloques &8•", 45);
+        super(plugin, "&8• &e&lBlock Categories &8•", 45);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         // Bloques comunes
-        inv.setItem(11, createItem(Material.WOOD, "&7Bloques Comunes",
-            "&8▪ &7Precio: &f1,000 KGCoins",
-            "&8▪ &7Rareza: &7COMÚN",
+        inv.setItem(11, createItem(Material.WOOD, "&7Common Blocks",
+            "&8▪ &7Price: &f1,000 KGCoins",
+            "&8▪ &7Rarity: &7COMMON",
             "",
-            "&8➥ Maderas, vidrios, piedras básicas",
-            "&7Click para ver los bloques"));
+            "&8➥ Woods, glasses, basic stones",
+            "&7Click to see the blocks"));
 
         // Poco comunes
-        inv.setItem(13, createItem(Material.SMOOTH_BRICK, "&aBloques Poco Comunes",
-            "&8▪ &7Precio: &f2,500 KGCoins",
-            "&8▪ &7Rareza: &aPOCO COMÚN",
+        inv.setItem(13, createItem(Material.SMOOTH_BRICK, "&aUncommon Blocks",
+            "&8▪ &7Price: &f2,500 KGCoins",
+            "&8▪ &7Rarity: &aUNCOMMON",
             "",
-            "&8➥ Ladrillos, arcillas teñidas, lanas",
-            "&7Click para ver los bloques"));
+            "&8➥ Bricks, dyed clays, wools",
+            "&7Click to see the blocks"));
 
         // Raros
-        inv.setItem(15, createItem(Material.QUARTZ_BLOCK, "&9Bloques Raros",
-            "&8▪ &7Precio: &f5,000 KGCoins",
-            "&8▪ &7Rareza: &9RARO",
+        inv.setItem(15, createItem(Material.QUARTZ_BLOCK, "&9Rare Blocks",
+            "&8▪ &7Price: &f5,000 KGCoins",
+            "&8▪ &7Rarity: &9RARE",
             "",
-            "&8➥ Cuarzo, nieve, hielo compacto",
-            "&7Click para ver los bloques"));
+            "&8➥ Quartz, snow, packed ice",
+            "&7Click to see the blocks"));
 
         // Épicos
-        inv.setItem(21, createItem(Material.PRISMARINE, "&5Bloques Épicos",
-            "&8▪ &7Precio: &f7,500 KGCoins",
-            "&8▪ &7Rareza: &5ÉPICO",
+        inv.setItem(21, createItem(Material.PRISMARINE, "&5Epic Blocks",
+            "&8▪ &7Price: &f7,500 KGCoins",
+            "&8▪ &7Rarity: &5EPIC",
             "",
-            "&8➥ Prismarina, obsidiana, bloques brillantes",
-            "&7Click para ver los bloques"));
+            "&8➥ Prismarine, obsidian, glowing blocks",
+            "&7Click to see the blocks"));
 
         // Bedrock (Especial) - Ahora en el centro
         inv.setItem(22, createItem(Material.BEDROCK, "&4&lBedrock",
-            "&8▪ &7Precio: &f50,000 KGCoins",
-            "&8▪ &7Rareza: &4ESPECIAL",
+            "&8▪ &7Price: &f50,000 KGCoins",
+            "&8▪ &7Rarity: &4SPECIAL",
             "",
-            "&8➥ &4&lRequiere todos los bloques anteriores",
-            "&7Click para ver requisitos"));
+            "&8➥ &4&lRequires all previous blocks",
+            "&7Click to see requirements"));
 
         // Legendarios
-        inv.setItem(23, createItem(Material.ENDER_STONE, "&6Bloques Legendarios",
-            "&8▪ &7Precio: &f10,000 KGCoins",
-            "&8▪ &7Rareza: &6LEGENDARIO",
+        inv.setItem(23, createItem(Material.ENDER_STONE, "&6Legendary Blocks",
+            "&8▪ &7Price: &f10,000 KGCoins",
+            "&8▪ &7Rarity: &6LEGENDARY",
             "",
-            "&8➥ End stone, bloques minerales, nether",
-            "&7Click para ver los bloques"));
+            "&8➥ End stone, mineral blocks, nether",
+            "&7Click to see the blocks"));
 
         // Bloques troll
-        inv.setItem(31, createItem(Material.HOPPER, "&d&lBloques Troll",
-            "&8▪ &7Precio: &f15,000 KGCoins",
-            "&8▪ &7Rareza: &dTROLL",
+        inv.setItem(31, createItem(Material.HOPPER, "&d&lTroll Blocks",
+            "&8▪ &7Price: &f15,000 KGCoins",
+            "&8▪ &7Rarity: &dTROLL",
             "",
-            "&8➥ &7¡Bloques con efectos especiales!",
-            "&7Click para ver los bloques"));
+            "&8➥ &7Blocks with special effects!",
+            "&7Click to see the blocks"));
 
         // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver a la tienda"));
+        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
 
         // Relleno
         ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7);
