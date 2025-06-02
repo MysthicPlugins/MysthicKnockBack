@@ -179,7 +179,7 @@ public class KnockerShopMenu extends Menu {
         // Si ya tiene el knocker o es el palo por defecto
         if (plugin.getCosmeticManager().hasPlayerKnocker(player.getUniqueId(), shopItem.getMaterial())) {
             plugin.getCosmeticManager().setPlayerKnocker(player.getUniqueId(), shopItem.getMaterial());
-            player.sendMessage(MessageUtils.getColor("&aHas seleccionado el bloque de " + shopItem.getName()));
+            player.sendMessage(MessageUtils.getColor("&aHas seleccionado el knocker de " + shopItem.getName()));
             player.closeInventory();
         } else {
             if (stats.getKGCoins() >= shopItem.getPrice()) {
@@ -190,7 +190,7 @@ public class KnockerShopMenu extends Menu {
                     shopItem.getName() + " &apor &e" + shopItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor("&cNo tienes suficientes KGCoins para comprar este bloque."));
+                player.sendMessage(MessageUtils.getColor("&cNo tienes suficientes KGCoins para comprar este knocker."));
             }
         }
     }

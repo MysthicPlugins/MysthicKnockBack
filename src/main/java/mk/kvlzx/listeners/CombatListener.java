@@ -23,6 +23,7 @@ public class CombatListener implements Listener {
     private final MysthicKnockBack plugin;
     private final Map<UUID, UUID> lastAttacker = new HashMap<>();
     private final Map<UUID, Long> lastAttackTime = new HashMap<>();
+    private final Map<UUID, Long> lastKnockbackTimes = new HashMap<>();
     private static final long COMBAT_TIMEOUT = 10000; // 10 segundos
 
     public CombatListener(MysthicKnockBack plugin) {
@@ -87,18 +88,20 @@ public class CombatListener implements Listener {
     }
 
     private void applyCustomKnockback(Player victim, Player attacker) {
-        double baseH = 0.45;
-        double baseV = 0.75;
-        final double sprintBonus = 0.2;
+        // Reducir valores base de KB
+        double baseH = 0.35; // Reducido de 0.45
+        double baseV = 0.35; // Reducido de 0.75
+        final double sprintBonus = 0.15; // Reducido de 0.2
 
         // Si el palo tiene Empuje, reducimos ambos
         ItemStack weapon = attacker.getItemInHand();
-        int kbLevel = (weapon != null && weapon.getType() == Material.STICK)
-                        ? weapon.getEnchantmentLevel(Enchantment.KNOCKBACK)
-                        : 0;
+        int kbLevel = (weapon != null && weapon.getType() != Material.AIR && 
+                weapon.containsEnchantment(Enchantment.KNOCKBACK)) 
+                ? weapon.getEnchantmentLevel(Enchantment.KNOCKBACK)
+                : 0;
         if (kbLevel > 0) {
-            baseH *= 0.6;
-            baseV *= 0.6;   // <--- reducimos también la vertical
+            baseH *= 0.5;  // Reducido de 0.6
+            baseV *= 0.5;  // Reducido de 0.6
         }
 
         // Dirección normalizada
@@ -110,11 +113,29 @@ public class CombatListener implements Listener {
         double hMult = baseH + (attacker.isSprinting() ? sprintBonus : 0);
         double vMult = baseV;
 
-        // **Clamp**: evitar verticales superiores a 0.9
-        vMult = Math.min(vMult, 0.9);
+        // Sistema anti-KB acumulativo
+        Long lastKnockbackTime = lastKnockbackTimes.get(victim.getUniqueId());
+        long currentTime = System.currentTimeMillis();
+        
+        if (lastKnockbackTime != null && currentTime - lastKnockbackTime < 500) {
+            // Reducir el KB si el jugador recibió otro golpe recientemente
+            hMult *= 0.7;
+            vMult *= 0.5;
+        }
+        lastKnockbackTimes.put(victim.getUniqueId(), currentTime);
 
-        Vector kb = new Vector(dir.getX()*hMult, vMult, dir.getZ()*hMult);
-        victim.setVelocity(kb);
+        // Clamp vertical
+        vMult = Math.min(vMult, 0.4); // Máximo vertical reducido
+
+        // Solo aplicar KB si el jugador está en el suelo o cerca de él
+        if (victim.isOnGround() || victim.getLocation().getBlock().getRelative(0, -1, 0).getType() != Material.AIR) {
+            Vector kb = new Vector(dir.getX() * hMult, vMult, dir.getZ() * hMult);
+            victim.setVelocity(kb);
+        } else {
+            // Si está en el aire, aplicar KB reducido
+            Vector kb = new Vector(dir.getX() * hMult * 0.6, vMult * 0.4, dir.getZ() * hMult * 0.6);
+            victim.setVelocity(kb);
+        }
     }
 
     public Player getLastAttacker(Player victim) {

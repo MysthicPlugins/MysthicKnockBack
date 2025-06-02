@@ -33,43 +33,110 @@ public class DeathMessageShopMenu extends Menu {
     private List<DeathMessageItem> initializeShopItems() {
         List<DeathMessageItem> items = new ArrayList<>();
 
-        // Común
+        // Mensajes Comunes (5)
         items.add(new DeathMessageItem(
-            "&b%s &ese resbaló con una cáscara de plátano. &6¡Qué torpe!",
-            "Mensaje por defecto", 0, "COMÚN", "&7",
-            "&7El clásico mensaje de siempre"
+            "&b%s &fbuscó la gloria, pero encontró un respawn.",
+            "Buscador de Gloria", 10000, "COMÚN", "&7",
+            "&7Un destino inevitable"
         ));
-        
         items.add(new DeathMessageItem(
-            "&b%s &equiso conquistar el cielo, pero el abismo lo reclamó.",
-            "Conquistador caído", 10000, "COMÚN", "&7",
-            "&7Una caída con estilo"
+            "&b%s &fcorrió hacia la eternidad, pero se quedó sin batería.",
+            "Corredor Eterno", 10000, "COMÚN", "&7",
+            "&7La energía es limitada"
+        ));
+        items.add(new DeathMessageItem(
+            "&b%s &fintentó un salto estelar y acabó en un cráter.",
+            "Saltador Estelar", 10000, "COMÚN", "&7",
+            "&7Las estrellas estaban muy lejos"
+        ));
+        items.add(new DeathMessageItem(
+            "&b%s &fsoñó con volar libre, pero olvidó el paracaídas.",
+            "Soñador Imprudente", 10000, "COMÚN", "&7",
+            "&7La gravedad no perdona"
+        ));
+        items.add(new DeathMessageItem(
+            "&b%s &fintentó un salto al infinito y aterrizó en el spawn.",
+            "Saltador Infinito", 10000, "COMÚN", "&7",
+            "&7El spawn siempre espera"
         ));
 
-        // Épico
+        // Mensajes Épicos (8)
+        items.add(new DeathMessageItem(
+            "&b%s &5danzó con las sombras y tropezó en la oscuridad.",
+            "Bailarín de Sombras", 25000, "ÉPICO", "&5",
+            "&5Las sombras son traicioneras"
+        ));
+        items.add(new DeathMessageItem(
+            "&b%s &5desafió al destino y el destino le dio una lección.",
+            "Desafiante del Destino", 25000, "ÉPICO", "&5",
+            "&5El destino siempre gana"
+        ));
         items.add(new DeathMessageItem(
             "&b%s &5soñó con ser un titán, pero el suelo fue su juez.",
-            "Sueños rotos", 25000, "ÉPICO", "&5",
-            "&5Un final dramático"
+            "Aspirante a Titán", 25000, "ÉPICO", "&5",
+            "&5El suelo es implacable"
+        ));
+        items.add(new DeathMessageItem(
+            "&b%s &5quiso escribir su saga, pero el capítulo terminó pronto.",
+            "Escritor Frustrado", 25000, "ÉPICO", "&5",
+            "&5Una historia inconclusa"
+        ));
+        items.add(new DeathMessageItem(
+            "&b%s &5quiso ser un cometa, pero se estrelló como meteorito.",
+            "Cometa Fallido", 25000, "ÉPICO", "&5",
+            "&5Brilló hasta el final"
+        ));
+        items.add(new DeathMessageItem(
+            "&b%s &5soñó con tocar las nubes, pero el suelo lo despertó.",
+            "Soñador de Nubes", 25000, "ÉPICO", "&5",
+            "&5Un despertar brusco"
+        ));
+        items.add(new DeathMessageItem(
+            "&b%s &5corrió con el alma en llamas, pero el fuego se apagó.",
+            "Alma en Llamas", 25000, "ÉPICO", "&5",
+            "&5Las llamas son efímeras"
+        ));
+        items.add(new DeathMessageItem(
+            "&b%s &5quiso ser un héroe, pero la arena escribió otra historia.",
+            "Héroe Frustrado", 25000, "ÉPICO", "&5",
+            "&5La arena es cruel"
         ));
 
+        // Mensajes Legendarios (7)
         items.add(new DeathMessageItem(
-            "&b%s &5brilló como un relámpago antes de apagarse en la tormenta.",
-            "Brillo efímero", 25000, "ÉPICO", "&5",
-            "&5Una muerte poética"
+            "&b%s &6quiso conquistar el cielo, pero el abismo lo reclamó.",
+            "Conquistador Caído", 50000, "LEGENDARIO", "&6",
+            "&6El abismo siempre reclama"
         ));
-
-        // Legendario
         items.add(new DeathMessageItem(
-            "&b%s &6desafió al destino y el destino le dio una lección.",
-            "Desafiante del destino", 50000, "LEGENDARIO", "&6",
-            "&6Una muerte legendaria"
+            "&b%s &6saltó al infinito, pero el infinito no respondió.",
+            "Saltador del Vacío", 50000, "LEGENDARIO", "&6",
+            "&6El infinito es silencioso"
         ));
-
         items.add(new DeathMessageItem(
-            "&b%s &6quiso escribir su saga, pero el capítulo terminó pronto.",
-            "Saga interrumpida", 50000, "LEGENDARIO", "&6",
-            "&6Un final épico"
+            "&b%s &6desafió al vacío y el vacío le dio un abrazo mortal.",
+            "Desafiante del Vacío", 50000, "LEGENDARIO", "&6",
+            "&6El vacío siempre abraza"
+        ));
+        items.add(new DeathMessageItem(
+            "&b%s &6brilló como un relámpago antes de apagarse en la tormenta.",
+            "Relámpago Fugaz", 50000, "LEGENDARIO", "&6",
+            "&6La tormenta consume todo"
+        ));
+        items.add(new DeathMessageItem(
+            "&b%s &6danzó en el filo del peligro y el filo cortó primero.",
+            "Bailarín del Filo", 50000, "LEGENDARIO", "&6",
+            "&6El filo no perdona"
+        ));
+        items.add(new DeathMessageItem(
+            "&b%s &6desafió al abismo y el abismo le susurró 'hasta pronto'.",
+            "Susurro del Abismo", 50000, "LEGENDARIO", "&6",
+            "&6El abismo siempre vuelve"
+        ));
+        items.add(new DeathMessageItem(
+            "&b%s &6quiso ser un poema épico, pero rimó con derrota.",
+            "Poeta Derrotado", 50000, "LEGENDARIO", "&6",
+            "&6La derrota también rima"
         ));
 
         return items;
@@ -113,15 +180,13 @@ public class DeathMessageShopMenu extends Menu {
         List<String> lore = new ArrayList<>();
         lore.add(item.getRarityColor() + "✦ Rareza: " + item.getRarity());
         lore.add("");
-        lore.add(MessageUtils.getColor("&7Mensaje: " + item.getMessage().replace("%s", "Jugador")));
+        lore.add(MessageUtils.getColor("&7Mensaje: " + item.getMessage().replace("%s", player.getName())));
         lore.add("");
         
-        if (item.getName().equals("Mensaje por defecto")) {
-            lore.add("&aMensaje por defecto");
-            lore.add("&8➥ Siempre disponible");
-        } else if (hasMessage) {
+        if (hasMessage) {
             if (isSelected) {
                 lore.add("&aSeleccionado actualmente");
+                lore.add("&eClick para deseleccionar");
             } else {
                 lore.add("&eClick para seleccionar");
             }
@@ -147,6 +212,35 @@ public class DeathMessageShopMenu extends Menu {
         inv.setItem(slot, button);
     }
 
+    private void handleMessageClick(Player player, DeathMessageItem messageItem) {
+        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        String currentMessage = plugin.getCosmeticManager().getPlayerDeathMessage(player.getUniqueId());
+
+        // Si ya tiene el mensaje
+        if (plugin.getCosmeticManager().hasPlayerDeathMessage(player.getUniqueId(), messageItem.getName())) {
+            // Si está seleccionado, deseleccionar
+            if (currentMessage.equals(messageItem.getName())) {
+                plugin.getCosmeticManager().setPlayerDeathMessage(player.getUniqueId(), "default");
+                player.sendMessage(MessageUtils.getColor("&aHas deseleccionado el mensaje. Usando mensajes por defecto."));
+            } else {
+                plugin.getCosmeticManager().setPlayerDeathMessage(player.getUniqueId(), messageItem.getName());
+                player.sendMessage(MessageUtils.getColor("&aHas seleccionado el mensaje: " + messageItem.getName()));
+            }
+            player.closeInventory();
+        } else {
+            if (stats.getKGCoins() >= messageItem.getPrice()) {
+                stats.removeKGCoins(messageItem.getPrice());
+                plugin.getCosmeticManager().addPlayerDeathMessage(player.getUniqueId(), messageItem.getName());
+                plugin.getCosmeticManager().setPlayerDeathMessage(player.getUniqueId(), messageItem.getName());
+                player.sendMessage(MessageUtils.getColor("&a¡Has comprado y seleccionado el mensaje " + 
+                    messageItem.getName() + " &apor &e" + messageItem.getPrice() + " KGCoins&a!"));
+                player.closeInventory();
+            } else {
+                player.sendMessage(MessageUtils.getColor("&cNo tienes suficientes KGCoins para comprar este mensaje."));
+            }
+        }
+    }
+
     @Override
     public void handleClick(InventoryClickEvent event) {
         event.setCancelled(true);
@@ -165,24 +259,7 @@ public class DeathMessageShopMenu extends Menu {
         DeathMessageItem messageItem = findMessageItem(MessageUtils.stripColor(itemName));
         if (messageItem == null) return;
 
-        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
-
-        if (plugin.getCosmeticManager().hasPlayerDeathMessage(player.getUniqueId(), messageItem.getName())) {
-            plugin.getCosmeticManager().setPlayerDeathMessage(player.getUniqueId(), messageItem.getName());
-            player.sendMessage(MessageUtils.getColor("&aHas seleccionado el mensaje: " + messageItem.getName()));
-            player.closeInventory();
-        } else {
-            if (stats.getKGCoins() >= messageItem.getPrice()) {
-                stats.removeKGCoins(messageItem.getPrice());
-                plugin.getCosmeticManager().addPlayerDeathMessage(player.getUniqueId(), messageItem.getName());
-                plugin.getCosmeticManager().setPlayerDeathMessage(player.getUniqueId(), messageItem.getName());
-                player.sendMessage(MessageUtils.getColor("&a¡Has comprado y seleccionado el mensaje " + 
-                    messageItem.getName() + " &apor &e" + messageItem.getPrice() + " KGCoins&a!"));
-                player.closeInventory();
-            } else {
-                player.sendMessage(MessageUtils.getColor("&cNo tienes suficientes KGCoins para comprar este mensaje."));
-            }
-        }
+        handleMessageClick(player, messageItem);
     }
 
     private DeathMessageItem findMessageItem(String name) {
