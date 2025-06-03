@@ -41,16 +41,15 @@ import mk.kvlzx.stats.PlayerStats;
 
 public class PlayerListener implements Listener {
     private final MysthicKnockBack plugin;
-
     private final Random random = new Random();
 
     private static final List<String> DEATH_MESSAGES = Arrays.asList(
         "&b%s &fslipped on a banana peel. &aHow clumsy!",
         "&b%s &finvented trying to fly, but forgot their wings.",
-        "&b%s &ffell into the void shouting &a'I’ll be back!'",
+        "&b%s &ffell into the void shouting &a'I'll be back!'",
         "&b%s &fwas tricked by a mirage and crashed.",
         "&b%s &fwanted to dance on the edge and... &aouch! &fTo the ground.",
-        "&b%s &fthought they were immortal. &aSpoiler: &ethey weren’t.",
+        "&b%s &fthought they were immortal. &aSpoiler: &ethey weren't.",
         "&b%s &ftripped over their own ego.",
         "&b%s &fwas defeated by gravity, their worst enemy.",
         "&b%s &finvented an epic trick and ended up on the ground.",
@@ -60,21 +59,21 @@ public class PlayerListener implements Listener {
         "&b%s &fwanted to be a hero, but physics said &a'nope'.",
         "&b%s &fjumped into the void with &atoo much &fconfidence.",
         "&b%s &fwas betrayed by their own coordination.",
-        "&b%s &fthought the ground was lava... and wasn’t entirely wrong.",
+        "&b%s &fthought the ground was lava... and wasn't entirely wrong.",
         "&b%s &finvented a somersault and stayed in mortal.",
         "&b%s &ffell for the lies of the invisible platform.",
         "&b%s &fwanted to impress and only impressed the ground.",
-        "&b%s &fshouted &a'I’m invincible!' &fjust before falling."
+        "&b%s &fshouted &a'I'm invincible!' &fjust before falling."
     );
 
     private static final List<String> KILL_MESSAGES = Arrays.asList(
-        "&b{Killer} &fhas sent &b{victim} &fon a one-way trip to the void!",
+        "&b{killer} &fhas sent &b{victim} &fon a one-way trip to the void!",
         "&b{victim} &ftried to fly, but &b{killer} &fcut their wings.",
         "&b{killer} &fgave &b{victim} &fan epic push to the beyond!",
         "&b{victim} &fthought they could, but &b{killer} &fsaid '&aNOPE, to the ground!'",
-        "&b{killer} &fturned &b{victim} &finto a shooting star... that didn’t go far!",
+        "&b{killer} &fturned &b{victim} &finto a shooting star... that didn't go far!",
         "&b{victim} &fwanted to dance with &b{killer}&f, but ended up dancing with death.",
-        "&b{killer} &ftaught &b{victim} &fthat gravity doesn’t forgive!",
+        "&b{killer} &ftaught &b{victim} &fthat gravity doesn't forgive!",
         "&b{victim} &fdreamed of victory, but &b{killer} &fwoke them with a blow.",
         "&b{killer} &fsent &b{victim} &fto explore the bottom of the map!",
         "&b{killer} &fgave &b{victim} &fan express ticket to the lobby of the fallen!"
@@ -91,10 +90,35 @@ public class PlayerListener implements Listener {
         event.setDeathMessage(null);
 
         Player victim = event.getEntity();
-        Player killer = plugin.getCombatListener().getLastAttacker(victim);
+        
+        // Obtener información del último atacante
+        CombatListener.AttackerInfo attackerInfo = plugin.getCombatListener().getLastAttackerInfo(victim);
+        
+        // Debug - agregar temporalmente para verificar
+        plugin.getLogger().info("Victima: " + victim.getName());
+        plugin.getLogger().info("Informacion del atacante: " + (attackerInfo != null ? attackerInfo.toString() : "null"));
 
-        // Si el killer es el mismo jugador o null, es una muerte natural
-        if (killer == null || killer.equals(victim)) {
+        // Si hay un atacante válido y no es el mismo jugador, es un kill
+        if (attackerInfo != null && !attackerInfo.getAttackerUUID().equals(victim.getUniqueId())) {
+            // Mensaje de kill
+            String messageName = plugin.getCosmeticManager().getPlayerKillMessage(attackerInfo.getAttackerUUID());
+
+            String killMessage;
+            if (messageName.equals("default")) {
+                killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
+            } else {
+                KillMessageItem messageItem = KillMessageItem.getByName(messageName);
+                killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
+            }
+
+            String formattedMessage = killMessage
+                .replace("{killer}", attackerInfo.getAttackerName())
+                .replace("{victim}", victim.getName());
+            
+            Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
+            plugin.getLogger().info("Mensage de kill mandado: " + formattedMessage);
+        } else {
+            // Muerte natural
             String messageName = plugin.getCosmeticManager().getPlayerDeathMessage(victim.getUniqueId());
             
             String deathMessage;
@@ -107,22 +131,7 @@ public class PlayerListener implements Listener {
             
             String formattedMessage = String.format(deathMessage, victim.getName());
             Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
-        } else {
-            // Solo mostrar mensaje de kill si fue asesinado por otro jugador
-            String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
-
-            String killMessage;
-            if (messageName.equals("default")) {
-                killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
-            } else {
-                KillMessageItem messageItem = KillMessageItem.getByName(messageName);
-                killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
-            }
-
-            String formattedMessage = killMessage
-                .replace("{killer}", killer.getName())
-                .replace("{victim}", victim.getName());
-            Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
+            plugin.getLogger().info("Mensaje de muerte mandado: " + formattedMessage);
         }
     }
 
