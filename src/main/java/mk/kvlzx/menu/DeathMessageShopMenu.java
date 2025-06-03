@@ -173,8 +173,7 @@ public class DeathMessageShopMenu extends Menu {
     }
 
     private void setupMessageButton(Inventory inv, int slot, DeathMessageItem item, Player player, String currentMessage) {
-        boolean hasMessage = item.getName().equals("Mensaje por defecto") || 
-                            plugin.getCosmeticManager().hasPlayerDeathMessage(player.getUniqueId(), item.getName());
+        boolean hasMessage = plugin.getCosmeticManager().hasPlayerDeathMessage(player.getUniqueId(), item.getName());
         boolean isSelected = currentMessage.equals(item.getName());
         
         List<String> lore = new ArrayList<>();

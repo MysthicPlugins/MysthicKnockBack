@@ -70,7 +70,7 @@ public class PlayerListener implements Listener {
     private static final List<String> KILL_MESSAGES = Arrays.asList(
         "&b{Killer} &fhas sent &b{victim} &fon a one-way trip to the void!",
         "&b{victim} &ftried to fly, but &b{killer} &fcut their wings.",
-        "&b{killer} &fgave &b{Victim} &fan epic push to the beyond!",
+        "&b{killer} &fgave &b{victim} &fan epic push to the beyond!",
         "&b{victim} &fthought they could, but &b{killer} &fsaid '&aNOPE, to the ground!'",
         "&b{killer} &fturned &b{victim} &finto a shooting star... that didn’t go far!",
         "&b{victim} &fwanted to dance with &b{killer}&f, but ended up dancing with death.",
@@ -93,34 +93,47 @@ public class PlayerListener implements Listener {
         Player victim = event.getEntity();
         Player killer = plugin.getCombatListener().getLastAttacker(victim);
 
+        // Debug: mostrar información básica
+        Bukkit.getConsoleSender().sendMessage("[Debug] Muerte detectada:");
+        Bukkit.getConsoleSender().sendMessage("[Debug] Víctima: " + victim.getName());
+        Bukkit.getConsoleSender().sendMessage("[Debug] Killer: " + (killer != null ? killer.getName() : "null"));
+
         // Mostrar mensaje según si murió solo o fue asesinado
         if (killer == null) {
             String messageName = plugin.getCosmeticManager().getPlayerDeathMessage(victim.getUniqueId());
-            String deathMessage;
+            Bukkit.getConsoleSender().sendMessage("[Debug] Mensaje de muerte seleccionado: " + messageName);
             
+            String deathMessage;
             if (messageName.equals("default")) {
                 deathMessage = DEATH_MESSAGES.get(random.nextInt(DEATH_MESSAGES.size()));
+                Bukkit.getConsoleSender().sendMessage("[Debug] Usando mensaje random de muerte");
             } else {
                 DeathMessageItem messageItem = DeathMessageItem.getByName(messageName);
                 deathMessage = messageItem != null ? messageItem.getMessage() : DEATH_MESSAGES.get(0);
+                Bukkit.getConsoleSender().sendMessage("[Debug] Usando mensaje personalizado: " + (messageItem != null ? "encontrado" : "no encontrado"));
             }
             
             String formattedMessage = String.format(deathMessage, victim.getName());
+            Bukkit.getConsoleSender().sendMessage("[Debug] Mensaje final de muerte: " + formattedMessage);
             Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
         } else {
             String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
-            String killMessage;
+            Bukkit.getConsoleSender().sendMessage("[Debug] Mensaje de kill seleccionado: " + messageName);
 
+            String killMessage;
             if (messageName.equals("default")) {
                 killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
+                Bukkit.getConsoleSender().sendMessage("[Debug] Usando mensaje random de kill");
             } else {
                 KillMessageItem messageItem = KillMessageItem.getByName(messageName);
                 killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
+                Bukkit.getConsoleSender().sendMessage("[Debug] Usando mensaje personalizado: " + (messageItem != null ? "encontrado" : "no encontrado"));
             }
 
             String formattedMessage = killMessage
                 .replace("{killer}", killer.getName())
                 .replace("{victim}", victim.getName());
+            Bukkit.getConsoleSender().sendMessage("[Debug] Mensaje final de kill: " + formattedMessage);
             Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
         }
     }

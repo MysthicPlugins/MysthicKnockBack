@@ -205,6 +205,7 @@ public class MainScoreboardManager {
                 public void run() {
                     player.teleport(nextSpawn);
                     plugin.getArenaManager().addPlayerToArena(player, nextArena);
+                    plugin.getArenaManager().setPlayerZone(player, nextArena, "spawn");
                     player.setNoDamageTicks(60); // Asegurar invulnerabilidad por 3 segundos después del teleport
                     
                     // Restaurar movimiento después de 1.5 segundos

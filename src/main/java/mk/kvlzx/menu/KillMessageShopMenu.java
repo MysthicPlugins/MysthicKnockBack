@@ -56,25 +56,25 @@ public class KillMessageShopMenu extends Menu {
             "&7¡Las clases de vuelo son peligrosas!"
         ));
 
-        // Mensajes Raros (35000 coins)
+        // Mensajes Épicos (35000 coins)
         items.add(new KillMessageItem(
             "&b{killer} &9transformed &b{victim} &9into a shooting star!",
-            "Shooting Star", 35000, "RARO", "&9",
+            "Shooting Star", 35000, "ÉPICO", "&9",
             "&9¡Brilla mientras cae!"
         ));
         items.add(new KillMessageItem(
             "&b{killer} &9helped &b{victim} &9reach the clouds... permanently.",
-            "Cloud Reach", 35000, "RARO", "&9",
+            "Cloud Reach", 35000, "ÉPICO", "&9",
             "&9¡Un viaje celestial!"
         ));
         items.add(new KillMessageItem(
             "&b{killer} &9showed &b{victim} &9the meaning of true knockback!",
-            "True Knockback", 35000, "RARO", "&9",
+            "True Knockback", 35000, "ÉPICO", "&9",
             "&9¡La verdadera esencia del KB!"
         ));
         items.add(new KillMessageItem(
             "&b{killer} &9sent &b{victim} &9on a journey to the stars!",
-            "Star Journey", 35000, "RARO", "&9",
+            "Star Journey", 35000, "ÉPICO", "&9",
             "&9¡Un viaje interplanetario!"
         ));
 

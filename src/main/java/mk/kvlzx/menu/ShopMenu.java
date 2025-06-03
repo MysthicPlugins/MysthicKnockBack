@@ -17,7 +17,7 @@ import mk.kvlzx.utils.MessageUtils;
 public class ShopMenu extends Menu {
 
     public ShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &a&lTienda Principal &8•", 36);
+        super(plugin, "&8• &a&lTienda Principal &8•", 45);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class ShopMenu extends Menu {
         inv.setItem(4, createItem(Material.EMERALD, "&a&lTu Balance",
             "&7Balance actual: &a" + stats.getKGCoins() + " KGCoins"));
 
-        // Categorías de cosméticos
+        // Categorías de cosméticos reorganizadas
         inv.setItem(11, createItem(Material.SANDSTONE, "&e&lBloques Personalizados",
             "&7Click para ver los bloques disponibles",
             "",
@@ -41,25 +41,30 @@ public class ShopMenu extends Menu {
             "&8➥ Palos de empuje exclusivos",
             "&aDisponible!"));
 
-        inv.setItem(15, createItem(Material.BOOK_AND_QUILL, "&e&lMensajes de Muerte", 
+        inv.setItem(15, createItem(Material.PAPER, "&e&lMensajes de Kill", 
+            "&7Click para ver mensajes de kill",
+            "",
+            "&8➥ Mensajes al eliminar jugadores",
+            "&aDisponible!"));
+
+        inv.setItem(29, createItem(Material.BOOK_AND_QUILL, "&e&lMensajes de Muerte", 
             "&7Click para ver mensajes de muerte",
             "",
             "&8➥ Mensajes personalizados al morir",
             "&aDisponible!"));
 
-        inv.setItem(29, createItem(Material.DIAMOND_SWORD, "&b&lEfectos de Kill",
+        inv.setItem(31, createItem(Material.DIAMOND_SWORD, "&b&lEfectos de Kill",
             "&7Click para ver efectos de kill",
             "",
             "&8➥ Efectos al eliminar jugadores",
             "&cPróximamente"));
 
         // Botón para volver
-        inv.setItem(31, createItem(Material.ARROW, "&c← Volver", 
+        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
             "&7Click para volver al menú principal"));
 
         // Relleno
-        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7);
-        fillEmptySlots(inv, filler);
+        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
     }
 
     @Override
@@ -74,13 +79,16 @@ public class ShopMenu extends Menu {
             case 13: // Knockers
                 plugin.getMenuManager().openMenu(player, "knocker_categories");
                 break;
-            case 15: // Mensajes de muerte
+            case 15: // Mensajes de Kill
+                plugin.getMenuManager().openMenu(player, "kill_message_categories");
+                break;
+            case 29: // Mensajes de muerte
                 plugin.getMenuManager().openMenu(player, "death_message_categories");
                 break;
-            case 29: // Efectos de kill
+            case 31: // Efectos de kill
                 player.sendMessage(MessageUtils.getColor("&cPróximamente disponible."));
                 break;
-            case 31: // Volver
+            case 40: // Volver
                 plugin.getMenuManager().openMenu(player, "main");
                 break;
         }
