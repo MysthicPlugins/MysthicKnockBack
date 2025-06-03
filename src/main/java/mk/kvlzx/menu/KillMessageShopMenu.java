@@ -139,7 +139,8 @@ public class KillMessageShopMenu extends Menu {
 
         List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         String victimName;
-        if (players.isEmpty()) {
+        if (players.isEmpty() || players.size() == 1 && players.get(0).getUniqueId().equals(player.getUniqueId())) {
+            // Si no hay otros jugadores, usar un nombre default
             victimName = "Enemigo";
         } else {
             Player randomPlayer = players.get((int) (Math.random() * players.size()));
@@ -167,13 +168,14 @@ public class KillMessageShopMenu extends Menu {
             lore.add("&8➥ Precio: &e" + item.getPrice() + " KGCoins");
         }
 
-        ItemStack button = createItem(Material.PAPER, 
+        Material material = isSelected ? Material.ENCHANTED_BOOK : Material.PAPER;
+        ItemStack button = createItem(material, 
             (isSelected ? "&b" : item.getRarityColor()) + item.getName(), 
             lore.toArray(new String[0]));
 
         if (isSelected) {
-            button.addEnchantment(Enchantment.DURABILITY, 1);
             ItemMeta meta = button.getItemMeta();
+            meta.addEnchant(Enchantment.DURABILITY, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             button.setItemMeta(meta);
         }

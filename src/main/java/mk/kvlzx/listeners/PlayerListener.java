@@ -93,47 +93,35 @@ public class PlayerListener implements Listener {
         Player victim = event.getEntity();
         Player killer = plugin.getCombatListener().getLastAttacker(victim);
 
-        // Debug: mostrar información básica
-        Bukkit.getConsoleSender().sendMessage("[Debug] Muerte detectada:");
-        Bukkit.getConsoleSender().sendMessage("[Debug] Víctima: " + victim.getName());
-        Bukkit.getConsoleSender().sendMessage("[Debug] Killer: " + (killer != null ? killer.getName() : "null"));
-
-        // Mostrar mensaje según si murió solo o fue asesinado
-        if (killer == null) {
+        // Si el killer es el mismo jugador o null, es una muerte natural
+        if (killer == null || killer.equals(victim)) {
             String messageName = plugin.getCosmeticManager().getPlayerDeathMessage(victim.getUniqueId());
-            Bukkit.getConsoleSender().sendMessage("[Debug] Mensaje de muerte seleccionado: " + messageName);
             
             String deathMessage;
             if (messageName.equals("default")) {
                 deathMessage = DEATH_MESSAGES.get(random.nextInt(DEATH_MESSAGES.size()));
-                Bukkit.getConsoleSender().sendMessage("[Debug] Usando mensaje random de muerte");
             } else {
                 DeathMessageItem messageItem = DeathMessageItem.getByName(messageName);
                 deathMessage = messageItem != null ? messageItem.getMessage() : DEATH_MESSAGES.get(0);
-                Bukkit.getConsoleSender().sendMessage("[Debug] Usando mensaje personalizado: " + (messageItem != null ? "encontrado" : "no encontrado"));
             }
             
             String formattedMessage = String.format(deathMessage, victim.getName());
-            Bukkit.getConsoleSender().sendMessage("[Debug] Mensaje final de muerte: " + formattedMessage);
             Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
         } else {
+            // Solo mostrar mensaje de kill si fue asesinado por otro jugador
             String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
-            Bukkit.getConsoleSender().sendMessage("[Debug] Mensaje de kill seleccionado: " + messageName);
 
             String killMessage;
             if (messageName.equals("default")) {
                 killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
-                Bukkit.getConsoleSender().sendMessage("[Debug] Usando mensaje random de kill");
             } else {
                 KillMessageItem messageItem = KillMessageItem.getByName(messageName);
                 killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
-                Bukkit.getConsoleSender().sendMessage("[Debug] Usando mensaje personalizado: " + (messageItem != null ? "encontrado" : "no encontrado"));
             }
 
             String formattedMessage = killMessage
                 .replace("{killer}", killer.getName())
                 .replace("{victim}", victim.getName());
-            Bukkit.getConsoleSender().sendMessage("[Debug] Mensaje final de kill: " + formattedMessage);
             Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
         }
     }
@@ -342,13 +330,13 @@ public class PlayerListener implements Listener {
                     player.teleport(spawnLoc);
                     player.setVelocity(new Vector(0, 0, 0));
                     player.setFallDistance(0);
-                    
-                    // Actualizar la zona del jugador
-                    plugin.getArenaManager().setPlayerZone(player, arena.getName(), "spawn");
                     ItemsManager.giveSpawnItems(player);
                     RankManager.updatePlayerRank(player, playerStats.getElo());
                     
                     player.setNoDamageTicks(40);
+                    
+                    // Actualizar la zona del jugador
+                    plugin.getArenaManager().setPlayerZone(player, arena.getName(), "spawn");
                     
                     // Mostrar el borde de la arena al respawn
                     plugin.getArenaManager().showArenaBorder(arena);

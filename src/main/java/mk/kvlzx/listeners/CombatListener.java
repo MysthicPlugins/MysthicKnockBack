@@ -51,7 +51,15 @@ public class CombatListener implements Listener {
         } else if (event.getDamager() instanceof Arrow) {
             Arrow arrow = (Arrow) event.getDamager();
             if (arrow.getShooter() instanceof Player) {
-                attacker = (Player) arrow.getShooter();
+                Player shooter = (Player) arrow.getShooter();
+                // Solo registrar el atacante si no es el mismo jugador
+                if (!shooter.equals(victim)) {
+                    attacker = shooter;
+                }
+                // Aplicar knockback incluso si es self-damage
+                plugin.getCombatManager().applyCustomKnockback(victim, shooter);
+                event.setDamage(0.0D);
+                return;
             }
         } else if (event.getDamager() instanceof EnderPearl) {
             return; // Permitir el kb vanilla de las perlas
