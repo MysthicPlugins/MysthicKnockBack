@@ -83,6 +83,48 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        event.getDrops().clear();
+        event.setDroppedExp(0);
+        event.setDeathMessage(null);
+
+        Player victim = event.getEntity();
+        Player killer = plugin.getCombatListener().getLastAttacker(victim);
+
+        // Si el killer es el mismo jugador o null, es una muerte natural
+        if (killer == null || killer.equals(victim)) {
+            String messageName = plugin.getCosmeticManager().getPlayerDeathMessage(victim.getUniqueId());
+            
+            String deathMessage;
+            if (messageName.equals("default")) {
+                deathMessage = DEATH_MESSAGES.get(random.nextInt(DEATH_MESSAGES.size()));
+            } else {
+                DeathMessageItem messageItem = DeathMessageItem.getByName(messageName);
+                deathMessage = messageItem != null ? messageItem.getMessage() : DEATH_MESSAGES.get(0);
+            }
+            
+            String formattedMessage = String.format(deathMessage, victim.getName());
+            Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
+        } else {
+            // Solo mostrar mensaje de kill si fue asesinado por otro jugador
+            String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
+
+            String killMessage;
+            if (messageName.equals("default")) {
+                killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
+            } else {
+                KillMessageItem messageItem = KillMessageItem.getByName(messageName);
+                killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
+            }
+
+            String formattedMessage = killMessage
+                .replace("{killer}", killer.getName())
+                .replace("{victim}", victim.getName());
+            Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
+        }
+    }
+
+    @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         ItemsManager.giveSpawnItems(player);
