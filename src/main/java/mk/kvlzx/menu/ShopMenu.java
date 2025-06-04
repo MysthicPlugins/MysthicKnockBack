@@ -53,7 +53,14 @@ public class ShopMenu extends Menu {
             "&8➥ Mensajes personalizados al morir",
             "&aDisponible!"));
 
-        inv.setItem(31, createItem(Material.DIAMOND_SWORD, "&b&lEfectos de Kill",
+        // Añadir nuevo botón para efectos de flecha
+        inv.setItem(31, createItem(Material.ARROW, "&e&lEfectos de Flecha", 
+            "&7Click para ver efectos de flecha",
+            "",
+            "&8➥ Efectos especiales para tus flechas",
+            "&aDisponible!"));
+
+        inv.setItem(33, createItem(Material.DIAMOND_SWORD, "&b&lEfectos de Kill",
             "&7Click para ver efectos de kill",
             "",
             "&8➥ Efectos al eliminar jugadores",
@@ -85,7 +92,10 @@ public class ShopMenu extends Menu {
             case 29: // Mensajes de muerte
                 plugin.getMenuManager().openMenu(player, "death_message_categories");
                 break;
-            case 31: // Efectos de kill
+            case 31: // Efectos de flecha
+                plugin.getMenuManager().openMenu(player, "arrow_effect_categories");
+                break;
+            case 33: // Efectos de kill
                 player.sendMessage(MessageUtils.getColor("&cPróximamente disponible."));
                 break;
             case 40: // Volver

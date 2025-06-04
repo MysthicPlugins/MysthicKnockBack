@@ -15,6 +15,7 @@ import mk.kvlzx.commands.StatsTabCompleter;
 import mk.kvlzx.cosmetics.CosmeticManager;
 import mk.kvlzx.data.InventoryData;
 import mk.kvlzx.hotbar.PlayerHotbar;
+import mk.kvlzx.listeners.ArrowEffectListener;
 import mk.kvlzx.listeners.ChatListener;
 import mk.kvlzx.listeners.CombatListener;
 import mk.kvlzx.listeners.ItemListener;
@@ -169,6 +170,7 @@ public class MysthicKnockBack extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ItemListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
+        getServer().getPluginManager().registerEvents(new ArrowEffectListener(this), this);
     }
 
     public static MysthicKnockBack getInstance() {

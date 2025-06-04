@@ -78,6 +78,10 @@ public class PlayerListener implements Listener {
         "&b{killer} &fgave &b{victim} &fan express ticket to the lobby of the fallen!"
     );
 
+    private static final Material[] ALLOWED_SPAWN_ITEMS = {
+        Material.SKULL_ITEM
+    };
+
     public PlayerListener(MysthicKnockBack plugin) {
         this.plugin = plugin;
     }
@@ -239,7 +243,8 @@ public class PlayerListener implements Listener {
                         case "spawn":
                             player.sendMessage(MessageUtils.getColor("&aYou have entered the Spawn zone of the arena! " + foundArena));
                             ItemsManager.giveSpawnItems(player);
-                            player.spigot().setCollidesWithEntities(false); // Desactivar colisiones en spawn
+                            player.spigot().setCollidesWithEntities(false);
+                            checkAndRemoveIllegalItems(player); // Añadir esta línea
                             break;
                         case "pvp":
                             player.sendMessage(MessageUtils.getColor("&cYou have entered the PvP zone of the arena! " + foundArena));
@@ -344,5 +349,37 @@ public class PlayerListener implements Listener {
         if (plugin.getScoreboardManager().isArenaChanging()) {
             player.setWalkSpeed(0.0f);
         }
+    }
+
+    // Añadir este nuevo método
+    private void checkAndRemoveIllegalItems(Player player) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                String currentZone = plugin.getArenaManager().getPlayerZone(player);
+                // Cancelar el task si el jugador ya no está en spawn o está offline
+                if (!player.isOnline() || currentZone == null || !currentZone.equals("spawn")) {
+                    this.cancel();
+                    return;
+                }
+
+                // Verificar cada slot del inventario
+                for (int i = 0; i < player.getInventory().getSize(); i++) {
+                    ItemStack item = player.getInventory().getItem(i);
+                    if (item != null && !isAllowedInSpawn(item.getType())) {
+                        player.getInventory().setItem(i, null);
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 5L); // Verificar cada 5 ticks (0.25 segundos)
+    }
+
+    private boolean isAllowedInSpawn(Material material) {
+        for (Material allowed : ALLOWED_SPAWN_ITEMS) {
+            if (material == allowed) {
+                return true;
+            }
+        }
+        return false;
     }
 }

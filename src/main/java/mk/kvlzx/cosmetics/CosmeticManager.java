@@ -31,6 +31,8 @@ public class CosmeticManager {
     private final Map<UUID, Set<String>> playerOwnedMessages = new HashMap<>();
     private final Map<UUID, String> playerKillMessages = new HashMap<>();
     private final Map<UUID, Set<String>> playerOwnedKillMessages = new HashMap<>();
+    private final Map<UUID, String> playerArrowEffects = new HashMap<>();
+    private final Map<UUID, Set<String>> playerOwnedArrowEffects = new HashMap<>();
 
     public CosmeticManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -244,6 +246,47 @@ public class CosmeticManager {
         }
     }
 
+    public String getPlayerArrowEffect(UUID uuid) {
+        return playerArrowEffects.getOrDefault(uuid, "none");
+    }
+
+    public void setPlayerArrowEffect(UUID uuid, String effectName) {
+        if (effectName.equals("none")) {
+            playerArrowEffects.remove(uuid);
+        } else {
+            playerArrowEffects.put(uuid, effectName);
+        }
+        savePlayerArrowEffect(uuid);
+    }
+
+    public boolean hasPlayerArrowEffect(UUID uuid, String effectName) {
+        if (effectName.equals("none")) return true;
+        Set<String> owned = playerOwnedArrowEffects.getOrDefault(uuid, new HashSet<>());
+        return owned.contains(effectName);
+    }
+
+    public void addPlayerArrowEffect(UUID uuid, String effectName) {
+        playerOwnedArrowEffects.computeIfAbsent(uuid, k -> new HashSet<>()).add(effectName);
+        savePlayerArrowEffects(uuid);
+    }
+
+    private void savePlayerArrowEffect(UUID uuid) {
+        String effect = playerArrowEffects.get(uuid);
+        if (effect != null) {
+            cosmeticConfig.getConfig().set("arrow_effects." + uuid.toString(), effect);
+            cosmeticConfig.saveConfig();
+        }
+    }
+
+    private void savePlayerArrowEffects(UUID uuid) {
+        Set<String> effects = playerOwnedArrowEffects.get(uuid);
+        if (effects != null) {
+            cosmeticConfig.getConfig().set("owned_arrow_effects." + uuid.toString(), 
+                new ArrayList<>(effects));
+            cosmeticConfig.saveConfig();
+        }
+    }
+
     public void saveAll() {
         for (Map.Entry<UUID, Material> entry : playerBlocks.entrySet()) {
             cosmeticConfig.getConfig().set("blocks." + entry.getKey().toString(), entry.getValue().name());
@@ -276,6 +319,14 @@ public class CosmeticManager {
         playerOwnedKillMessages.forEach((uuid, messages) -> {
             cosmeticConfig.getConfig().set("owned_kill_messages." + uuid.toString(), 
                 new ArrayList<>(messages));
+        });
+        for (Map.Entry<UUID, String> entry : playerArrowEffects.entrySet()) {
+            cosmeticConfig.getConfig().set("arrow_effects." + entry.getKey().toString(), 
+                entry.getValue());
+        }
+        playerOwnedArrowEffects.forEach((uuid, effects) -> {
+            cosmeticConfig.getConfig().set("owned_arrow_effects." + uuid.toString(), 
+                new ArrayList<>(effects));
         });
         cosmeticConfig.saveConfig();
     }
@@ -382,6 +433,32 @@ public class CosmeticManager {
                     playerOwnedKillMessages.put(playerUUID, new HashSet<>(messageNames));
                 } catch (IllegalArgumentException e) {
                     plugin.getLogger().warning("Error loading owned kill messages for " + uuid);
+                }
+            }
+        }
+
+        ConfigurationSection arrowEffectSection = cosmeticConfig.getConfig().getConfigurationSection("arrow_effects");
+        if (arrowEffectSection != null) {
+            for (String uuid : arrowEffectSection.getKeys(false)) {
+                try {
+                    UUID playerUUID = UUID.fromString(uuid);
+                    String effect = arrowEffectSection.getString(uuid);
+                    playerArrowEffects.put(playerUUID, effect);
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Error loading arrow effect for " + uuid);
+                }
+            }
+        }
+        
+        ConfigurationSection ownedArrowEffectsSection = cosmeticConfig.getConfig().getConfigurationSection("owned_arrow_effects");
+        if (ownedArrowEffectsSection != null) {
+            for (String uuid : ownedArrowEffectsSection.getKeys(false)) {
+                try {
+                    UUID playerUUID = UUID.fromString(uuid);
+                    List<String> effectNames = ownedArrowEffectsSection.getStringList(uuid);
+                    playerOwnedArrowEffects.put(playerUUID, new HashSet<>(effectNames));
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Error loading owned arrow effects for " + uuid);
                 }
             }
         }

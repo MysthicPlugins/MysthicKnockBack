@@ -9,6 +9,7 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\MainCommand.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\MainTabCompleter.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\StatsCommand.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\StatsTabCompleter.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\ArrowEffectItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\BlockShopItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\CosmeticManager.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\DeathMessageItem.java
@@ -20,6 +21,7 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\data\StatsData.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\hotbar\PlayerHotbar.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\items\CustomItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\items\ItemsManager.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\ArrowEffectListener.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\ChatListener.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\CombatListener.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\ItemListener.java
@@ -33,6 +35,8 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\managers\RankManager.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\managers\ReportManager.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\managers\StreakManager.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\managers\TabManager.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\ArrowEffectCategoriesMenu.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\ArrowEffectShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\BlockCategoriesMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\BlockShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\DeathMessageCategoriesMenu.java
