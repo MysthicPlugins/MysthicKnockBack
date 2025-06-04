@@ -4,7 +4,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EnderPearl;
@@ -19,33 +18,11 @@ import java.util.UUID;
 public class CombatListener implements Listener {
     private final MysthicKnockBack plugin;
     private final Map<UUID, UUID> lastAttacker = new HashMap<>();
-    private final Map<UUID, Long> lastAttackTime = new HashMap<>();;
+    private final Map<UUID, Long> lastAttackTime = new HashMap<>();
     private static final long COMBAT_TIMEOUT = 10000; // 10 segundos
 
     public CombatListener(MysthicKnockBack plugin) {
         this.plugin = plugin;
-    }
-
-    // Clase interna para almacenar información del atacante
-    public static class AttackerInfo {
-        private final UUID attackerUUID;
-        private final String attackerName;
-        private final long attackTime;
-        
-        public AttackerInfo(UUID attackerUUID, String attackerName, long attackTime) {
-            this.attackerUUID = attackerUUID;
-            this.attackerName = attackerName;
-            this.attackTime = attackTime;
-        }
-        
-        public UUID getAttackerUUID() { return attackerUUID; }
-        public String getAttackerName() { return attackerName; }
-        public long getAttackTime() { return attackTime; }
-        
-        @Override
-        public String toString() {
-            return "AttackerInfo{name=" + attackerName + ", uuid=" + attackerUUID + ", time=" + attackTime + "}";
-        }
     }
 
     @EventHandler
@@ -116,35 +93,35 @@ public class CombatListener implements Listener {
             return;
         }
 
-        // Registrar el último atacante con información completa
-        AttackerInfo attackerInfo = new AttackerInfo(
-            attacker.getUniqueId(), 
-            attacker.getName(), 
-            System.currentTimeMillis()
-        );
-        lastAttacker.put(victim.getUniqueId(), attackerInfo);
-        
-        // Debug log
-        plugin.getLogger().info("Atacante registrado: " + attacker.getName() + " -> " + victim.getName());
+        // Registrar el último atacante
+        lastAttacker.put(victim.getUniqueId(), attacker.getUniqueId());
+        lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
 
         // Aplicar knockback personalizado usando el CombatManager
         plugin.getCombatManager().applyCustomKnockback(victim, attacker);
         event.setDamage(0.0D);
     }
 
-    // Método mejorado que devuelve información completa del atacante
-    public AttackerInfo getLastAttackerInfo(Player victim) {
-        AttackerInfo attackerInfo = lastAttacker.get(victim.getUniqueId());
+    public Player getLastAttacker(Player victim) {
+        UUID lastAttackerUUID = lastAttacker.get(victim.getUniqueId());
+        Long lastAttackTimeStamp = lastAttackTime.get(victim.getUniqueId());
         
-        if (lastAttackerUUID == null || lastAttackTimeStamp == null) return null;
-        
-        // Verifica si el último ataque fue hace menos de 10 segundos
-        if (System.currentTimeMillis() - lastAttackTimeStamp > COMBAT_TIMEOUT) {
-            lastAttacker.remove(victim.getUniqueId());
+        if (lastAttackerUUID == null || lastAttackTimeStamp == null) {
             return null;
         }
         
-        return plugin.getServer().getPlayer(lastAttackerUUID);
+        // Verifica si el último ataque fue hace menos de 10 segundos
+        long timeDiff = System.currentTimeMillis() - lastAttackTimeStamp;
+        
+        if (timeDiff > COMBAT_TIMEOUT) {
+            lastAttacker.remove(victim.getUniqueId());
+            lastAttackTime.remove(victim.getUniqueId());
+            return null;
+        }
+        
+        Player attackerPlayer = plugin.getServer().getPlayer(lastAttackerUUID);
+        
+        return attackerPlayer;
     }
 
     @EventHandler
@@ -154,18 +131,6 @@ public class CombatListener implements Listener {
             ((Player) event.getEntity()).setFoodLevel(20);
             ((Player) event.getEntity()).setSaturation(20.0f);
         }
-    }
-
-    // Limpiar datos cuando un jugador se desconecta
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        UUID playerUUID = event.getPlayer().getUniqueId();
-        lastAttacker.remove(playerUUID);
-        
-        // También limpiar si este jugador era el atacante de alguien más
-        lastAttacker.entrySet().removeIf(entry -> 
-            entry.getValue().getAttackerUUID().equals(playerUUID)
-        );
     }
 
     private boolean isInSpawn(Player player) {
