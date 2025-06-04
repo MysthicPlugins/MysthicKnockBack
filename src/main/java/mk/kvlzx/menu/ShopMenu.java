@@ -17,57 +17,94 @@ import mk.kvlzx.utils.MessageUtils;
 public class ShopMenu extends Menu {
 
     public ShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &a&lTienda Principal &8•", 45);
+        super(plugin, "&8• &a&lTienda Principal &8•", 54); // Cambiar a 54 slots (6 filas)
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Mostrar balance actual
+        // Mostrar balance en el centro superior
         inv.setItem(4, createItem(Material.EMERALD, "&a&lTu Balance",
             "&7Balance actual: &a" + stats.getKGCoins() + " KGCoins"));
 
-        // Categorías de cosméticos reorganizadas
-        inv.setItem(11, createItem(Material.SANDSTONE, "&e&lBloques Personalizados",
+        // Primera fila de items (slots 19-25)
+        inv.setItem(19, createItem(Material.SANDSTONE, "&e&lBloques Personalizados",
             "&7Click para ver los bloques disponibles",
             "",
-            "&8➥ Bloques exclusivos para construcción",
+            "&8▪ &7Bloques decorativos especiales",
+            "&8▪ &7Perfecto para construir",
+            "",
+            "&8➥ Incluye +30 bloques únicos",
             "&aDisponible!"));
 
-        inv.setItem(13, createItem(Material.STICK, "&e&lKnockers Personalizados", 
+        inv.setItem(22, createItem(Material.STICK, "&e&lKnockers Personalizados", 
             "&7Click para ver los knockers disponibles",
             "",
-            "&8➥ Palos de empuje exclusivos",
+            "&8▪ &7Palos de empuje especiales",
+            "&8▪ &7Efectos visuales al golpear",
+            "",
+            "&8➥ Incluye +20 knockers únicos",
             "&aDisponible!"));
 
-        inv.setItem(15, createItem(Material.PAPER, "&e&lMensajes de Kill", 
+        inv.setItem(25, createItem(Material.PAPER, "&e&lMensajes de Kill", 
             "&7Click para ver mensajes de kill",
             "",
-            "&8➥ Mensajes al eliminar jugadores",
+            "&8▪ &7Mensajes al eliminar jugadores",
+            "&8▪ &7Muestra tu estilo",
+            "",
+            "&8➥ Incluye +15 mensajes únicos",
             "&aDisponible!"));
 
-        inv.setItem(29, createItem(Material.BOOK_AND_QUILL, "&e&lMensajes de Muerte", 
+        // Segunda fila de items (slots 28-34)
+        inv.setItem(28, createItem(Material.BOOK_AND_QUILL, "&e&lMensajes de Muerte", 
             "&7Click para ver mensajes de muerte",
             "",
-            "&8➥ Mensajes personalizados al morir",
+            "&8▪ &7Mensajes personalizados al morir",
+            "&8▪ &7Muere con estilo",
+            "",
+            "&8➥ Incluye +20 mensajes únicos",
             "&aDisponible!"));
 
-        // Añadir nuevo botón para efectos de flecha
         inv.setItem(31, createItem(Material.ARROW, "&e&lEfectos de Flecha", 
             "&7Click para ver efectos de flecha",
             "",
-            "&8➥ Efectos especiales para tus flechas",
+            "&8▪ &7Efectos especiales en tus flechas",
+            "&8▪ &7Partículas y animaciones",
+            "",
+            "&8➥ Incluye +10 efectos únicos",
             "&aDisponible!"));
 
-        inv.setItem(33, createItem(Material.DIAMOND_SWORD, "&b&lEfectos de Kill",
-            "&7Click para ver efectos de kill",
+        inv.setItem(34, createItem(Material.NOTE_BLOCK, "&d&lSonidos de muerte", 
+            "&7Click para ver sonidos de muerte",
             "",
-            "&8➥ Efectos al eliminar jugadores",
+            "&8▪ &7Sonidos especiales al morir",
+            "&8▪ &7Efectos de audio únicos",
+            "",
+            "&8➥ Incluye +8 sonidos únicos",
+            "&aDisponible!"));
+
+        // Tercera fila de items (slots 37-43)
+        inv.setItem(37, createItem(Material.DIAMOND_SWORD, "&d&lSonidos de kill", 
+            "&7Click para ver sonidos de muerte",
+            "",
+            "&8▪ &7Sonidos especiales al eliminar jugadores",
+            "&8▪ &7Efectos de audio únicos",
+            "",
+            "&8➥ Incluye +8 sonidos únicos",
+            "&cPróximamente!"));
+
+        inv.setItem(43, createItem(Material.GOLD_RECORD, "&5&lMúsica de Fondo",
+            "&7Click para ver música",
+            "",
+            "&8▪ &7Música personalizada",
+            "&8▪ &7Temas exclusivos",
+            "",
+            "&8➥ Ambienta tus partidas",
             "&cPróximamente"));
 
         // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
+        inv.setItem(49, createItem(Material.ARROW, "&c← Volver", 
             "&7Click para volver al menú principal"));
 
         // Relleno
@@ -80,25 +117,29 @@ public class ShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         
         switch(event.getSlot()) {
-            case 11: // Bloques
+            case 19: // Bloques
                 plugin.getMenuManager().openMenu(player, "block_categories");
                 break;
-            case 13: // Knockers
+            case 22: // Knockers
                 plugin.getMenuManager().openMenu(player, "knocker_categories");
                 break;
-            case 15: // Mensajes de Kill
+            case 25: // Mensajes de Kill
                 plugin.getMenuManager().openMenu(player, "kill_message_categories");
                 break;
-            case 29: // Mensajes de muerte
+            case 28: // Mensajes de muerte
                 plugin.getMenuManager().openMenu(player, "death_message_categories");
                 break;
             case 31: // Efectos de flecha
                 plugin.getMenuManager().openMenu(player, "arrow_effect_categories");
                 break;
-            case 33: // Efectos de kill
+            case 34: // Sonidos de muerte
+                plugin.getMenuManager().openMenu(player, "death_sound_categories");
+                break;
+            case 37: // Efectos de kill 
+            case 43: // Música de fondo
                 player.sendMessage(MessageUtils.getColor("&cPróximamente disponible."));
                 break;
-            case 40: // Volver
+            case 49: // Volver
                 plugin.getMenuManager().openMenu(player, "main");
                 break;
         }

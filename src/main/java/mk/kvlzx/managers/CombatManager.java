@@ -20,7 +20,7 @@ public class CombatManager {
 
     // Constantes configurables para diferentes situaciones
     private static final double BASE_HORIZONTAL = 0.35; // KB horizontal base
-    private static final double BASE_VERTICAL = 0.75;  // KB vertical base
+    private static final double BASE_VERTICAL = 0.15;  // KB vertical base
     private static final double SPRINT_BONUS = 0.15;   // Bonus por esprintar
     private static final double NO_KB_ITEM_REDUCTION = 0.6; // Reducción para PvP a mano o ítems sin KB
     private static final double AIR_COMBO_HORIZONTAL = 0.25; // KB horizontal en combos aéreos

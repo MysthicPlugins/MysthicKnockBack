@@ -35,6 +35,7 @@ import mk.kvlzx.utils.TitleUtils;
 import mk.kvlzx.arena.Arena;
 import mk.kvlzx.arena.Zone;
 import mk.kvlzx.cosmetics.DeathMessageItem;
+import mk.kvlzx.cosmetics.DeathSoundItem;
 import mk.kvlzx.cosmetics.KillMessageItem;
 import mk.kvlzx.stats.PlayerStats;
 
@@ -162,6 +163,21 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private void handlePlayerDeath(Player player) {
+        String soundName = plugin.getCosmeticManager().getPlayerDeathSound(player.getUniqueId());
+        if (!soundName.equals("none")) {
+            DeathSoundItem soundItem = DeathSoundItem.getByName(soundName);
+            if (soundItem != null) {
+                player.getWorld().playSound(
+                    player.getLocation(),
+                    soundItem.getSound(),
+                    soundItem.getVolume(),
+                    soundItem.getPitch()
+                );
+            }
+        }
+    }
+
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
@@ -217,6 +233,8 @@ public class PlayerListener implements Listener {
                     Bukkit.broadcastMessage(MessageUtils.getColor(
                         String.format(deathMessage, player.getName())
                     ));
+                    // Manejar el sonido de muerte del jugador
+                    handlePlayerDeath(player);
                 }
                 
                 respawnPlayerAtSpawn(player, arena);
@@ -322,9 +340,6 @@ public class PlayerListener implements Listener {
                     RankManager.updatePlayerRank(player, playerStats.getElo());
                     
                     player.setNoDamageTicks(40);
-                    
-                    // Actualizar la zona del jugador
-                    plugin.getArenaManager().setPlayerZone(player, arena.getName(), "spawn");
                     
                     // Mostrar el borde de la arena al respawn
                     plugin.getArenaManager().showArenaBorder(arena);

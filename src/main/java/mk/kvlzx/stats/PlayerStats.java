@@ -95,12 +95,17 @@ public class PlayerStats {
         int eloGained = (int)(Math.random() * 10) + 6;
         this.elo += eloGained;
 
+        // Notificar al jugador
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            player.sendMessage(MessageUtils.getColor("&a+" + eloGained + " ELO"));
+        }
+
         // Añadir KGCoins por kill (entre 4-12)
         int coinsGained = (int)(Math.random() * 9) + 4;
         this.kgCoins += coinsGained;
         
         // Notificar al jugador
-        Player player = Bukkit.getPlayer(uuid);
         if (player != null && player.isOnline()) {
             player.sendMessage(MessageUtils.getColor("&a+" + coinsGained + " KGCoins"));
         }

@@ -83,6 +83,7 @@ public class ArrowEffectShopMenu extends Menu {
         int slot = 10;
         for (ArrowEffectItem item : shopItems) {
             if (item.getRarity().equals(currentCategory)) {
+                if (slot > 34) break;
                 setupEffectButton(inv, slot, item, player);
                 slot++;
                 if ((slot + 1) % 9 == 0) slot += 2;

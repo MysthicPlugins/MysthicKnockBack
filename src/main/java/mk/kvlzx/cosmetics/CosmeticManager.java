@@ -33,6 +33,8 @@ public class CosmeticManager {
     private final Map<UUID, Set<String>> playerOwnedKillMessages = new HashMap<>();
     private final Map<UUID, String> playerArrowEffects = new HashMap<>();
     private final Map<UUID, Set<String>> playerOwnedArrowEffects = new HashMap<>();
+    private final Map<UUID, String> playerDeathSounds = new HashMap<>();
+    private final Map<UUID, Set<String>> playerOwnedDeathSounds = new HashMap<>();
 
     public CosmeticManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -287,6 +289,47 @@ public class CosmeticManager {
         }
     }
 
+    public String getPlayerDeathSound(UUID uuid) {
+        return playerDeathSounds.getOrDefault(uuid, "none");
+    }
+
+    public void setPlayerDeathSound(UUID uuid, String soundName) {
+        if (soundName.equals("none")) {
+            playerDeathSounds.remove(uuid);
+        } else {
+            playerDeathSounds.put(uuid, soundName);
+        }
+        savePlayerDeathSound(uuid);
+    }
+
+    public boolean hasPlayerDeathSound(UUID uuid, String soundName) {
+        if (soundName.equals("none")) return true;
+        Set<String> owned = playerOwnedDeathSounds.getOrDefault(uuid, new HashSet<>());
+        return owned.contains(soundName);
+    }
+
+    public void addPlayerDeathSound(UUID uuid, String soundName) {
+        playerOwnedDeathSounds.computeIfAbsent(uuid, k -> new HashSet<>()).add(soundName);
+        savePlayerDeathSounds(uuid);
+    }
+
+    private void savePlayerDeathSound(UUID uuid) {
+        String sound = playerDeathSounds.get(uuid);
+        if (sound != null) {
+            cosmeticConfig.getConfig().set("death_sounds." + uuid.toString(), sound);
+            cosmeticConfig.saveConfig();
+        }
+    }
+
+    private void savePlayerDeathSounds(UUID uuid) {
+        Set<String> sounds = playerOwnedDeathSounds.get(uuid);
+        if (sounds != null) {
+            cosmeticConfig.getConfig().set("owned_death_sounds." + uuid.toString(), 
+                new ArrayList<>(sounds));
+            cosmeticConfig.saveConfig();
+        }
+    }
+
     public void saveAll() {
         for (Map.Entry<UUID, Material> entry : playerBlocks.entrySet()) {
             cosmeticConfig.getConfig().set("blocks." + entry.getKey().toString(), entry.getValue().name());
@@ -327,6 +370,14 @@ public class CosmeticManager {
         playerOwnedArrowEffects.forEach((uuid, effects) -> {
             cosmeticConfig.getConfig().set("owned_arrow_effects." + uuid.toString(), 
                 new ArrayList<>(effects));
+        });
+        for (Map.Entry<UUID, String> entry : playerDeathSounds.entrySet()) {
+            cosmeticConfig.getConfig().set("death_sounds." + entry.getKey().toString(), 
+                entry.getValue());
+        }
+        playerOwnedDeathSounds.forEach((uuid, sounds) -> {
+            cosmeticConfig.getConfig().set("owned_death_sounds." + uuid.toString(), 
+                new ArrayList<>(sounds));
         });
         cosmeticConfig.saveConfig();
     }
@@ -459,6 +510,32 @@ public class CosmeticManager {
                     playerOwnedArrowEffects.put(playerUUID, new HashSet<>(effectNames));
                 } catch (IllegalArgumentException e) {
                     plugin.getLogger().warning("Error loading owned arrow effects for " + uuid);
+                }
+            }
+        }
+
+        ConfigurationSection deathSoundSection = cosmeticConfig.getConfig().getConfigurationSection("death_sounds");
+        if (deathSoundSection != null) {
+            for (String uuid : deathSoundSection.getKeys(false)) {
+                try {
+                    UUID playerUUID = UUID.fromString(uuid);
+                    String sound = deathSoundSection.getString(uuid);
+                    playerDeathSounds.put(playerUUID, sound);
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Error loading death sound for " + uuid);
+                }
+            }
+        }
+        
+        ConfigurationSection ownedDeathSoundsSection = cosmeticConfig.getConfig().getConfigurationSection("owned_death_sounds");
+        if (ownedDeathSoundsSection != null) {
+            for (String uuid : ownedDeathSoundsSection.getKeys(false)) {
+                try {
+                    UUID playerUUID = UUID.fromString(uuid);
+                    List<String> soundNames = ownedDeathSoundsSection.getStringList(uuid);
+                    playerOwnedDeathSounds.put(playerUUID, new HashSet<>(soundNames));
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Error loading owned death sounds for " + uuid);
                 }
             }
         }

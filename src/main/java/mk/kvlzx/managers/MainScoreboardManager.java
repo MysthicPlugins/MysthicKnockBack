@@ -206,9 +206,6 @@ public class MainScoreboardManager {
                     player.teleport(nextSpawn);
                     plugin.getArenaManager().addPlayerToArena(player, nextArena);
                     player.setNoDamageTicks(60); // Asegurar invulnerabilidad por 3 segundos después del teleport
-
-                    // Setear zona de spawn
-                    plugin.getArenaManager().setPlayerZone(player, nextArena, "spawn");
                     
                     // Restaurar movimiento después de 1.5 segundos
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
