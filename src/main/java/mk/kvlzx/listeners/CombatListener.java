@@ -2,7 +2,6 @@ package mk.kvlzx.listeners;
 
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.entity.Player;
@@ -19,7 +18,7 @@ import java.util.UUID;
 public class CombatListener implements Listener {
     private final MysthicKnockBack plugin;
     private final Map<UUID, UUID> lastAttacker = new HashMap<>();
-    private final Map<UUID, Long> lastAttackTime = new HashMap<>();;
+    private final Map<UUID, Long> lastAttackTime = new HashMap<>();
     private static final long COMBAT_TIMEOUT = 10000; // 10 segundos
 
     public CombatListener(MysthicKnockBack plugin) {
@@ -39,33 +38,38 @@ public class CombatListener implements Listener {
         event.setDamage(0.0D);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
 
         Player victim = (Player) event.getEntity();
         Player attacker = null;
-
         if (event.getDamager() instanceof Player) {
             attacker = (Player) event.getDamager();
         } else if (event.getDamager() instanceof Arrow) {
             Arrow arrow = (Arrow) event.getDamager();
+            
             if (arrow.getShooter() instanceof Player) {
                 Player shooter = (Player) arrow.getShooter();
-                // Solo registrar el atacante si no es el mismo jugador
+                attacker = shooter;
+                
+                // Solo registrar como atacante si NO es self-damage
                 if (!shooter.equals(victim)) {
-                    attacker = shooter;
+                    // Registrar el último atacante solo para ataques válidos
+                    lastAttacker.put(victim.getUniqueId(), shooter.getUniqueId());
+                    lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
                 }
-                // Aplicar knockback incluso si es self-damage
-                plugin.getCombatManager().applyCustomKnockback(victim, shooter);
-                event.setDamage(0.0D);
                 return;
+            } else {
             }
         } else if (event.getDamager() instanceof EnderPearl) {
             return; // Permitir el kb vanilla de las perlas
         }
 
-        if (attacker == null) return;
+        // Verificar que el atacante no sea nulo
+        if (attacker == null) {
+            return;
+        }
 
         // Verificar cooldown de hit
         if (!plugin.getCombatManager().canHit(attacker)) {
@@ -74,8 +78,17 @@ public class CombatListener implements Listener {
         }
 
         // Verificar estados de la arena
-        if (plugin.getScoreboardManager().isArenaChanging() ||
-            isInSpawn(victim) || isInSpawn(attacker)) {
+        if (plugin.getScoreboardManager().isArenaChanging()) {
+            event.setCancelled(true);
+            return;
+        }
+        
+        if (isInSpawn(victim)) {
+            event.setCancelled(true);
+            return;
+        }
+        
+        if (isInSpawn(attacker)) {
             event.setCancelled(true);
             return;
         }
@@ -93,16 +106,22 @@ public class CombatListener implements Listener {
         UUID lastAttackerUUID = lastAttacker.get(victim.getUniqueId());
         Long lastAttackTimeStamp = lastAttackTime.get(victim.getUniqueId());
         
-        if (lastAttackerUUID == null || lastAttackTimeStamp == null) return null;
+        if (lastAttackerUUID == null || lastAttackTimeStamp == null) {
+            return null;
+        }
         
         // Verifica si el último ataque fue hace menos de 10 segundos
-        if (System.currentTimeMillis() - lastAttackTimeStamp > COMBAT_TIMEOUT) {
+        long timeDiff = System.currentTimeMillis() - lastAttackTimeStamp;
+        
+        if (timeDiff > COMBAT_TIMEOUT) {
             lastAttacker.remove(victim.getUniqueId());
             lastAttackTime.remove(victim.getUniqueId());
             return null;
         }
         
-        return plugin.getServer().getPlayer(lastAttackerUUID);
+        Player attackerPlayer = plugin.getServer().getPlayer(lastAttackerUUID);
+        
+        return attackerPlayer;
     }
 
     @EventHandler

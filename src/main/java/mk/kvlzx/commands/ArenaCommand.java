@@ -23,7 +23,7 @@ public class ArenaCommand implements CommandExecutor {
             return true;
         }
 
-        if (!sender.hasPermission("kvknockback.arena")) {
+        if (!sender.hasPermission("mysthicknockback.arena")) {
             sender.sendMessage(MessageUtils.getColor("&cNo tienes permiso para usar este comando."));
             return true;
         }

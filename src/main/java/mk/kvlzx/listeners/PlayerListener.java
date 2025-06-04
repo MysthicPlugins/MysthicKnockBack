@@ -8,7 +8,6 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -41,16 +40,15 @@ import mk.kvlzx.stats.PlayerStats;
 
 public class PlayerListener implements Listener {
     private final MysthicKnockBack plugin;
-
     private final Random random = new Random();
 
     private static final List<String> DEATH_MESSAGES = Arrays.asList(
         "&b%s &fslipped on a banana peel. &aHow clumsy!",
         "&b%s &finvented trying to fly, but forgot their wings.",
-        "&b%s &ffell into the void shouting &a'I’ll be back!'",
+        "&b%s &ffell into the void shouting &a'I'll be back!'",
         "&b%s &fwas tricked by a mirage and crashed.",
         "&b%s &fwanted to dance on the edge and... &aouch! &fTo the ground.",
-        "&b%s &fthought they were immortal. &aSpoiler: &ethey weren’t.",
+        "&b%s &fthought they were immortal. &aSpoiler: &ethey weren't.",
         "&b%s &ftripped over their own ego.",
         "&b%s &fwas defeated by gravity, their worst enemy.",
         "&b%s &finvented an epic trick and ended up on the ground.",
@@ -60,21 +58,21 @@ public class PlayerListener implements Listener {
         "&b%s &fwanted to be a hero, but physics said &a'nope'.",
         "&b%s &fjumped into the void with &atoo much &fconfidence.",
         "&b%s &fwas betrayed by their own coordination.",
-        "&b%s &fthought the ground was lava... and wasn’t entirely wrong.",
+        "&b%s &fthought the ground was lava... and wasn't entirely wrong.",
         "&b%s &finvented a somersault and stayed in mortal.",
         "&b%s &ffell for the lies of the invisible platform.",
         "&b%s &fwanted to impress and only impressed the ground.",
-        "&b%s &fshouted &a'I’m invincible!' &fjust before falling."
+        "&b%s &fshouted &a'I'm invincible!' &fjust before falling."
     );
 
     private static final List<String> KILL_MESSAGES = Arrays.asList(
-        "&b{Killer} &fhas sent &b{victim} &fon a one-way trip to the void!",
+        "&b{killer} &fhas sent &b{victim} &fon a one-way trip to the void!",
         "&b{victim} &ftried to fly, but &b{killer} &fcut their wings.",
         "&b{killer} &fgave &b{victim} &fan epic push to the beyond!",
         "&b{victim} &fthought they could, but &b{killer} &fsaid '&aNOPE, to the ground!'",
-        "&b{killer} &fturned &b{victim} &finto a shooting star... that didn’t go far!",
+        "&b{killer} &fturned &b{victim} &finto a shooting star... that didn't go far!",
         "&b{victim} &fwanted to dance with &b{killer}&f, but ended up dancing with death.",
-        "&b{killer} &ftaught &b{victim} &fthat gravity doesn’t forgive!",
+        "&b{killer} &ftaught &b{victim} &fthat gravity doesn't forgive!",
         "&b{victim} &fdreamed of victory, but &b{killer} &fwoke them with a blow.",
         "&b{killer} &fsent &b{victim} &fto explore the bottom of the map!",
         "&b{killer} &fgave &b{victim} &fan express ticket to the lobby of the fallen!"
@@ -82,48 +80,6 @@ public class PlayerListener implements Listener {
 
     public PlayerListener(MysthicKnockBack plugin) {
         this.plugin = plugin;
-    }
-
-    @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        event.getDrops().clear();
-        event.setDroppedExp(0);
-        event.setDeathMessage(null);
-
-        Player victim = event.getEntity();
-        Player killer = plugin.getCombatListener().getLastAttacker(victim);
-
-        // Si el killer es el mismo jugador o null, es una muerte natural
-        if (killer == null || killer.equals(victim)) {
-            String messageName = plugin.getCosmeticManager().getPlayerDeathMessage(victim.getUniqueId());
-            
-            String deathMessage;
-            if (messageName.equals("default")) {
-                deathMessage = DEATH_MESSAGES.get(random.nextInt(DEATH_MESSAGES.size()));
-            } else {
-                DeathMessageItem messageItem = DeathMessageItem.getByName(messageName);
-                deathMessage = messageItem != null ? messageItem.getMessage() : DEATH_MESSAGES.get(0);
-            }
-            
-            String formattedMessage = String.format(deathMessage, victim.getName());
-            Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
-        } else {
-            // Solo mostrar mensaje de kill si fue asesinado por otro jugador
-            String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
-
-            String killMessage;
-            if (messageName.equals("default")) {
-                killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
-            } else {
-                KillMessageItem messageItem = KillMessageItem.getByName(messageName);
-                killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
-            }
-
-            String formattedMessage = killMessage
-                .replace("{killer}", killer.getName())
-                .replace("{victim}", victim.getName());
-            Bukkit.broadcastMessage(MessageUtils.getColor(formattedMessage));
-        }
     }
 
     @EventHandler
@@ -215,19 +171,50 @@ public class PlayerListener implements Listener {
             if (voidZone != null && voidZone.isInside(to)) {
                 PlayerStats playerStats = PlayerStats.getStats(player.getUniqueId());
                 if (!playerStats.canDie()) {
-                    return; // Si el jugador está en cooldown de muerte, ignorar
+                    return;
                 }
+                
                 CombatListener combatListener = plugin.getCombatListener();
                 Player killer = combatListener.getLastAttacker(player);
                 
                 if (killer != null && killer != player) {
                     givePearlToKiller(killer);
-                    player.damage(1000.0, killer);
+                    playerStats.addDeath();
+                    playerStats.resetStreak();
+                    PlayerStats killerStats = PlayerStats.getStats(killer.getUniqueId());
+                    killerStats.addKill();
+                    
+                    // Broadcast kill message
+                    String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
+                    String killMessage;
+                    if (messageName.equals("default")) {
+                        killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
+                    } else {
+                        KillMessageItem messageItem = KillMessageItem.getByName(messageName);
+                        killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
+                    }
+                    Bukkit.broadcastMessage(MessageUtils.getColor(
+                        killMessage.replace("{killer}", killer.getName())
+                                    .replace("{victim}", player.getName())
+                    ));
                 } else {
-                    player.damage(1000.0);
+                    playerStats.addDeath();
+                    playerStats.resetStreak();
+                    
+                    // Natural death message
+                    String messageName = plugin.getCosmeticManager().getPlayerDeathMessage(player.getUniqueId());
+                    String deathMessage;
+                    if (messageName.equals("default")) {
+                        deathMessage = DEATH_MESSAGES.get(random.nextInt(DEATH_MESSAGES.size()));
+                    } else {
+                        DeathMessageItem messageItem = DeathMessageItem.getByName(messageName);
+                        deathMessage = messageItem != null ? messageItem.getMessage() : DEATH_MESSAGES.get(0);
+                    }
+                    Bukkit.broadcastMessage(MessageUtils.getColor(
+                        String.format(deathMessage, player.getName())
+                    ));
                 }
                 
-                // Teletransportar inmediatamente al jugador al spawn
                 respawnPlayerAtSpawn(player, arena);
                 return;
             }
@@ -297,9 +284,6 @@ public class PlayerListener implements Listener {
                 killer.getInventory().setItem(pearlSlot, currentItem);
             }
         }
-
-        PlayerStats killerStats = PlayerStats.getStats(killer.getUniqueId());
-        killerStats.addKill();
     }
 
     // Método para encontrar el slot de un item por tipo
@@ -326,7 +310,6 @@ public class PlayerListener implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    player.spigot().respawn();
                     player.teleport(spawnLoc);
                     player.setVelocity(new Vector(0, 0, 0));
                     player.setFallDistance(0);

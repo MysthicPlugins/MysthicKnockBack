@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
@@ -56,7 +57,7 @@ public class CombatManager {
     public void applyCustomKnockback(Player victim, Player attacker) {
         // Reducir valores base de KB
         double baseH = 0.35;
-        double baseV = 0.35;
+        double baseV = 0.75;
         final double sprintBonus = 0.15;
 
         // Si el item tiene Empuje, reducimos ambos
@@ -66,15 +67,21 @@ public class CombatManager {
                 ? weapon.getEnchantmentLevel(Enchantment.KNOCKBACK)
                 : 0;
         if (kbLevel > 0) {
-            baseH *= 0.5;
-            baseV *= 0.5;
+            baseH *= 0.2;
+            baseV *= 0.8;
         }
 
-        // Dirección normalizada
-        Vector dir = victim.getLocation().toVector()
-                        .subtract(attacker.getLocation().toVector())
-                        .setY(0)
-                        .normalize();
+        Vector dir;
+        if (attacker == victim) {
+            // Si es el propio jugador, usar la dirección a la que mira
+            dir = victim.getLocation().getDirection().multiply(1.5);
+        } else {
+            // Para otros casos, usar la dirección normal entre jugadores
+            dir = victim.getLocation().toVector()
+                .subtract(attacker.getLocation().toVector())
+                .setY(0)
+                .normalize();
+        }
 
         double hMult = baseH + (attacker.isSprinting() ? sprintBonus : 0);
         double vMult = baseV;
@@ -84,22 +91,21 @@ public class CombatManager {
         long currentTime = System.currentTimeMillis();
         
         if (lastKnockbackTime != null && currentTime - lastKnockbackTime < 500) {
-            hMult *= 0.7;
-            vMult *= 0.5;
+            hMult *= 0.2;
+            vMult *= 0.8;
         }
         lastKnockbackTimes.put(victim.getUniqueId(), currentTime);
 
-        // Clamp vertical
-        vMult = Math.min(vMult, 0.4);
-
         // Solo aplicar KB si el jugador está en el suelo o cerca de él
-        if (victim.isOnGround() || victim.getLocation().getBlock().getRelative(0, -1, 0).getType() != Material.AIR) {
+        if (((LivingEntity)victim).isOnGround() || victim.getLocation().getBlock().getRelative(0, -1, 0).getType() != Material.AIR) {
             Vector kb = new Vector(dir.getX() * hMult, vMult, dir.getZ() * hMult);
             victim.setVelocity(kb);
-        } else {
+        } 
+        // Comentado por ahora
+        /*else {
             Vector kb = new Vector(dir.getX() * hMult * 0.6, vMult * 0.4, dir.getZ() * hMult * 0.6);
             victim.setVelocity(kb);
-        }
+        }*/
     }
 
     public void cleanup() {

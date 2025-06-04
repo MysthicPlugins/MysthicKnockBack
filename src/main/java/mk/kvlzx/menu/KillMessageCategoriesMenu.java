@@ -22,7 +22,7 @@ public class KillMessageCategoriesMenu extends Menu {
     @Override
     protected void setupItems(Player player, Inventory inv) {
         // Comunes
-        inv.setItem(10, createItem(Material.PAPER, "&7Mensajes Comunes",
+        inv.setItem(11, createItem(Material.PAPER, "&7Mensajes Comunes",
             "&8▪ &7Precio: &f15,000 KGCoins",
             "&8▪ &7Rareza: &7COMÚN",
             "",
@@ -30,7 +30,7 @@ public class KillMessageCategoriesMenu extends Menu {
             "&7Click para ver los mensajes"));
 
         // Épicos
-        inv.setItem(12, createItem(Material.ENCHANTED_BOOK, "&5Mensajes Épicos",
+        inv.setItem(13, createItem(Material.ENCHANTED_BOOK, "&5Mensajes Épicos",
             "&8▪ &7Precio: &f35,000 KGCoins",
             "&8▪ &7Rareza: &5ÉPICO",
             "",
@@ -38,7 +38,7 @@ public class KillMessageCategoriesMenu extends Menu {
             "&7Click para ver los mensajes"));
 
         // Legendarios
-        inv.setItem(14, createItem(Material.WRITTEN_BOOK, "&6Mensajes Legendarios",
+        inv.setItem(15, createItem(Material.WRITTEN_BOOK, "&6Mensajes Legendarios",
             "&8▪ &7Precio: &f75,000 KGCoins",
             "&8▪ &7Rareza: &6LEGENDARIO",
             "",
@@ -46,7 +46,7 @@ public class KillMessageCategoriesMenu extends Menu {
             "&7Click para ver los mensajes"));
 
         // Botón para volver
-        inv.setItem(31, createItem(Material.ARROW, "&c← Volver", 
+        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
             "&7Click para volver a la tienda"));
 
         // Relleno
@@ -59,19 +59,19 @@ public class KillMessageCategoriesMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         
         switch(event.getSlot()) {
-            case 10: // Comunes
+            case 11: // Comunes
                 KillMessageShopMenu.setCurrentCategory("COMÚN");
                 plugin.getMenuManager().openMenu(player, "kill_message_shop");
                 break;
-            case 12: // Épicos
+            case 13: // Épicos
                 KillMessageShopMenu.setCurrentCategory("ÉPICO");
                 plugin.getMenuManager().openMenu(player, "kill_message_shop");
                 break;
-            case 14: // Legendarios
+            case 15: // Legendarios
                 KillMessageShopMenu.setCurrentCategory("LEGENDARIO");
                 plugin.getMenuManager().openMenu(player, "kill_message_shop");
                 break;
-            case 31: // Volver
+            case 40: // Volver
                 plugin.getMenuManager().openMenu(player, "shop");
                 break;
         }

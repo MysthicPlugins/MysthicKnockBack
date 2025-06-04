@@ -1,9 +1,5 @@
 package mk.kvlzx.commands;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -34,26 +30,10 @@ public class MainCommand implements CommandExecutor{
         Player player = (Player) sender;
 
         if(args.length >= 1){
-            if(args[0].equalsIgnoreCase("nashe")){
-                sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&f ≽^•⩊•^≼ &b" + player.getName()));
-
-            } else if(args[0].equalsIgnoreCase("fecha")){
-                DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                String date = dateFormat.format(new Date());
-                sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "Fecha y hora actual: &e"+ date));
-
-            } else if(args[0].equalsIgnoreCase("get")){
-                // /kvknockback get <Author/Version>
-                subCommandGet(sender, args);
-
-            } else if(args[0].equalsIgnoreCase("VicioKB")){
-            sender.sendMessage(MessageUtils.getColor(
-                    MysthicKnockBack.prefix + "&fCuando llamas a un ex top... esperas una batalla digna de dioses. &6[gaboh] &festá listo. ¿Lo estás tú?" + player.getName() + 
-                    "&4Recuerda: &fhasta los más grandes caen alguna vez. ¿Será hoy el día en que &6[gaboh] &fpruebe la derrota?" + "&6 DC: gaboh_"));
-            } else {
-            help(sender);
+            if(args[0].equalsIgnoreCase("pet")){
+                sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&f ≽^•⩊•^≼ &b " + player.getName()));
             }
-        
+            help(sender);
         } else {
         help(sender);
         }
@@ -61,32 +41,20 @@ public class MainCommand implements CommandExecutor{
     }
 
     public void help(CommandSender sender){
-        sender.sendMessage(MessageUtils.getColor("--------&r &b&lComandos MysthicKnockBack &8&m--------"));
-        sender.sendMessage(MessageUtils.getColor("/kb nashe"));
-        sender.sendMessage(MessageUtils.getColor("/kb fecha"));
-        sender.sendMessage(MessageUtils.getColor("/kb get <author/version>"));
-        sender.sendMessage(MessageUtils.getColor("/kb VicioKB"));
-        sender.sendMessage(MessageUtils.getColor("--------&r &b&lComandos MysthicKnockBack &8&m--------"));
-    }
-
-    public void subCommandGet(CommandSender sender, String[] args){
-        if(!(sender.hasPermission("mysthicknockback.command.get"))){
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&c No tienes permisos para usar este comando."));
-            return;
-        }
-        if(args.length == 1){
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&c Debes usar &7 /kb get author/version>"));
-            return;
-        }
-        if(args[1].equalsIgnoreCase("author")){
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&f los autores del plugin son: &b"+ plugin.getDescription().getAuthors()));
-
-        }else if(args[1].equalsIgnoreCase("version")){
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&f La version del plugin es: &b" + plugin.getDescription().getVersion()));
-
-        }else{
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&c Debes usar &7 /kb get author/version>"));
-
-        }
+        sender.sendMessage(MessageUtils.getColor("--------&r &b&lCommands MysthicKnockBack &8&m--------"));
+        sender.sendMessage(MessageUtils.getColor("/kb pet"));
+        sender.sendMessage(MessageUtils.getColor("/arena create <name>"));
+        sender.sendMessage(MessageUtils.getColor("/arena setzone <arena> <zoneType>"));
+        sender.sendMessage(MessageUtils.getColor("/arena setborder <arena> <size>"));
+        sender.sendMessage(MessageUtils.getColor("/arena setspawn <arena>"));
+        sender.sendMessage(MessageUtils.getColor("/arena delete <arena>"));
+        sender.sendMessage(MessageUtils.getColor("/stats"));
+        sender.sendMessage(MessageUtils.getColor("/stats <player>"));
+        sender.sendMessage(MessageUtils.getColor("/stats set <player> <stat> <value>"));
+        sender.sendMessage(MessageUtils.getColor("/stats add <player> <stat> <value>"));
+        sender.sendMessage(MessageUtils.getColor("/stats remove <player> <stat> <value>"));
+        sender.sendMessage(MessageUtils.getColor("/stats reset <player>"));
+        sender.sendMessage(MessageUtils.getColor("/stats resetall"));
+        sender.sendMessage(MessageUtils.getColor("--------&r &b&lCommands MysthicKnockBack &8&m--------"));
     }
 }
