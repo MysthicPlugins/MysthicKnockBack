@@ -85,14 +85,14 @@ public class ShopMenu extends Menu {
             "&aDisponible!"));
 
         // Tercera fila de items (slots 37-43)
-        inv.setItem(37, createItem(Material.DIAMOND_SWORD, "&d&lSonidos de kill", 
-            "&7Click para ver sonidos de muerte",
+        inv.setItem(37, createItem(Material.DIAMOND_SWORD, "&e&lSonidos de Kill", 
+            "&7Click para ver sonidos de kill",
             "",
             "&8▪ &7Sonidos especiales al eliminar jugadores",
             "&8▪ &7Efectos de audio únicos",
             "",
             "&8➥ Incluye +8 sonidos únicos",
-            "&cPróximamente!"));
+            "&aDisponible!"));
 
         inv.setItem(43, createItem(Material.GOLD_RECORD, "&5&lMúsica de Fondo",
             "&7Click para ver música",
@@ -135,7 +135,9 @@ public class ShopMenu extends Menu {
             case 34: // Sonidos de muerte
                 plugin.getMenuManager().openMenu(player, "death_sound_categories");
                 break;
-            case 37: // Efectos de kill 
+            case 37: // Sonidos de kill
+                plugin.getMenuManager().openMenu(player, "kill_sound_categories");
+                break;
             case 43: // Música de fondo
                 player.sendMessage(MessageUtils.getColor("&cPróximamente disponible."));
                 break;

@@ -14,16 +14,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.cosmetics.DeathSoundItem;
+import mk.kvlzx.cosmetics.KillSoundItem;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 
-public class DeathSoundShopMenu extends Menu {
-    private final List<DeathSoundItem> shopItems;
+public class KillSoundShopMenu extends Menu {
+    private final List<KillSoundItem> shopItems;
     private static String currentCategory = "COMÚN";
 
-    public DeathSoundShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lTienda de Sonidos &8•", 45);
+    public KillSoundShopMenu(MysthicKnockBack plugin) {
+        super(plugin, "&8• &e&lTienda de Sonidos de Kill &8•", 45);
         this.shopItems = initializeShopItems();
     }
 
@@ -31,41 +31,41 @@ public class DeathSoundShopMenu extends Menu {
         currentCategory = category;
     }
 
-    private List<DeathSoundItem> initializeShopItems() {
-        List<DeathSoundItem> items = new ArrayList<>();
+    private List<KillSoundItem> initializeShopItems() {
+        List<KillSoundItem> items = new ArrayList<>();
 
         // Sonidos Comunes
-        items.add(new DeathSoundItem(
-            "Simple Death", 15000, "COMÚN", "&7",
-            "&7¡Un clásico nunca falla!", 
-            Sound.HURT_FLESH, 1.0f, 1.0f));
+        items.add(new KillSoundItem(
+            "Victory Strike", 15000, "COMÚN", "&7",
+            "&e¡El sonido de la victoria!", 
+            Sound.LEVEL_UP, 1.0f, 1.0f));
             
-        items.add(new DeathSoundItem(
-            "Last Breath", 15000, "COMÚN", "&7",
-            "&7¡El último suspiro!", 
-            Sound.GHAST_DEATH, 0.5f, 1.2f));
+        items.add(new KillSoundItem(
+            "Critical Hit", 15000, "COMÚN", "&7",
+            "&e¡Golpe crítico!", 
+            Sound.SUCCESSFUL_HIT, 1.0f, 0.8f));
 
         // Sonidos Épicos
-        items.add(new DeathSoundItem(
-            "Dragon Roar", 35000, "ÉPICO", "&5",
-            "&5¡El rugido del dragón!", 
-            Sound.ENDERDRAGON_GROWL, 1.0f, 1.0f));
+        items.add(new KillSoundItem(
+            "Blaze Fury", 35000, "ÉPICO", "&5",
+            "&d¡La furia del blaze!", 
+            Sound.BLAZE_DEATH, 1.0f, 0.7f));
             
-        items.add(new DeathSoundItem(
-            "Wither Curse", 35000, "ÉPICO", "&5",
-            "&5¡La maldición del Wither!", 
-            Sound.WITHER_SPAWN, 0.8f, 1.0f));
+        items.add(new KillSoundItem(
+            "Wither Strike", 35000, "ÉPICO", "&5",
+            "&d¡El poder del wither!", 
+            Sound.WITHER_HURT, 0.8f, 1.0f));
 
         // Sonidos Legendarios
-        items.add(new DeathSoundItem(
-            "Thunder Strike", 75000, "LEGENDARIO", "&6",
-            "&6¡El poder del trueno!", 
-            Sound.AMBIENCE_THUNDER, 1.0f, 1.0f));
+        items.add(new KillSoundItem(
+            "Dragon Wrath", 75000, "LEGENDARIO", "&6",
+            "&6¡La ira del dragón!", 
+            Sound.ENDERDRAGON_GROWL, 1.0f, 0.5f));
             
-        items.add(new DeathSoundItem(
-            "Void Echo", 75000, "LEGENDARIO", "&6",
-            "&6¡El eco del vacío!", 
-            Sound.ENDERDRAGON_DEATH, 0.7f, 1.2f));
+        items.add(new KillSoundItem(
+            "Thunder Smite", 75000, "LEGENDARIO", "&6",
+            "&6¡La furia del trueno!", 
+            Sound.AMBIENCE_THUNDER, 1.0f, 0.8f));
 
         return items;
     }
@@ -82,7 +82,7 @@ public class DeathSoundShopMenu extends Menu {
 
         // Mostrar sonidos
         int slot = 10;
-        for (DeathSoundItem item : shopItems) {
+        for (KillSoundItem item : shopItems) {
             if (item.getRarity().equals(currentCategory)) {
                 if (slot > 34) break;
                 setupSoundButton(inv, slot, item, player);
@@ -99,9 +99,9 @@ public class DeathSoundShopMenu extends Menu {
         fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
     }
 
-    private void setupSoundButton(Inventory inv, int slot, DeathSoundItem item, Player player) {
-        boolean hasSound = plugin.getCosmeticManager().hasPlayerDeathSound(player.getUniqueId(), item.getName());
-        boolean isSelected = plugin.getCosmeticManager().getPlayerDeathSound(player.getUniqueId()).equals(item.getName());
+    private void setupSoundButton(Inventory inv, int slot, KillSoundItem item, Player player) {
+        boolean hasSound = plugin.getCosmeticManager().hasPlayerKillSound(player.getUniqueId(), item.getName());
+        boolean isSelected = plugin.getCosmeticManager().getPlayerKillSound(player.getUniqueId()).equals(item.getName());
         
         List<String> lore = new ArrayList<>();
         lore.add(item.getRarityColor() + "✦ Rareza: " + item.getRarity());
@@ -146,7 +146,7 @@ public class DeathSoundShopMenu extends Menu {
         ItemStack clicked = event.getCurrentItem();
 
         if (event.getSlot() == 40) {
-            plugin.getMenuManager().openMenu(player, "death_sound_categories");
+            plugin.getMenuManager().openMenu(player, "kill_sound_categories");
             return;
         }
 
@@ -154,7 +154,7 @@ public class DeathSoundShopMenu extends Menu {
             clicked.getType() == Material.EMERALD) return;
 
         String itemName = MessageUtils.stripColor(clicked.getItemMeta().getDisplayName());
-        DeathSoundItem soundItem = findSoundItem(itemName);
+        KillSoundItem soundItem = findSoundItem(itemName);
         if (soundItem == null) return;
 
         // Si es click derecho, reproducir muestra
@@ -170,24 +170,24 @@ public class DeathSoundShopMenu extends Menu {
         handleSoundSelection(player, soundItem);
     }
 
-    private void handleSoundSelection(Player player, DeathSoundItem soundItem) {
+    private void handleSoundSelection(Player player, KillSoundItem soundItem) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
-        String currentSound = plugin.getCosmeticManager().getPlayerDeathSound(player.getUniqueId());
+        String currentSound = plugin.getCosmeticManager().getPlayerKillSound(player.getUniqueId());
 
-        if (plugin.getCosmeticManager().hasPlayerDeathSound(player.getUniqueId(), soundItem.getName())) {
+        if (plugin.getCosmeticManager().hasPlayerKillSound(player.getUniqueId(), soundItem.getName())) {
             if (currentSound.equals(soundItem.getName())) {
-                plugin.getCosmeticManager().setPlayerDeathSound(player.getUniqueId(), "none");
+                plugin.getCosmeticManager().setPlayerKillSound(player.getUniqueId(), "none");
                 player.sendMessage(MessageUtils.getColor("&aHas deseleccionado el sonido."));
             } else {
-                plugin.getCosmeticManager().setPlayerDeathSound(player.getUniqueId(), soundItem.getName());
+                plugin.getCosmeticManager().setPlayerKillSound(player.getUniqueId(), soundItem.getName());
                 player.sendMessage(MessageUtils.getColor("&aHas seleccionado el sonido: " + soundItem.getName()));
             }
             player.closeInventory();
         } else {
             if (stats.getKGCoins() >= soundItem.getPrice()) {
                 stats.removeKGCoins(soundItem.getPrice());
-                plugin.getCosmeticManager().addPlayerDeathSound(player.getUniqueId(), soundItem.getName());
-                plugin.getCosmeticManager().setPlayerDeathSound(player.getUniqueId(), soundItem.getName());
+                plugin.getCosmeticManager().addPlayerKillSound(player.getUniqueId(), soundItem.getName());
+                plugin.getCosmeticManager().setPlayerKillSound(player.getUniqueId(), soundItem.getName());
                 player.sendMessage(MessageUtils.getColor("&a¡Has comprado y seleccionado el sonido " + 
                     soundItem.getName() + " &apor &e" + soundItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
@@ -197,7 +197,7 @@ public class DeathSoundShopMenu extends Menu {
         }
     }
 
-    private DeathSoundItem findSoundItem(String name) {
+    private KillSoundItem findSoundItem(String name) {
         return shopItems.stream()
             .filter(item -> MessageUtils.stripColor(item.getName()).equals(name))
             .findFirst()

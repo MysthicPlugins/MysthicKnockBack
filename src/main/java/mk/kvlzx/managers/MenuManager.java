@@ -32,6 +32,8 @@ import mk.kvlzx.menu.ArrowEffectCategoriesMenu;
 import mk.kvlzx.menu.ArrowEffectShopMenu;
 import mk.kvlzx.menu.DeathSoundCategoriesMenu;
 import mk.kvlzx.menu.DeathSoundShopMenu;
+import mk.kvlzx.menu.KillSoundCategoriesMenu;
+import mk.kvlzx.menu.KillSoundShopMenu;
 
 public class MenuManager {
     private final MysthicKnockBack plugin;
@@ -69,6 +71,8 @@ public class MenuManager {
         registerMenu("arrow_effect_shop", new ArrowEffectShopMenu(plugin));
         registerMenu("death_sound_categories", new DeathSoundCategoriesMenu(plugin));
         registerMenu("death_sound_shop", new DeathSoundShopMenu(plugin));
+        registerMenu("kill_sound_categories", new KillSoundCategoriesMenu(plugin));
+        registerMenu("kill_sound_shop", new KillSoundShopMenu(plugin));
         // Aquí registraremos los demás menús
     }
 

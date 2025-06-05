@@ -37,6 +37,7 @@ import mk.kvlzx.arena.Zone;
 import mk.kvlzx.cosmetics.DeathMessageItem;
 import mk.kvlzx.cosmetics.DeathSoundItem;
 import mk.kvlzx.cosmetics.KillMessageItem;
+import mk.kvlzx.cosmetics.KillSoundItem;
 import mk.kvlzx.stats.PlayerStats;
 
 public class PlayerListener implements Listener {
@@ -178,6 +179,21 @@ public class PlayerListener implements Listener {
         }
     }
 
+    private void handlePlayerKill(Player player) {
+        String soundName = plugin.getCosmeticManager().getPlayerKillSound(player.getUniqueId());
+        if (!soundName.equals("none")) {
+            KillSoundItem soundItem = KillSoundItem.getByName(soundName);
+            if (soundItem != null) {
+                player.getWorld().playSound(
+                    player.getLocation(),
+                    soundItem.getSound(),
+                    soundItem.getVolume(),
+                    soundItem.getPitch()
+                );
+            }
+        }
+    }
+
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
@@ -217,6 +233,7 @@ public class PlayerListener implements Listener {
                         killMessage.replace("{killer}", killer.getName())
                                     .replace("{victim}", player.getName())
                     ));
+                    handlePlayerKill(killer);
                 } else {
                     playerStats.addDeath();
                     playerStats.resetStreak();

@@ -36,34 +36,34 @@ public class ArrowEffectShopMenu extends Menu {
         // Efectos comunes
         items.add(new ArrowEffectItem(
             "Flame Trail", 15000, "COMÚN", "&7",
-            "¡Deja un rastro de llamas!", 
+            "&c¡Deja un rastro de llamas!", 
             Effect.FLAME, 0.0f, 1, 0f, 0f, 0f));
         
         items.add(new ArrowEffectItem(
             "Water Splash", 15000, "COMÚN", "&7",
-            "¡Salpica agua al volar!", 
+            "&b¡Salpica agua al volar!", 
             Effect.WATERDRIP, 0.0f, 2, 0.1f, 0.1f, 0.1f));
 
         // Efectos épicos
         items.add(new ArrowEffectItem(
             "Ender Magic", 35000, "ÉPICO", "&5",
-            "¡El poder del End!", 
+            "&5¡El poder del End!", 
             Effect.PORTAL, 0.2f, 3, 0.1f, 0.1f, 0.1f));
         
         items.add(new ArrowEffectItem(
             "Slime Trail", 35000, "ÉPICO", "&5",
-            "¡Deja un rastro pegajoso!", 
+            "&a¡Deja un rastro pegajoso!", 
             Effect.SLIME, 0.1f, 2, 0f, 0f, 0f));
 
         // Efectos legendarios
         items.add(new ArrowEffectItem(
             "Rainbow Spirit", 75000, "LEGENDARIO", "&6",
-            "¡Un arcoíris de poder!", 
+            "&d¡Un arcoíris de poder!", 
             Effect.COLOURED_DUST, 0.2f, 4, 0.2f, 0.2f, 0.2f));
         
         items.add(new ArrowEffectItem(
             "Firework Show", 75000, "LEGENDARIO", "&6",
-            "¡Fuegos artificiales!", 
+            "&e¡Fuegos artificiales!", 
             Effect.FIREWORKS_SPARK, 0.1f, 3, 0.1f, 0.1f, 0.1f));
 
         return items;
@@ -134,6 +134,8 @@ public class ArrowEffectShopMenu extends Menu {
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             button.setItemMeta(meta);
         }
+
+        inv.setItem(slot, button);
     }
 
     @Override

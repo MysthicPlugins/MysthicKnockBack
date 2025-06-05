@@ -15,6 +15,7 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\CosmeticManager.jav
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\DeathMessageItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\DeathSoundItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\KillMessageItem.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\KillSoundItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\KnockerShopItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\data\ArenaData.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\data\InventoryData.java
@@ -47,6 +48,8 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\DeathSoundShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\HotbarEditMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KillMessageCategoriesMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KillMessageShopMenu.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KillSoundCategoriesMenu.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KillSoundShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KnockerCategoriesMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KnockerShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\MainMenu.java
