@@ -1,6 +1,7 @@
 package mk.kvlzx.listeners;
 
 import org.bukkit.entity.Player;
+import org.bukkit.entity.EnderPearl;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -169,7 +170,8 @@ public class PlayerListener implements Listener {
         if (!soundName.equals("none")) {
             DeathSoundItem soundItem = DeathSoundItem.getByName(soundName);
             if (soundItem != null) {
-                player.getWorld().playSound(
+                // Reproducir sonido al propio jugador
+                player.playSound(
                     player.getLocation(),
                     soundItem.getSound(),
                     soundItem.getVolume(),
@@ -177,6 +179,12 @@ public class PlayerListener implements Listener {
                 );
             }
         }
+
+        // Eliminar todas las perlas lanzadas por el jugador
+        player.getWorld().getEntitiesByClass(EnderPearl.class).stream()
+            .filter(pearl -> pearl.getShooter() instanceof Player)
+            .filter(pearl -> ((Player) pearl.getShooter()).getUniqueId().equals(player.getUniqueId()))
+            .forEach(pearl -> pearl.remove());
     }
 
     private void handlePlayerKill(Player player) {
@@ -184,7 +192,7 @@ public class PlayerListener implements Listener {
         if (!soundName.equals("none")) {
             KillSoundItem soundItem = KillSoundItem.getByName(soundName);
             if (soundItem != null) {
-                player.getWorld().playSound(
+                player.playSound(
                     player.getLocation(),
                     soundItem.getSound(),
                     soundItem.getVolume(),
