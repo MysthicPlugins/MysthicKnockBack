@@ -25,6 +25,8 @@ public class MusicManager {
         put("records.stal", 3000);   // 2:30 (150 segundos)
     }};
 
+    private static final int PREVIEW_DURATION = 200; // 10 segundos (200 ticks)
+
     public MusicManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
     }
@@ -44,9 +46,13 @@ public class MusicManager {
                     return;
                 }
 
-                // Verificar si el jugador aún tiene esta música seleccionada
+                // Obtener solo el nombre de la música sin el "records."
+                String musicName = recordName.substring(recordName.lastIndexOf('.') + 1);
+                // Obtener la música actual del jugador
                 String currentMusic = plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId());
-                if (!currentMusic.equals(recordName.substring(recordName.lastIndexOf('.') + 1))) {
+                
+                // Comparar los nombres correctamente
+                if (!currentMusic.equalsIgnoreCase(musicName)) {
                     this.cancel();
                     playerTasks.remove(player.getUniqueId());
                     return;
@@ -70,6 +76,11 @@ public class MusicManager {
 
     public void playPreviewMusic(Player player, String sound) {
         player.playSound(player.getLocation(), sound, 1.0f, 1.0f);
+        
+        // Programar que se detenga el sonido después de 10 segundos
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            player.playSound(player.getLocation(), "", 1.0f, 1.0f); // Detener el sonido
+        }, PREVIEW_DURATION);
     }
 
     public void onDisable() {

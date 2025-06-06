@@ -94,6 +94,15 @@ public class MainScoreboardManager {
 
     private void updateScore(Objective obj, String text, int score) {
         String coloredText = MessageUtils.getColor(text);
+        
+        // Limpiar scores antiguos
+        for (String entry : obj.getScoreboard().getEntries()) {
+            if (obj.getScore(entry).getScore() == score) {
+                obj.getScoreboard().resetScores(entry);
+            }
+        }
+        
+        // Establecer nuevo score
         Score scoreObj = obj.getScore(coloredText);
         scoreObj.setScore(score);
     }

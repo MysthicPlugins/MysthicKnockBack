@@ -1,10 +1,7 @@
 package mk.kvlzx.menu;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -14,8 +11,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.cosmetics.BackgroundMusicItem;
@@ -25,7 +20,6 @@ import mk.kvlzx.utils.MessageUtils;
 public class BackgroundMusicShopMenu extends Menu {
     private final List<BackgroundMusicItem> shopItems;
     private static String currentCategory = "COMÚN";
-    private final Map<UUID, BukkitTask> musicTasks = new HashMap<>();
 
     public BackgroundMusicShopMenu(MysthicKnockBack plugin) {
         super(plugin, "&8• &d&lTienda de Música &8•", 45);
@@ -186,24 +180,10 @@ public class BackgroundMusicShopMenu extends Menu {
 
         // Usar el MusicManager para reproducir la música
         plugin.getMusicManager().playPreviewMusic(player, musicItem.getSound());
-
-        // Programar la detención después de 10 segundos
-        BukkitTask task = new BukkitRunnable() {
-            @Override
-            public void run() {
-                plugin.getMusicManager().stopMusicForPlayer(player);
-                musicTasks.remove(player.getUniqueId());
-            }
-        }.runTaskLater(plugin, 200L); // 10 segundos = 200 ticks
-
-        musicTasks.put(player.getUniqueId(), task);
     }
 
     private void stopPreviewMusic(Player player) {
-        BukkitTask task = musicTasks.remove(player.getUniqueId());
-        if (task != null) {
-            task.cancel();
-        }
+        plugin.getMusicManager().stopMusicForPlayer(player);
     }
 
     private void handleMusicSelection(Player player, BackgroundMusicItem musicItem) {
