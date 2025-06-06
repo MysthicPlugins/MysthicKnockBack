@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -40,38 +39,43 @@ public class BackgroundMusicShopMenu extends Menu {
     private List<BackgroundMusicItem> initializeShopItems() {
         List<BackgroundMusicItem> items = new ArrayList<>();
 
-        // Música Común
+        // Música Común (15000 coins)
         items.add(new BackgroundMusicItem(
-            "Minecraft Theme", 15000, "COMÚN", "&7",
-            "&7¡La clásica melodía de Minecraft!", 
-            "minecraft:music.game", 1.0f, 1.0f));
+            "Far", 15000, "COMÚN", "&7",
+            "&7¡Una melodía distante!", 
+            "records.far", 1.0f, 1.0f));
 
         items.add(new BackgroundMusicItem(
-            "Creative Mode", 15000, "COMÚN", "&7",
-            "&7¡Música del modo creativo!", 
-            "minecraft:music.game.creative", 1.0f, 1.0f));
-
-        // Música Épica
-        items.add(new BackgroundMusicItem(
-            "Nether Theme", 35000, "ÉPICO", "&5",
-            "&5¡Melodías del infierno!", 
-            "minecraft:music.nether", 1.0f, 1.0f));
+            "Mall", 15000, "COMÚN", "&7",
+            "&7¡Sonidos del centro comercial!", 
+            "records.mall", 1.0f, 1.0f));
 
         items.add(new BackgroundMusicItem(
-            "Menu Theme", 35000, "ÉPICO", "&5",
-            "&5¡La música del menú principal!", 
-            "minecraft:music.menu", 1.0f, 1.0f));
+            "Strad", 15000, "COMÚN", "&7",
+            "&7¡Una melodía clásica!", 
+            "records.strad", 1.0f, 1.0f));
 
-        // Música Legendaria
+        // Música Épica (35000 coins)
         items.add(new BackgroundMusicItem(
-            "Dragon Battle", 75000, "LEGENDARIO", "&6",
-            "&6¡La épica música de batalla!", 
-            "minecraft:music.dragon", 1.0f, 1.0f));
+            "Cat", 35000, "ÉPICO", "&5",
+            "&5¡El disco del gato!", 
+            "records.cat", 1.0f, 1.0f));
 
         items.add(new BackgroundMusicItem(
-            "End Music", 75000, "LEGENDARIO", "&6",
-            "&6¡Melodías del End!", 
-            "minecraft:music.end", 1.0f, 1.0f));
+            "Chirp", 35000, "ÉPICO", "&5",
+            "&5¡Melodías del pájaro!", 
+            "records.chirp", 1.0f, 1.0f));
+
+        // Música Legendaria (75000 coins)
+        items.add(new BackgroundMusicItem(
+            "Mellohi", 75000, "LEGENDARIO", "&6",
+            "&6¡La melodía mística!", 
+            "records.mellohi", 1.0f, 1.0f));
+
+        items.add(new BackgroundMusicItem(
+            "Stal", 75000, "LEGENDARIO", "&6",
+            "&6¡La música del acero!", 
+            "records.stal", 1.0f, 1.0f));
 
         return items;
     }
@@ -181,7 +185,7 @@ public class BackgroundMusicShopMenu extends Menu {
         stopPreviewMusic(player);
 
         // Usar el MusicManager para reproducir la música
-        plugin.getMusicManager().playPreviewMusic(player, musicItem.getNmsSound());
+        plugin.getMusicManager().playPreviewMusic(player, musicItem.getSound());
 
         // Programar la detención después de 10 segundos
         BukkitTask task = new BukkitRunnable() {
@@ -241,7 +245,7 @@ public class BackgroundMusicShopMenu extends Menu {
 
     private void startBackgroundMusic(Player player, BackgroundMusicItem musicItem) {
         stopPreviewMusic(player);
-        plugin.getMusicManager().startMusicForPlayer(player, musicItem.getNmsSound());
+        plugin.getMusicManager().startMusicForPlayer(player, musicItem.getSound());
     }
 
     private void stopBackgroundMusic(Player player) {

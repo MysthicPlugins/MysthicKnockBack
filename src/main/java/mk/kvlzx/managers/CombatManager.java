@@ -20,13 +20,14 @@ public class CombatManager {
 
     // Constantes configurables para diferentes situaciones
     private static final double BASE_HORIZONTAL = 0.35;   // KB horizontal base
-    private static final double BASE_VERTICAL = 0.15;     // KB vertical base (no cambiar)
+    private static final double BASE_VERTICAL = 0.15;     // KB vertical base
     private static final double SPRINT_BONUS = 0.15;      // Bonus por esprintar
-    private static final double NO_KB_ITEM_REDUCTION = 0.6; // Reducción para PvP a mano o ítems sin KB
+    private static final double NO_KB_ITEM_REDUCTION = 0.6; // Reducción para PvP a mano
+    private static final double KNOCKBACK_ENCHANT_MULTIPLIER = 0.7; // Multiplicador para palo con KB (reducido)
     private static final double AIR_COMBO_HORIZONTAL = 0.25; // KB horizontal en combos aéreos
-    private static final double AIR_COMBO_VERTICAL = 0.15;   // KB vertical en combos aéreos (ajustado)
-    private static final double KNOCKBACK_ENCHANT_H_REDUCTION = 0.2; // Reducción horizontal por encantamiento KB
-    private static final double KNOCKBACK_ENCHANT_V_REDUCTION = 0.15; // Ajustado al base vertical
+    private static final double AIR_COMBO_VERTICAL = 0.15;   // KB vertical en combos aéreos
+    private static final double KNOCKBACK_ENCHANT_H_REDUCTION = 0.15; // Reducción horizontal por KB (reducido de 0.2)
+    private static final double KNOCKBACK_ENCHANT_V_REDUCTION = 0.1; // Reducción vertical por KB (reducido de 0.15)
     private static final double ANTI_KB_MULTIPLIER = 0.5;  // Reducción para KB acumulativo
     private static final long COMBO_WINDOW = 500;          // Ventana de tiempo para combos (ms)
     private static final long CLEANUP_DELAY = 30 * 20L;    // 30 segundos en ticks
@@ -66,76 +67,67 @@ public class CombatManager {
     }
 
     public void applyCustomKnockback(Player victim, Player attacker) {
-        // Obtener el arma del atacante
         ItemStack weapon = attacker.getItemInHand();
         boolean isNoKbItem = weapon == null || weapon.getType() == Material.AIR || 
-                                !weapon.containsEnchantment(Enchantment.KNOCKBACK);
+                            !weapon.containsEnchantment(Enchantment.KNOCKBACK);
         int kbLevel = (!isNoKbItem) ? weapon.getEnchantmentLevel(Enchantment.KNOCKBACK) : 0;
 
-        // Determinar si el jugador está en el suelo
         boolean isOnGround = ((LivingEntity) victim).isOnGround() ||
                 victim.getLocation().getBlock().getRelative(0, -1, 0).getType() != Material.AIR;
 
-        // Calcular dirección del KB
         Vector dir;
         if (attacker == victim) {
-            // Si el atacante es el mismo jugador, usar la dirección a la que mira
             dir = victim.getLocation().getDirection().normalize().multiply(1.5);
         } else {
-            // Dirección desde el atacante hacia la víctima
             dir = victim.getLocation().toVector()
                     .subtract(attacker.getLocation().toVector())
                     .setY(0)
                     .normalize();
         }
 
-        // Inicializar valores base de KB
         double hMult = BASE_HORIZONTAL;
         double vMult = BASE_VERTICAL;
 
         // Ajustar según el contexto
         if (kbLevel > 0) {
-            // Reducir KB si hay encantamiento de Empuje
-            hMult *= KNOCKBACK_ENCHANT_H_REDUCTION;
-            vMult *= KNOCKBACK_ENCHANT_V_REDUCTION;
+            // Nuevo cálculo para palo con KB
+            hMult *= KNOCKBACK_ENCHANT_MULTIPLIER;
+            vMult *= KNOCKBACK_ENCHANT_MULTIPLIER;
+            
+            // Aplicar reducciones por nivel de KB
+            hMult -= (KNOCKBACK_ENCHANT_H_REDUCTION * kbLevel);
+            vMult -= (KNOCKBACK_ENCHANT_V_REDUCTION * kbLevel);
         } else if (isNoKbItem) {
-            // Reducir KB para ítems sin encantamiento de KB (incluye PvP a mano)
             hMult *= NO_KB_ITEM_REDUCTION;
             vMult *= NO_KB_ITEM_REDUCTION;
         }
 
         if (attacker.isSprinting()) {
-            // Bonus por esprintar
             hMult += SPRINT_BONUS;
         }
 
-        // Detectar combos aéreos
         Long lastKnockbackTime = lastKnockbackTimes.get(victim.getUniqueId());
         long currentTime = System.currentTimeMillis();
         boolean isCombo = lastKnockbackTime != null && (currentTime - lastKnockbackTime) < COMBO_WINDOW;
 
         if (isCombo && !isOnGround) {
-            // Ajustar KB para combos aéreos
             hMult = AIR_COMBO_HORIZONTAL;
             vMult = AIR_COMBO_VERTICAL;
         } else if (isCombo) {
-            // Reducir KB para combos en el suelo (evitar acumulación excesiva)
             hMult *= ANTI_KB_MULTIPLIER;
             vMult *= ANTI_KB_MULTIPLIER;
         }
 
-        // Actualizar el tiempo del último KB
         lastKnockbackTimes.put(victim.getUniqueId(), currentTime);
 
-        // Aplicar KB solo si el jugador está en el suelo o en un combo aéreo
+        Vector kb;
         if (isOnGround || isCombo) {
-            Vector kb = new Vector(dir.getX() * hMult, vMult, dir.getZ() * hMult);
-            victim.setVelocity(kb);
+            kb = new Vector(dir.getX() * hMult, vMult, dir.getZ() * hMult);
         } else {
-            // KB reducido para golpes en el aire (no combo)
-            Vector kb = new Vector(dir.getX() * hMult * 0.6, vMult * 0.4, dir.getZ() * hMult * 0.6);
-            victim.setVelocity(kb);
+            kb = new Vector(dir.getX() * hMult * 0.6, vMult * 0.4, dir.getZ() * hMult * 0.6);
         }
+
+        victim.setVelocity(kb);
     }
 
     public void cleanup() {

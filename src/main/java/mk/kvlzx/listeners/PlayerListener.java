@@ -171,6 +171,7 @@ public class PlayerListener implements Listener {
         if (currentArena != null) {
             plugin.getArenaManager().removePlayerFromArena(player, currentArena);
         }
+        plugin.getScoreboardManager().removePlayer(player);
     }
 
     @EventHandler
@@ -214,7 +215,6 @@ public class PlayerListener implements Listener {
         if (!soundName.equals("none")) {
             DeathSoundItem soundItem = DeathSoundItem.getByName(soundName);
             if (soundItem != null) {
-                // Reproducir sonido al propio jugador
                 player.playSound(
                     player.getLocation(),
                     soundItem.getSound(),
@@ -224,11 +224,14 @@ public class PlayerListener implements Listener {
             }
         }
 
-        // Eliminar todas las perlas lanzadas por el jugador
-        player.getWorld().getEntitiesByClass(EnderPearl.class).stream()
+        // Eliminar solo las perlas que están en vuelo
+        player.getWorld().getEntities().stream()
+            .filter(entity -> entity instanceof EnderPearl)
+            .map(entity -> (EnderPearl) entity)
             .filter(pearl -> pearl.getShooter() instanceof Player)
-            .filter(pearl -> ((Player) pearl.getShooter()).getUniqueId().equals(player.getUniqueId()))
-            .forEach(pearl -> pearl.remove());
+            .forEach(pearl -> {
+                pearl.remove();
+            });
     }
 
     private void handlePlayerKill(Player player) {

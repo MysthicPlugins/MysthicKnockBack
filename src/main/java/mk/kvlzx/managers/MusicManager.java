@@ -1,11 +1,9 @@
 package mk.kvlzx.managers;
 
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import net.minecraft.server.v1_8_R3.PacketPlayOutNamedSoundEffect;
 
 import mk.kvlzx.MysthicKnockBack;
 import java.util.HashMap;
@@ -15,13 +13,27 @@ import java.util.UUID;
 public class MusicManager {
     private final MysthicKnockBack plugin;
     private final Map<UUID, BukkitTask> playerTasks = new HashMap<>();
+    
+    // Duraciones de los discos en ticks (20 ticks = 1 segundo)
+    private final Map<String, Integer> RECORD_DURATIONS = new HashMap<String, Integer>() {{
+        put("records.far", 3480);    // 2:54 (174 segundos)
+        put("records.mall", 3940);   // 3:17 (197 segundos)
+        put("records.strad", 3760);  // 3:08 (188 segundos)
+        put("records.cat", 3700);    // 3:05 (185 segundos)
+        put("records.chirp", 3700);  // 3:05 (185 segundos)
+        put("records.mellohi", 1920);// 1:36 (96 segundos)
+        put("records.stal", 3000);   // 2:30 (150 segundos)
+    }};
 
     public MusicManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
     }
 
-    public void startMusicForPlayer(Player player, String music) {
+    public void startMusicForPlayer(Player player, String recordName) {
         stopMusicForPlayer(player);
+        
+        // Obtener la duración del disco (o usar un valor por defecto de 200 segundos)
+        int duration = RECORD_DURATIONS.getOrDefault(recordName, 4000);
 
         BukkitTask task = new BukkitRunnable() {
             @Override
@@ -32,9 +44,17 @@ public class MusicManager {
                     return;
                 }
 
-                playMusic(player, music);
+                // Verificar si el jugador aún tiene esta música seleccionada
+                String currentMusic = plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId());
+                if (!currentMusic.equals(recordName.substring(recordName.lastIndexOf('.') + 1))) {
+                    this.cancel();
+                    playerTasks.remove(player.getUniqueId());
+                    return;
+                }
+
+                player.playSound(player.getLocation(), recordName, 1.0f, 1.0f);
             }
-        }.runTaskTimer(plugin, 0L, 2400L); // 2400 ticks = 2 minutos
+        }.runTaskTimer(plugin, 0L, duration); // Reproducir al inicio y luego cada vez que termine
 
         playerTasks.put(player.getUniqueId(), task);
     }
@@ -44,36 +64,12 @@ public class MusicManager {
         if (task != null) {
             task.cancel();
         }
-        // Detener la música usando NMS
-        ((CraftPlayer)player).getHandle().playerConnection.sendPacket(
-            new PacketPlayOutNamedSoundEffect("", 0, 0, 0, 0, 0)
-        );
+        // Detener todos los sonidos
+        player.playSound(player.getLocation(), "", 1.0f, 1.0f); // Sonido vacío para detener
     }
 
-    private void playMusic(Player player, String music) {
-        CraftPlayer craftPlayer = (CraftPlayer) player;
-        PacketPlayOutNamedSoundEffect packet = new PacketPlayOutNamedSoundEffect(
-            music,
-            player.getLocation().getX(),
-            player.getLocation().getY(),
-            player.getLocation().getZ(),
-            1.0F,  // volumen
-            1.0F   // pitch
-        );
-        craftPlayer.getHandle().playerConnection.sendPacket(packet);
-    }
-
-    public void playPreviewMusic(Player player, String nmsSound) {
-        CraftPlayer craftPlayer = (CraftPlayer) player;
-        PacketPlayOutNamedSoundEffect packet = new PacketPlayOutNamedSoundEffect(
-            nmsSound,
-            player.getLocation().getX(),
-            player.getLocation().getY(),
-            player.getLocation().getZ(),
-            1.0F,  // volumen para preview
-            1.0F   // pitch para preview
-        );
-        craftPlayer.getHandle().playerConnection.sendPacket(packet);
+    public void playPreviewMusic(Player player, String sound) {
+        player.playSound(player.getLocation(), sound, 1.0f, 1.0f);
     }
 
     public void onDisable() {

@@ -1,6 +1,9 @@
 package mk.kvlzx.managers;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,6 +33,9 @@ public class MainScoreboardManager {
     private final ScoreboardManager scoreboardManager;
     private boolean arenaChanging = false; // Nueva variable
 
+    private final Map<UUID, Scoreboard> playerScoreboards = new HashMap<>();
+    private final Map<UUID, Objective> playerObjectives = new HashMap<>();
+
     public MainScoreboardManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
         this.scoreboardManager = Bukkit.getScoreboardManager();
@@ -50,10 +56,19 @@ public class MainScoreboardManager {
     }
 
     private void updatePlayerScoreboard(Player player) {
-        Scoreboard board = scoreboardManager.getNewScoreboard();
-        Objective obj = board.registerNewObjective("main", "dummy");
-        obj.setDisplayName(MessageUtils.getColor("&b&lKnockback&3&lFFA"));
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        Scoreboard board = playerScoreboards.get(player.getUniqueId());
+        Objective obj = playerObjectives.get(player.getUniqueId());
+
+        // Si el jugador no tiene scoreboard, crear una nueva
+        if (board == null || obj == null) {
+            board = scoreboardManager.getNewScoreboard();
+            obj = board.registerNewObjective("main", "dummy");
+            obj.setDisplayName(MessageUtils.getColor("&b&lKnockback&3&lFFA"));
+            obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+            playerScoreboards.put(player.getUniqueId(), board);
+            playerObjectives.put(player.getUniqueId(), obj);
+            player.setScoreboard(board); // Solo establecer la scoreboard una vez
+        }
 
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         String currentArena = plugin.getArenaManager().getCurrentArena();
@@ -63,30 +78,23 @@ public class MainScoreboardManager {
         int seconds = timeLeft % 60;
         String formattedTime = String.format("&e%02d:%02d", minutes, seconds);
 
-        // Las líneas se agregan en orden inverso
-        setScore(obj, "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", 16);
-        setScore(obj, "", 15);
-        setScore(obj, "&b❈ &fJugador: &b" + player.getName(), 14);
-        setScore(obj, "", 13);
-        setScore(obj, "&b☁ &fArena: &b" + currentArena, 12);
-        setScore(obj, "&b⏳ &fTiempo: " + formattedTime, 11);
-        setScore(obj, "&b✧ &fRango: " + RankManager.getRankPrefix(stats.getElo()), 10);
-        setScore(obj, "", 9);
-        setScore(obj, "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", 8);
-        setScore(obj, "&b⚔ &fKills: &a" + stats.getKills(), 7);
-        setScore(obj, "&b☠ &fMuertes: &c" + stats.getDeaths(), 6);
-        setScore(obj, "&b⭐ &fElo: &6" + stats.getElo(), 5);
-        setScore(obj, "&b⚖ &fKDR: &b" + String.format("%.2f", stats.getKDR()), 4);
-        setScore(obj, "&b⚡ &fRacha: &d" + stats.getCurrentStreak(), 3);
-        setScore(obj, "&b$ &fCoins: &e" + stats.getKGCoins(), 2);
-        setScore(obj, "", 1);
-        setScore(obj, "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", 0);
-
-        player.setScoreboard(board);
+        // Actualizar scores sin crear nuevos
+        updateScore(obj, "&7&m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯", 10);
+        updateScore(obj, "", 9);
+        updateScore(obj, "  &b⚔ &fK/D: &a" + stats.getKDR(), 8);
+        updateScore(obj, "  &b⚡ &fRacha: &d" + stats.getCurrentStreak(), 7);
+        updateScore(obj, "", 6);
+        updateScore(obj, "  &b✧ &fRango: " + RankManager.getRankPrefix(stats.getElo()), 5);
+        updateScore(obj, "  &b⭐ &fElo: &6" + stats.getElo(), 4);
+        updateScore(obj, "", 3);
+        updateScore(obj, "  &b☁ &fMapa: &b" + currentArena, 2);
+        updateScore(obj, "  &b⏳ &fTiempo: " + formattedTime, 1);
+        updateScore(obj, "&7&m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯", 0);
     }
 
-    private void setScore(Objective obj, String text, int score) {
-        Score scoreObj = obj.getScore(MessageUtils.getColor(text));
+    private void updateScore(Objective obj, String text, int score) {
+        String coloredText = MessageUtils.getColor(text);
+        Score scoreObj = obj.getScore(coloredText);
         scoreObj.setScore(score);
     }
 
@@ -224,5 +232,11 @@ public class MainScoreboardManager {
 
         // Actualizar la arena actual
         plugin.getArenaManager().setCurrentArena(nextArena);
+    }
+
+    // Añadir métodos para limpiar las referencias cuando el jugador se desconecta
+    public void removePlayer(Player player) {
+        playerScoreboards.remove(player.getUniqueId());
+        playerObjectives.remove(player.getUniqueId());
     }
 }

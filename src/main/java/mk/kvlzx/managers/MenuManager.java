@@ -30,6 +30,8 @@ import mk.kvlzx.menu.KillMessageCategoriesMenu;
 import mk.kvlzx.menu.KillMessageShopMenu;
 import mk.kvlzx.menu.ArrowEffectCategoriesMenu;
 import mk.kvlzx.menu.ArrowEffectShopMenu;
+import mk.kvlzx.menu.BackgroundMusicCategoriesMenu;
+import mk.kvlzx.menu.BackgroundMusicShopMenu;
 import mk.kvlzx.menu.DeathSoundCategoriesMenu;
 import mk.kvlzx.menu.DeathSoundShopMenu;
 import mk.kvlzx.menu.KillSoundCategoriesMenu;
@@ -73,6 +75,8 @@ public class MenuManager {
         registerMenu("death_sound_shop", new DeathSoundShopMenu(plugin));
         registerMenu("kill_sound_categories", new KillSoundCategoriesMenu(plugin));
         registerMenu("kill_sound_shop", new KillSoundShopMenu(plugin));
+        registerMenu("background_music_categories", new BackgroundMusicCategoriesMenu(plugin));
+        registerMenu("background_music_shop", new BackgroundMusicShopMenu(plugin));
         // Aquí registraremos los demás menús
     }
 
