@@ -124,6 +124,12 @@ public class CombatListener implements Listener {
         return attackerPlayer;
     }
 
+    // Nuevo método para resetear el combate cuando un jugador muere
+    public void resetCombat(Player player) {
+        lastAttacker.remove(player.getUniqueId());
+        lastAttackTime.remove(player.getUniqueId());
+    }
+
     @EventHandler
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
         if (event.getEntity() instanceof Player) {

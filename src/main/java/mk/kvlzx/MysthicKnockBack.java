@@ -26,6 +26,7 @@ import mk.kvlzx.managers.CooldownManager;
 import mk.kvlzx.managers.MainScoreboardManager;
 import mk.kvlzx.managers.TabManager;
 import mk.kvlzx.managers.MenuManager;
+import mk.kvlzx.managers.MusicManager;
 import mk.kvlzx.managers.ReportManager;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
@@ -48,6 +49,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private CooldownManager cooldownManager;
     private CosmeticManager cosmeticManager;
     private CombatManager combatManager;
+    private MusicManager musicManager;
 
     @Override
     public void onEnable() {
@@ -128,6 +130,10 @@ public class MysthicKnockBack extends JavaPlugin {
             e.printStackTrace();
         }
 
+        if (musicManager != null) {
+            musicManager.onDisable();
+        }
+
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&c✕&8] &cPlugin desactivado correctamente");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
@@ -143,6 +149,7 @@ public class MysthicKnockBack extends JavaPlugin {
         cooldownManager = new CooldownManager(this);
         cosmeticManager = new CosmeticManager(this);
         combatManager = new CombatManager(this);
+        musicManager = new MusicManager(this);
     }
 
     private void startPlaytimeUpdater() {
@@ -215,5 +222,9 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public CombatManager getCombatManager() {
         return combatManager;
+    }
+
+    public MusicManager getMusicManager() {
+        return musicManager;
     }
 }

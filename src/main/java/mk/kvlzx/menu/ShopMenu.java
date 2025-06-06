@@ -139,7 +139,7 @@ public class ShopMenu extends Menu {
                 plugin.getMenuManager().openMenu(player, "kill_sound_categories");
                 break;
             case 43: // Música de fondo
-                player.sendMessage(MessageUtils.getColor("&cPróximamente disponible."));
+                plugin.getMenuManager().openMenu(player, "background_music_categories");
                 break;
             case 49: // Volver
                 plugin.getMenuManager().openMenu(player, "main");

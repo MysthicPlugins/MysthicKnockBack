@@ -37,6 +37,8 @@ public class CosmeticManager {
     private final Map<UUID, Set<String>> playerOwnedDeathSounds = new HashMap<>();
     private final Map<UUID, String> playerKillSounds = new HashMap<>();
     private final Map<UUID, Set<String>> playerOwnedKillSounds = new HashMap<>();
+    private final Map<UUID, String> playerBackgroundMusic = new HashMap<>();
+    private final Map<UUID, Set<String>> playerOwnedMusic = new HashMap<>();
 
     public CosmeticManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -373,6 +375,47 @@ public class CosmeticManager {
         }
     }
 
+    public String getPlayerBackgroundMusic(UUID uuid) {
+        return playerBackgroundMusic.getOrDefault(uuid, "none");
+    }
+
+    public void setPlayerBackgroundMusic(UUID uuid, String musicName) {
+        if (musicName.equals("none")) {
+            playerBackgroundMusic.remove(uuid);
+        } else {
+            playerBackgroundMusic.put(uuid, musicName);
+        }
+        savePlayerBackgroundMusic(uuid);
+    }
+
+    public boolean hasPlayerBackgroundMusic(UUID uuid, String musicName) {
+        if (musicName.equals("none")) return true;
+        Set<String> owned = playerOwnedMusic.getOrDefault(uuid, new HashSet<>());
+        return owned.contains(musicName);
+    }
+
+    public void addPlayerBackgroundMusic(UUID uuid, String musicName) {
+        playerOwnedMusic.computeIfAbsent(uuid, k -> new HashSet<>()).add(musicName);
+        savePlayerOwnedMusic(uuid);
+    }
+
+    private void savePlayerBackgroundMusic(UUID uuid) {
+        String music = playerBackgroundMusic.get(uuid);
+        if (music != null) {
+            cosmeticConfig.getConfig().set("background_music." + uuid.toString(), music);
+            cosmeticConfig.saveConfig();
+        }
+    }
+
+    private void savePlayerOwnedMusic(UUID uuid) {
+        Set<String> music = playerOwnedMusic.get(uuid);
+        if (music != null) {
+            cosmeticConfig.getConfig().set("owned_background_music." + uuid.toString(), 
+                new ArrayList<>(music));
+            cosmeticConfig.saveConfig();
+        }
+    }
+
     public void saveAll() {
         for (Map.Entry<UUID, Material> entry : playerBlocks.entrySet()) {
             cosmeticConfig.getConfig().set("blocks." + entry.getKey().toString(), entry.getValue().name());
@@ -429,6 +472,14 @@ public class CosmeticManager {
         playerOwnedKillSounds.forEach((uuid, sounds) -> {
             cosmeticConfig.getConfig().set("owned_kill_sounds." + uuid.toString(), 
                 new ArrayList<>(sounds));
+        });
+        for (Map.Entry<UUID, String> entry : playerBackgroundMusic.entrySet()) {
+            cosmeticConfig.getConfig().set("background_music." + entry.getKey().toString(), 
+                entry.getValue());
+        }
+        playerOwnedMusic.forEach((uuid, music) -> {
+            cosmeticConfig.getConfig().set("owned_background_music." + uuid.toString(), 
+                new ArrayList<>(music));
         });
         cosmeticConfig.saveConfig();
     }
@@ -613,6 +664,32 @@ public class CosmeticManager {
                     playerOwnedKillSounds.put(playerUUID, new HashSet<>(soundNames));
                 } catch (IllegalArgumentException e) {
                     plugin.getLogger().warning("Error loading owned kill sounds for " + uuid);
+                }
+            }
+        }
+
+        ConfigurationSection backgroundMusicSection = cosmeticConfig.getConfig().getConfigurationSection("background_music");
+        if (backgroundMusicSection != null) {
+            for (String uuid : backgroundMusicSection.getKeys(false)) {
+                try {
+                    UUID playerUUID = UUID.fromString(uuid);
+                    String music = backgroundMusicSection.getString(uuid);
+                    playerBackgroundMusic.put(playerUUID, music);
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Error loading background music for " + uuid);
+                }
+            }
+        }
+        
+        ConfigurationSection ownedMusicSection = cosmeticConfig.getConfig().getConfigurationSection("owned_background_music");
+        if (ownedMusicSection != null) {
+            for (String uuid : ownedMusicSection.getKeys(false)) {
+                try {
+                    UUID playerUUID = UUID.fromString(uuid);
+                    List<String> musicNames = ownedMusicSection.getStringList(uuid);
+                    playerOwnedMusic.put(playerUUID, new HashSet<>(musicNames));
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Error loading owned background music for " + uuid);
                 }
             }
         }

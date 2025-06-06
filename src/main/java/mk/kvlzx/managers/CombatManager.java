@@ -19,18 +19,18 @@ public class CombatManager {
     private static final Map<UUID, Long> lastKnockbackTimes = new HashMap<>();
 
     // Constantes configurables para diferentes situaciones
-    private static final double BASE_HORIZONTAL = 0.35; // KB horizontal base
-    private static final double BASE_VERTICAL = 0.15;  // KB vertical base
-    private static final double SPRINT_BONUS = 0.15;   // Bonus por esprintar
+    private static final double BASE_HORIZONTAL = 0.35;   // KB horizontal base
+    private static final double BASE_VERTICAL = 0.15;     // KB vertical base (no cambiar)
+    private static final double SPRINT_BONUS = 0.15;      // Bonus por esprintar
     private static final double NO_KB_ITEM_REDUCTION = 0.6; // Reducción para PvP a mano o ítems sin KB
     private static final double AIR_COMBO_HORIZONTAL = 0.25; // KB horizontal en combos aéreos
-    private static final double AIR_COMBO_VERTICAL = 0.3;   // KB vertical en combos aéreos
+    private static final double AIR_COMBO_VERTICAL = 0.15;   // KB vertical en combos aéreos (ajustado)
     private static final double KNOCKBACK_ENCHANT_H_REDUCTION = 0.2; // Reducción horizontal por encantamiento KB
-    private static final double KNOCKBACK_ENCHANT_V_REDUCTION = 0.8; // Reducción vertical por encantamiento KB
-    private static final double ANTI_KB_MULTIPLIER = 0.5; // Reducción para KB acumulativo
-    private static final long COMBO_WINDOW = 500; // Ventana de tiempo para combos (ms)
-    private static final long CLEANUP_DELAY = 30 * 20L; // 30 segundos en ticks
-    private static final long DATA_EXPIRY = 60000L; // 60 segundos en milisegundos
+    private static final double KNOCKBACK_ENCHANT_V_REDUCTION = 0.15; // Ajustado al base vertical
+    private static final double ANTI_KB_MULTIPLIER = 0.5;  // Reducción para KB acumulativo
+    private static final long COMBO_WINDOW = 500;          // Ventana de tiempo para combos (ms)
+    private static final long CLEANUP_DELAY = 30 * 20L;    // 30 segundos en ticks
+    private static final long DATA_EXPIRY = 60000L;       // 60 segundos en milisegundos
 
     public CombatManager(MysthicKnockBack plugin) {
         this.plugin = plugin;

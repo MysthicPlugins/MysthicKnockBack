@@ -120,8 +120,52 @@ public class PlayerListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        
+        // Verificar si el jugador está en combate
+        CombatListener combatListener = plugin.getCombatListener();
+        Player killer = combatListener.getLastAttacker(player);
+
+        if (killer != null) {
+            // El jugador se desconectó en combate
+            stats.addDeath();
+            stats.resetStreak();
+            PlayerStats killerStats = PlayerStats.getStats(killer.getUniqueId());
+            killerStats.addKill();
+            
+            // Dar perla al killer
+            givePearlToKiller(killer);
+
+            // Mensaje de muerte por desconexión
+            String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
+            String killMessage;
+            if (messageName.equals("default")) {
+                killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
+            } else {
+                KillMessageItem messageItem = KillMessageItem.getByName(messageName);
+                killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
+            }
+            
+            Bukkit.broadcastMessage(MessageUtils.getColor(
+                killMessage.replace("{killer}", killer.getName())
+                            .replace("{victim}", player.getName())
+            ));
+
+            // Reproducir sonido de kill al asesino
+            String soundName = plugin.getCosmeticManager().getPlayerKillSound(killer.getUniqueId());
+            if (!soundName.equals("none")) {
+                KillSoundItem soundItem = KillSoundItem.getByName(soundName);
+                if (soundItem != null) {
+                    killer.playSound(
+                        killer.getLocation(),
+                        soundItem.getSound(),
+                        soundItem.getVolume(),
+                        soundItem.getPitch()
+                    );
+                }
+            }
+        }
+
         stats.updatePlayTime();
-        stats.resetStreak();
         
         String currentArena = plugin.getArenaManager().getCurrentArena();
         if (currentArena != null) {
@@ -242,6 +286,9 @@ public class PlayerListener implements Listener {
                                     .replace("{victim}", player.getName())
                     ));
                     handlePlayerKill(killer);
+                    
+                    // Resetear el combate después de una muerte
+                    plugin.getCombatListener().resetCombat(player);
                 } else {
                     playerStats.addDeath();
                     playerStats.resetStreak();
