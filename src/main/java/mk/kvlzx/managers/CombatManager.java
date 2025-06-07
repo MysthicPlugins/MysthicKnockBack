@@ -22,11 +22,12 @@ public class CombatManager {
     private static final double BASE_HORIZONTAL = 0.35;   // KB horizontal base
     private static final double BASE_VERTICAL = 0.15;     // KB vertical base
     private static final double SPRINT_BONUS = 0.15;      // Bonus por esprintar
+    private static final double SPRINT_BONUS_VERTICAL = 0.10; // Bonus vertical por esprintar
     private static final double NO_KB_ITEM_REDUCTION = 0.60; // Reducción para PvP a mano
     private static final double AIR_COMBO_HORIZONTAL = 0.25; // KB horizontal en combos aéreos
     private static final double AIR_COMBO_VERTICAL = 0.15;   // KB vertical en combos aéreos
     private static final double KNOCKBACK_ENCHANT_H_REDUCTION = 0.20; // Reducción horizontal por KB
-    private static final double KNOCKBACK_ENCHANT_V_REDUCTION = 0.15; // Reducción vertical por KB
+    private static final double KNOCKBACK_ENCHANT_V_REDUCTION = 0.80; // Reducción vertical por KB
     private static final double ANTI_KB_MULTIPLIER = 0.4;  // Reducción para KB acumulativo
     private static final long COMBO_WINDOW = 500;          // Ventana de tiempo para combos (ms)
     private static final long CLEANUP_DELAY = 30 * 20L;    // 30 segundos en ticks
@@ -98,7 +99,8 @@ public class CombatManager {
         }
 
         if (attacker.isSprinting()) {
-            hMult += SPRINT_BONUS;
+            hMult *= SPRINT_BONUS;
+            vMult += SPRINT_BONUS - SPRINT_BONUS_VERTICAL;
         }
 
         Long lastKnockbackTime = lastKnockbackTimes.get(victim.getUniqueId());
