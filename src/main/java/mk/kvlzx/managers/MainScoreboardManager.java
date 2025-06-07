@@ -59,7 +59,6 @@ public class MainScoreboardManager {
         Scoreboard board = playerScoreboards.get(player.getUniqueId());
         Objective obj = playerObjectives.get(player.getUniqueId());
 
-        // Si el jugador no tiene scoreboard, crear una nueva
         if (board == null || obj == null) {
             board = scoreboardManager.getNewScoreboard();
             obj = board.registerNewObjective("main", "dummy");
@@ -67,7 +66,7 @@ public class MainScoreboardManager {
             obj.setDisplaySlot(DisplaySlot.SIDEBAR);
             playerScoreboards.put(player.getUniqueId(), board);
             playerObjectives.put(player.getUniqueId(), obj);
-            player.setScoreboard(board); // Solo establecer la scoreboard una vez
+            player.setScoreboard(board);
         }
 
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
@@ -77,19 +76,25 @@ public class MainScoreboardManager {
         int minutes = timeLeft / 60;
         int seconds = timeLeft % 60;
         String formattedTime = String.format("&e%02d:%02d", minutes, seconds);
+        
+        // Formatear KDR a 2 decimales
+        String kdr = String.format("%.2f", stats.getKDR());
 
-        // Actualizar scores sin crear nuevos
-        updateScore(obj, "&7&m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯", 10);
+        updateScore(obj, "&7&m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯", 14);
+        updateScore(obj, "", 13);
+        updateScore(obj, "&b&lINFO:", 12);
+        updateScore(obj, " &8➥ &fPlayer: &b" + player.getName(), 11);
+        updateScore(obj, " &8➥ &fArena: &b" + currentArena, 10);
         updateScore(obj, "", 9);
-        updateScore(obj, "  &b⚔ &fK/D: &a" + stats.getKDR(), 8);
-        updateScore(obj, "  &b⚡ &fRacha: &d" + stats.getCurrentStreak(), 7);
-        updateScore(obj, "", 6);
-        updateScore(obj, "  &b✧ &fRango: " + RankManager.getRankPrefix(stats.getElo()), 5);
-        updateScore(obj, "  &b⭐ &fElo: &6" + stats.getElo(), 4);
-        updateScore(obj, "", 3);
-        updateScore(obj, "  &b☁ &fMapa: &b" + currentArena, 2);
-        updateScore(obj, "  &b⏳ &fTiempo: " + formattedTime, 1);
-        updateScore(obj, "&7&m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯", 0);
+        updateScore(obj, "&b&lSTATS:", 8);
+        updateScore(obj, " &8➥ &fKills: &a" + stats.getKills(), 7);
+        updateScore(obj, " &8➥ &fDeaths: &c" + stats.getDeaths(), 6);
+        updateScore(obj, " &8➥ &fK/D: &e" + kdr, 5);
+        updateScore(obj, "", 4);
+        updateScore(obj, "&b&lTIME:", 3);
+        updateScore(obj, " &8➥ &fChange: " + formattedTime, 2);
+        updateScore(obj, "", 1);
+        updateScore(obj, "&eplay.mysthicknockback.gg", 0);
     }
 
     private void updateScore(Objective obj, String text, int score) {

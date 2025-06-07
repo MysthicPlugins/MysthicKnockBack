@@ -1,11 +1,13 @@
 package mk.kvlzx.managers;
 
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import net.minecraft.server.v1_8_R3.PacketPlayOutNamedSoundEffect;
 import mk.kvlzx.MysthicKnockBack;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -13,82 +15,117 @@ import java.util.UUID;
 public class MusicManager {
     private final MysthicKnockBack plugin;
     private final Map<UUID, BukkitTask> playerTasks = new HashMap<>();
+    private final Map<UUID, String> currentMusic = new HashMap<>();
     
-    // Duraciones de los discos en ticks (20 ticks = 1 segundo)
-    private final Map<String, Integer> RECORD_DURATIONS = new HashMap<String, Integer>() {{
-        put("records.far", 3480);    // 2:54 (174 segundos)
-        put("records.mall", 3940);   // 3:17 (197 segundos)
-        put("records.strad", 3760);  // 3:08 (188 segundos)
-        put("records.cat", 3700);    // 3:05 (185 segundos)
-        put("records.chirp", 3700);  // 3:05 (185 segundos)
-        put("records.mellohi", 1920);// 1:36 (96 segundos)
-        put("records.stal", 3000);   // 2:30 (150 segundos)
-    }};
+    private final Map<String, MusicData> MUSIC_DATA = new HashMap<>();
 
-    private static final int PREVIEW_DURATION = 200; // 10 segundos (200 ticks)
+    private static class MusicData {
+        final String nmsName;
+        final int duration;
+        final float volume;
+        final float pitch;
+
+        MusicData(String nmsName, int duration, float volume, float pitch) {
+            this.nmsName = nmsName;
+            this.duration = duration;
+            this.volume = volume;
+            this.pitch = pitch;
+        }
+    }
 
     public MusicManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
+        initializeMusicData();
     }
 
-    public void startMusicForPlayer(Player player, String recordName) {
+    private void initializeMusicData() {
+        // Registrar datos de música con nombres NMS
+        MUSIC_DATA.put("far", new MusicData("records.far", 174, 1.0f, 1.0f));
+        MUSIC_DATA.put("mall", new MusicData("records.mall", 197, 1.0f, 1.0f));
+        MUSIC_DATA.put("strad", new MusicData("records.strad", 188, 1.0f, 1.0f));
+        MUSIC_DATA.put("cat", new MusicData("records.cat", 185, 1.0f, 1.0f));
+        MUSIC_DATA.put("chirp", new MusicData("records.chirp", 185, 1.0f, 1.0f));
+        MUSIC_DATA.put("mellohi", new MusicData("records.mellohi", 96, 1.0f, 1.0f));
+        MUSIC_DATA.put("stal", new MusicData("records.stal", 150, 1.0f, 1.0f));
+    }
+
+    public void startMusicForPlayer(Player player, String musicName) {
         stopMusicForPlayer(player);
         
-        // Obtener la duración del disco (o usar un valor por defecto de 200 segundos)
-        int duration = RECORD_DURATIONS.getOrDefault(recordName, 4000);
+        String simpleName = musicName.replace("records.", "");
+        MusicData musicData = MUSIC_DATA.get(simpleName);
+        if (musicData == null) return;
 
-        BukkitTask task = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!player.isOnline()) {
-                    this.cancel();
-                    playerTasks.remove(player.getUniqueId());
-                    return;
-                }
-
-                // Obtener solo el nombre de la música sin el "records."
-                String musicName = recordName.substring(recordName.lastIndexOf('.') + 1);
-                // Obtener la música actual del jugador
-                String currentMusic = plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId());
-                
-                // Comparar los nombres correctamente
-                if (!currentMusic.equalsIgnoreCase(musicName)) {
-                    this.cancel();
-                    playerTasks.remove(player.getUniqueId());
-                    return;
-                }
-
-                player.playSound(player.getLocation(), recordName, 1.0f, 1.0f);
+        currentMusic.put(player.getUniqueId(), simpleName);
+        
+        BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            if (!player.isOnline() || 
+                !simpleName.equals(plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId()))) {
+                stopMusicForPlayer(player);
+                return;
             }
-        }.runTaskTimer(plugin, 0L, duration); // Reproducir al inicio y luego cada vez que termine
+            
+            playNMSSound(player, musicData);
+            
+        }, 0L, musicData.duration * 20L);
 
         playerTasks.put(player.getUniqueId(), task);
     }
 
+    private void playNMSSound(Player player, MusicData musicData) {
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+        PacketPlayOutNamedSoundEffect packet = new PacketPlayOutNamedSoundEffect(
+            musicData.nmsName,
+            player.getLocation().getX(),
+            player.getLocation().getY(),
+            player.getLocation().getZ(),
+            musicData.volume,
+            musicData.pitch
+        );
+        craftPlayer.getHandle().playerConnection.sendPacket(packet);
+    }
+
+    public void playPreviewMusic(Player player, String musicName) {
+        String simpleName = musicName.replace("records.", "");
+        MusicData musicData = MUSIC_DATA.get(simpleName);
+        if (musicData == null) return;
+
+        playNMSSound(player, musicData);
+        
+        // Detener después de 10 segundos
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            stopMusicForPlayer(player);
+        }, 200L);
+    }
+
     public void stopMusicForPlayer(Player player) {
+        // Cancelar la tarea de reproducción
         BukkitTask task = playerTasks.remove(player.getUniqueId());
         if (task != null) {
             task.cancel();
         }
-        // Detener todos los sonidos
-        player.playSound(player.getLocation(), "", 1.0f, 1.0f); // Sonido vacío para detener
-    }
 
-    public void playPreviewMusic(Player player, String sound) {
-        player.playSound(player.getLocation(), sound, 1.0f, 1.0f);
-        
-        // Programar que se detenga el sonido después de 10 segundos
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            player.playSound(player.getLocation(), "", 1.0f, 1.0f); // Detener el sonido
-        }, PREVIEW_DURATION);
+        // Detener el sonido actual usando NMS
+        String current = currentMusic.remove(player.getUniqueId());
+        if (current != null) {
+            CraftPlayer craftPlayer = (CraftPlayer) player;
+            PacketPlayOutNamedSoundEffect packet = new PacketPlayOutNamedSoundEffect(
+                "system.stop_record", // Packet especial para detener música
+                player.getLocation().getX(),
+                player.getLocation().getY(),
+                player.getLocation().getZ(),
+                1.0f,
+                1.0f
+            );
+            craftPlayer.getHandle().playerConnection.sendPacket(packet);
+        }
     }
 
     public void onDisable() {
-        playerTasks.values().forEach(BukkitTask::cancel);
-        playerTasks.clear();
-        
         for (Player player : Bukkit.getOnlinePlayers()) {
             stopMusicForPlayer(player);
         }
+        playerTasks.clear();
+        currentMusic.clear();
     }
 }

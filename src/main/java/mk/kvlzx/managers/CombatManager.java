@@ -22,13 +22,12 @@ public class CombatManager {
     private static final double BASE_HORIZONTAL = 0.35;   // KB horizontal base
     private static final double BASE_VERTICAL = 0.15;     // KB vertical base
     private static final double SPRINT_BONUS = 0.15;      // Bonus por esprintar
-    private static final double NO_KB_ITEM_REDUCTION = 0.6; // Reducción para PvP a mano
-    private static final double KNOCKBACK_ENCHANT_MULTIPLIER = 0.7; // Multiplicador para palo con KB (reducido)
+    private static final double NO_KB_ITEM_REDUCTION = 0.60; // Reducción para PvP a mano
     private static final double AIR_COMBO_HORIZONTAL = 0.25; // KB horizontal en combos aéreos
     private static final double AIR_COMBO_VERTICAL = 0.15;   // KB vertical en combos aéreos
-    private static final double KNOCKBACK_ENCHANT_H_REDUCTION = 0.15; // Reducción horizontal por KB (reducido de 0.2)
-    private static final double KNOCKBACK_ENCHANT_V_REDUCTION = 0.1; // Reducción vertical por KB (reducido de 0.15)
-    private static final double ANTI_KB_MULTIPLIER = 0.5;  // Reducción para KB acumulativo
+    private static final double KNOCKBACK_ENCHANT_H_REDUCTION = 0.20; // Reducción horizontal por KB
+    private static final double KNOCKBACK_ENCHANT_V_REDUCTION = 0.15; // Reducción vertical por KB
+    private static final double ANTI_KB_MULTIPLIER = 0.4;  // Reducción para KB acumulativo
     private static final long COMBO_WINDOW = 500;          // Ventana de tiempo para combos (ms)
     private static final long CLEANUP_DELAY = 30 * 20L;    // 30 segundos en ticks
     private static final long DATA_EXPIRY = 60000L;       // 60 segundos en milisegundos
@@ -91,12 +90,8 @@ public class CombatManager {
         // Ajustar según el contexto
         if (kbLevel > 0) {
             // Nuevo cálculo para palo con KB
-            hMult *= KNOCKBACK_ENCHANT_MULTIPLIER;
-            vMult *= KNOCKBACK_ENCHANT_MULTIPLIER;
-            
-            // Aplicar reducciones por nivel de KB
-            hMult -= (KNOCKBACK_ENCHANT_H_REDUCTION * kbLevel);
-            vMult -= (KNOCKBACK_ENCHANT_V_REDUCTION * kbLevel);
+            hMult *= KNOCKBACK_ENCHANT_H_REDUCTION;
+            vMult *= KNOCKBACK_ENCHANT_V_REDUCTION;
         } else if (isNoKbItem) {
             hMult *= NO_KB_ITEM_REDUCTION;
             vMult *= NO_KB_ITEM_REDUCTION;
@@ -120,14 +115,14 @@ public class CombatManager {
 
         lastKnockbackTimes.put(victim.getUniqueId(), currentTime);
 
-        Vector kb;
         if (isOnGround || isCombo) {
-            kb = new Vector(dir.getX() * hMult, vMult, dir.getZ() * hMult);
+            Vector kb = new Vector(dir.getX() * hMult, vMult, dir.getZ() * hMult);
+            victim.setVelocity(kb);
         } else {
-            kb = new Vector(dir.getX() * hMult * 0.6, vMult * 0.4, dir.getZ() * hMult * 0.6);
+            // KB reducido para golpes en el aire (no combo)
+            Vector kb = new Vector(dir.getX() * hMult * 0.6, vMult * 0.4, dir.getZ() * hMult * 0.6);
+            victim.setVelocity(kb);
         }
-
-        victim.setVelocity(kb);
     }
 
     public void cleanup() {
