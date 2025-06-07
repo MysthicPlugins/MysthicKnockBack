@@ -13,9 +13,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.utils.MessageUtils;
 
-public class BackgroundMusicCategoriesMenu extends Menu {
+public class MusicCategoriesMenu extends Menu {
 
-    public BackgroundMusicCategoriesMenu(MysthicKnockBack plugin) {
+    public MusicCategoriesMenu(MysthicKnockBack plugin) {
         super(plugin, "&8• &d&lMúsica de Fondo &8•", 45);
     }
 
@@ -60,16 +60,16 @@ public class BackgroundMusicCategoriesMenu extends Menu {
         
         switch(event.getSlot()) {
             case 11: // Común
-                BackgroundMusicShopMenu.setCurrentCategory("COMÚN");
-                plugin.getMenuManager().openMenu(player, "background_music_shop");
+                MusicShopMenu.setCurrentCategory("COMÚN");
+                plugin.getMenuManager().openMenu(player, "music_shop");
                 break;
             case 13: // Épico
-                BackgroundMusicShopMenu.setCurrentCategory("ÉPICO");
-                plugin.getMenuManager().openMenu(player, "background_music_shop");
+                MusicShopMenu.setCurrentCategory("ÉPICO");
+                plugin.getMenuManager().openMenu(player, "music_shop");
                 break;
             case 15: // Legendario
-                BackgroundMusicShopMenu.setCurrentCategory("LEGENDARIO");
-                plugin.getMenuManager().openMenu(player, "background_music_shop");
+                MusicShopMenu.setCurrentCategory("LEGENDARIO");
+                plugin.getMenuManager().openMenu(player, "music_shop");
                 break;
             case 40: // Volver
                 plugin.getMenuManager().openMenu(player, "shop");

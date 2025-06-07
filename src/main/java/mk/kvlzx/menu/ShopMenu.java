@@ -94,14 +94,14 @@ public class ShopMenu extends Menu {
             "&8➥ Incluye +8 sonidos únicos",
             "&aDisponible!"));
 
-        inv.setItem(43, createItem(Material.GOLD_RECORD, "&5&lMúsica de Fondo",
+        inv.setItem(43, createItem(Material.GOLD_RECORD, "&5&lMúsica",
             "&7Click para ver música",
             "",
             "&8▪ &7Música personalizada",
             "&8▪ &7Temas exclusivos",
             "",
             "&8➥ Ambienta tus partidas",
-            "&cPróximamente"));
+            "&aDisponible!"));
 
         // Botón para volver
         inv.setItem(49, createItem(Material.ARROW, "&c← Volver", 
@@ -138,8 +138,8 @@ public class ShopMenu extends Menu {
             case 37: // Sonidos de kill
                 plugin.getMenuManager().openMenu(player, "kill_sound_categories");
                 break;
-            case 43: // Música de fondo
-                plugin.getMenuManager().openMenu(player, "background_music_categories");
+            case 43: // Música
+                plugin.getMenuManager().openMenu(player, "music_categories");
                 break;
             case 49: // Volver
                 plugin.getMenuManager().openMenu(player, "main");

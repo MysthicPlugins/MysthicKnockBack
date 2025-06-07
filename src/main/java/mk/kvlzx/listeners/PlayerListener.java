@@ -20,12 +20,15 @@ import org.bukkit.util.Vector;
 import org.bukkit.Bukkit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import mk.kvlzx.items.CustomItem.ItemType;
 import mk.kvlzx.managers.RankManager;
 
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 
 import mk.kvlzx.MysthicKnockBack;
@@ -189,9 +192,22 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerBlockBreak(BlockBreakEvent event) {
+    public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
+        Block block = event.getBlock();
+
         if (player.getGameMode() == GameMode.CREATIVE) return; // Permitir en modo creativo
+        
+        if (block.getType() == Material.JUKEBOX) {
+            // Si es una jukebox de música, cancelar la ruptura
+            for (Map.Entry<UUID, Location> entry : plugin.getMusicManager().getPlayerJukeboxes().entrySet()) {
+                if (block.getLocation().equals(entry.getValue())) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
+        
         event.setCancelled(true);
     }
 

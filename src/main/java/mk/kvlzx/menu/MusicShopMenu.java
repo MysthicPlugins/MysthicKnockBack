@@ -17,11 +17,11 @@ import mk.kvlzx.cosmetics.BackgroundMusicItem;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 
-public class BackgroundMusicShopMenu extends Menu {
+public class MusicShopMenu extends Menu {
     private final List<BackgroundMusicItem> shopItems;
     private static String currentCategory = "COMÚN";
 
-    public BackgroundMusicShopMenu(MysthicKnockBack plugin) {
+    public MusicShopMenu(MysthicKnockBack plugin) {
         super(plugin, "&8• &d&lTienda de Música &8•", 45);
         this.shopItems = initializeShopItems();
     }
@@ -113,7 +113,7 @@ public class BackgroundMusicShopMenu extends Menu {
         lore.add("");
         lore.add(MessageUtils.getColor(item.getDescription()));
         lore.add("");
-        lore.add("&eClick derecho para escuchar una muestra");;
+        lore.add("&eClick derecho para escuchar una muestra");
         lore.add("");
         
         if (hasMusic) {
@@ -153,7 +153,7 @@ public class BackgroundMusicShopMenu extends Menu {
         if (event.getSlot() == 40) {
             // Detener cualquier música de muestra
             stopPreviewMusic(player);
-            plugin.getMenuManager().openMenu(player, "background_music_categories");
+            plugin.getMenuManager().openMenu(player, "music_categories");
             return;
         }
 

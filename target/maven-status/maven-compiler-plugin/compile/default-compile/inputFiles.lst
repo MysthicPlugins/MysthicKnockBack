@@ -41,8 +41,6 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\managers\StreakManager.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\managers\TabManager.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\ArrowEffectCategoriesMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\ArrowEffectShopMenu.java
-E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\BackgroundMusicCategoriesMenu.java
-E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\BackgroundMusicShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\BlockCategoriesMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\BlockShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\DeathMessageCategoriesMenu.java
@@ -58,6 +56,8 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KnockerCategoriesMenu.ja
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KnockerShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\MainMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\Menu.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\MusicCategoriesMenu.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\MusicShopMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\PlayerListMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\ReportReasonMenu.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\ShopMenu.java

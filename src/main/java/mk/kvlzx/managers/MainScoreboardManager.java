@@ -77,37 +77,49 @@ public class MainScoreboardManager {
         int seconds = timeLeft % 60;
         String formattedTime = String.format("&e%02d:%02d", minutes, seconds);
         
-        // Formatear KDR a 2 decimales
-        String kdr = String.format("%.2f", stats.getKDR());
+        // Crear un buffer con los valores actuales
+        Map<Integer, String> newScores = new HashMap<>();
+        newScores.put(14, "&7&m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        newScores.put(13, " ");
+        newScores.put(12, "&b&lINFO:");
+        newScores.put(11, " &8➥ &fPlayer: &b" + player.getName());
+        newScores.put(10, " &8➥ &fArena: &b" + currentArena);
+        newScores.put(9, " ");
+        newScores.put(8, "&b&lSTATS:");
+        newScores.put(7, " &8➥ &fKills: &a" + stats.getKills());
+        newScores.put(6, " &8➥ &fDeaths: &c" + stats.getDeaths());
+        newScores.put(5, " &8➥ &fK/D: &e" + String.format("%.2f", stats.getKDR()));
+        newScores.put(4, " ");
+        newScores.put(3, "&b&lTIME:");
+        newScores.put(2, " &8➥ &fChange: " + formattedTime);
+        newScores.put(1, " &8➥ &fNext: &e" + plugin.getArenaManager().getNextArena());
+        newScores.put(0, " ");
+        newScores.put(0, "&eplay.mysthicknockback.gg");
 
-        updateScore(obj, "&7&m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯", 14);
-        updateScore(obj, "", 13);
-        updateScore(obj, "&b&lINFO:", 12);
-        updateScore(obj, " &8➥ &fPlayer: &b" + player.getName(), 11);
-        updateScore(obj, " &8➥ &fArena: &b" + currentArena, 10);
-        updateScore(obj, "", 9);
-        updateScore(obj, "&b&lSTATS:", 8);
-        updateScore(obj, " &8➥ &fKills: &a" + stats.getKills(), 7);
-        updateScore(obj, " &8➥ &fDeaths: &c" + stats.getDeaths(), 6);
-        updateScore(obj, " &8➥ &fK/D: &e" + kdr, 5);
-        updateScore(obj, "", 4);
-        updateScore(obj, "&b&lTIME:", 3);
-        updateScore(obj, " &8➥ &fChange: " + formattedTime, 2);
-        updateScore(obj, "", 1);
-        updateScore(obj, "&eplay.mysthicknockback.gg", 0);
+        // Actualizar solo los scores que han cambiado
+        for (Map.Entry<Integer, String> entry : newScores.entrySet()) {
+            updateScore(obj, entry.getValue(), entry.getKey());
+        }
     }
 
     private void updateScore(Objective obj, String text, int score) {
         String coloredText = MessageUtils.getColor(text);
         
-        // Limpiar scores antiguos
+        // Verificar si el score actual ya tiene ese texto
         for (String entry : obj.getScoreboard().getEntries()) {
-            if (obj.getScore(entry).getScore() == score) {
+            Score existingScore = obj.getScore(entry);
+            if (existingScore.getScore() == score) {
+                // Si el texto es el mismo, no hacer nada para evitar parpadeo
+                if (entry.equals(coloredText)) {
+                    return;
+                }
+                // Si el texto es diferente, eliminar el score antiguo
                 obj.getScoreboard().resetScores(entry);
+                break;
             }
         }
         
-        // Establecer nuevo score
+        // Establecer nuevo score solo si es necesario
         Score scoreObj = obj.getScore(coloredText);
         scoreObj.setScore(score);
     }
