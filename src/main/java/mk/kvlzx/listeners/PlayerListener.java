@@ -54,7 +54,7 @@ public class PlayerListener implements Listener {
         "&b%s &ffell into the void shouting &a'I'll be back!'",
         "&b%s &fwas tricked by a mirage and crashed.",
         "&b%s &fwanted to dance on the edge and... &aouch! &fTo the ground.",
-        "&b%s &fthought they were immortal. &aSpoiler: &ethey weren't.",
+        "&b%s &fthought they were immortal. &aSpoiler: ðey weren't.",
         "&b%s &ftripped over their own ego.",
         "&b%s &fwas defeated by gravity, their worst enemy.",
         "&b%s &finvented an epic trick and ended up on the ground.",
@@ -119,63 +119,68 @@ public class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+@EventHandler
+public void onPlayerQuit(PlayerQuitEvent event) {
+    Player player = event.getPlayer();
+    PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+    
+    // Verificar si el jugador está en combate
+    CombatListener combatListener = plugin.getCombatListener();
+    Player killer = combatListener.getLastAttacker(player);
+
+    if (killer != null) {
+        // El jugador se desconectó en combate
+        stats.addDeath();
+        stats.resetStreak();
+        PlayerStats killerStats = PlayerStats.getStats(killer.getUniqueId());
+        killerStats.addKill();
         
-        // Verificar si el jugador está en combate
-        CombatListener combatListener = plugin.getCombatListener();
-        Player killer = combatListener.getLastAttacker(player);
+        // Dar perla al killer
+        givePearlToKiller(killer);
 
-        if (killer != null) {
-            // El jugador se desconectó en combate
-            stats.addDeath();
-            stats.resetStreak();
-            PlayerStats killerStats = PlayerStats.getStats(killer.getUniqueId());
-            killerStats.addKill();
-            
-            // Dar perla al killer
-            givePearlToKiller(killer);
+        // Mensaje de muerte por desconexión
+        String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
+        String killMessage;
+        if (messageName.equals("default")) {
+            killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
+        } else {
+            KillMessageItem messageItem = KillMessageItem.getByName(messageName);
+            killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
+        }
+        
+        Bukkit.broadcastMessage(MessageUtils.getColor(
+            killMessage.replace("{killer}", killer.getName())
+                        .replace("{victim}", player.getName())
+        ));
 
-            // Mensaje de muerte por desconexión
-            String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
-            String killMessage;
-            if (messageName.equals("default")) {
-                killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
-            } else {
-                KillMessageItem messageItem = KillMessageItem.getByName(messageName);
-                killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
-            }
-            
-            Bukkit.broadcastMessage(MessageUtils.getColor(
-                killMessage.replace("{killer}", killer.getName())
-                            .replace("{victim}", player.getName())
-            ));
-
-            // Reproducir sonido de kill al asesino
-            String soundName = plugin.getCosmeticManager().getPlayerKillSound(killer.getUniqueId());
-            if (!soundName.equals("none")) {
-                KillSoundItem soundItem = KillSoundItem.getByName(soundName);
-                if (soundItem != null) {
-                    killer.playSound(
-                        killer.getLocation(),
-                        soundItem.getSound(),
-                        soundItem.getVolume(),
-                        soundItem.getPitch()
-                    );
-                }
+        // Reproducir sonido de kill al asesino
+        String soundName = plugin.getCosmeticManager().getPlayerKillSound(killer.getUniqueId());
+        if (!soundName.equals("none")) {
+            KillSoundItem soundItem = KillSoundItem.getByName(soundName);
+            if (soundItem != null) {
+                killer.playSound(
+                    killer.getLocation(),
+                    soundItem.getSound(),
+                    soundItem.getVolume(),
+                    soundItem.getPitch()
+                );
             }
         }
-
-        stats.updatePlayTime();
-        
-        String currentArena = plugin.getArenaManager().getCurrentArena();
-        if (currentArena != null) {
-            plugin.getArenaManager().removePlayerFromArena(player, currentArena);
-        }
-        plugin.getScoreboardManager().removePlayer(player);
     }
+
+    combatListener.resetCombat(player);
+    if (plugin.getScoreboardManager().isArenaChanging()) {
+        player.setWalkSpeed(0.0f);
+    }
+
+    stats.updatePlayTime();
+    
+    String currentArena = plugin.getArenaManager().getCurrentArena();
+    if (currentArena != null) {
+        plugin.getArenaManager().removePlayerFromArena(player, currentArena);
+    }
+    plugin.getScoreboardManager().removePlayer(player);
+}
 
     @EventHandler
     public void onDropItem(PlayerDropItemEvent event) {
