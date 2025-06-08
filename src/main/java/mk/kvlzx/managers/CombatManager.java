@@ -24,8 +24,8 @@ public class CombatManager {
     private static final double SPRINT_BONUS = 0.15;      // Bonus por esprintar
     private static final double SPRINT_BONUS_VERTICAL = 0.10; // Bonus vertical por esprintar
     private static final double NO_KB_ITEM_REDUCTION = 0.60; // Reducción para PvP a mano
-    private static final double AIR_COMBO_HORIZONTAL = 0.22; // KB horizontal en combos aéreos // ----- Kv LO CAMBIO -----
-    private static final double AIR_COMBO_VERTICAL = 0.14;   // KB vertical en combos aéreos // ----- Kv LO CAMBIO -----
+    private static final double AIR_COMBO_HORIZONTAL = 0.28; // KB horizontal en combos aéreos // ----- Kv LO CAMBIO -----
+    private static final double AIR_COMBO_VERTICAL = 0.18;   // KB vertical en combos aéreos // ----- Kv LO CAMBIO -----
     private static final double KNOCKBACK_ENCHANT_H_REDUCTION = 0.20; // Reducción horizontal por KB
     private static final double KNOCKBACK_ENCHANT_V_REDUCTION = 0.80; // Reducción vertical por KB
     private static final double ANTI_KB_MULTIPLIER = 0.4;  // Reducción para KB acumulativo
