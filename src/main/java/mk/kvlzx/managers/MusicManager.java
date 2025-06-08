@@ -5,12 +5,11 @@ import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Jukebox;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
-import net.minecraft.server.v1_8_R3.PacketPlayOutNamedSoundEffect;
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.utils.MessageUtils;
 
@@ -28,16 +27,12 @@ public class MusicManager {
     private final Map<String, MusicData> MUSIC_DATA = new HashMap<>();
 
     private static class MusicData {
-        final String nmsName;
+        final Material discMaterial;
         final int duration;
-        final float volume;
-        final float pitch;
 
-        MusicData(String nmsName, int duration, float volume, float pitch) {
-            this.nmsName = nmsName;
+        MusicData(Material discMaterial, int duration) {
+            this.discMaterial = discMaterial;
             this.duration = duration;
-            this.volume = volume;
-            this.pitch = pitch;
         }
     }
 
@@ -49,38 +44,53 @@ public class MusicManager {
     }
 
     private void initializeMusicData() {
-        // Registrar datos de música con nombres NMS
-        MUSIC_DATA.put("far", new MusicData("records.far", 174, 1.0f, 1.0f));
-        MUSIC_DATA.put("mall", new MusicData("records.mall", 197, 1.0f, 1.0f));
-        MUSIC_DATA.put("strad", new MusicData("records.strad", 188, 1.0f, 1.0f));
-        MUSIC_DATA.put("cat", new MusicData("records.cat", 185, 1.0f, 1.0f));
-        MUSIC_DATA.put("chirp", new MusicData("records.chirp", 185, 1.0f, 1.0f));
-        MUSIC_DATA.put("mellohi", new MusicData("records.mellohi", 96, 1.0f, 1.0f));
-        MUSIC_DATA.put("stal", new MusicData("records.stal", 150, 1.0f, 1.0f));
+        MUSIC_DATA.put("far", new MusicData(Material.RECORD_5, 174));      // Far
+        MUSIC_DATA.put("mall", new MusicData(Material.RECORD_6, 197));     // Mall
+        MUSIC_DATA.put("strad", new MusicData(Material.RECORD_9, 188));    // Strad
+        MUSIC_DATA.put("cat", new MusicData(Material.GREEN_RECORD, 185));  // Cat
+        MUSIC_DATA.put("chirp", new MusicData(Material.RECORD_4, 185));    // Chirp
+        MUSIC_DATA.put("mellohi", new MusicData(Material.RECORD_7, 96));   // Mellohi
+        MUSIC_DATA.put("stal", new MusicData(Material.RECORD_8, 150));     // Stal
     }
 
     public void playPreviewMusic(Player player, String musicName) {
-        stopMusicForPlayer(player);  // Asegurar que se detenga cualquier música previa
+        stopMusicForPlayer(player);
         
         String simpleName = musicName.replace("records.", "");
         MusicData musicData = MUSIC_DATA.get(simpleName);
         if (musicData == null) return;
 
-        // Guardar la música actual temporalmente
-        currentMusic.put(player.getUniqueId(), simpleName);
+        // Para preview, crear una jukebox temporal solo por 10 segundos
+        Location previewLoc = getJukeboxLocation(player);
+        if (!canPlaceJukebox(previewLoc)) {
+            player.sendMessage(MessageUtils.getColor("&cNo hay espacio para la preview de música."));
+            return;
+        }
 
-        playNMSSound(player, musicData, player.getLocation());
+        // Colocar jukebox temporal
+        Block block = previewLoc.getBlock();
+        block.setType(Material.JUKEBOX);
+
+        // Insertar el disco
+        if (block.getState() instanceof Jukebox) {
+            Jukebox jukebox = (Jukebox) block.getState();
+            jukebox.setPlaying(musicData.discMaterial);
+            jukebox.update();
+        }
+
+        currentMusic.put(player.getUniqueId(), simpleName);
+        playerJukeboxes.put(player.getUniqueId(), previewLoc);
         
-        // Detener después de 10 segundos usando el mismo sistema de tasks
+        // Detener después de 10 segundos
         BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
             stopMusicForPlayer(player);
         }, 200L);
         
         playerTasks.put(player.getUniqueId(), task);
+        startNoteEffects(previewLoc);
     }
 
     public void startMusicForPlayer(Player player, String musicName) {
-        // Debug
         plugin.getLogger().info("Iniciando música para " + player.getName() + ": " + musicName);
         
         stopMusicForPlayer(player);
@@ -92,15 +102,13 @@ public class MusicManager {
             return;
         }
 
-        final Location[] jukeboxLoc = new Location[1]; // Array para hacer la variable "efectivamente final"
+        final Location[] jukeboxLoc = new Location[1];
         jukeboxLoc[0] = getJukeboxLocation(player);
 
-        // Debug de ubicación
         plugin.getLogger().info("Intentando colocar jukebox en: " + jukeboxLoc[0]);
 
         if (!canPlaceJukebox(jukeboxLoc[0])) {
             plugin.getLogger().info("Buscando ubicación alternativa...");
-            // Intentar posiciones alternativas
             Location[] alternativeLocations = {
                 jukeboxLoc[0].clone().add(0, 1, 0),
                 jukeboxLoc[0].clone().add(1, 0, 0),
@@ -126,11 +134,10 @@ public class MusicManager {
             }
         }
 
-        // Asegurarse de que el bloque se coloque correctamente
+        // Colocar la jukebox
         Block block = jukeboxLoc[0].getBlock();
         block.setType(Material.JUKEBOX);
         
-        // Debug de colocación
         plugin.getLogger().info("Jukebox colocada en: " + jukeboxLoc[0]);
         
         if (block.getType() != Material.JUKEBOX) {
@@ -139,12 +146,23 @@ public class MusicManager {
             return;
         }
 
+        // Insertar el disco en la jukebox
+        if (block.getState() instanceof Jukebox) {
+            Jukebox jukebox = (Jukebox) block.getState();
+            jukebox.setPlaying(musicData.discMaterial);
+            jukebox.update();
+        }
+
         playerJukeboxes.put(player.getUniqueId(), jukeboxLoc[0]);
         currentMusic.put(player.getUniqueId(), simpleName);
         
+        // Iniciar efectos de notas
+        startNoteEffects(jukeboxLoc[0]);
+        
+        // Tarea para reproducir la música en loop y verificar condiciones
         BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (!player.isOnline() || 
-                !simpleName.equals(plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId()))) {
+                !simpleName.equalsIgnoreCase(plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId()))) {
                 plugin.getLogger().info("Deteniendo música por desconexión o cambio: " + player.getName());
                 stopMusicForPlayer(player);
                 return;
@@ -158,26 +176,23 @@ public class MusicManager {
                 return;
             }
             
-            playNMSSound(player, musicData, jukeboxLoc[0]);
-            startNoteEffects(jukeboxLoc[0]);
+            // Verificar si la jukebox sigue ahí y reproducir
+            Block jukeboxBlock = jukeboxLoc[0].getBlock();
+            if (jukeboxBlock.getType() == Material.JUKEBOX && jukeboxBlock.getState() instanceof Jukebox) {
+                Jukebox jukebox = (Jukebox) jukeboxBlock.getState();
+                
+                // Si no está reproduciendo, reiniciar
+                if (!jukebox.isPlaying()) {
+                    jukebox.setPlaying(musicData.discMaterial);
+                    jukebox.update();
+                    plugin.getLogger().info("Reproduciendo música en jukebox para " + player.getName());
+                }
+            }
             
-        }, 0L, musicData.duration * 20L);
+        }, 20L, 40L); // Verificar cada 2 segundos
 
         playerTasks.put(player.getUniqueId(), task);
         plugin.getLogger().info("Música iniciada exitosamente para " + player.getName());
-    }
-
-    private void playNMSSound(Player player, MusicData musicData, Location location) {
-        CraftPlayer craftPlayer = (CraftPlayer) player;
-        PacketPlayOutNamedSoundEffect packet = new PacketPlayOutNamedSoundEffect(
-            musicData.nmsName,
-            location.getX(),
-            location.getY(),
-            location.getZ(),
-            musicData.volume,
-            musicData.pitch
-        );
-        craftPlayer.getHandle().playerConnection.sendPacket(packet);
     }
 
     private Location getJukeboxLocation(Player player) {
@@ -185,7 +200,6 @@ public class MusicManager {
     }
 
     private boolean canPlaceJukebox(Location location) {
-        // Debug del método canPlaceJukebox
         plugin.getLogger().info("Verificando ubicación para jukebox: " + location);
         
         Block block = location.getBlock();
@@ -229,7 +243,7 @@ public class MusicManager {
     }
 
     public void stopMusicForPlayer(Player player) {
-        // Primero detener las tareas y efectos
+        // Detener efectos de notas
         Location jukeboxLoc = playerJukeboxes.get(player.getUniqueId());
         if (jukeboxLoc != null) {
             BukkitTask noteTask = noteEffectTasks.remove(jukeboxLoc.hashCode());
@@ -237,11 +251,28 @@ public class MusicManager {
                 noteTask.cancel();
             }
 
-            // Asegurarse de que el bloque exista antes de intentar removerlo
+            // Remover el disco de la jukebox y luego la jukebox
             Block block = jukeboxLoc.getBlock();
             if (block != null && block.getType() == Material.JUKEBOX) {
-                block.setType(Material.AIR);
-                jukeboxLoc.getWorld().playEffect(jukeboxLoc, Effect.STEP_SOUND, Material.JUKEBOX);
+                if (block.getState() instanceof Jukebox) {
+                    Jukebox jukebox = (Jukebox) block.getState();
+                    
+                    // Detener la reproducción
+                    jukebox.setPlaying(null);
+                    jukebox.update();
+                    
+                    // Esperar un tick antes de remover la jukebox para asegurar que se actualice
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        if (block.getType() == Material.JUKEBOX) {
+                            block.setType(Material.AIR);
+                            jukeboxLoc.getWorld().playEffect(jukeboxLoc, Effect.STEP_SOUND, Material.JUKEBOX);
+                        }
+                    }, 1L);
+                } else {
+                    // Si por alguna razón no es una Jukebox, remover directamente
+                    block.setType(Material.AIR);
+                    jukeboxLoc.getWorld().playEffect(jukeboxLoc, Effect.STEP_SOUND, Material.JUKEBOX);
+                }
             }
         }
 
@@ -251,20 +282,9 @@ public class MusicManager {
             task.cancel();
         }
 
-        // Detener el sonido actual
-        String current = currentMusic.remove(player.getUniqueId());
-        if (current != null) {
-            CraftPlayer craftPlayer = (CraftPlayer) player;
-            PacketPlayOutNamedSoundEffect packet = new PacketPlayOutNamedSoundEffect(
-                "system.stop_record", // Packet especial para detener música
-                player.getLocation().getX(),
-                player.getLocation().getY(),
-                player.getLocation().getZ(),
-                1.0f,
-                1.0f
-            );
-            craftPlayer.getHandle().playerConnection.sendPacket(packet);
-        }
+        // Limpiar registros
+        currentMusic.remove(player.getUniqueId());
+        playerJukeboxes.remove(player.getUniqueId());
     }
 
     public void onDisable() {
@@ -272,13 +292,21 @@ public class MusicManager {
         noteEffectTasks.values().forEach(BukkitTask::cancel);
         noteEffectTasks.clear();
         
-        // Asegurar que todas las jukeboxes sean removidas
+        // Asegurar que todas las jukeboxes sean removidas correctamente
         for (Location loc : playerJukeboxes.values()) {
-            if (loc.getBlock().getType() == Material.JUKEBOX) {
-                loc.getBlock().setType(Material.AIR);
+            Block block = loc.getBlock();
+            if (block.getType() == Material.JUKEBOX) {
+                if (block.getState() instanceof Jukebox) {
+                    Jukebox jukebox = (Jukebox) block.getState();
+                    jukebox.setPlaying(null);
+                    jukebox.update();
+                }
+                block.setType(Material.AIR);
             }
         }
         playerJukeboxes.clear();
+        
+        // Detener música para todos los jugadores
         for (Player player : Bukkit.getOnlinePlayers()) {
             stopMusicForPlayer(player);
         }
@@ -286,7 +314,7 @@ public class MusicManager {
         currentMusic.clear();
     }
 
-    // Agregar getter para playerJukeboxes
+    // Getter para playerJukeboxes
     public Map<UUID, Location> getPlayerJukeboxes() {
         return playerJukeboxes;
     }
