@@ -12,6 +12,10 @@ commands:
       - mk
       - kb
       - kbffa
+  report:
+    description: Command to report a player
+    aliases:
+      -report
   arena:
     description: Command to define an arena
   stats:

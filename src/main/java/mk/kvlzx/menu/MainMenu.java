@@ -17,46 +17,46 @@ import mk.kvlzx.utils.MessageUtils;
 public class MainMenu extends Menu {
 
     public MainMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &b&lMenú Principal &8•", 45);
+        super(plugin, "&8• &b&lMain Menu &8•", 45);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         // TOP ROW - Tops más importantes
         inv.setItem(12, createItem(Material.DIAMOND_SWORD, "&a&lTop Kills",
-            "&7Click para ver el top 10 de kills"));
+            "&7Click to view the top 10 kills"));
         
         inv.setItem(13, createItem(Material.NETHER_STAR, "&6&lTop ELO",
-            "&7Click para ver el top 10 de ELO"));
+            "&7Click to view the top 10 ELO"));
         
-        inv.setItem(14, createItem(Material.DIAMOND, "&d&lTop Rachas",
-            "&7Click para ver el top 10 de rachas"));
+        inv.setItem(14, createItem(Material.DIAMOND, "&d&lTop Streaks",
+            "&7Click to view the top 10 streaks"));
 
         // MIDDLE ROW - Tops secundarios
         inv.setItem(21, createItem(Material.GOLDEN_APPLE, "&b&lTop KDR",
-            "&7Click para ver el top 10 de KDR"));
+            "&7Click to view the top 10 KDR"));
             
-        inv.setItem(23, createItem(Material.WATCH, "&e&lTop Tiempo",
-            "&7Click para ver el top 10 de tiempo jugado"));
+        inv.setItem(23, createItem(Material.WATCH, "&e&lTop Time",
+            "&7Click to view the top 10 playtime"));
 
         // BOTTOM ROW - Acciones personales
-        inv.setItem(37, createItem(Material.DIAMOND_SWORD, "&e&lEditar Hotbar",
-            "&7Click para personalizar tu hotbar",
+        inv.setItem(37, createItem(Material.DIAMOND_SWORD, "&e&lEdit Hotbar",
+            "&7Click to customize your hotbar",
             "",
-            "&8➥ Personaliza la posición de tus items"));
+            "&8➥ Customize the position of your items"));
 
-        inv.setItem(39, CustomItem.createSkull(player, "&a&lMis Estadísticas",
-            "&7Click para ver tus estadísticas"));
+        inv.setItem(39, CustomItem.createSkull(player, "&a&lMy Statistics",
+            "&7Click to view your statistics"));
 
-        inv.setItem(41, createItem(Material.BOOK_AND_QUILL, "&c&lReportar Jugador",
-            "&7Click para reportar a un jugador",
+        inv.setItem(41, createItem(Material.BOOK_AND_QUILL, "&c&lReport Player",
+            "&7Click to report a player",
             "",
-            "&8➥ Reporta comportamiento inadecuado"));
+            "&8➥ Report inappropriate behavior"));
 
-        inv.setItem(43, createItem(Material.EMERALD, "&a&lTienda", 
-            "&7Click para abrir la tienda",
+        inv.setItem(43, createItem(Material.EMERALD, "&a&lShop", 
+            "&7Click to open the shop",
             "",
-            "&8➥ ¡Compra cosméticos y más!"));
+            "&8➥ Buy cosmetics and more!"));
 
         // Relleno con diseño
         ItemStack darkGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);

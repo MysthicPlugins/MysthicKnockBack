@@ -20,10 +20,10 @@ import mk.kvlzx.utils.MessageUtils;
 
 public class KillMessageShopMenu extends Menu {
     private final List<KillMessageItem> shopItems;
-    private static String currentCategory = "COMÚN";
+    private static String currentCategory = "COMMON";
 
     public KillMessageShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lTienda de Mensajes de Kill &8•", 45);
+        super(plugin, "&8• &e&lKill Message Shop &8•", 45);
         this.shopItems = initializeShopItems();
     }
 
@@ -37,67 +37,67 @@ public class KillMessageShopMenu extends Menu {
         // Mensajes Comunes (15000 coins)
         items.add(new KillMessageItem(
             "&b{killer} &7launched &b{victim} &7into the orbit of defeat!",
-            "Orbital Launch", 15000, "COMÚN", "&7",
-            "&7¡Un viaje espacial sin retorno!"
+            "Orbital Launch", 15000, "COMMON", "&7",
+            "&7A one-way space trip!"
         ));
         items.add(new KillMessageItem(
             "&b{victim} &7challenged &b{killer}&7, but the ground hugged them first.",
-            "Ground Hug", 15000, "COMÚN", "&7",
-            "&7¡El suelo siempre gana!"
+            "Ground Hug", 15000, "COMMON", "&7",
+            "&7The ground always wins!"
         ));
         items.add(new KillMessageItem(
             "&b{killer} &7gave &b{victim} &7a ticket to the respawn screen!",
-            "Respawn Ticket", 15000, "COMÚN", "&7",
-            "&7¡Viaje directo al spawn!"
+            "Respawn Ticket", 15000, "COMMON", "&7",
+            "&7A direct trip to spawn!"
         ));
         items.add(new KillMessageItem(
             "&b{victim} &7learned to fly... &7but &b{killer} &7cancelled the lesson.",
-            "Flight School", 15000, "COMÚN", "&7",
-            "&7¡Las clases de vuelo son peligrosas!"
+            "Flight School", 15000, "COMMON", "&7",
+            "&7Flight lessons are dangerous!"
         ));
 
         // Mensajes Épicos (35000 coins)
         items.add(new KillMessageItem(
             "&b{killer} &9transformed &b{victim} &9into a shooting star!",
-            "Shooting Star", 35000, "ÉPICO", "&9",
-            "&9¡Brilla mientras cae!"
+            "Shooting Star", 35000, "EPIC", "&9",
+            "&9Shines as it falls!"
         ));
         items.add(new KillMessageItem(
             "&b{killer} &9helped &b{victim} &9reach the clouds... permanently.",
-            "Cloud Reach", 35000, "ÉPICO", "&9",
-            "&9¡Un viaje celestial!"
+            "Cloud Reach", 35000, "EPIC", "&9",
+            "&9A celestial journey!"
         ));
         items.add(new KillMessageItem(
             "&b{killer} &9showed &b{victim} &9the meaning of true knockback!",
-            "True Knockback", 35000, "ÉPICO", "&9",
-            "&9¡La verdadera esencia del KB!"
+            "True Knockback", 35000, "EPIC", "&9",
+            "&9The true essence of KB!"
         ));
         items.add(new KillMessageItem(
             "&b{killer} &9sent &b{victim} &9on a journey to the stars!",
-            "Star Journey", 35000, "ÉPICO", "&9",
-            "&9¡Un viaje interplanetario!"
+            "Star Journey", 35000, "EPIC", "&9",
+            "&9An interplanetary trip!"
         ));
 
         // Mensajes Legendarios (75000 coins)
         items.add(new KillMessageItem(
             "&b{killer} &6unleashed the power of knockback on &b{victim}&6!",
-            "KB Master", 75000, "LEGENDARIO", "&6",
-            "&6¡El poder del verdadero maestro!"
+            "KB Master", 75000, "LEGENDARY", "&6",
+            "&6The power of the true master!"
         ));
         items.add(new KillMessageItem(
             "&b{killer} &6rewrote &b{victim}'s &6destiny with a legendary hit!",
-            "Destiny Writer", 75000, "LEGENDARIO", "&6",
-            "&6¡Reescribiendo historias!"
+            "Destiny Writer", 75000, "LEGENDARY", "&6",
+            "&6Rewriting stories!"
         ));
         items.add(new KillMessageItem(
             "&b{killer} &6showed &b{victim} &6what godlike knockback looks like!",
-            "God of KB", 75000, "LEGENDARIO", "&6",
-            "&6¡El poder de un dios!"
+            "God of KB", 75000, "LEGENDARY", "&6",
+            "&6The power of a god!"
         ));
         items.add(new KillMessageItem(
             "&b{killer} &6sent &b{victim} &6to the hall of legends!",
-            "Legend Maker", 75000, "LEGENDARIO", "&6",
-            "&6¡Un lugar en la historia!"
+            "Legend Maker", 75000, "LEGENDARY", "&6",
+            "&6A place in history!"
         ));
 
         return items;
@@ -108,10 +108,10 @@ public class KillMessageShopMenu extends Menu {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
         // Balance actual
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lTu Balance",
-            "&7Balance actual: &e" + stats.getKGCoins() + " KGCoins",
+        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
+            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins",
             "",
-            "&7Categoría actual: " + currentCategory));
+            "&7Current Category: " + currentCategory));
 
         // Mostrar mensajes de la categoría actual
         int slot = 10;
@@ -125,8 +125,8 @@ public class KillMessageShopMenu extends Menu {
         }
 
         // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver a las categorías"));
+        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to categories"));
 
         // Relleno
         fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
@@ -141,14 +141,14 @@ public class KillMessageShopMenu extends Menu {
         String victimName;
         if (players.isEmpty() || players.size() == 1 && players.get(0).getUniqueId().equals(player.getUniqueId())) {
             // Si no hay otros jugadores, usar un nombre default
-            victimName = "Enemigo";
+            victimName = "Enemy";
         } else {
             Player randomPlayer = players.get((int) (Math.random() * players.size()));
             victimName = randomPlayer.getName();
         }
         
         List<String> lore = new ArrayList<>();
-        lore.add(item.getRarityColor() + "✦ Rareza: " + item.getRarity());
+        lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
         lore.add("");
         lore.add(MessageUtils.getColor(item.getMessage()
             .replace("{killer}", player.getName())
@@ -157,15 +157,15 @@ public class KillMessageShopMenu extends Menu {
         
         if (hasMessage) {
             if (isSelected) {
-                lore.add("&aSeleccionado actualmente");
-                lore.add("&eClick para deseleccionar");
+                lore.add("&aCurrently selected");
+                lore.add("&eClick to deselect");
             } else {
-                lore.add("&eClick para seleccionar");
+                lore.add("&eClick to select");
             }
         } else {
-            lore.add("&7Click para comprar");
+            lore.add("&7Click to purchase");
             lore.add("");
-            lore.add("&8➥ Precio: &e" + item.getPrice() + " KGCoins");
+            lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
         }
 
         Material material = isSelected ? Material.ENCHANTED_BOOK : Material.PAPER;
@@ -213,10 +213,10 @@ public class KillMessageShopMenu extends Menu {
             // Si está seleccionado, deseleccionar
             if (currentMessage.equals(messageItem.getName())) {
                 plugin.getCosmeticManager().setPlayerKillMessage(player.getUniqueId(), "default");
-                player.sendMessage(MessageUtils.getColor("&aHas deseleccionado el mensaje. Usando mensajes por defecto."));
+                player.sendMessage(MessageUtils.getColor("&aYou have deselected the message. Using default messages."));
             } else {
                 plugin.getCosmeticManager().setPlayerKillMessage(player.getUniqueId(), messageItem.getName());
-                player.sendMessage(MessageUtils.getColor("&aHas seleccionado el mensaje: " + messageItem.getName()));
+                player.sendMessage(MessageUtils.getColor("&aYou have selected the message: " + messageItem.getName()));
             }
             player.closeInventory();
         } else {
@@ -224,11 +224,11 @@ public class KillMessageShopMenu extends Menu {
                 stats.removeKGCoins(messageItem.getPrice());
                 plugin.getCosmeticManager().addPlayerKillMessage(player.getUniqueId(), messageItem.getName());
                 plugin.getCosmeticManager().setPlayerKillMessage(player.getUniqueId(), messageItem.getName());
-                player.sendMessage(MessageUtils.getColor("&a¡Has comprado y seleccionado el mensaje " + 
-                    messageItem.getName() + " &apor &e" + messageItem.getPrice() + " KGCoins&a!"));
+                player.sendMessage(MessageUtils.getColor("&aYou have purchased and selected the message " + 
+                    messageItem.getName() + " &afor &e" + messageItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor("&cNo tienes suficientes KGCoins para comprar este mensaje."));
+                player.sendMessage(MessageUtils.getColor("&cYou don't have enough KGCoins to purchase this message."));
             }
         }
     }

@@ -20,10 +20,10 @@ import mk.kvlzx.utils.MessageUtils;
 
 public class DeathSoundShopMenu extends Menu {
     private final List<DeathSoundItem> shopItems;
-    private static String currentCategory = "COMÚN";
+    private static String currentCategory = "COMMON";
 
     public DeathSoundShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lTienda de Sonidos &8•", 45);
+        super(plugin, "&8• &e&lSound Shop &8•", 45);
         this.shopItems = initializeShopItems();
     }
 
@@ -36,35 +36,35 @@ public class DeathSoundShopMenu extends Menu {
 
         // Sonidos Comunes
         items.add(new DeathSoundItem(
-            "Simple Death", 15000, "COMÚN", "&7",
-            "&7¡Un clásico nunca falla!", 
+            "Simple Death", 15000, "COMMON", "&7",
+            "&7A classic never fails!",
             Sound.HURT_FLESH, 1.0f, 1.0f));
             
         items.add(new DeathSoundItem(
-            "Last Breath", 15000, "COMÚN", "&7",
-            "&7¡El último suspiro!", 
+            "Last Breath", 15000, "COMMON", "&7",
+            "&7The final gasp!",
             Sound.GHAST_DEATH, 0.5f, 1.2f));
 
         // Sonidos Épicos
         items.add(new DeathSoundItem(
-            "Dragon Roar", 35000, "ÉPICO", "&5",
-            "&5¡El rugido del dragón!", 
+            "Dragon Roar", 35000, "EPIC", "&5",
+            "&5The dragon's roar!",
             Sound.ENDERDRAGON_GROWL, 1.0f, 1.0f));
             
         items.add(new DeathSoundItem(
-            "Wither Curse", 35000, "ÉPICO", "&5",
-            "&5¡La maldición del Wither!", 
+            "Wither Curse", 35000, "EPIC", "&5",
+            "&5The curse of the Wither!",
             Sound.WITHER_SPAWN, 0.8f, 1.0f));
 
         // Sonidos Legendarios
         items.add(new DeathSoundItem(
-            "Thunder Strike", 75000, "LEGENDARIO", "&6",
-            "&6¡El poder del trueno!", 
+            "Thunder Strike", 75000, "LEGENDARY", "&6",
+            "&6The power of thunder!",
             Sound.AMBIENCE_THUNDER, 1.0f, 1.0f));
             
         items.add(new DeathSoundItem(
-            "Void Echo", 75000, "LEGENDARIO", "&6",
-            "&6¡El eco del vacío!", 
+            "Void Echo", 75000, "LEGENDARY", "&6",
+            "&6The echo of the void!",
             Sound.ENDERDRAGON_DEATH, 0.7f, 1.2f));
 
         return items;
@@ -75,10 +75,10 @@ public class DeathSoundShopMenu extends Menu {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
         // Balance actual
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lTu Balance",
-            "&7Balance actual: &e" + stats.getKGCoins() + " KGCoins",
+        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
+            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins",
             "",
-            "&7Categoría actual: " + currentCategory));
+            "&7Current Category: " + currentCategory));
 
         // Mostrar sonidos
         int slot = 10;
@@ -92,41 +92,41 @@ public class DeathSoundShopMenu extends Menu {
         }
 
         // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver a las categorías"));
+        inv.setItem(40, createItem(Material.ARROW, "&c← Back",
+            "&7Click to return to categories"));
 
         // Relleno
         fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
     }
 
-    private void setupSoundButton(Inventory inv, int slot, DeathSoundItem item, Player player) {
-        boolean hasSound = plugin.getCosmeticManager().hasPlayerDeathSound(player.getUniqueId(), item.getName());
-        boolean isSelected = plugin.getCosmeticManager().getPlayerDeathSound(player.getUniqueId()).equals(item.getName());
+    private void setupSoundButton(Inventory inv, int slot, DeathSoundItem soundItem, Player player) {
+        boolean hasSound = plugin.getCosmeticManager().hasPlayerDeathSound(player.getUniqueId(), soundItem.getName());
+        boolean isSelected = plugin.getCosmeticManager().getPlayerDeathSound(player.getUniqueId()).equals(soundItem.getName());
         
         List<String> lore = new ArrayList<>();
-        lore.add(item.getRarityColor() + "✦ Rareza: " + item.getRarity());
+        lore.add(soundItem.getRarityColor() + "✦ Rarity: " + soundItem.getRarity());
         lore.add("");
-        lore.add(MessageUtils.getColor(item.getDescription()));
+        lore.add(MessageUtils.getColor(soundItem.getDescription()));
         lore.add("");
-        lore.add("&eClick derecho para escuchar una muestra");
+        lore.add("&eRight-click to preview");
         lore.add("");
         
         if (hasSound) {
             if (isSelected) {
-                lore.add("&aSeleccionado actualmente");
-                lore.add("&eClick para deseleccionar");
+                lore.add("&aCurrently selected");
+                lore.add("&eClick to deselect");
             } else {
-                lore.add("&eClick para seleccionar");
+                lore.add("&eClick to select");
             }
         } else {
-            lore.add("&7Click para comprar");
+            lore.add("&7Click to purchase");
             lore.add("");
-            lore.add("&8➥ Precio: &e" + item.getPrice() + " KGCoins");
+            lore.add("&8➥ Price: &e" + soundItem.getPrice() + " KGCoins");
         }
 
         Material material = isSelected ? Material.JUKEBOX : Material.NOTE_BLOCK;
-        ItemStack button = createItem(material, 
-            (isSelected ? "&b" : item.getRarityColor()) + item.getName(), 
+        ItemStack button = createItem(material,
+            (isSelected ? "&b" : soundItem.getRarityColor()) + soundItem.getName(),
             lore.toArray(new String[0]));
 
         if (isSelected) {
@@ -150,7 +150,7 @@ public class DeathSoundShopMenu extends Menu {
             return;
         }
 
-        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE || 
+        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE ||
             clicked.getType() == Material.EMERALD) return;
 
         String itemName = MessageUtils.stripColor(clicked.getItemMeta().getDisplayName());
@@ -159,9 +159,9 @@ public class DeathSoundShopMenu extends Menu {
 
         // Si es click derecho, reproducir muestra
         if (event.isRightClick()) {
-            player.playSound(player.getLocation(), 
-                soundItem.getSound(), 
-                soundItem.getVolume(), 
+            player.playSound(player.getLocation(),
+                soundItem.getSound(),
+                soundItem.getVolume(),
                 soundItem.getPitch());
             return;
         }
@@ -177,10 +177,10 @@ public class DeathSoundShopMenu extends Menu {
         if (plugin.getCosmeticManager().hasPlayerDeathSound(player.getUniqueId(), soundItem.getName())) {
             if (currentSound.equals(soundItem.getName())) {
                 plugin.getCosmeticManager().setPlayerDeathSound(player.getUniqueId(), "none");
-                player.sendMessage(MessageUtils.getColor("&aHas deseleccionado el sonido."));
+                player.sendMessage(MessageUtils.getColor("&aYou have deselected the sound."));
             } else {
                 plugin.getCosmeticManager().setPlayerDeathSound(player.getUniqueId(), soundItem.getName());
-                player.sendMessage(MessageUtils.getColor("&aHas seleccionado el sonido: " + soundItem.getName()));
+                player.sendMessage(MessageUtils.getColor("&aYou have selected the sound: " + soundItem.getName()));
             }
             player.closeInventory();
         } else {
@@ -188,11 +188,11 @@ public class DeathSoundShopMenu extends Menu {
                 stats.removeKGCoins(soundItem.getPrice());
                 plugin.getCosmeticManager().addPlayerDeathSound(player.getUniqueId(), soundItem.getName());
                 plugin.getCosmeticManager().setPlayerDeathSound(player.getUniqueId(), soundItem.getName());
-                player.sendMessage(MessageUtils.getColor("&a¡Has comprado y seleccionado el sonido " + 
-                    soundItem.getName() + " &apor &e" + soundItem.getPrice() + " KGCoins&a!"));
+                player.sendMessage(MessageUtils.getColor("&aYou have purchased and selected the sound " +
+                    soundItem.getName() + " &afor &e" + soundItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor("&cNo tienes suficientes KGCoins para comprar este sonido."));
+                player.sendMessage(MessageUtils.getColor("&cYou don't have enough KGCoins to purchase this sound."));
             }
         }
     }

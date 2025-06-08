@@ -13,6 +13,7 @@ import mk.kvlzx.commands.MainTabCompleter;
 import mk.kvlzx.commands.StatsCommand;
 import mk.kvlzx.commands.StatsTabCompleter;
 import mk.kvlzx.commands.MusicCommand;
+import mk.kvlzx.commands.ReportCommand;
 import mk.kvlzx.cosmetics.CosmeticManager;
 import mk.kvlzx.data.InventoryData;
 import mk.kvlzx.hotbar.PlayerHotbar;
@@ -170,6 +171,7 @@ public class MysthicKnockBack extends JavaPlugin {
         getCommand("stats").setExecutor(new StatsCommand(this));
         getCommand("stats").setTabCompleter(new StatsTabCompleter());
         getCommand("music").setExecutor(new MusicCommand(this));
+        getCommand("report").setExecutor(new ReportCommand(this));
     }
 
     public void registerEvents() {

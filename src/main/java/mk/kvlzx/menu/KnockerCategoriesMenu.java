@@ -16,54 +16,54 @@ import mk.kvlzx.utils.MessageUtils;
 public class KnockerCategoriesMenu extends Menu {
 
     public KnockerCategoriesMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lCategorías de Knockers &8•", 45);
+        super(plugin, "&8• &e&lKnocker Categories &8•", 45);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         // Comunes
-        inv.setItem(11, createItem(Material.BONE, "&7Knockers Comunes",
-            "&8▪ &7Precio: &f5,000 KGCoins",
-            "&8▪ &7Rareza: &7COMÚN",
+        inv.setItem(11, createItem(Material.BONE, "&7Common Knockers",
+            "&8▪ &7Price: &f5,000 KGCoins",
+            "&8▪ &7Rarity: &7COMMON",
             "",
-            "&8➥ Armas básicas pero efectivas",
-            "&7Click para ver los knockers"));
+            "&8➥ Basic but effective weapons",
+            "&7Click to view knockers"));
 
         // Poco comunes
-        inv.setItem(13, createItem(Material.BOOK, "&aPoco Comunes",
-            "&8▪ &7Precio: &f15,000 KGCoins",
-            "&8▪ &7Rareza: &aPOCO COMÚN",
+        inv.setItem(13, createItem(Material.BOOK, "&aUncommon",
+            "&8▪ &7Price: &f15,000 KGCoins",
+            "&8▪ &7Rarity: &aUNCOMMON",
             "",
-            "&8➥ Armas con efectos especiales",
-            "&7Click para ver los knockers"));
+            "&8➥ Weapons with special effects",
+            "&7Click to view knockers"));
 
         // Raros
-        inv.setItem(15, createItem(Material.BLAZE_ROD, "&9Knockers Raros",
-            "&8▪ &7Precio: &f50,000 KGCoins",
-            "&8▪ &7Rareza: &9RARO",
+        inv.setItem(15, createItem(Material.BLAZE_ROD, "&9Rare Knockers",
+            "&8▪ &7Price: &f50,000 KGCoins",
+            "&8▪ &7Rarity: &9RARE",
             "",
-            "&8➥ Armas de gran poder",
-            "&7Click para ver los knockers"));
+            "&8➥ High-powered weapons",
+            "&7Click to view knockers"));
 
         // Épicos
-        inv.setItem(21, createItem(Material.DIAMOND, "&5Knockers Épicos",
-            "&8▪ &7Precio: &f500,000 KGCoins",
-            "&8▪ &7Rareza: &5ÉPICO",
+        inv.setItem(21, createItem(Material.DIAMOND, "&5Epic Knockers",
+            "&8▪ &7Price: &f500,000 KGCoins",
+            "&8▪ &7Rarity: &5EPIC",
             "",
-            "&8➥ Armas legendarias",
-            "&7Click para ver los knockers"));
+            "&8➥ Legendary weapons",
+            "&7Click to view knockers"));
 
         // Legendarios
-        inv.setItem(23, createItem(Material.GOLDEN_APPLE, "&6Knockers Legendarios",
-            "&8▪ &7Precio: &f1,000,000 KGCoins",
-            "&8▪ &7Rareza: &6LEGENDARIO",
+        inv.setItem(23, createItem(Material.GOLDEN_APPLE, "&6Legendary Knockers",
+            "&8▪ &7Price: &f1,000,000 KGCoins",
+            "&8▪ &7Rarity: &6LEGENDARY",
             "",
-            "&8➥ Las armas más poderosas",
-            "&7Click para ver los knockers"));
+            "&8➥ The most powerful weapons",
+            "&7Click to view knockers"));
 
         // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver a la tienda"));
+        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
 
         // Relleno
         ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7);
@@ -77,23 +77,23 @@ public class KnockerCategoriesMenu extends Menu {
         
         switch(event.getSlot()) {
             case 11: // Comunes
-                KnockerShopMenu.setCurrentCategory("COMÚN");
+                KnockerShopMenu.setCurrentCategory("COMMON");
                 plugin.getMenuManager().openMenu(player, "knocker_shop");
                 break;
             case 13: // Poco comunes
-                KnockerShopMenu.setCurrentCategory("POCO COMÚN");
+                KnockerShopMenu.setCurrentCategory("UNCOMMON");
                 plugin.getMenuManager().openMenu(player, "knocker_shop");
                 break;
             case 15: // Raros
-                KnockerShopMenu.setCurrentCategory("RARO");
+                KnockerShopMenu.setCurrentCategory("RARE");
                 plugin.getMenuManager().openMenu(player, "knocker_shop");
                 break;
             case 21: // Épicos
-                KnockerShopMenu.setCurrentCategory("ÉPICO");
+                KnockerShopMenu.setCurrentCategory("EPIC");
                 plugin.getMenuManager().openMenu(player, "knocker_shop");
                 break;
             case 23: // Legendarios
-                KnockerShopMenu.setCurrentCategory("LEGENDARIO");
+                KnockerShopMenu.setCurrentCategory("LEGENDARY");
                 plugin.getMenuManager().openMenu(player, "knocker_shop");
                 break;
             case 40: // Volver

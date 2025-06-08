@@ -24,7 +24,7 @@ import mk.kvlzx.utils.MessageUtils;
 public class HotbarEditMenu extends Menu {
 
     public HotbarEditMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lEditar Hotbar &8•", 54);
+        super(plugin, "&8• &e&lEdit Hotbar &8•", 54);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class HotbarEditMenu extends Menu {
         inv.setItem(17, CustomItem.create(ItemType.PEARL));
 
         // Separador
-        ItemStack separator = createItem(Material.STAINED_GLASS_PANE, "&7• Tu Hotbar •", (byte) 15);
+        ItemStack separator = createItem(Material.STAINED_GLASS_PANE, "&7• Your Hotbar •", (byte) 15);
         for (int i = 27; i < 36; i++) {
             inv.setItem(i, separator);
         }
@@ -50,9 +50,9 @@ public class HotbarEditMenu extends Menu {
         }
 
         // Botones
-        inv.setItem(45, createItem(Material.EMERALD_BLOCK, "&a&lGuardar", "&7Click para guardar tu hotbar"));
-        inv.setItem(46, createItem(Material.REDSTONE_BLOCK, "&c&lRestablecer", "&7Click para restablecer al default"));
-        inv.setItem(49, createItem(Material.ARROW, "&c← Volver", "&7Click para volver al menú"));
+        inv.setItem(45, createItem(Material.EMERALD_BLOCK, "&a&lSave", "&7Click to save your hotbar"));
+        inv.setItem(46, createItem(Material.REDSTONE_BLOCK, "&c&lReset", "&7Click to reset to default"));
+        inv.setItem(49, createItem(Material.ARROW, "&c← Back", "&7Click to return to the menu"));
     }
 
     @Override
@@ -100,7 +100,7 @@ public class HotbarEditMenu extends Menu {
                 }
                 saveHotbar(player);
                 player.closeInventory();
-                player.sendMessage(MessageUtils.getColor("&aHotbar guardada correctamente"));
+                player.sendMessage(MessageUtils.getColor("&aHotbar saved successfully"));
                 break;
             case 46: // Restablecer
                 if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
@@ -109,7 +109,7 @@ public class HotbarEditMenu extends Menu {
                 }
                 PlayerHotbar.resetLayout(player.getUniqueId());
                 player.closeInventory();
-                player.sendMessage(MessageUtils.getColor("&aHotbar restablecida al default"));
+                player.sendMessage(MessageUtils.getColor("&aHotbar reset to default"));
                 break;
             case 49: // Volver
                 // Si tiene un item en el cursor, no permitir salir

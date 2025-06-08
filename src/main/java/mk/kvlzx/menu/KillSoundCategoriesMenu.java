@@ -16,38 +16,38 @@ import mk.kvlzx.utils.MessageUtils;
 public class KillSoundCategoriesMenu extends Menu {
 
     public KillSoundCategoriesMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lSonidos de Kill &8•", 45);
+        super(plugin, "&8• &e&lKill Sounds &8•", 45);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         // Sonidos comunes
-        inv.setItem(11, createItem(Material.NOTE_BLOCK, "&7Sonidos Comunes",
-            "&8▪ &7Precio: &f15,000 KGCoins",
-            "&8▪ &7Rareza: &7COMÚN",
+        inv.setItem(11, createItem(Material.NOTE_BLOCK, "&7Common Sounds",
+            "&8▪ &7Price: &f15,000 KGCoins",
+            "&8▪ &7Rarity: &7COMMON",
             "",
-            "&8➥ Sonidos básicos pero efectivos",
-            "&7Click para ver los sonidos"));
+            "&8➥ Basic but effective sounds",
+            "&7Click to view sounds"));
 
         // Sonidos épicos
-        inv.setItem(13, createItem(Material.JUKEBOX, "&5Sonidos Épicos",
-            "&8▪ &7Precio: &f35,000 KGCoins",
-            "&8▪ &7Rareza: &5ÉPICO",
+        inv.setItem(13, createItem(Material.JUKEBOX, "&5Epic Sounds",
+            "&8▪ &7Price: &f35,000 KGCoins",
+            "&8▪ &7Rarity: &5EPIC",
             "",
-            "&8➥ Sonidos más elaborados",
-            "&7Click para ver los sonidos"));
+            "&8➥ More elaborate sounds",
+            "&7Click to view sounds"));
 
         // Sonidos legendarios
-        inv.setItem(15, createItem(Material.GOLD_RECORD, "&6Sonidos Legendarios",
-            "&8▪ &7Precio: &f75,000 KGCoins",
-            "&8▪ &7Rareza: &6LEGENDARIO",
+        inv.setItem(15, createItem(Material.GOLD_RECORD, "&6Legendary Sounds",
+            "&8▪ &7Price: &f75,000 KGCoins",
+            "&8▪ &7Rarity: &6LEGENDARY",
             "",
-            "&8➥ Los sonidos más impresionantes",
-            "&7Click para ver los sonidos"));
+            "&8➥ The most impressive sounds",
+            "&7Click to view sounds"));
 
         // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver a la tienda"));
+        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
 
         // Relleno
         fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
@@ -60,15 +60,15 @@ public class KillSoundCategoriesMenu extends Menu {
         
         switch(event.getSlot()) {
             case 11: // Comunes
-                KillSoundShopMenu.setCurrentCategory("COMÚN");
+                KillSoundShopMenu.setCurrentCategory("COMMON");
                 plugin.getMenuManager().openMenu(player, "kill_sound_shop");
                 break;
             case 13: // Épicos
-                KillSoundShopMenu.setCurrentCategory("ÉPICO");
+                KillSoundShopMenu.setCurrentCategory("EPIC");
                 plugin.getMenuManager().openMenu(player, "kill_sound_shop");
                 break;
             case 15: // Legendarios
-                KillSoundShopMenu.setCurrentCategory("LEGENDARIO");
+                KillSoundShopMenu.setCurrentCategory("LEGENDARY");
                 plugin.getMenuManager().openMenu(player, "kill_sound_shop");
                 break;
             case 40: // Volver

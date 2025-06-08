@@ -122,6 +122,7 @@ public class StreakManager {
             armorStand.setMarker(true);
             armorStand.setCustomName(MessageUtils.getColor(mvpTag + " &7- Kills: " + streak));
 
+
             playerMvpTags.put(uuid, armorStand);
 
             new BukkitRunnable() {
@@ -134,6 +135,12 @@ public class StreakManager {
                         return;
                     }
                     armorStand.teleport(p.getLocation().add(0, 2.2, 0));
+                    // Actualizar el nombre del ArmorStand si la racha cambia
+                    int currentStreak = getStreak(uuid);
+                    String currentMvpTag = getMvpTag(currentStreak);
+                    if (currentMvpTag != null && !armorStand.getCustomName().equals(MessageUtils.getColor(currentMvpTag + " &7- Kills: " + currentStreak))) {
+                        armorStand.setCustomName(MessageUtils.getColor(currentMvpTag + " &7- Kills: " + currentStreak));
+                    }
                 }
             }.runTaskTimer(MysthicKnockBack.getInstance(), 0L, 1L);
         } else {

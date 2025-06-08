@@ -16,38 +16,38 @@ import mk.kvlzx.utils.MessageUtils;
 public class KillMessageCategoriesMenu extends Menu {
 
     public KillMessageCategoriesMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lCategorías de Mensajes de Kill &8•", 45);
+        super(plugin, "&8• &e&lKill Message Categories &8•", 45);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         // Comunes
-        inv.setItem(11, createItem(Material.PAPER, "&7Mensajes Comunes",
-            "&8▪ &7Precio: &f15,000 KGCoins",
-            "&8▪ &7Rareza: &7COMÚN",
+        inv.setItem(11, createItem(Material.PAPER, "&7Common Messages",
+            "&8▪ &7Price: &f15,000 KGCoins",
+            "&8▪ &7Rarity: &7COMMON",
             "",
-            "&8➥ Mensajes básicos pero efectivos",
-            "&7Click para ver los mensajes"));
+            "&8➥ Basic but effective messages",
+            "&7Click to view messages"));
 
         // Épicos
-        inv.setItem(13, createItem(Material.ENCHANTED_BOOK, "&5Mensajes Épicos",
-            "&8▪ &7Precio: &f35,000 KGCoins",
-            "&8▪ &7Rareza: &5ÉPICO",
+        inv.setItem(13, createItem(Material.ENCHANTED_BOOK, "&5Epic Messages",
+            "&8▪ &7Price: &f35,000 KGCoins",
+            "&8▪ &7Rarity: &5EPIC",
             "",
-            "&8➥ Mensajes con más estilo",
-            "&7Click para ver los mensajes"));
+            "&8➥ More stylish messages",
+            "&7Click to view messages"));
 
         // Legendarios
-        inv.setItem(15, createItem(Material.WRITTEN_BOOK, "&6Mensajes Legendarios",
-            "&8▪ &7Precio: &f75,000 KGCoins",
-            "&8▪ &7Rareza: &6LEGENDARIO",
+        inv.setItem(15, createItem(Material.WRITTEN_BOOK, "&6Legendary Messages",
+            "&8▪ &7Price: &f75,000 KGCoins",
+            "&8▪ &7Rarity: &6LEGENDARY",
             "",
-            "&8➥ Los mensajes más épicos",
-            "&7Click para ver los mensajes"));
+            "&8➥ The most epic messages",
+            "&7Click to view messages"));
 
         // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver a la tienda"));
+        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
 
         // Relleno
         fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
@@ -60,15 +60,15 @@ public class KillMessageCategoriesMenu extends Menu {
         
         switch(event.getSlot()) {
             case 11: // Comunes
-                KillMessageShopMenu.setCurrentCategory("COMÚN");
+                KillMessageShopMenu.setCurrentCategory("COMMON");
                 plugin.getMenuManager().openMenu(player, "kill_message_shop");
                 break;
             case 13: // Épicos
-                KillMessageShopMenu.setCurrentCategory("ÉPICO");
+                KillMessageShopMenu.setCurrentCategory("EPIC");
                 plugin.getMenuManager().openMenu(player, "kill_message_shop");
                 break;
             case 15: // Legendarios
-                KillMessageShopMenu.setCurrentCategory("LEGENDARIO");
+                KillMessageShopMenu.setCurrentCategory("LEGENDARY");
                 plugin.getMenuManager().openMenu(player, "kill_message_shop");
                 break;
             case 40: // Volver

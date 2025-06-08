@@ -20,10 +20,10 @@ import mk.kvlzx.utils.MessageUtils;
 
 public class KillSoundShopMenu extends Menu {
     private final List<KillSoundItem> shopItems;
-    private static String currentCategory = "COMÚN";
+    private static String currentCategory = "COMMON";
 
     public KillSoundShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lTienda de Sonidos de Kill &8•", 45);
+        super(plugin, "&8• &e&lKill Sound Shop &8•", 45);
         this.shopItems = initializeShopItems();
     }
 
@@ -36,35 +36,35 @@ public class KillSoundShopMenu extends Menu {
 
         // Sonidos Comunes
         items.add(new KillSoundItem(
-            "Victory Strike", 15000, "COMÚN", "&7",
-            "&e¡El sonido de la victoria!", 
+            "Victory Strike", 15000, "COMMON", "&7",
+            "&eThe sound of victory!", 
             Sound.LEVEL_UP, 1.0f, 1.0f));
             
         items.add(new KillSoundItem(
-            "Critical Hit", 15000, "COMÚN", "&7",
-            "&e¡Golpe crítico!", 
+            "Critical Hit", 15000, "COMMON", "&7",
+            "&eCritical strike!", 
             Sound.SUCCESSFUL_HIT, 1.0f, 0.8f));
 
         // Sonidos Épicos
         items.add(new KillSoundItem(
-            "Blaze Fury", 35000, "ÉPICO", "&5",
-            "&d¡La furia del blaze!", 
+            "Blaze Fury", 35000, "EPIC", "&5",
+            "&dThe fury of the blaze!", 
             Sound.BLAZE_DEATH, 1.0f, 0.7f));
             
         items.add(new KillSoundItem(
-            "Wither Strike", 35000, "ÉPICO", "&5",
-            "&d¡El poder del wither!", 
+            "Wither Strike", 35000, "EPIC", "&5",
+            "&dThe power of the wither!", 
             Sound.WITHER_HURT, 0.8f, 1.0f));
 
         // Sonidos Legendarios
         items.add(new KillSoundItem(
-            "Dragon Wrath", 75000, "LEGENDARIO", "&6",
-            "&6¡La ira del dragón!", 
+            "Dragon Wrath", 75000, "LEGENDARY", "&6",
+            "&6The wrath of the dragon!", 
             Sound.ENDERDRAGON_GROWL, 1.0f, 0.5f));
             
         items.add(new KillSoundItem(
-            "Thunder Smite", 75000, "LEGENDARIO", "&6",
-            "&6¡La furia del trueno!", 
+            "Thunder Smite", 75000, "LEGENDARY", "&6",
+            "&6The fury of thunder!", 
             Sound.AMBIENCE_THUNDER, 1.0f, 0.8f));
 
         return items;
@@ -75,10 +75,10 @@ public class KillSoundShopMenu extends Menu {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
         // Balance actual
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lTu Balance",
-            "&7Balance actual: &e" + stats.getKGCoins() + " KGCoins",
+        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
+            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins",
             "",
-            "&7Categoría actual: " + currentCategory));
+            "&7Current Category: " + currentCategory));
 
         // Mostrar sonidos
         int slot = 10;
@@ -92,8 +92,8 @@ public class KillSoundShopMenu extends Menu {
         }
 
         // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver a las categorías"));
+        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to categories"));
 
         // Relleno
         fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
@@ -104,24 +104,24 @@ public class KillSoundShopMenu extends Menu {
         boolean isSelected = plugin.getCosmeticManager().getPlayerKillSound(player.getUniqueId()).equals(item.getName());
         
         List<String> lore = new ArrayList<>();
-        lore.add(item.getRarityColor() + "✦ Rareza: " + item.getRarity());
+        lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
         lore.add("");
         lore.add(MessageUtils.getColor(item.getDescription()));
         lore.add("");
-        lore.add("&eClick derecho para escuchar una muestra");
+        lore.add("&eRight-click to preview");
         lore.add("");
         
         if (hasSound) {
             if (isSelected) {
-                lore.add("&aSeleccionado actualmente");
-                lore.add("&eClick para deseleccionar");
+                lore.add("&aCurrently selected");
+                lore.add("&eClick to deselect");
             } else {
-                lore.add("&eClick para seleccionar");
+                lore.add("&eClick to select");
             }
         } else {
-            lore.add("&7Click para comprar");
+            lore.add("&7Click to purchase");
             lore.add("");
-            lore.add("&8➥ Precio: &e" + item.getPrice() + " KGCoins");
+            lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
         }
 
         Material material = isSelected ? Material.JUKEBOX : Material.NOTE_BLOCK;
@@ -177,10 +177,10 @@ public class KillSoundShopMenu extends Menu {
         if (plugin.getCosmeticManager().hasPlayerKillSound(player.getUniqueId(), soundItem.getName())) {
             if (currentSound.equals(soundItem.getName())) {
                 plugin.getCosmeticManager().setPlayerKillSound(player.getUniqueId(), "none");
-                player.sendMessage(MessageUtils.getColor("&aHas deseleccionado el sonido."));
+                player.sendMessage(MessageUtils.getColor("&aYou have deselected the sound."));
             } else {
                 plugin.getCosmeticManager().setPlayerKillSound(player.getUniqueId(), soundItem.getName());
-                player.sendMessage(MessageUtils.getColor("&aHas seleccionado el sonido: " + soundItem.getName()));
+                player.sendMessage(MessageUtils.getColor("&aYou have selected the sound: " + soundItem.getName()));
             }
             player.closeInventory();
         } else {
@@ -188,11 +188,11 @@ public class KillSoundShopMenu extends Menu {
                 stats.removeKGCoins(soundItem.getPrice());
                 plugin.getCosmeticManager().addPlayerKillSound(player.getUniqueId(), soundItem.getName());
                 plugin.getCosmeticManager().setPlayerKillSound(player.getUniqueId(), soundItem.getName());
-                player.sendMessage(MessageUtils.getColor("&a¡Has comprado y seleccionado el sonido " + 
-                    soundItem.getName() + " &apor &e" + soundItem.getPrice() + " KGCoins&a!"));
+                player.sendMessage(MessageUtils.getColor("&aYou have purchased and selected the sound " + 
+                    soundItem.getName() + " &afor &e" + soundItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor("&cNo tienes suficientes KGCoins para comprar este sonido."));
+                player.sendMessage(MessageUtils.getColor("&cYou don't have enough KGCoins to purchase this sound."));
             }
         }
     }
