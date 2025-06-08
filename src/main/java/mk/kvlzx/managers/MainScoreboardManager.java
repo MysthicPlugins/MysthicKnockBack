@@ -77,23 +77,35 @@ public class MainScoreboardManager {
         int seconds = timeLeft % 60;
         String formattedTime = String.format("&e%02d:%02d", minutes, seconds);
         
+        double kdr = stats.getKDR();
+        String kdrColor;
+        if (kdr < 1.0) {
+            kdrColor = "&c"; // Rojo para KDR < 1
+        } else if (kdr < 2.0) {
+            kdrColor = "&6"; // Naranja para 1 ≤ KDR < 2
+        } else if (kdr < 3.0) {
+            kdrColor = "&e"; // Amarillo para 2 ≤ KDR < 3
+        } else {
+            kdrColor = "&a"; // Verde para KDR ≥ 3
+        }
+
         // Crear un buffer con los valores actuales
         Map<Integer, String> newScores = new HashMap<>();
-        newScores.put(14, "&7&m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-        newScores.put(13, " ");
-        newScores.put(12, "&b&lINFO:");
-        newScores.put(11, " &8➥ &fPlayer: &b" + player.getName());
-        newScores.put(10, " &8➥ &fArena: &b" + currentArena);
-        newScores.put(9, " ");
-        newScores.put(8, "&b&lSTATS:");
-        newScores.put(7, " &8➥ &fKills: &a" + stats.getKills());
-        newScores.put(6, " &8➥ &fDeaths: &c" + stats.getDeaths());
-        newScores.put(5, " &8➥ &fK/D: &e" + String.format("%.2f", stats.getKDR()));
-        newScores.put(4, " ");
-        newScores.put(3, "&b&lTIME:");
-        newScores.put(2, " &8➥ &fChange: " + formattedTime);
-        newScores.put(1, " &8➥ &fNext: &e" + plugin.getArenaManager().getNextArena());
-        newScores.put(0, " ");
+        newScores.put(15, "&7&m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        newScores.put(14, " ");
+        newScores.put(13, "&b&lINFO:");
+        newScores.put(12, " &8➥ &fPlayer: &b" + player.getName());
+        newScores.put(11, " &8➥ &fArena: &b" + currentArena);
+        newScores.put(10, " ");
+        newScores.put(9, "&b&lSTATS:");
+        newScores.put(8, " &8➥ &fKills: &a" + stats.getKills());
+        newScores.put(7, " &8➥ &fDeaths: &c" + stats.getDeaths());
+        newScores.put(6, " &8➥ &fK/D: " + kdrColor + String.format("%.2f", kdr));
+        newScores.put(5, " ");
+        newScores.put(4, "&b&lTIME:");
+        newScores.put(3, " &8➥ &fChange: " + formattedTime);
+        newScores.put(2, " &8➥ &fNext: &e" + plugin.getArenaManager().getNextArena());
+        newScores.put(1, " ");
         newScores.put(0, "&eplay.mysthicknockback.gg");
 
         // Actualizar solo los scores que han cambiado

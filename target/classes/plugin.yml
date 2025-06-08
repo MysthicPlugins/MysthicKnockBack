@@ -17,3 +17,5 @@ commands:
   stats:
     description: Command to manage statistics
     aliases: [statistics]
+  music:
+    description: Open the music menu
