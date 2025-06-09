@@ -22,7 +22,7 @@ public class StatsCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(MessageUtils.getColor("&cEste comando solo puede ser usado por jugadores."));
+                sender.sendMessage(MessageUtils.getColor("&cThis command can only be used by players."));
                 return true;
             }
             Player player = (Player) sender;
@@ -35,7 +35,7 @@ public class StatsCommand implements CommandExecutor {
             String targetName = args[0];
             Player target = Bukkit.getPlayer(targetName);
             if (target == null) {
-                sender.sendMessage(MessageUtils.getColor("&cJugador no encontrado."));
+                sender.sendMessage(MessageUtils.getColor("&cPlayer not found."));
                 return true;
             }
             if (sender instanceof Player) {
@@ -49,34 +49,34 @@ public class StatsCommand implements CommandExecutor {
 
         // A partir de aquí, todos los comandos requieren permiso admin
         if (!sender.hasPermission("kvknockback.admin")) {
-            sender.sendMessage(MessageUtils.getColor("&cNo tienes permiso para usar este comando."));
+            sender.sendMessage(MessageUtils.getColor("&cYou don't have permission to use this command."));
             return true;
         }
 
         if (args[0].equalsIgnoreCase("resetall")) {
             resetAllStats();
-            sender.sendMessage(MessageUtils.getColor("&aEstadísticas de todos los jugadores reseteadas."));
+            sender.sendMessage(MessageUtils.getColor("&aAll players' statistics have been reset."));
             return true;
         }
 
         if (args[0].equalsIgnoreCase("reset")) {
             if (args.length < 2) {
-                sender.sendMessage(MessageUtils.getColor("&cUso: /stats reset <jugador>"));
+                sender.sendMessage(MessageUtils.getColor("&cUsage: /stats reset <player>"));
                 return true;
             }
             Player target = Bukkit.getPlayer(args[1]);
             if (target == null) {
-                sender.sendMessage(MessageUtils.getColor("&cJugador no encontrado."));
+                sender.sendMessage(MessageUtils.getColor("&cPlayer not found."));
                 return true;
             }
             resetPlayerStats(target);
-            sender.sendMessage(MessageUtils.getColor("&aEstadísticas de " + target.getName() + " reseteadas."));
+            sender.sendMessage(MessageUtils.getColor("&a" + target.getName() + "'s statistics have been reset."));
             return true;
         }
 
         // Comandos de modificación de stats
         if (args.length < 4) {
-            sender.sendMessage(MessageUtils.getColor("&cUso: /stats <set/add/remove> <elo/kills/deaths/coins> <jugador> <cantidad>"));
+            sender.sendMessage(MessageUtils.getColor("&cUsage: /stats <set/add/remove> <elo/kills/deaths/coins> <player> <amount>"));
             return true;
         }
 
@@ -95,15 +95,15 @@ public class StatsCommand implements CommandExecutor {
     private void showPlayerStats(Player viewer, Player target) {
         PlayerStats stats = PlayerStats.getStats(target.getUniqueId());
         viewer.sendMessage(MessageUtils.getColor("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"));
-        viewer.sendMessage(MessageUtils.getColor("&bEstadísticas de " + target.getName()));
-        viewer.sendMessage(MessageUtils.getColor("&7Rango: " + RankManager.getRankPrefix(stats.getElo())));
+        viewer.sendMessage(MessageUtils.getColor("&b" + target.getName() + "'s Statistics"));
+        viewer.sendMessage(MessageUtils.getColor("&7Rank: " + RankManager.getRankPrefix(stats.getElo())));
         viewer.sendMessage(MessageUtils.getColor("&7ELO: &6" + stats.getElo()));
         viewer.sendMessage(MessageUtils.getColor("&7Kills: &a" + stats.getKills()));
-        viewer.sendMessage(MessageUtils.getColor("&7Muertes: &c" + stats.getDeaths()));
+        viewer.sendMessage(MessageUtils.getColor("&7Deaths: &c" + stats.getDeaths()));
         viewer.sendMessage(MessageUtils.getColor("&7KDR: &b" + String.format("%.2f", stats.getKDR())));
-        viewer.sendMessage(MessageUtils.getColor("&7Racha actual: &d" + stats.getCurrentStreak()));
-        viewer.sendMessage(MessageUtils.getColor("&7Mejor racha: &d" + stats.getMaxStreak()));
-        viewer.sendMessage(MessageUtils.getColor("&7Tiempo jugado: &e" + stats.getFormattedPlayTime()));
+        viewer.sendMessage(MessageUtils.getColor("&7Current Streak: &d" + stats.getCurrentStreak()));
+        viewer.sendMessage(MessageUtils.getColor("&7Best Streak: &d" + stats.getMaxStreak()));
+        viewer.sendMessage(MessageUtils.getColor("&7Play Time: &e" + stats.getFormattedPlayTime()));
         viewer.sendMessage(MessageUtils.getColor("&7KGCoins: &e" + stats.getKGCoins()));
         viewer.sendMessage(MessageUtils.getColor("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"));
     }
@@ -111,12 +111,12 @@ public class StatsCommand implements CommandExecutor {
     private void showPlayerStatsConsole(CommandSender sender, Player target) {
         PlayerStats stats = PlayerStats.getStats(target.getUniqueId());
         sender.sendMessage(MessageUtils.getColor("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"));
-        sender.sendMessage(MessageUtils.getColor("&bEstadísticas de " + target.getName()));
+        sender.sendMessage(MessageUtils.getColor("&b" + target.getName() + "'s Statistics"));
         sender.sendMessage(MessageUtils.getColor("&7ELO: &6" + stats.getElo()));
         sender.sendMessage(MessageUtils.getColor("&7Kills: &a" + stats.getKills()));
-        sender.sendMessage(MessageUtils.getColor("&7Muertes: &c" + stats.getDeaths()));
+        sender.sendMessage(MessageUtils.getColor("&7Deaths: &c" + stats.getDeaths()));
         sender.sendMessage(MessageUtils.getColor("&7KDR: &b" + String.format("%.2f", stats.getKDR())));
-        sender.sendMessage(MessageUtils.getColor("&7Racha actual: &d" + stats.getCurrentStreak()));
+        sender.sendMessage(MessageUtils.getColor("&7Current Streak: &d" + stats.getCurrentStreak()));
         sender.sendMessage(MessageUtils.getColor("&7KGCoins: &e" + stats.getKGCoins()));
         sender.sendMessage(MessageUtils.getColor("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"));
     }
@@ -144,13 +144,13 @@ public class StatsCommand implements CommandExecutor {
         try {
             amount = Integer.parseInt(args[3]);
         } catch (NumberFormatException e) {
-            sender.sendMessage(MessageUtils.getColor("&cLa cantidad debe ser un número válido."));
+            sender.sendMessage(MessageUtils.getColor("&cAmount must be a valid number."));
             return;
         }
 
         Player target = Bukkit.getPlayer(targetName);
         if (target == null) {
-            sender.sendMessage(MessageUtils.getColor("&cJugador no encontrado."));
+            sender.sendMessage(MessageUtils.getColor("&cPlayer not found."));
             return;
         }
 
@@ -174,7 +174,7 @@ public class StatsCommand implements CommandExecutor {
                             () -> stats.setKills(currentValue - amount));
                 break;
             case "deaths":
-                statName = "muertes";
+                statName = "deaths";
                 currentValue = stats.getDeaths();
                 updateStat(operation, () -> stats.setDeaths(amount),
                             () -> stats.setDeaths(currentValue + amount),
@@ -188,15 +188,15 @@ public class StatsCommand implements CommandExecutor {
                             () -> stats.removeKGCoins(amount));
                 break;
             default:
-                sender.sendMessage(MessageUtils.getColor("&cEstadística no válida. Usa: elo, kills, deaths o coins"));
+                sender.sendMessage(MessageUtils.getColor("&cInvalid statistic. Use: elo, kills, deaths or coins"));
                 return;
         }
 
-        String operationName = operation.equals("set") ? "establecido" : 
-                                operation.equals("add") ? "añadido" : "removido";
+        String operationName = operation.equals("set") ? "set" : 
+                                operation.equals("add") ? "added" : "removed";
         
         sender.sendMessage(MessageUtils.getColor(
-            String.format("&aHas %s %d %s a %s", operationName, amount, statName, target.getName())
+            String.format("&aYou have %s %d %s to %s", operationName, amount, statName, target.getName())
         ));
     }
 

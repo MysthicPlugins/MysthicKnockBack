@@ -224,7 +224,6 @@ public class MusicShopMenu extends Menu {
     }
 
     private void startBackgroundMusic(Player player, BackgroundMusicItem musicItem) {
-        stopPreviewMusic(player);
         plugin.getMusicManager().startMusicForPlayer(player, musicItem.getSound());
     }
 

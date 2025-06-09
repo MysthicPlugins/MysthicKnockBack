@@ -61,8 +61,8 @@ public class MusicManager {
         if (musicData == null) return;
 
         // Para preview, crear una jukebox temporal solo por 10 segundos
-        Location previewLoc = getJukeboxLocation(player);
-        if (!canPlaceJukebox(previewLoc)) {
+        Location previewLoc = getValidJukeboxLocation(player);
+        if (previewLoc == null) {
             player.sendMessage(MessageUtils.getColor("&cNo hay espacio para la preview de música."));
             return;
         }
@@ -102,46 +102,23 @@ public class MusicManager {
             return;
         }
 
-        final Location[] jukeboxLoc = new Location[1];
-        jukeboxLoc[0] = getJukeboxLocation(player);
-
-        plugin.getLogger().info("Intentando colocar jukebox en: " + jukeboxLoc[0]);
-
-        if (!canPlaceJukebox(jukeboxLoc[0])) {
-            plugin.getLogger().info("Buscando ubicación alternativa...");
-            Location[] alternativeLocations = {
-                jukeboxLoc[0].clone().add(0, 1, 0),
-                jukeboxLoc[0].clone().add(1, 0, 0),
-                jukeboxLoc[0].clone().add(-1, 0, 0),
-                jukeboxLoc[0].clone().add(0, 0, 1),
-                jukeboxLoc[0].clone().add(0, 0, -1)
-            };
-
-            boolean found = false;
-            for (Location alt : alternativeLocations) {
-                if (canPlaceJukebox(alt)) {
-                    jukeboxLoc[0] = alt;
-                    found = true;
-                    plugin.getLogger().info("Ubicación alternativa encontrada: " + alt);
-                    break;
-                }
-            }
-
-            if (!found) {
-                plugin.getLogger().warning("No se encontró ubicación válida para la jukebox");
-                player.sendMessage(MessageUtils.getColor("&cNo hay espacio suficiente para colocar la jukebox."));
-                return;
-            }
+        Location jukeboxLoc = getValidJukeboxLocation(player);
+        if (jukeboxLoc == null) {
+            plugin.getLogger().warning("No se encontró ubicación válida para la jukebox");
+            player.sendMessage(MessageUtils.getColor("&cNo hay espacio suficiente para colocar la jukebox."));
+            return;
         }
 
+        plugin.getLogger().info("Colocando jukebox en: " + jukeboxLoc);
+
         // Colocar la jukebox
-        Block block = jukeboxLoc[0].getBlock();
+        Block block = jukeboxLoc.getBlock();
         block.setType(Material.JUKEBOX);
         
-        plugin.getLogger().info("Jukebox colocada en: " + jukeboxLoc[0]);
+        plugin.getLogger().info("Jukebox colocada en: " + jukeboxLoc);
         
         if (block.getType() != Material.JUKEBOX) {
-            plugin.getLogger().warning("Error al colocar la jukebox en: " + jukeboxLoc[0]);
+            plugin.getLogger().warning("Error al colocar la jukebox en: " + jukeboxLoc);
             player.sendMessage(MessageUtils.getColor("&cError al colocar la jukebox."));
             return;
         }
@@ -153,11 +130,11 @@ public class MusicManager {
             jukebox.update();
         }
 
-        playerJukeboxes.put(player.getUniqueId(), jukeboxLoc[0]);
+        playerJukeboxes.put(player.getUniqueId(), jukeboxLoc);
         currentMusic.put(player.getUniqueId(), simpleName);
         
         // Iniciar efectos de notas
-        startNoteEffects(jukeboxLoc[0]);
+        startNoteEffects(jukeboxLoc);
         
         // Tarea para reproducir la música en loop y verificar condiciones
         BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
@@ -169,7 +146,7 @@ public class MusicManager {
             }
 
             // Verificar distancia
-            if (jukeboxLoc[0].distance(player.getLocation()) > MAX_DISTANCE) {
+            if (jukeboxLoc.distance(player.getLocation()) > MAX_DISTANCE) {
                 plugin.getLogger().info(player.getName() + " se alejó demasiado de la jukebox");
                 player.sendMessage(MessageUtils.getColor("&cTe has alejado demasiado de tu jukebox."));
                 stopMusicForPlayer(player);
@@ -177,7 +154,7 @@ public class MusicManager {
             }
             
             // Verificar si la jukebox sigue ahí y reproducir
-            Block jukeboxBlock = jukeboxLoc[0].getBlock();
+            Block jukeboxBlock = jukeboxLoc.getBlock();
             if (jukeboxBlock.getType() == Material.JUKEBOX && jukeboxBlock.getState() instanceof Jukebox) {
                 Jukebox jukebox = (Jukebox) jukeboxBlock.getState();
                 
@@ -195,8 +172,60 @@ public class MusicManager {
         plugin.getLogger().info("Música iniciada exitosamente para " + player.getName());
     }
 
-    private Location getJukeboxLocation(Player player) {
-        return player.getLocation().add(player.getLocation().getDirection().multiply(3));
+    private Location getValidJukeboxLocation(Player player) {
+        // Obtener la ubicación inicial (3 bloques en la dirección que mira el jugador)
+        Location baseLocation = player.getLocation().add(player.getLocation().getDirection().multiply(3));
+        
+        // Buscar múltiples ubicaciones posibles
+        Location[] candidateLocations = {
+            baseLocation.clone(),
+            baseLocation.clone().add(1, 0, 0),
+            baseLocation.clone().add(-1, 0, 0),
+            baseLocation.clone().add(0, 0, 1),
+            baseLocation.clone().add(0, 0, -1),
+            baseLocation.clone().add(1, 0, 1),
+            baseLocation.clone().add(-1, 0, -1),
+            baseLocation.clone().add(1, 0, -1),
+            baseLocation.clone().add(-1, 0, 1),
+            // Ubicaciones más cercanas al jugador si las anteriores fallan
+            player.getLocation().clone().add(2, 0, 0),
+            player.getLocation().clone().add(-2, 0, 0),
+            player.getLocation().clone().add(0, 0, 2),
+            player.getLocation().clone().add(0, 0, -2)
+        };
+        
+        for (Location candidate : candidateLocations) {
+            Location groundLocation = findGroundLocation(candidate);
+            if (groundLocation != null && canPlaceJukebox(groundLocation)) {
+                return groundLocation;
+            }
+        }
+        
+        return null;
+    }
+
+    private Location findGroundLocation(Location startLocation) {
+        // Buscar el suelo hacia abajo desde la ubicación inicial
+        Location searchLocation = startLocation.clone();
+        
+        // Primero, subir hasta encontrar aire si estamos dentro de un bloque
+        while (searchLocation.getBlock().getType() != Material.AIR && searchLocation.getY() < 256) {
+            searchLocation.add(0, 1, 0);
+        }
+        
+        // Luego, buscar hacia abajo hasta encontrar un bloque sólido
+        for (int y = (int) searchLocation.getY(); y >= 0; y--) {
+            searchLocation.setY(y);
+            Block currentBlock = searchLocation.getBlock();
+            Block belowBlock = searchLocation.clone().add(0, -1, 0).getBlock();
+            
+            // Si el bloque actual es aire y el de abajo es sólido, esta es una buena ubicación
+            if (currentBlock.getType() == Material.AIR && belowBlock.getType().isSolid()) {
+                return searchLocation.clone();
+            }
+        }
+        
+        return null;
     }
 
     private boolean canPlaceJukebox(Location location) {

@@ -17,13 +17,13 @@ import mk.kvlzx.utils.MessageUtils;
 public class CustomItem {
     public enum ItemType {
         // Items de combate
-        KNOCKER(Material.STICK, "&5Knocker", "&8 No es la fuerza, es la técnica.", true),
-        BOW(Material.BOW, "&4Mazakarko", "&8 Un disparo, un impacto, un salto al vacío.", false),
-        ARROW(Material.ARROW, "&5Flecha", null, false),
-        PEARL(Material.ENDER_PEARL, "&5Perla", "&8 Cada lanzamiento reescribe tu destino.", false),
-        FEATHER(Material.FEATHER, "&ePluma", "&8 No es magia, es pura aerodinámica.", false),
-        PLATE(Material.GOLD_PLATE, "&6Placa", "&8 ¿Listo para volar? Pisa y verás.", false),
-        BLOCKS(Material.SANDSTONE, "&3Arenisca", "&8 Un clásico del desierto", false);
+        KNOCKER(Material.STICK, "&5Knocker", "&8 It's not the strength, it's the technique.", true),
+        BOW(Material.BOW, "&4Mazakarko", "&8 One shot, one impact, one leap into the void.", false),
+        ARROW(Material.ARROW, "&5Arrow", null, false),
+        PEARL(Material.ENDER_PEARL, "&5Pearl", "&8 Each throw rewrites your destiny.", false),
+        FEATHER(Material.FEATHER, "&eFeather", "&8 It's not magic, it's pure aerodynamics.", false),
+        PLATE(Material.GOLD_PLATE, "&6Plate", "&8 Ready to fly? Step on it and see.", false),
+        BLOCKS(Material.SANDSTONE, "&3Sandstone", "&8 A desert classic", false);
 
         private final Material material;
         private final String name;

@@ -23,7 +23,7 @@ public class MainCommand implements CommandExecutor{
 
         if(!(sender instanceof Player)){
             // Consola :3
-            Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&c Solo puedes usar este comando siendo un jugador."));
+            Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&c You can only use this command as a player."));
             return true;
         }
 

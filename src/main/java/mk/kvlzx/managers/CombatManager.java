@@ -18,16 +18,16 @@ public class CombatManager {
     private final Map<UUID, Long> lastHitTime = new HashMap<>();
     private static final Map<UUID, Long> lastKnockbackTimes = new HashMap<>();
 
-    // Constantes configurables para diferentes situaciones
+    // Constantes ajustadas para KB más pegado al suelo
     private static final double BASE_HORIZONTAL = 0.35;   // KB horizontal base
-    private static final double BASE_VERTICAL = 0.15;     // KB vertical base
+    private static final double BASE_VERTICAL = 0.08;     // KB vertical reducido (era 0.15)
     private static final double SPRINT_BONUS = 0.15;      // Bonus por esprintar
-    private static final double SPRINT_BONUS_VERTICAL = 0.10; // Bonus vertical por esprintar
+    private static final double SPRINT_BONUS_VERTICAL = 0.02; // Bonus vertical muy reducido (era 0.10)
     private static final double NO_KB_ITEM_REDUCTION = 0.60; // Reducción para PvP a mano
-    private static final double AIR_COMBO_HORIZONTAL = 0.28; // KB horizontal en combos aéreos // ----- Kv LO CAMBIO -----
-    private static final double AIR_COMBO_VERTICAL = 0.18;   // KB vertical en combos aéreos // ----- Kv LO CAMBIO -----
+    private static final double AIR_COMBO_HORIZONTAL = 0.28; // KB horizontal en combos aéreos
+    private static final double AIR_COMBO_VERTICAL = 0.12;   // KB vertical en combos aéreos reducido (era 0.18)
     private static final double KNOCKBACK_ENCHANT_H_REDUCTION = 0.20; // Reducción horizontal por KB
-    private static final double KNOCKBACK_ENCHANT_V_REDUCTION = 0.80; // Reducción vertical por KB
+    private static final double KNOCKBACK_ENCHANT_V_REDUCTION = 0.90; // Reducción vertical mayor (era 0.80)
     private static final double ANTI_KB_MULTIPLIER = 0.4;  // Reducción para KB acumulativo
     private static final long COMBO_WINDOW = 500;          // Ventana de tiempo para combos (ms)
     private static final long CLEANUP_DELAY = 30 * 20L;    // 30 segundos en ticks
@@ -90,7 +90,7 @@ public class CombatManager {
 
         // Ajustar según el contexto
         if (kbLevel > 0) {
-            // Nuevo cálculo para palo con KB
+            // Nuevo cálculo para palo con KB - más reducción vertical
             hMult *= KNOCKBACK_ENCHANT_H_REDUCTION;
             vMult *= KNOCKBACK_ENCHANT_V_REDUCTION;
         } else if (isNoKbItem) {
@@ -98,9 +98,10 @@ public class CombatManager {
             vMult *= NO_KB_ITEM_REDUCTION;
         }
 
+        // Sprint bonus corregido
         if (attacker.isSprinting()) {
-            hMult *= SPRINT_BONUS;
-            vMult += SPRINT_BONUS - SPRINT_BONUS_VERTICAL;
+            hMult += SPRINT_BONUS; // Cambio de *= a += para mejor control
+            vMult += SPRINT_BONUS_VERTICAL; // Solo suma el bonus vertical pequeño
         }
 
         Long lastKnockbackTime = lastKnockbackTimes.get(victim.getUniqueId());
@@ -121,8 +122,8 @@ public class CombatManager {
             Vector kb = new Vector(dir.getX() * hMult, vMult, dir.getZ() * hMult);
             victim.setVelocity(kb);
         } else {
-            // KB reducido para golpes en el aire (no combo)
-            Vector kb = new Vector(dir.getX() * hMult * 0.6, vMult * 0.4, dir.getZ() * hMult * 0.6);
+            // KB reducido para golpes en el aire (no combo) - aún más pegado al suelo
+            Vector kb = new Vector(dir.getX() * hMult * 0.6, vMult * 0.2, dir.getZ() * hMult * 0.6);
             victim.setVelocity(kb);
         }
     }

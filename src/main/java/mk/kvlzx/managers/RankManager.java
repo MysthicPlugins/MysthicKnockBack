@@ -8,22 +8,22 @@ import mk.kvlzx.MysthicKnockBack;
 
 public class RankManager {
     public enum Rank {
-        DIVINO(30500, "&d&l[Divino]"),
-        GRAN_MAESTRO(25500, "&4&l[Gran Maestro]"),
-        DIOS(20500, "&b&l[Dios]"),
-        TITAN(18500, "&3&l[Titán]"),
-        INMORTAL(16500, "&5&l[Inmortal]"),
-        SUPREMO(14500, "&c&l[Supremo]"),
-        MITICO(12500, "&6&l[Mítico]"),
-        LEYENDA(9500, "&e&l[Leyenda]"),
-        HEROE(8500, "&a&l[Héroe]"),
-        CAMPEON(7500, "&2&l[Campeón]"),
-        MAESTRO(6500, "&9&l[Maestro]"),
-        ELITE(5500, "&1&l[Élite]"),
-        VETERANO(4500, "&8&l[Veterano]"),
-        COMPETIDOR(3500, "&7&l[Competidor]"),
-        APRENDIZ(2000, "&f&l[Aprendiz]"),
-        NOVATO(1000, "&7[Novato]"),
+        DIVINE(30500, "&d&l[Divine]"),
+        GRAND_MASTER(25500, "&4&l[Grand Master]"),
+        GOD(20500, "&b&l[God]"),
+        TITAN(18500, "&3&l[Titan]"),
+        IMMORTAL(16500, "&5&l[Immortal]"),
+        SUPREME(14500, "&c&l[Supreme]"),
+        MYTHIC(12500, "&6&l[Mythic]"),
+        LEGEND(9500, "&e&l[Legend]"),
+        HERO(8500, "&a&l[Hero]"),
+        CHAMPION(7500, "&2&l[Champion]"),
+        MASTER(6500, "&9&l[Master]"),
+        ELITE(5500, "&1&l[Elite]"),
+        VETERAN(4500, "&8&l[Veteran]"),
+        COMPETITOR(3500, "&7&l[Competitor]"),
+        APPRENTICE(2000, "&f&l[Apprentice]"),
+        NOVICE(1000, "&7[Novice]"),
         RANDOM(500, "&8[Random]");
 
         private final int minElo;
@@ -53,7 +53,7 @@ public class RankManager {
     }
 
     public static void updatePlayerRank(Player player, int elo) {
-        // Agregar un pequeño delay para asegurar que el jugador esté completamente spawneado
+        // Add a small delay to ensure the player is fully spawned
         new BukkitRunnable() {
             @Override
             public void run() {

@@ -11,7 +11,7 @@ import org.bukkit.command.CommandExecutor;
 
 public class ReportCommand implements CommandExecutor {
 
-        private final MysthicKnockBack plugin;
+    private final MysthicKnockBack plugin;
 
     public ReportCommand(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -20,7 +20,7 @@ public class ReportCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command commnad, String string, String[] args){
         if (!(sender instanceof Player)) {
-            sender.sendMessage(MessageUtils.getColor("&cEste comando solo puede ser usado por jugadores."));
+            sender.sendMessage(MessageUtils.getColor("&cThis command can only be executed by a player."));
             return true;
         }
 

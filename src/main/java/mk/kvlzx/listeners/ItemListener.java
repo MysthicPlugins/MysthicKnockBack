@@ -7,6 +7,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -26,6 +28,8 @@ import org.bukkit.GameMode;
 import java.util.*;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.arena.Arena;
+import mk.kvlzx.arena.Zone;
 import mk.kvlzx.items.CustomItem;
 import mk.kvlzx.items.CustomItem.ItemType;
 import mk.kvlzx.utils.BlockUtils;
@@ -360,20 +364,49 @@ public class ItemListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        Player player = event.getPlayer();
+        Location from = event.getFrom();
+        Location to = event.getTo();
+        TeleportCause cause = event.getCause();
+
+        // Solo procesar teleports por plugin (que es como se maneja la "muerte")
+        if (cause != TeleportCause.PLUGIN) return;
         
-        // Resetear velocidad si muere
+        // Verificar si el teleport es desde zona void/pvp a spawn (indicando una "muerte")
+        boolean wasInDangerZone = false;
+        boolean teleportingToSpawn = false;
+        
+        for (Arena arena : plugin.getArenaManager().getArenas()) {
+            Zone voidZone = arena.getZone("void");
+            Zone pvpZone = arena.getZone("pvp");
+            Zone spawnZone = arena.getZone("spawn");
+            
+            // Verificar si estaba en zona peligrosa (void o pvp)
+            if ((voidZone != null && voidZone.isInside(from)) || 
+                (pvpZone != null && pvpZone.isInside(from))) {
+                wasInDangerZone = true;
+            }
+            
+            // Verificar si se teleporta a spawn
+            if (spawnZone != null && spawnZone.isInside(to)) {
+                teleportingToSpawn = true;
+            }
+        }
+        
+        // Si se teleporta desde zona peligrosa a spawn, es una "muerte"
+        if (wasInDangerZone && teleportingToSpawn) {
+            handlePlayerDeath(player);
+        }
+    }
+
+    // Método privado para manejar la limpieza
+    private void handlePlayerDeath(Player player) {
+        // Resetear velocidad si tenía speed activo
         if (speedTasks.containsKey(player.getUniqueId())) {
             speedTasks.get(player.getUniqueId()).cancel();
             speedTasks.remove(player.getUniqueId());
             resetPlayerSpeed(player.getUniqueId());
         }
-
-        // Eliminar perlas lanzadas
-        player.getWorld().getEntities().stream()
-            .filter(entity -> entity.getType() == EntityType.ENDER_PEARL)
-            .filter(entity -> ((EnderPearl) entity).getShooter() == player)
-            .forEach(entity -> entity.remove());
     }
 }

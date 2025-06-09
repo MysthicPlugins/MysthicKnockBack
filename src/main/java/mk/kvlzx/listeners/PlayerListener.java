@@ -2,6 +2,7 @@ package mk.kvlzx.listeners;
 
 import org.bukkit.entity.Player;
 import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -119,68 +120,65 @@ public class PlayerListener implements Listener {
         }
     }
 
-@EventHandler
-public void onPlayerQuit(PlayerQuitEvent event) {
-    Player player = event.getPlayer();
-    PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
-    
-    // Verificar si el jugador está en combate
-    CombatListener combatListener = plugin.getCombatListener();
-    Player killer = combatListener.getLastAttacker(player);
-
-    if (killer != null) {
-        // El jugador se desconectó en combate
-        stats.addDeath();
-        stats.resetStreak();
-        PlayerStats killerStats = PlayerStats.getStats(killer.getUniqueId());
-        killerStats.addKill();
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         
-        // Dar perla al killer
-        givePearlToKiller(killer);
+        // Verificar si el jugador está en combate
+        CombatListener combatListener = plugin.getCombatListener();
+        Player killer = combatListener.getLastAttacker(player);
 
-        // Mensaje de muerte por desconexión
-        String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
-        String killMessage;
-        if (messageName.equals("default")) {
-            killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
-        } else {
-            KillMessageItem messageItem = KillMessageItem.getByName(messageName);
-            killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
-        }
-        
-        Bukkit.broadcastMessage(MessageUtils.getColor(
-            killMessage.replace("{killer}", killer.getName())
-                        .replace("{victim}", player.getName())
-        ));
+        if (killer != null) {
+            // El jugador se desconectó en combate
+            stats.addDeath();
+            stats.resetStreak();
+            PlayerStats killerStats = PlayerStats.getStats(killer.getUniqueId());
+            killerStats.addKill();
+            
+            // Dar perla al killer
+            givePearlToKiller(killer);
 
-        // Reproducir sonido de kill al asesino
-        String soundName = plugin.getCosmeticManager().getPlayerKillSound(killer.getUniqueId());
-        if (!soundName.equals("none")) {
-            KillSoundItem soundItem = KillSoundItem.getByName(soundName);
-            if (soundItem != null) {
-                killer.playSound(
-                    killer.getLocation(),
-                    soundItem.getSound(),
-                    soundItem.getVolume(),
-                    soundItem.getPitch()
-                );
+            // Mensaje de muerte por desconexión
+            String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
+            String killMessage;
+            if (messageName.equals("default")) {
+                killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
+            } else {
+                KillMessageItem messageItem = KillMessageItem.getByName(messageName);
+                killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
+            }
+            
+            Bukkit.broadcastMessage(MessageUtils.getColor(
+                killMessage.replace("{killer}", killer.getName())
+                            .replace("{victim}", player.getName())
+            ));
+
+            // Reproducir sonido de kill al asesino
+            String soundName = plugin.getCosmeticManager().getPlayerKillSound(killer.getUniqueId());
+            if (!soundName.equals("none")) {
+                KillSoundItem soundItem = KillSoundItem.getByName(soundName);
+                if (soundItem != null) {
+                    killer.playSound(
+                        killer.getLocation(),
+                        soundItem.getSound(),
+                        soundItem.getVolume(),
+                        soundItem.getPitch()
+                    );
+                }
             }
         }
-    }
 
-    combatListener.resetCombat(player);
-    if (plugin.getScoreboardManager().isArenaChanging()) {
-        player.setWalkSpeed(0.0f);
-    }
+        combatListener.resetCombat(player);
 
-    stats.updatePlayTime();
-    
-    String currentArena = plugin.getArenaManager().getCurrentArena();
-    if (currentArena != null) {
-        plugin.getArenaManager().removePlayerFromArena(player, currentArena);
+        stats.updatePlayTime();
+        
+        String currentArena = plugin.getArenaManager().getCurrentArena();
+        if (currentArena != null) {
+            plugin.getArenaManager().removePlayerFromArena(player, currentArena);
+        }
+        plugin.getScoreboardManager().removePlayer(player);
     }
-    plugin.getScoreboardManager().removePlayer(player);
-}
 
     @EventHandler
     public void onDropItem(PlayerDropItemEvent event) {
@@ -247,12 +245,9 @@ public void onPlayerQuit(PlayerQuitEvent event) {
 
         // Eliminar solo las perlas que están en vuelo
         player.getWorld().getEntities().stream()
-            .filter(entity -> entity instanceof EnderPearl)
-            .map(entity -> (EnderPearl) entity)
-            .filter(pearl -> pearl.getShooter() instanceof Player)
-            .forEach(pearl -> {
-                pearl.remove();
-            });
+            .filter(entity -> entity.getType() == EntityType.ENDER_PEARL)
+            .filter(entity -> ((EnderPearl) entity).getShooter() == player)
+            .forEach(entity -> entity.remove());
     }
 
     private void handlePlayerKill(Player player) {

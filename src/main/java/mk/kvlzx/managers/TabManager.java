@@ -45,14 +45,14 @@ public class TabManager {
         String header = MessageUtils.getColor(
             "\n" +
             "" + headerAnimations[animationFrame] + "\n" +
-            "       &7¡Demuestra tu habilidad en KnockBack!\n"
+            "       &7Show your KnockBack skills!\n"
         );
 
         String footer = MessageUtils.getColor(
             "\n" +
-            "&eTienda: &ftienda.servidor.com\n" +
-            "&bDiscord: &fdiscord.gg/servidor\n" +
-            "&aJugadores Online: &f" + Bukkit.getOnlinePlayers().size() + "\n"
+            "&eStore: &fstore.server.com\n" +
+            "&bDiscord: &fdiscord.gg/server\n" +
+            "&aOnline Players: &f" + Bukkit.getOnlinePlayers().size() + "\n"
         );
 
         IChatBaseComponent headerComponent = ChatSerializer.a("{\"text\": \"" + header + "\"}");
@@ -85,10 +85,10 @@ public class TabManager {
                 rankPrefix + "&f " + player.getName() + " &8[&f" + ping + "ms&8]"
             );
 
-            // Actualizar el nombre en la lista de jugadores
+            // Update the name in the player list
             craftPlayer.setPlayerListName(displayName);
             
-            // Actualizar el tab para todos los jugadores
+            // Update the tab for all players
             PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(
                 EnumPlayerInfoAction.UPDATE_DISPLAY_NAME, 
                 craftPlayer.getHandle()

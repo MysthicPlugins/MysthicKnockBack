@@ -18,7 +18,7 @@ public class MusicCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(MessageUtils.getColor("&cEste comando solo puede ser usado por jugadores."));
+            sender.sendMessage(MessageUtils.getColor("&cThis command can only be executed by a player."));
             return true;
         }
 

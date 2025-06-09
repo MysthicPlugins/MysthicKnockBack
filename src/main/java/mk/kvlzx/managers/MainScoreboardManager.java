@@ -71,7 +71,9 @@ public class MainScoreboardManager {
 
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         String currentArena = plugin.getArenaManager().getCurrentArena();
+        String nextArena = plugin.getArenaManager().getNextArena();
         if (currentArena == null) currentArena = "Ninguna";
+        if (nextArena == null) nextArena = "Ninguna";
         
         int minutes = timeLeft / 60;
         int seconds = timeLeft % 60;
@@ -89,23 +91,23 @@ public class MainScoreboardManager {
             kdrColor = "&a"; // Verde para KDR ≥ 3
         }
 
-        // Crear un buffer con los valores actuales
+        // Crear un buffer con los valores actuales - usando espacios únicos
         Map<Integer, String> newScores = new HashMap<>();
         newScores.put(15, "&7&m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-        newScores.put(14, " ");
-        newScores.put(13, "&b&lINFO:");
+        newScores.put(14, " "); // Espacio normal
+        newScores.put(13, "&7Information:");
         newScores.put(12, " &8➥ &fPlayer: &b" + player.getName());
         newScores.put(11, " &8➥ &fArena: &b" + currentArena);
-        newScores.put(10, " ");
-        newScores.put(9, "&b&lSTATS:");
+        newScores.put(10, "  "); // Dos espacios
+        newScores.put(9, "&7Statistics:");
         newScores.put(8, " &8➥ &fKills: &a" + stats.getKills());
         newScores.put(7, " &8➥ &fDeaths: &c" + stats.getDeaths());
         newScores.put(6, " &8➥ &fK/D: " + kdrColor + String.format("%.2f", kdr));
-        newScores.put(5, " ");
-        newScores.put(4, "&b&lTIME:");
+        newScores.put(5, "   "); // Tres espacios
+        newScores.put(4, "&7Arena Change:");
         newScores.put(3, " &8➥ &fChange: " + formattedTime);
-        newScores.put(2, " &8➥ &fNext: &e" + plugin.getArenaManager().getNextArena());
-        newScores.put(1, " ");
+        newScores.put(2, " &8➥ &fNext: &e" + nextArena);
+        newScores.put(1, "    "); // Cuatro espacios
         newScores.put(0, "&eplay.mysthicknockback.gg");
 
         // Actualizar solo los scores que han cambiado
