@@ -21,6 +21,7 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.arena.Arena;
 import mk.kvlzx.arena.ArenaManager;
+import mk.kvlzx.items.ItemsManager;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.utils.TitleUtils;
@@ -251,6 +252,7 @@ public class MainScoreboardManager {
             new BukkitRunnable() {
                 @Override
                 public void run() {
+                    ItemsManager.giveSpawnItems(player);
                     player.teleport(nextSpawn);
                     plugin.getArenaManager().addPlayerToArena(player, nextArena);
                     player.setNoDamageTicks(60); // Asegurar invulnerabilidad por 3 segundos después del teleport

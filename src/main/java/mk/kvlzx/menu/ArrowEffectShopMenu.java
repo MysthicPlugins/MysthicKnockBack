@@ -9,6 +9,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.BannerMeta;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.banner.PatternType;
+import org.bukkit.DyeColor;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.cosmetics.ArrowEffectItem;
@@ -94,8 +98,49 @@ public class ArrowEffectShopMenu extends Menu {
         inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
             "&7Click para volver a las categorías"));
 
-        // Relleno
-        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
+        // Banners para el borde exterior
+        ItemStack emeraldBanner = createBanner(Material.BANNER, (byte) 5, " ", "FLOWER"); // Banner verde esmeralda
+        ItemStack goldBanner = createBanner(Material.BANNER, (byte) 11, " ", "BORDER"); // Banner dorado
+        ItemStack purpleBanner = createBanner(Material.BANNER, (byte) 10, "&5", "STAR"); // Banner púrpura para esquinas
+
+        // Esquinas con banners púrpura
+        inv.setItem(0, purpleBanner);   // Superior izquierda
+        inv.setItem(8, purpleBanner);   // Superior derecha
+        inv.setItem(36, purpleBanner);  // Inferior izquierda
+        inv.setItem(44, purpleBanner);  // Inferior derecha
+
+        // Borde exterior (verde y dorado alternados, excluyendo esquinas)
+        for (int i = 1; i < 8; i++) {
+            inv.setItem(i, i % 2 == 0 ? emeraldBanner : goldBanner); // Fila superior
+            inv.setItem(36 + i, i % 2 == 0 ? emeraldBanner : goldBanner); // Fila inferior
+        }
+        for (int i = 9; i <= 36; i += 9) {
+            inv.setItem(i, i % 18 == 0 ? emeraldBanner : goldBanner); // Columna izquierda
+            inv.setItem(i + 8, i % 18 == 0 ? emeraldBanner : goldBanner); // Columna derecha
+        }
+
+        // Borde interior con bloques de esmeralda
+        ItemStack emeraldBlock = createItem(Material.EMERALD_BLOCK, " ", "&7");
+        for (int i = 1; i < 8; i++) {
+            inv.setItem(9 + i, emeraldBlock); // Fila superior interior
+            inv.setItem(27 + i, emeraldBlock); // Fila inferior interior
+        }
+        for (int i = 9; i < 36; i += 9) {
+            inv.setItem(i + 1, emeraldBlock); // Columna izquierda interior
+            inv.setItem(i + 7, emeraldBlock); // Columna derecha interior
+        }
+
+        // Relleno con flechas encantadas
+        ItemStack enchantedArrow = createItem(Material.ARROW, " ", "&7");
+        ItemMeta arrowMeta = enchantedArrow.getItemMeta();
+        arrowMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+        arrowMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        enchantedArrow.setItemMeta(arrowMeta);
+        for (int i = 0; i < inv.getSize(); i++) {
+            if (inv.getItem(i) == null) {
+                inv.setItem(i, enchantedArrow); // Rellenar slots vacíos
+            }
+        }
     }
 
     private void setupEffectButton(Inventory inv, int slot, ArrowEffectItem item, Player player) {
@@ -144,13 +189,15 @@ public class ArrowEffectShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
+        if (clicked == null || clicked.getType() == Material.BANNER || 
+            clicked.getType() == Material.EMERALD_BLOCK || clicked.getType() == Material.ARROW) return;
+
         if (event.getSlot() == 40) {
             plugin.getMenuManager().openMenu(player, "arrow_effect_categories");
             return;
         }
 
-        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE || 
-            clicked.getType() == Material.EMERALD) return;
+        if (clicked.getType() == Material.EMERALD) return;
 
         String itemName = clicked.getItemMeta().getDisplayName();
         ArrowEffectItem effectItem = findEffectItem(MessageUtils.stripColor(itemName));
@@ -214,5 +261,32 @@ public class ArrowEffectShopMenu extends Menu {
         
         item.setItemMeta(meta);
         return item;
+    }
+
+    private ItemStack createBanner(Material material, byte color, String name, String pattern) {
+        ItemStack banner = new ItemStack(material, 1, color);
+        BannerMeta meta = (BannerMeta) banner.getItemMeta();
+        meta.setDisplayName(MessageUtils.getColor(name));
+        
+        if (pattern != null) {
+            PatternType patternType;
+            switch (pattern.toUpperCase()) {
+                case "FLOWER":
+                    patternType = PatternType.FLOWER;
+                    break;
+                case "BORDER":
+                    patternType = PatternType.BORDER;
+                    break;
+                case "STAR":
+                    patternType = PatternType.MOJANG; 
+                    break;
+                default:
+                    patternType = PatternType.BASE;
+            }
+            meta.addPattern(new Pattern(DyeColor.getByDyeData(color), patternType));
+        }
+        
+        banner.setItemMeta(meta);
+        return banner;
     }
 }

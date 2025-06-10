@@ -48,7 +48,6 @@ public class BlockShopMenu extends Menu {
     }
 
     private void addCommonBlocks(List<BlockShopItem> items) {
-        // Bloques básicos
         items.add(new BlockShopItem(Material.SANDSTONE, "Sandstone", 0, "COMMON", "&7", "&7Shaped by the desert winds"));
         items.add(new BlockShopItem(Material.WOOD, "Oak Wood", 1000, "COMMON", "&7", "&6Carved from the oldest tree in the forest"));
         items.add(new BlockShopItem(Material.WOOL, "White Wool", 1000, "COMMON", "&7", "&fWoven from the purest fleece"));
@@ -74,7 +73,6 @@ public class BlockShopMenu extends Menu {
         items.add(new BlockShopItem(Material.BOOKSHELF, "Bookshelf", 5000, "RARE", "&9", "&6Holds ancient secrets"));
     }
 
-    // Agregar nueva categoría de bloques troll
     private void addTrollBlocks(List<BlockShopItem> items) {
         items.add(new BlockShopItem(Material.GLASS, "Mystic Glass", 15000, "TROLL", "&d", "&fAs fragile as it is deceptive"));
         items.add(new BlockShopItem(Material.STAINED_GLASS, "Void Glass", 15000, "TROLL", "&d", "&8The darkness calls you"));
@@ -136,13 +134,49 @@ public class BlockShopMenu extends Menu {
             }
         }
 
-        // Botones de navegación
+        // Botón de navegación
         inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
             "&7Click to return to categories"));
 
-        // Relleno
-        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
-        fillEmptySlots(inv, filler);
+        // Bordes exteriores con piedra y adoquín
+        ItemStack stone = createItem(Material.STONE, " ", (byte) 0, "&7"); // Piedra
+        ItemStack cobblestone = createItem(Material.COBBLESTONE, " ", (byte) 0, "&7"); // Adoquín
+        ItemStack diamondBlock = createItem(Material.DIAMOND_BLOCK, "&b", (byte) 0, "&7"); // Bloque de diamante para esquinas
+
+        // Esquinas con bloques de diamante
+        inv.setItem(0, diamondBlock);   // Superior izquierda
+        inv.setItem(8, diamondBlock);   // Superior derecha
+        inv.setItem(36, diamondBlock);  // Inferior izquierda
+        inv.setItem(44, diamondBlock);  // Inferior derecha
+
+        // Borde exterior (piedra y adoquín alternados, excluyendo esquinas)
+        for (int i = 1; i < 8; i++) {
+            inv.setItem(i, i % 2 == 0 ? stone : cobblestone); // Fila superior
+            inv.setItem(36 + i, i % 2 == 0 ? stone : cobblestone); // Fila inferior
+        }
+        for (int i = 9; i <= 36; i += 9) {
+            inv.setItem(i, i % 18 == 0 ? stone : cobblestone); // Columna izquierda
+            inv.setItem(i + 8, i % 18 == 0 ? stone : cobblestone); // Columna derecha
+        }
+
+        // Borde interior con bloques de hierro
+        ItemStack ironBlock = createItem(Material.IRON_BLOCK, " ", (byte) 0, "&7");
+        for (int i = 1; i < 8; i++) {
+            inv.setItem(9 + i, ironBlock); // Fila superior interior
+            inv.setItem(27 + i, ironBlock); // Fila inferior interior
+        }
+        for (int i = 9; i < 36; i += 9) {
+            inv.setItem(i + 1, ironBlock); // Columna izquierda interior
+            inv.setItem(i + 7, ironBlock); // Columna derecha interior
+        }
+
+        // Relleno con bloques de tierra
+        ItemStack dirt = createItem(Material.DIRT, " ", (byte) 0, "&7");
+        for (int i = 0; i < inv.getSize(); i++) {
+            if (inv.getItem(i) == null) {
+                inv.setItem(i, dirt); // Rellenar slots vacíos
+            }
+        }
     }
 
     private void setupBlockButton(Inventory inv, int slot, BlockShopItem item, Player player, Material currentBlock) {
@@ -184,7 +218,6 @@ public class BlockShopMenu extends Menu {
         // Añadir encantamiento visual si es el bloque seleccionado
         if (isSelected) {
             buttonItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-            // Ocultar el texto del encantamiento
             ItemMeta meta = buttonItem.getItemMeta();
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             buttonItem.setItemMeta(meta);
@@ -199,13 +232,18 @@ public class BlockShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
+        if (clicked == null || 
+            clicked.getType() == Material.STONE || 
+            clicked.getType() == Material.COBBLESTONE || 
+            clicked.getType() == Material.DIAMOND_BLOCK || 
+            clicked.getType() == Material.IRON_BLOCK || 
+            clicked.getType() == Material.DIRT || 
+            clicked.getType() == Material.EMERALD) return;
+
         if (event.getSlot() == 40) {
             plugin.getMenuManager().openMenu(player, "block_categories");
             return;
         }
-
-        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE || 
-            clicked.getType() == Material.EMERALD) return;
 
         BlockShopItem shopItem = findShopItem(clicked.getType());
         if (shopItem == null) return;
@@ -245,6 +283,19 @@ public class BlockShopMenu extends Menu {
             .orElse(null);
     }
 
+    private boolean hasAllBlocks(UUID uuid) {
+        int totalBlocks = (int) shopItems.stream()
+            .filter(item -> item.getMaterial() != Material.BEDROCK)
+            .count();
+            
+        int ownedBlocks = (int) shopItems.stream()
+            .filter(item -> item.getMaterial() != Material.BEDROCK)
+            .filter(item -> plugin.getCosmeticManager().hasPlayerBlock(uuid, item.getMaterial()))
+            .count();
+            
+        return totalBlocks == ownedBlocks;
+    }
+
     private ItemStack createItem(Material material, String name, String... lore) {
         return createItem(material, name, (byte) 0, lore);
     }
@@ -264,18 +315,5 @@ public class BlockShopMenu extends Menu {
         
         item.setItemMeta(meta);
         return item;
-    }
-
-    private boolean hasAllBlocks(UUID uuid) {
-        int totalBlocks = (int) shopItems.stream()
-            .filter(item -> item.getMaterial() != Material.BEDROCK)
-            .count();
-            
-        int ownedBlocks = (int) shopItems.stream()
-            .filter(item -> item.getMaterial() != Material.BEDROCK)
-            .filter(item -> plugin.getCosmeticManager().hasPlayerBlock(uuid, item.getMaterial()))
-            .count();
-            
-        return totalBlocks == ownedBlocks;
     }
 }

@@ -29,8 +29,11 @@ import mk.kvlzx.items.CustomItem.ItemType;
 import mk.kvlzx.managers.RankManager;
 
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.items.CustomItem;
@@ -118,6 +121,37 @@ public class PlayerListener implements Listener {
                 plugin.getArenaManager().showArenaBorder(arena);
             }
         }
+
+                // Verificar si la arena está cambiando al conectarse
+        if (plugin.getScoreboardManager().isArenaChanging()) {
+            // Si la arena está cambiando, congelar al jugador temporalmente
+            player.setWalkSpeed(0.0f);
+            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 128, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 1, false, false));
+            player.setNoDamageTicks(100);
+            
+            // Programar la restauración de movimiento cuando termine el cambio de arena
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    // Verificar cada tick si la arena ya no está cambiando
+                    if (!plugin.getScoreboardManager().isArenaChanging()) {
+                        // Restaurar movimiento normal
+                        player.setWalkSpeed(0.2f);
+                        player.removePotionEffect(PotionEffectType.JUMP);
+                        player.removePotionEffect(PotionEffectType.BLINDNESS);
+                        
+                        player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 1.0f);
+                        
+                        this.cancel();
+                    }
+                }
+            }.runTaskTimer(plugin, 0L, 1L); // Verificar cada tick
+        } else {
+            // Si no hay cambio de arena, asegurar velocidad normal
+            player.setWalkSpeed(0.2f);
+        }
+
     }
 
     @EventHandler

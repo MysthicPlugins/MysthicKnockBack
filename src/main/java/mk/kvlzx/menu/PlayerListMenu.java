@@ -25,6 +25,7 @@ public class PlayerListMenu extends Menu {
         List<Player> onlinePlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
         onlinePlayers.remove(player); // Remover al jugador que está reportando
 
+        // Colocar cabezas de jugadores
         int slot = 10;
         for (Player target : onlinePlayers) {
             if (slot > 43) break; // Límite de slots
@@ -49,9 +50,27 @@ public class PlayerListMenu extends Menu {
         // Botón para volver
         inv.setItem(49, createItem(Material.ARROW, "&c← Volver", "&7Click para volver al menú"));
 
-        // Relleno
-        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 14);
-        fillEmptySlots(inv, filler);
+        // Bordes con cabezas de esqueleto y zombi, alternando con dos espacios vacíos
+        ItemStack skeletonSkull = createItem(Material.SKULL_ITEM, "&7", (byte) 0); // Cabeza de esqueleto
+        ItemStack zombieSkull = createItem(Material.SKULL_ITEM, "&7", (byte) 2); // Cabeza de zombi
+
+        // Definir los slots de los bordes
+        int[] borderSlots = {
+            0, 1, 2, 3, 4, 5, 6, 7, 8,     // Fila superior
+            9, 18, 27, 36,                   // Columna izquierda
+            17, 26, 35, 44,                  // Columna derecha
+            45, 46, 47, 48, 50, 51, 52, 53  // Fila inferior (excluye slot 49)
+        };
+
+        // Colocar cabezas con patrón: esqueleto, espacio, espacio, zombi, espacio, espacio
+        for (int i = 0; i < borderSlots.length; i++) {
+            if (borderSlots[i] == 49) continue; // Evitar sobrescribir el botón de volver
+            if (i % 6 == 0) {
+                inv.setItem(borderSlots[i], skeletonSkull); // Cabeza de esqueleto
+            } else if (i % 6 == 3) {
+                inv.setItem(borderSlots[i], zombieSkull); // Cabeza de zombi
+            } // Los slots i % 6 == 1, 2, 4, 5 quedan vacíos (null)
+        }
     }
 
     @Override
@@ -60,8 +79,13 @@ public class PlayerListMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
 
         if (event.getCurrentItem() != null) {
-            if (event.getSlot() == 49) {
+            // Ignorar clics en cabezas decorativas (esqueleto y zombi)
+            if (event.getCurrentItem().getType() == Material.SKULL_ITEM && 
+                (event.getCurrentItem().getDurability() == 0 || event.getCurrentItem().getDurability() == 2)) {
+                return;
+            }
 
+            if (event.getSlot() == 49) {
                 plugin.getMenuManager().openMenu(player, "main");
                 return;
             }

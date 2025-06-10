@@ -6,11 +6,17 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.BannerMeta;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.banner.PatternType;
+import org.bukkit.DyeColor;
+import org.bukkit.inventory.ItemFlag;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.stats.PlayerStats;
@@ -25,30 +31,40 @@ public class TopStreakMenu extends Menu {
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
-        // Crear los items de relleno
-        ItemStack darkPink = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 2); // Magenta
-        ItemStack lightPink = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 6); // Rosa
+        // Banners para el borde exterior
+        ItemStack redBanner = createBanner(Material.BANNER, (byte) 1, " ", "CROSS"); // Banner rojo con cruz
+        ItemStack purpleBanner = createBanner(Material.BANNER, (byte) 10, " ", "TRIANGLE_TOP"); // Banner morado con triángulo
+        ItemStack goldBanner = createBanner(Material.BANNER, (byte) 11, "&6", "FLOWER"); // Banner dorado con flor para esquinas
 
-        // Colocar el borde exterior (magenta)
-        for (int i = 0; i < 9; i++) {
-            inv.setItem(i, darkPink);
-            inv.setItem(36 + i, darkPink);
-        }
-        for (int i = 0; i < 45; i += 9) {
-            inv.setItem(i, darkPink);
-            inv.setItem(i + 8, darkPink);
-        }
+        // Esquinas con banners dorados
+        inv.setItem(0, goldBanner);   // Superior izquierda
+        inv.setItem(8, goldBanner);   // Superior derecha
+        inv.setItem(36, goldBanner);  // Inferior izquierda
+        inv.setItem(44, goldBanner);  // Inferior derecha
 
-        // Colocar el borde interior (rosa)
+        // Borde exterior (rojo y morado alternados, excluyendo esquinas)
         for (int i = 1; i < 8; i++) {
-            inv.setItem(9 + i, lightPink);
-            inv.setItem(27 + i, lightPink);
+            inv.setItem(i, i % 2 == 0 ? redBanner : purpleBanner); // Fila superior
+            inv.setItem(36 + i, i % 2 == 0 ? redBanner : purpleBanner); // Fila inferior
+        }
+        for (int i = 9; i <= 36; i += 9) {
+            inv.setItem(i, i % 18 == 0 ? redBanner : purpleBanner); // Columna izquierda
+            inv.setItem(i + 8, i % 18 == 0 ? redBanner : purpleBanner); // Columna derecha
+        }
+
+        // Borde interior con lana
+        ItemStack redWool = createItem(Material.WOOL, " ", (byte) 14, "&7"); // Lana roja
+        ItemStack whiteWool = createItem(Material.WOOL, " ", (byte) 0, "&7"); // Lana blanca
+        for (int i = 1; i < 8; i++) {
+            inv.setItem(9 + i, i % 2 == 0 ? redWool : whiteWool); // Fila superior interior
+            inv.setItem(27 + i, i % 2 == 0 ? redWool : whiteWool); // Fila inferior interior
         }
         for (int i = 9; i < 36; i += 9) {
-            inv.setItem(i + 1, lightPink);
-            inv.setItem(i + 7, lightPink);
+            inv.setItem(i + 1, i % 18 == 0 ? redWool : whiteWool); // Columna izquierda interior
+            inv.setItem(i + 7, i % 18 == 0 ? redWool : whiteWool); // Columna derecha interior
         }
 
+        // Colocar las cabezas de los jugadores
         List<UUID> topPlayers = new ArrayList<>(PlayerStats.getAllStats());
         topPlayers.sort((uuid1, uuid2) -> {
             PlayerStats stats1 = PlayerStats.getStats(uuid1);
@@ -56,8 +72,7 @@ public class TopStreakMenu extends Menu {
             return Integer.compare(stats2.getMaxStreak(), stats1.getMaxStreak());
         });
 
-        // Colocar las cabezas de los jugadores (10 slots centrales)
-        int[] slots = {11, 12, 13, 14, 15, 20, 21, 22, 23, 24}; // Actualizar ubicaciones
+        int[] slots = {11, 12, 13, 14, 15, 20, 21, 22, 23, 24};
         for (int i = 0; i < 10; i++) {
             ItemStack skull;
             if (i < topPlayers.size()) {
@@ -81,20 +96,34 @@ public class TopStreakMenu extends Menu {
             inv.setItem(slots[i], skull);
         }
 
-        // Botón para volver centrado
+        // Botón para volver
         ItemStack backButton = createItem(Material.ARROW, "&c← Volver", 
             "&7Click para volver al menú principal");
-        inv.setItem(40, backButton); // Actualizar ubicación del botón
+        inv.setItem(40, backButton);
 
-        // Relleno rosa (datos: 6)
-        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 6);
-        fillEmptySlots(inv, filler);
+        // Relleno con espadas de hierro encantadas
+        ItemStack sword = createItem(Material.IRON_SWORD, " ", "&7");
+        ItemMeta swordMeta = sword.getItemMeta();
+        swordMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+        swordMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        sword.setItemMeta(swordMeta);
+        for (int i = 0; i < inv.getSize(); i++) {
+            if (inv.getItem(i) == null) {
+                inv.setItem(i, sword); // Rellenar slots vacíos
+            }
+        }
     }
 
     @Override
     public void handleClick(InventoryClickEvent event) {
         event.setCancelled(true);
         
+        ItemStack clicked = event.getCurrentItem();
+        if (clicked == null || clicked.getType() == Material.BANNER || 
+            clicked.getType() == Material.WOOL || clicked.getType() == Material.IRON_SWORD) {
+            return;
+        }
+
         if (event.getSlot() == 40) { // Botón de volver
             Player player = (Player) event.getWhoClicked();
             plugin.getMenuManager().openMenu(player, "main");
@@ -120,5 +149,32 @@ public class TopStreakMenu extends Menu {
         
         item.setItemMeta(meta);
         return item;
+    }
+
+    private ItemStack createBanner(Material material, byte color, String name, String pattern) {
+        ItemStack banner = new ItemStack(material, 1, color);
+        BannerMeta meta = (BannerMeta) banner.getItemMeta();
+        meta.setDisplayName(MessageUtils.getColor(name));
+        
+        if (pattern != null) {
+            PatternType patternType;
+            switch (pattern.toUpperCase()) {
+                case "CROSS":
+                    patternType = PatternType.CROSS;
+                    break;
+                case "TRIANGLE_TOP":
+                    patternType = PatternType.TRIANGLE_TOP;
+                    break;
+                case "FLOWER":
+                    patternType = PatternType.FLOWER;
+                    break;
+                default:
+                    patternType = PatternType.BASE;
+            }
+            meta.addPattern(new Pattern(DyeColor.getByDyeData(color), patternType));
+        }
+        
+        banner.setItemMeta(meta);
+        return banner;
     }
 }
