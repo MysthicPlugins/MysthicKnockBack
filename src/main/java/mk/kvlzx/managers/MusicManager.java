@@ -20,6 +20,7 @@ import java.util.UUID;
 public class MusicManager {
     private final MysthicKnockBack plugin;
     private final Map<UUID, BukkitTask> playerTasks = new HashMap<>();
+    private final Map<UUID, BukkitTask> playerLoopTasks = new HashMap<>(); // Nueva: tareas específicas para el loop
     private final Map<UUID, String> currentMusic = new HashMap<>();
     private final Map<UUID, Location> playerJukeboxes = new HashMap<>();
     private final Map<Integer, BukkitTask> noteEffectTasks = new HashMap<>();
@@ -136,8 +137,11 @@ public class MusicManager {
         // Iniciar efectos de notas
         startNoteEffects(jukeboxLoc);
         
-        // Tarea para reproducir la música en loop y verificar condiciones
-        BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+        // Iniciar el ciclo de música
+        startMusicLoop(player, simpleName, jukeboxLoc, musicData);
+        
+        // Tarea para verificar condiciones cada 10 segundos (solo verificaciones, no reinicio de música)
+        BukkitTask checkTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (!player.isOnline() || 
                 !simpleName.equalsIgnoreCase(plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId()))) {
                 plugin.getLogger().info("Deteniendo música por desconexión o cambio: " + player.getName());
@@ -153,23 +157,60 @@ public class MusicManager {
                 return;
             }
             
-            // Verificar si la jukebox sigue ahí y reproducir
+            // Verificar si la jukebox sigue ahí
             Block jukeboxBlock = jukeboxLoc.getBlock();
-            if (jukeboxBlock.getType() == Material.JUKEBOX && jukeboxBlock.getState() instanceof Jukebox) {
-                Jukebox jukebox = (Jukebox) jukeboxBlock.getState();
-                
-                // Si no está reproduciendo, reiniciar
-                if (!jukebox.isPlaying()) {
-                    jukebox.setPlaying(musicData.discMaterial);
-                    jukebox.update();
-                    plugin.getLogger().info("Reproduciendo música en jukebox para " + player.getName());
-                }
+            if (jukeboxBlock.getType() != Material.JUKEBOX) {
+                plugin.getLogger().info("Jukebox no encontrada, deteniendo música para " + player.getName());
+                stopMusicForPlayer(player);
+                return;
             }
             
-        }, 20L, 40L); // Verificar cada 2 segundos
+        }, 0L, 40L); // Verificar cada 2 segundos (40 ticks)
 
-        playerTasks.put(player.getUniqueId(), task);
+        playerTasks.put(player.getUniqueId(), checkTask);
         plugin.getLogger().info("Música iniciada exitosamente para " + player.getName());
+    }
+
+    private void startMusicLoop(Player player, String simpleName, Location jukeboxLoc, MusicData musicData) {
+        // Cancelar el loop anterior si existe
+        BukkitTask oldLoopTask = playerLoopTasks.remove(player.getUniqueId());
+        if (oldLoopTask != null) {
+            oldLoopTask.cancel();
+        }
+
+        // Programar el reinicio exactamente cuando termine la canción
+        BukkitTask loopTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            // Verificar que el jugador sigue online y quiere esta música
+            if (!player.isOnline() || 
+                !simpleName.equalsIgnoreCase(plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId()))) {
+                return;
+            }
+
+            // Verificar que la jukebox sigue ahí
+            Block jukeboxBlock = jukeboxLoc.getBlock();
+            if (jukeboxBlock.getType() != Material.JUKEBOX) {
+                return;
+            }
+
+            // Verificar distancia
+            if (jukeboxLoc.distance(player.getLocation()) > MAX_DISTANCE) {
+                return;
+            }
+
+            // Reiniciar la música
+            if (jukeboxBlock.getState() instanceof Jukebox) {
+                Jukebox jukebox = (Jukebox) jukeboxBlock.getState();
+                jukebox.setPlaying(musicData.discMaterial);
+                jukebox.update();
+                plugin.getLogger().info("Reiniciando ciclo de música para " + player.getName() + " - " + simpleName);
+                
+                // Programar el siguiente ciclo
+                startMusicLoop(player, simpleName, jukeboxLoc, musicData);
+            }
+            
+        }, musicData.duration * 20L); // Convertir segundos a ticks (20 ticks = 1 segundo)
+
+        playerLoopTasks.put(player.getUniqueId(), loopTask);
     }
 
     private Location getValidJukeboxLocation(Player player) {
@@ -261,7 +302,7 @@ public class MusicManager {
         BukkitTask noteTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (jukeboxLoc.getBlock().getType() == Material.JUKEBOX) {
                 jukeboxLoc.getWorld().playEffect(
-                    jukeboxLoc.clone().add(0.5, 1.2, 0.5), 
+                    jukeboxLoc.clone().add(0.0, 1.2, 0.0), 
                     Effect.NOTE, 
                     1
                 );
@@ -272,6 +313,12 @@ public class MusicManager {
     }
 
     public void stopMusicForPlayer(Player player) {
+        // Cancelar la tarea de loop específica
+        BukkitTask loopTask = playerLoopTasks.remove(player.getUniqueId());
+        if (loopTask != null) {
+            loopTask.cancel();
+        }
+
         // Detener efectos de notas
         Location jukeboxLoc = playerJukeboxes.get(player.getUniqueId());
         if (jukeboxLoc != null) {
@@ -305,7 +352,7 @@ public class MusicManager {
             }
         }
 
-        // Cancelar la tarea de reproducción
+        // Cancelar la tarea de verificación
         BukkitTask task = playerTasks.remove(player.getUniqueId());
         if (task != null) {
             task.cancel();
@@ -317,6 +364,10 @@ public class MusicManager {
     }
 
     public void onDisable() {
+        // Cancelar todas las tareas de loop
+        playerLoopTasks.values().forEach(BukkitTask::cancel);
+        playerLoopTasks.clear();
+
         // Cancelar todas las tareas de efectos de notas
         noteEffectTasks.values().forEach(BukkitTask::cancel);
         noteEffectTasks.clear();

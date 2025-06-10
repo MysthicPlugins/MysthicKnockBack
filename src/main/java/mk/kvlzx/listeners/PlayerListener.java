@@ -248,6 +248,8 @@ public class PlayerListener implements Listener {
             .filter(entity -> entity.getType() == EntityType.ENDER_PEARL)
             .filter(entity -> ((EnderPearl) entity).getShooter() == player)
             .forEach(entity -> entity.remove());
+
+        plugin.getMusicManager().stopMusicForPlayer(player);
     }
 
     private void handlePlayerKill(Player player) {

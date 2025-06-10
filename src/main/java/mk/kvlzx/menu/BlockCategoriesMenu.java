@@ -93,27 +93,27 @@ public class BlockCategoriesMenu extends Menu {
         
         switch(event.getSlot()) {
             case 11: // Comunes
-                BlockShopMenu.setCurrentCategory("COMÚN");
+                BlockShopMenu.setCurrentCategory("COMMON");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
             case 13: // Poco comunes
-                BlockShopMenu.setCurrentCategory("POCO COMÚN");
+                BlockShopMenu.setCurrentCategory("UNCOMMON");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
             case 15: // Raros
-                BlockShopMenu.setCurrentCategory("RARO");
+                BlockShopMenu.setCurrentCategory("RARE");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
             case 21: // Épicos
-                BlockShopMenu.setCurrentCategory("ÉPICO");
+                BlockShopMenu.setCurrentCategory("EPIC");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
             case 22: // Bedrock
-                BlockShopMenu.setCurrentCategory("ESPECIAL");
+                BlockShopMenu.setCurrentCategory("SPECIAL");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
             case 23: // Legendarios
-                BlockShopMenu.setCurrentCategory("LEGENDARIO");
+                BlockShopMenu.setCurrentCategory("LEGENDARY");
                 plugin.getMenuManager().openMenu(player, "block_shop");
                 break;
             case 31: // Bloques Troll

@@ -25,7 +25,7 @@ public class CombatManager {
     private static final double SPRINT_BONUS_VERTICAL = 0.02; // Bonus vertical muy reducido (era 0.10)
     private static final double NO_KB_ITEM_REDUCTION = 0.60; // Reducción para PvP a mano
     private static final double AIR_COMBO_HORIZONTAL = 0.28; // KB horizontal en combos aéreos
-    private static final double AIR_COMBO_VERTICAL = 0.12;   // KB vertical en combos aéreos reducido (era 0.18)
+    private static final double AIR_COMBO_VERTICAL = 0.02;   // KB vertical en combos aéreos reducido (era 0.12)
     private static final double KNOCKBACK_ENCHANT_H_REDUCTION = 0.20; // Reducción horizontal por KB
     private static final double KNOCKBACK_ENCHANT_V_REDUCTION = 0.90; // Reducción vertical mayor (era 0.80)
     private static final double ANTI_KB_MULTIPLIER = 0.4;  // Reducción para KB acumulativo

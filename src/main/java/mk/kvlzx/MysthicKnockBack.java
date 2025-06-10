@@ -36,7 +36,7 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 public class MysthicKnockBack extends JavaPlugin {
 
-    public static String prefix = "&b[&3KvKnockback&b] ";
+    public static String prefix = "&b[&3KBFFA&b] ";
 
     public String version = getDescription().getVersion();
     
