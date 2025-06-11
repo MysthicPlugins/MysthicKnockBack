@@ -212,6 +212,13 @@ public class PlayerListener implements Listener {
             plugin.getArenaManager().removePlayerFromArena(player, currentArena);
         }
         plugin.getScoreboardManager().removePlayer(player);
+
+        String currentMusic = plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId());
+        if (currentMusic != null && !currentMusic.equals("none")) {
+            plugin.getCosmeticManager().setPlayerBackgroundMusic(player.getUniqueId(), "none");
+            // Detener la música del jugador
+            plugin.getMusicManager().stopMusicForPlayer(player);
+        }
     }
 
     @EventHandler
@@ -283,7 +290,12 @@ public class PlayerListener implements Listener {
             .filter(entity -> ((EnderPearl) entity).getShooter() == player)
             .forEach(entity -> entity.remove());
 
-        plugin.getMusicManager().stopMusicForPlayer(player);
+        String currentMusic = plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId());
+        if (currentMusic != null && !currentMusic.equals("none")) {
+            plugin.getCosmeticManager().setPlayerBackgroundMusic(player.getUniqueId(), "none");
+            // Detener la música del jugador
+            plugin.getMusicManager().stopMusicForPlayer(player);
+        }
     }
 
     private void handlePlayerKill(Player player) {

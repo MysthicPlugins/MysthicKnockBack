@@ -94,7 +94,6 @@ public class MainScoreboardManager {
 
         // Crear un buffer con los valores actuales - usando espacios únicos
         Map<Integer, String> newScores = new HashMap<>();
-        newScores.put(15, "&7&m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         newScores.put(14, " "); // Espacio normal
         newScores.put(13, "&7Information:");
         newScores.put(12, " &8➥ &fPlayer: &b" + player.getName());
