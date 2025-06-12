@@ -2,8 +2,10 @@ package mk.kvlzx.listeners;
 
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EnderPearl;
@@ -25,7 +27,7 @@ public class CombatListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
 
@@ -38,12 +40,13 @@ public class CombatListener implements Listener {
         event.setDamage(0.0D);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
 
         Player victim = (Player) event.getEntity();
         Player attacker = null;
+        
         if (event.getDamager() instanceof Player) {
             attacker = (Player) event.getDamager();
         } else if (event.getDamager() instanceof Arrow) {
@@ -55,15 +58,24 @@ public class CombatListener implements Listener {
                 
                 // Solo registrar como atacante si NO es self-damage
                 if (!shooter.equals(victim)) {
-                    // Registrar el último atacante solo para ataques válidos
                     lastAttacker.put(victim.getUniqueId(), shooter.getUniqueId());
                     lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
                 }
+                
+                // Aplicar knockback personalizado para flechas
+                plugin.getCombatManager().applyCustomKnockback(victim, shooter);
+                event.setDamage(0.0D);
                 return;
-            } else {
             }
         } else if (event.getDamager() instanceof EnderPearl) {
-            return; // Permitir el kb vanilla de las perlas
+            // Permitir el kb personalizado de las perlas
+            EnderPearl pearl = (EnderPearl) event.getDamager();
+            if (pearl.getShooter() instanceof Player) {
+                Player thrower = (Player) pearl.getShooter();
+                plugin.getCombatManager().applyCustomKnockback(victim, thrower);
+            }
+            event.setDamage(0.0D);
+            return;
         }
 
         // Verificar que el atacante no sea nulo
@@ -101,6 +113,26 @@ public class CombatListener implements Listener {
         plugin.getCombatManager().applyCustomKnockback(victim, attacker);
         event.setDamage(0.0D);
     }
+    
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerVelocity(PlayerVelocityEvent event) {
+        Player player = event.getPlayer();
+        UUID playerUUID = player.getUniqueId();
+        
+        // Si tenemos knockback pendiente, cancelar el evento vanilla
+        if (plugin.getCombatManager().hasPendingKnockback(playerUUID)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onFoodLevelChange(FoodLevelChangeEvent event) {
+        if (event.getEntity() instanceof Player) {
+            event.setCancelled(true);
+            ((Player) event.getEntity()).setFoodLevel(20);
+            ((Player) event.getEntity()).setSaturation(20.0f);
+        }
+    }
 
     public Player getLastAttacker(Player victim) {
         UUID lastAttackerUUID = lastAttacker.get(victim.getUniqueId());
@@ -124,19 +156,10 @@ public class CombatListener implements Listener {
         return attackerPlayer;
     }
 
-    // Nuevo método para resetear el combate cuando un jugador muere
+    // Método para resetear el combate cuando un jugador muere
     public void resetCombat(Player player) {
         lastAttacker.remove(player.getUniqueId());
         lastAttackTime.remove(player.getUniqueId());
-    }
-
-    @EventHandler
-    public void onFoodLevelChange(FoodLevelChangeEvent event) {
-        if (event.getEntity() instanceof Player) {
-            event.setCancelled(true);
-            ((Player) event.getEntity()).setFoodLevel(20);
-            ((Player) event.getEntity()).setSaturation(20.0f);
-        }
     }
 
     private boolean isInSpawn(Player player) {

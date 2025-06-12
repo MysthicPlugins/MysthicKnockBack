@@ -50,9 +50,9 @@ public class PlayerListMenu extends Menu {
         // Botón para volver
         inv.setItem(49, createItem(Material.ARROW, "&c← Volver", "&7Click para volver al menú"));
 
-        // Bordes con cabezas de esqueleto y zombi, alternando con dos espacios vacíos
-        ItemStack skeletonSkull = createItem(Material.SKULL_ITEM, "&7", (byte) 0); // Cabeza de esqueleto
-        ItemStack zombieSkull = createItem(Material.SKULL_ITEM, "&7", (byte) 2); // Cabeza de zombi
+        // Bordes con cabezas de wither y redstone, alternando con dos espacios vacíos
+        ItemStack witherSkull = createItem(Material.SKULL_ITEM, "&7", (byte) 1); // Cabeza de wither
+        ItemStack redstone = createItem(Material.REDSTONE, "&7"); // Bloque de redstone
 
         // Definir los slots de los bordes
         int[] borderSlots = {
@@ -62,13 +62,13 @@ public class PlayerListMenu extends Menu {
             45, 46, 47, 48, 50, 51, 52, 53  // Fila inferior (excluye slot 49)
         };
 
-        // Colocar cabezas con patrón: esqueleto, espacio, espacio, zombi, espacio, espacio
+        // Colocar items con patrón: wither, espacio, espacio, redstone, espacio, espacio
         for (int i = 0; i < borderSlots.length; i++) {
             if (borderSlots[i] == 49) continue; // Evitar sobrescribir el botón de volver
             if (i % 6 == 0) {
-                inv.setItem(borderSlots[i], skeletonSkull); // Cabeza de esqueleto
+                inv.setItem(borderSlots[i], witherSkull); // Cabeza de wither
             } else if (i % 6 == 3) {
-                inv.setItem(borderSlots[i], zombieSkull); // Cabeza de zombi
+                inv.setItem(borderSlots[i], redstone); // Redstone
             } // Los slots i % 6 == 1, 2, 4, 5 quedan vacíos (null)
         }
     }
@@ -79,9 +79,10 @@ public class PlayerListMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
 
         if (event.getCurrentItem() != null) {
-            // Ignorar clics en cabezas decorativas (esqueleto y zombi)
-            if (event.getCurrentItem().getType() == Material.SKULL_ITEM && 
-                (event.getCurrentItem().getDurability() == 0 || event.getCurrentItem().getDurability() == 2)) {
+           // Ignorar clics en items decorativos (cabeza de wither y bloque de redstone)
+            if ((event.getCurrentItem().getType() == Material.SKULL_ITEM && 
+                event.getCurrentItem().getDurability() == 1) ||
+                event.getCurrentItem().getType() == Material.REDSTONE) {
                 return;
             }
 

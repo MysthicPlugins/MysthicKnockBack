@@ -9,10 +9,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.BannerMeta;
-import org.bukkit.block.banner.Pattern;
-import org.bukkit.block.banner.PatternType;
-import org.bukkit.DyeColor;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.items.CustomItem;
@@ -22,7 +18,7 @@ import mk.kvlzx.utils.MessageUtils;
 public class ReportReasonMenu extends Menu {
 
     public ReportReasonMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &c&lSeleccionar Razón &8•", 45);
+        super(plugin, "&8• &c&lSeleccionar Razón &8•", 54);
     }
 
     @Override
@@ -39,8 +35,8 @@ public class ReportReasonMenu extends Menu {
         );
         inv.setItem(4, targetHead);
 
-        // Razones de reporte en forma de U
-        int[] reasonSlots = {19, 20, 21, 22, 23, 24, 25, 34};
+        // Razones de reporte centradas (3 arriba, 3 abajo)
+        int[] reasonSlots = {20, 21, 22, 29, 30, 31}; // 6 slots: 3 arriba y 3 abajo
         int index = 0;
         for (ReportReason reason : ReportReason.values()) {
             if (index >= reasonSlots.length) break;
@@ -58,45 +54,37 @@ public class ReportReasonMenu extends Menu {
             index++;
         }
 
-        // Banners rojos en las esquinas
-        ItemStack redCornerBanner = createBanner(Material.BANNER, (byte) 1, "&c", "CROSS"); // Banner rojo con cruz
-        inv.setItem(0, redCornerBanner);   // Esquina superior izquierda
-        inv.setItem(8, redCornerBanner);   // Esquina superior derecha
-        inv.setItem(36, redCornerBanner);  // Esquina inferior izquierda
-        inv.setItem(44, redCornerBanner);  // Esquina inferior derecha
+        // Crear lanas para el patrón
+        ItemStack blackWool = createItem(Material.WOOL, "&8", (byte) 15); // Lana negra
+        ItemStack yellowWool = createItem(Material.WOOL, "&e", (byte) 4); // Lana amarilla
 
-        // Separadores decorativos (línea superior, estilo ajedrez)
-        ItemStack redPane = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 14); // Panel rojo
-        ItemStack darkGrayPane = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7); // Panel gris oscuro (sustituto de negro)
-        for (int i : new int[]{1, 2, 3, 5, 6, 7}) {
-            inv.setItem(i, i % 2 == 0 ? redPane : darkGrayPane); // Alternar rojo y gris
+        // Borde completo de lanas intercaladas (54 slots = 6 filas)
+        
+        // Fila superior (slots 0-8)
+        for (int i = 0; i < 9; i++) {
+            if (i != 4) { // Slot 4 se deja para evitar conflictos, pero no tiene nada especial
+                inv.setItem(i, (i % 2 == 0) ? blackWool : yellowWool);
+            } else {
+                inv.setItem(i, (i % 2 == 0) ? blackWool : yellowWool);
+            }
+        }
+        
+        // Filas intermedias - solo bordes laterales (filas 1-4)
+        for (int row = 1; row < 5; row++) {
+            // Borde izquierdo
+            inv.setItem(row * 9, (row % 2 == 0) ? yellowWool : blackWool);
+            // Borde derecho  
+            inv.setItem(row * 9 + 8, (row % 2 == 0) ? yellowWool : blackWool);
+        }
+        
+        // Fila inferior (slots 45-53)
+        for (int i = 45; i < 54; i++) {
+            inv.setItem(i, (i % 2 == 0) ? yellowWool : blackWool);
         }
 
-        // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Cancelar", 
+        // Botón para cancelar (slot 49)
+        inv.setItem(49, createItem(Material.ARROW, "&c← Cancelar", 
             "&7Click para volver a la lista de jugadores"));
-
-        // Bordes con patrón de ajedrez
-        for (int i = 9; i <= 35; i += 9) {
-            inv.setItem(i, i % 18 == 0 ? redPane : darkGrayPane); // Borde izquierdo
-            inv.setItem(i + 8, i % 18 == 0 ? redPane : darkGrayPane); // Borde derecho
-        }
-        for (int i = 9; i <= 17; i++) {
-            if (i != 13) { // Evitar sobrescribir la cabeza
-                inv.setItem(i, i % 2 == 0 ? redPane : darkGrayPane); // Borde superior
-            }
-        }
-        for (int i = 27; i <= 35; i++) {
-            inv.setItem(i, i % 2 == 0 ? redPane : darkGrayPane); // Borde inferior
-        }
-
-        // Rellenar espacios vacíos con rosas
-        ItemStack rose = createItem(Material.RED_ROSE, "&7", (byte) 0); // Rosa roja
-        for (int i = 0; i < inv.getSize(); i++) {
-            if (inv.getItem(i) == null) {
-                inv.setItem(i, rose); // Rellenar slots vacíos
-            }
-        }
     }
 
     @Override
@@ -105,8 +93,7 @@ public class ReportReasonMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE || 
-            clicked.getType() == Material.BANNER || clicked.getType() == Material.RED_ROSE) return;
+        if (clicked == null || clicked.getType() == Material.WOOL) return;
 
         String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
         if (targetName == null) {
@@ -115,15 +102,18 @@ public class ReportReasonMenu extends Menu {
             return;
         }
 
-        if (event.getSlot() == 40) {
+        // Botón cancelar
+        if (event.getSlot() == 49 && clicked.getType() == Material.ARROW) {
             plugin.getMenuManager().openMenu(player, "player_list");
             return;
         }
 
-        // Buscar la razón que coincida con el ítem clickeado
-        for (ReportReason reason : ReportReason.values()) {
-            if (clicked.getType() == reason.getIcon()) {
-                plugin.getReportManager().submitReport(player, targetName, reason);
+        // Verificar si es una razón de reporte (basado en los slots)
+        int[] reasonSlots = {20, 21, 22, 23, 24, 31};
+        for (int i = 0; i < reasonSlots.length; i++) {
+            if (event.getSlot() == reasonSlots[i] && i < ReportReason.values().length) {
+                ReportReason selectedReason = ReportReason.values()[i];
+                plugin.getReportManager().submitReport(player, targetName, selectedReason);
                 player.closeInventory();
                 return;
             }
@@ -149,36 +139,5 @@ public class ReportReasonMenu extends Menu {
         
         item.setItemMeta(meta);
         return item;
-    }
-
-    private ItemStack createBanner(Material material, byte color, String name, String pattern) {
-        ItemStack banner = new ItemStack(material, 1, color);
-        BannerMeta meta = (BannerMeta) banner.getItemMeta();
-        meta.setDisplayName(MessageUtils.getColor(name));
-        
-        // Añadir patrón al banner
-        if (pattern != null) {
-            PatternType patternType;
-            switch (pattern.toUpperCase()) {
-                case "CROSS":
-                    patternType = PatternType.CROSS;
-                    break;
-                case "BORDER":
-                    patternType = PatternType.BORDER;
-                    break;
-                case "STRIPE_CENTER":
-                    patternType = PatternType.STRIPE_CENTER;
-                    break;
-                case "FLOWER":
-                    patternType = PatternType.FLOWER;
-                    break;
-                default:
-                    patternType = PatternType.BASE;
-            }
-            meta.addPattern(new Pattern(DyeColor.values()[color], patternType));
-        }
-        
-        banner.setItemMeta(meta);
-        return banner;
     }
 }
