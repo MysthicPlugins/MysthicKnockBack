@@ -9,10 +9,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.BannerMeta;
-import org.bukkit.block.banner.Pattern;
-import org.bukkit.block.banner.PatternType;
-import org.bukkit.DyeColor;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.cosmetics.ArrowEffectItem;
@@ -23,10 +19,10 @@ import java.util.List;
 
 public class ArrowEffectShopMenu extends Menu {
     private final List<ArrowEffectItem> shopItems;
-    private static String currentCategory = "COMÚN";
+    private static String currentCategory = "COMMON";
 
     public ArrowEffectShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lTienda de Efectos &8•", 45);
+        super(plugin, "&8• &e&lEffects Shop &8•", 45);
         this.shopItems = initializeShopItems();
     }
 
@@ -37,37 +33,37 @@ public class ArrowEffectShopMenu extends Menu {
     private List<ArrowEffectItem> initializeShopItems() {
         List<ArrowEffectItem> items = new ArrayList<>();
 
-        // Efectos comunes
+        // Common effects
         items.add(new ArrowEffectItem(
-            "Flame Trail", 15000, "COMÚN", "&7",
-            "&c¡Deja un rastro de llamas!", 
+            "Flame Trail", 15000, "COMMON", "&7",
+            "&cLeaves a trail of flames!", 
             Effect.FLAME, 0.0f, 1, 0f, 0f, 0f));
         
         items.add(new ArrowEffectItem(
-            "Water Splash", 15000, "COMÚN", "&7",
-            "&b¡Salpica agua al volar!", 
+            "Water Splash", 15000, "COMMON", "&7",
+            "&bSplashes water while flying!", 
             Effect.WATERDRIP, 0.0f, 2, 0.1f, 0.1f, 0.1f));
 
-        // Efectos épicos
+        // Epic effects
         items.add(new ArrowEffectItem(
-            "Ender Magic", 35000, "ÉPICO", "&5",
-            "&5¡El poder del End!", 
+            "Ender Magic", 35000, "EPIC", "&5",
+            "&5The power of the End!", 
             Effect.PORTAL, 0.2f, 3, 0.1f, 0.1f, 0.1f));
         
         items.add(new ArrowEffectItem(
-            "Slime Trail", 35000, "ÉPICO", "&5",
-            "&a¡Deja un rastro pegajoso!", 
+            "Slime Trail", 35000, "EPIC", "&5",
+            "&aLeaves a sticky trail!", 
             Effect.SLIME, 0.1f, 2, 0f, 0f, 0f));
 
-        // Efectos legendarios
+        // Legendary effects
         items.add(new ArrowEffectItem(
-            "Rainbow Spirit", 75000, "LEGENDARIO", "&6",
-            "&d¡Un arcoíris de poder!", 
+            "Rainbow Spirit", 75000, "LEGENDARY", "&6",
+            "&dA rainbow of power!", 
             Effect.COLOURED_DUST, 0.2f, 4, 0.2f, 0.2f, 0.2f));
         
         items.add(new ArrowEffectItem(
-            "Firework Show", 75000, "LEGENDARIO", "&6",
-            "&e¡Fuegos artificiales!", 
+            "Firework Show", 75000, "LEGENDARY", "&6",
+            "&eFireworks!", 
             Effect.FIREWORKS_SPARK, 0.1f, 3, 0.1f, 0.1f, 0.1f));
 
         return items;
@@ -77,13 +73,13 @@ public class ArrowEffectShopMenu extends Menu {
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Balance actual
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lTu Balance",
-            "&7Balance actual: &e" + stats.getKGCoins() + " KGCoins",
+        // Current balance
+        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
+            "&7Current balance: &e" + stats.getKGCoins() + " KGCoins",
             "",
-            "&7Categoría actual: " + currentCategory));
+            "&7Current category: " + currentCategory));
 
-        // Mostrar efectos
+        // Display effects
         int slot = 10;
         for (ArrowEffectItem item : shopItems) {
             if (item.getRarity().equals(currentCategory)) {
@@ -94,53 +90,12 @@ public class ArrowEffectShopMenu extends Menu {
             }
         }
 
-        // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver a las categorías"));
+        // Back button
+        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to categories"));
 
-        // Banners para el borde exterior
-        ItemStack emeraldBanner = createBanner(Material.BANNER, (byte) 5, " ", "FLOWER"); // Banner verde esmeralda
-        ItemStack goldBanner = createBanner(Material.BANNER, (byte) 11, " ", "BORDER"); // Banner dorado
-        ItemStack purpleBanner = createBanner(Material.BANNER, (byte) 10, "&5", "STAR"); // Banner púrpura para esquinas
-
-        // Esquinas con banners púrpura
-        inv.setItem(0, purpleBanner);   // Superior izquierda
-        inv.setItem(8, purpleBanner);   // Superior derecha
-        inv.setItem(36, purpleBanner);  // Inferior izquierda
-        inv.setItem(44, purpleBanner);  // Inferior derecha
-
-        // Borde exterior (verde y dorado alternados, excluyendo esquinas)
-        for (int i = 1; i < 8; i++) {
-            inv.setItem(i, i % 2 == 0 ? emeraldBanner : goldBanner); // Fila superior
-            inv.setItem(36 + i, i % 2 == 0 ? emeraldBanner : goldBanner); // Fila inferior
-        }
-        for (int i = 9; i <= 36; i += 9) {
-            inv.setItem(i, i % 18 == 0 ? emeraldBanner : goldBanner); // Columna izquierda
-            inv.setItem(i + 8, i % 18 == 0 ? emeraldBanner : goldBanner); // Columna derecha
-        }
-
-        // Borde interior con bloques de esmeralda
-        ItemStack emeraldBlock = createItem(Material.EMERALD_BLOCK, " ", "&7");
-        for (int i = 1; i < 8; i++) {
-            inv.setItem(9 + i, emeraldBlock); // Fila superior interior
-            inv.setItem(27 + i, emeraldBlock); // Fila inferior interior
-        }
-        for (int i = 9; i < 36; i += 9) {
-            inv.setItem(i + 1, emeraldBlock); // Columna izquierda interior
-            inv.setItem(i + 7, emeraldBlock); // Columna derecha interior
-        }
-
-        // Relleno con flechas encantadas
-        ItemStack enchantedArrow = createItem(Material.ARROW, " ", "&7");
-        ItemMeta arrowMeta = enchantedArrow.getItemMeta();
-        arrowMeta.addEnchant(Enchantment.DURABILITY, 1, true);
-        arrowMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        enchantedArrow.setItemMeta(arrowMeta);
-        for (int i = 0; i < inv.getSize(); i++) {
-            if (inv.getItem(i) == null) {
-                inv.setItem(i, enchantedArrow); // Rellenar slots vacíos
-            }
-        }
+        // Filler
+        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
     }
 
     private void setupEffectButton(Inventory inv, int slot, ArrowEffectItem item, Player player) {
@@ -149,25 +104,25 @@ public class ArrowEffectShopMenu extends Menu {
                             .equals(item.getName());
 
         List<String> lore = new ArrayList<>();
-        lore.add(item.getRarityColor() + "✦ Rareza: " + item.getRarity());
+        lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
         lore.add("");
         lore.add(MessageUtils.getColor(item.getDescription()));
         lore.add("");
 
         if (hasEffect) {
             if (isSelected) {
-                lore.add("&aSeleccionado actualmente");
-                lore.add("&eClick para deseleccionar");
+                lore.add("&aCurrently selected");
+                lore.add("&eClick to deselect");
             } else {
-                lore.add("&eClick para seleccionar");
+                lore.add("&eClick to select");
             }
         } else {
-            lore.add("&7Click para comprar");
+            lore.add("&7Click to buy");
             lore.add("");
-            lore.add("&8➥ Precio: &e" + item.getPrice() + " KGCoins");
+            lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
         }
 
-        // Crear el botón con el material adecuado
+        // Create the button with the appropriate material
         Material material = isSelected ? Material.ARROW : Material.ARROW;
         ItemStack button = createItem(material, 
             (isSelected ? "&b" : item.getRarityColor()) + item.getName(), 
@@ -189,15 +144,13 @@ public class ArrowEffectShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (clicked == null || clicked.getType() == Material.BANNER || 
-            clicked.getType() == Material.EMERALD_BLOCK || clicked.getType() == Material.ARROW) return;
-
         if (event.getSlot() == 40) {
             plugin.getMenuManager().openMenu(player, "arrow_effect_categories");
             return;
         }
 
-        if (clicked.getType() == Material.EMERALD) return;
+        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE || 
+            clicked.getType() == Material.EMERALD) return;
 
         String itemName = clicked.getItemMeta().getDisplayName();
         ArrowEffectItem effectItem = findEffectItem(MessageUtils.stripColor(itemName));
@@ -210,15 +163,15 @@ public class ArrowEffectShopMenu extends Menu {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         String currentEffect = plugin.getCosmeticManager().getPlayerArrowEffect(player.getUniqueId());
 
-        // Si ya tiene el efecto
+        // If they already have the effect
         if (plugin.getCosmeticManager().hasPlayerArrowEffect(player.getUniqueId(), effectItem.getName())) {
-            // Si está seleccionado, deseleccionar
+            // If selected, deselect
             if (currentEffect.equals(effectItem.getName())) {
                 plugin.getCosmeticManager().setPlayerArrowEffect(player.getUniqueId(), "none");
-                player.sendMessage(MessageUtils.getColor("&aHas deseleccionado el efecto."));
+                player.sendMessage(MessageUtils.getColor("&aYou have deselected the effect."));
             } else {
                 plugin.getCosmeticManager().setPlayerArrowEffect(player.getUniqueId(), effectItem.getName());
-                player.sendMessage(MessageUtils.getColor("&aHas seleccionado el efecto: " + effectItem.getName()));
+                player.sendMessage(MessageUtils.getColor("&aYou have selected the effect: " + effectItem.getName()));
             }
             player.closeInventory();
         } else {
@@ -226,11 +179,11 @@ public class ArrowEffectShopMenu extends Menu {
                 stats.removeKGCoins(effectItem.getPrice());
                 plugin.getCosmeticManager().addPlayerArrowEffect(player.getUniqueId(), effectItem.getName());
                 plugin.getCosmeticManager().setPlayerArrowEffect(player.getUniqueId(), effectItem.getName());
-                player.sendMessage(MessageUtils.getColor("&a¡Has comprado y seleccionado el efecto " + 
-                    effectItem.getName() + " &apor &e" + effectItem.getPrice() + " KGCoins&a!"));
+                player.sendMessage(MessageUtils.getColor("&aYou have purchased and selected the effect " + 
+                    effectItem.getName() + " &afor &e" + effectItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor("&cNo tienes suficientes KGCoins para comprar este efecto."));
+                player.sendMessage(MessageUtils.getColor("&cYou don't have enough KGCoins to purchase this effect."));
             }
         }
     }
@@ -261,32 +214,5 @@ public class ArrowEffectShopMenu extends Menu {
         
         item.setItemMeta(meta);
         return item;
-    }
-
-    private ItemStack createBanner(Material material, byte color, String name, String pattern) {
-        ItemStack banner = new ItemStack(material, 1, color);
-        BannerMeta meta = (BannerMeta) banner.getItemMeta();
-        meta.setDisplayName(MessageUtils.getColor(name));
-        
-        if (pattern != null) {
-            PatternType patternType;
-            switch (pattern.toUpperCase()) {
-                case "FLOWER":
-                    patternType = PatternType.FLOWER;
-                    break;
-                case "BORDER":
-                    patternType = PatternType.BORDER;
-                    break;
-                case "STAR":
-                    patternType = PatternType.MOJANG; 
-                    break;
-                default:
-                    patternType = PatternType.BASE;
-            }
-            meta.addPattern(new Pattern(DyeColor.getByDyeData(color), patternType));
-        }
-        
-        banner.setItemMeta(meta);
-        return banner;
     }
 }

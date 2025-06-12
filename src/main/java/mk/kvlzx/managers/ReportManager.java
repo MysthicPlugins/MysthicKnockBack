@@ -39,13 +39,13 @@ public class ReportManager {
             
             long remainingTime = (reportCooldowns.get(reporterId) + COOLDOWN - currentTime) / 1000;
             
-            reporter.sendMessage(MessageUtils.getColor("&cDebes esperar " + remainingTime + " segundos para reportar a este jugador."));
+            reporter.sendMessage(MessageUtils.getColor("&cYou must wait " + remainingTime + " seconds to report this player."));
             return;
         }
 
         // Notificar al staff
         String reportMessage = String.format(
-            "&c[Reporte] &f%s &7ha reportado a &f%s &7por &f%s",
+            "&c[Report] &f%s &7has reported &f%s &7for &f%s",
             reporter.getName(),
             targetName,
             reason.getDisplayName()
@@ -58,7 +58,7 @@ public class ReportManager {
         }
 
         // Notificar al reportador
-        reporter.sendMessage(MessageUtils.getColor("&aReporte enviado correctamente."));
+        reporter.sendMessage(MessageUtils.getColor("&aReport sent successfully."));
         
         // Establecer cooldown
         reportCooldowns.put(reporterId, currentTime);

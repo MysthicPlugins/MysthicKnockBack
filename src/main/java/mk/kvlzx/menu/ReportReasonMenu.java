@@ -25,7 +25,7 @@ public class ReportReasonMenu extends Menu {
     protected void setupItems(Player player, Inventory inv) {
         String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
 
-        // Cabeza del jugador a reportar
+        // Cabeza del jugador a reportar // Head of the player to report
         ItemStack targetHead = CustomItem.createSkullFromUUID(
             plugin.getServer().getPlayer(targetName).getUniqueId(),
             "&c&lReportando a: &f" + targetName,
@@ -35,8 +35,8 @@ public class ReportReasonMenu extends Menu {
         );
         inv.setItem(4, targetHead);
 
-        // Razones de reporte centradas (3 arriba, 3 abajo)
-        int[] reasonSlots = {20, 21, 22, 29, 30, 31}; // 6 slots: 3 arriba y 3 abajo
+        // Razones de reporte centradas (3 arriba, 3 abajo) // Centered report reasons (3 up, 3 down)
+        int[] reasonSlots = {20, 21, 22, 29, 30, 31}; // 6 slots: 3 arriba y 3 abajo // 6 slots: 3 up and 3 down
         int index = 0;
         for (ReportReason reason : ReportReason.values()) {
             if (index >= reasonSlots.length) break;
@@ -54,35 +54,35 @@ public class ReportReasonMenu extends Menu {
             index++;
         }
 
-        // Crear lanas para el patrón
-        ItemStack blackWool = createItem(Material.WOOL, "&8", (byte) 15); // Lana negra
-        ItemStack yellowWool = createItem(Material.WOOL, "&e", (byte) 4); // Lana amarilla
+        // Crear lanas para el patrón // Create wools for the pattern
+        ItemStack blackWool = createItem(Material.WOOL, "&8", (byte) 15); // Lana negra // Black wool
+        ItemStack yellowWool = createItem(Material.WOOL, "&e", (byte) 4); // Lana amarilla // Yellow wool
 
-        // Borde completo de lanas intercaladas (54 slots = 6 filas)
+        // Borde completo de lanas intercaladas (54 slots = 6 filas) // Full border of alternating wools (54 slots = 6 rows)
         
-        // Fila superior (slots 0-8)
+        // Fila superior (slots 0-8) // Top row (slots 0-8)
         for (int i = 0; i < 9; i++) {
-            if (i != 4) { // Slot 4 se deja para evitar conflictos, pero no tiene nada especial
+            if (i != 4) { // Slot 4 se deja para evitar conflictos, pero no tiene nada especial // Slot 4 is left to avoid conflicts, but it has nothing special
                 inv.setItem(i, (i % 2 == 0) ? blackWool : yellowWool);
             } else {
                 inv.setItem(i, (i % 2 == 0) ? blackWool : yellowWool);
             }
         }
         
-        // Filas intermedias - solo bordes laterales (filas 1-4)
+        // Filas intermedias - solo bordes laterales (filas 1-4) // Middle rows - only side borders (rows 1-4)
         for (int row = 1; row < 5; row++) {
-            // Borde izquierdo
+            // Borde izquierdo // Left border
             inv.setItem(row * 9, (row % 2 == 0) ? yellowWool : blackWool);
-            // Borde derecho  
+            // Borde derecho // Right border
             inv.setItem(row * 9 + 8, (row % 2 == 0) ? yellowWool : blackWool);
         }
         
-        // Fila inferior (slots 45-53)
+        // Fila inferior (slots 45-53) // Bottom row (slots 45-53)
         for (int i = 45; i < 54; i++) {
             inv.setItem(i, (i % 2 == 0) ? yellowWool : blackWool);
         }
 
-        // Botón para cancelar (slot 49)
+        // Botón para cancelar (slot 49) // Cancel button (slot 49)
         inv.setItem(49, createItem(Material.ARROW, "&c← Cancelar", 
             "&7Click para volver a la lista de jugadores"));
     }
@@ -102,14 +102,14 @@ public class ReportReasonMenu extends Menu {
             return;
         }
 
-        // Botón cancelar
+        // Botón cancelar // Cancel button
         if (event.getSlot() == 49 && clicked.getType() == Material.ARROW) {
             plugin.getMenuManager().openMenu(player, "player_list");
             return;
         }
 
-        // Verificar si es una razón de reporte (basado en los slots)
-        int[] reasonSlots = {20, 21, 22, 23, 24, 31};
+        // Verificar si es una razón de reporte (basado en los slots) // Check if it's a report reason (based on slots)
+        int[] reasonSlots = {20, 21, 22, 29, 30, 31};
         for (int i = 0; i < reasonSlots.length; i++) {
             if (event.getSlot() == reasonSlots[i] && i < ReportReason.values().length) {
                 ReportReason selectedReason = ReportReason.values()[i];

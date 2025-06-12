@@ -25,11 +25,11 @@ public class StatsMenu extends Menu {
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Crear los items de relleno
-        ItemStack darkGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 11); // Azul oscuro
-        ItemStack lightGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 3);  // Celeste
+        // Crear los items de relleno // Create the filler items
+        ItemStack darkGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 11); // Azul oscuro // Dark blue
+        ItemStack lightGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 3);  // Celeste // Light blue
 
-        // Cabeza del jugador (centrada)
+        // Cabeza del jugador (centrada) // Player's head (centered)
         ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
         skullMeta.setOwner(player.getName());
@@ -41,7 +41,7 @@ public class StatsMenu extends Menu {
         skull.setItemMeta(skullMeta);
         inv.setItem(13, skull);
 
-        // Stats alrededor de la cabeza
+        // Stats alrededor de la cabeza // Stats around the head
         inv.setItem(10, createItem(Material.DIAMOND_SWORD, "&a&lKills",
             "&8▪ &7Kills totales: &a" + stats.getKills(),
             "&8▪ &7Racha actual: &a" + stats.getCurrentStreak(),
@@ -62,14 +62,14 @@ public class StatsMenu extends Menu {
         inv.setItem(22, createItem(Material.WATCH, "&e&lTiempo Jugado",
             "&8▪ &7Tiempo total: &e" + stats.getFormattedPlayTime()));
 
-        // Botón de volver al menú principal
+        // Botón de volver al menú principal // Back button to the main menu
         inv.setItem(31, createItem(Material.ARROW, "&c← Volver", 
             "&8▪ &7Click para volver al menú principal"));
 
-        // Patrón de relleno alternado
+        // Patrón de relleno alternado // Alternating filler pattern
         for (int i = 0; i < inv.getSize(); i++) {
             if (inv.getItem(i) == null) {
-                // Alternar entre vidrio oscuro y claro basado en posición
+                // Alternar entre vidrio oscuro y claro basado en posición // Alternate between dark and light glass based on position
                 boolean isDark = ((i / 9) + (i % 9)) % 2 == 0;
                 inv.setItem(i, isDark ? darkGlass : lightGlass);
             }

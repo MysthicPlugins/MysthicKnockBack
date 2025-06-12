@@ -18,57 +18,57 @@ import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 
 public class MusicShopMenu extends Menu {
-    private final List<BackgroundMusicItem> shopItems;
-    private static String currentCategory = "COMÚN";
+    private final List<BackgroundMusicItem> musicItems;
+    private static String currentCategory = "COMMON";
 
     public MusicShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &d&lTienda de Música &8•", 45);
-        this.shopItems = initializeShopItems();
+        super(plugin, "&8• &d&lMusic Store &8•", 45);
+        this.musicItems = initializeMusicItems();
     }
 
     public static void setCurrentCategory(String category) {
         currentCategory = category;
     }
 
-    private List<BackgroundMusicItem> initializeShopItems() {
+    private List<BackgroundMusicItem> initializeMusicItems() {
         List<BackgroundMusicItem> items = new ArrayList<>();
 
-        // Música Común (15000 coins)
+        // Common music (15000 coins)
         items.add(new BackgroundMusicItem(
-            "Far", 15000, "COMÚN", "&7",
-            "&7¡Una melodía distante!", 
+            "Far", 15000, "COMMON", "&7",
+            "&fA distant melody!", 
             "records.far", 1.0f, 1.0f));
 
         items.add(new BackgroundMusicItem(
-            "Mall", 15000, "COMÚN", "&7",
-            "&7¡Sonidos del centro comercial!", 
+            "Mall", 15000, "COMMON", "&7",
+            "&fSounds of the mall!", 
             "records.mall", 1.0f, 1.0f));
 
         items.add(new BackgroundMusicItem(
-            "Strad", 15000, "COMÚN", "&7",
-            "&7¡Una melodía clásica!", 
+            "Strad", 15000, "COMMON", "&7",
+            "&fA classic melody!", 
             "records.strad", 1.0f, 1.0f));
 
-        // Música Épica (35000 coins)
+        // Epic music (35000 coins)
         items.add(new BackgroundMusicItem(
-            "Cat", 35000, "ÉPICO", "&5",
-            "&5¡El disco del gato!", 
+            "Cat", 35000, "EPIC", "&5",
+            "&5The cat's disc!", 
             "records.cat", 1.0f, 1.0f));
 
         items.add(new BackgroundMusicItem(
-            "Chirp", 35000, "ÉPICO", "&5",
-            "&5¡Melodías del pájaro!", 
+            "Chirp", 35000, "EPIC", "&5",
+            "&5Bird melodies!", 
             "records.chirp", 1.0f, 1.0f));
 
-        // Música Legendaria (75000 coins)
+        // Legendary music (75000 coins)
         items.add(new BackgroundMusicItem(
-            "Mellohi", 75000, "LEGENDARIO", "&6",
-            "&6¡La melodía mística!", 
+            "Mellohi", 75000, "LEGENDARY", "&6",
+            "&6The mystical melody!", 
             "records.mellohi", 1.0f, 1.0f));
 
         items.add(new BackgroundMusicItem(
-            "Stal", 75000, "LEGENDARIO", "&6",
-            "&6¡La música del acero!", 
+            "Stal", 75000, "LEGENDARY", "&6",
+            "&6The steel music!", 
             "records.stal", 1.0f, 1.0f));
 
         return items;
@@ -78,15 +78,15 @@ public class MusicShopMenu extends Menu {
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Balance actual
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lTu Balance",
-            "&7Balance actual: &e" + stats.getKGCoins() + " KGCoins",
+        // Current balance
+        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
+            "&7Current balance: &e" + stats.getKGCoins() + " KGCoins",
             "",
-            "&7Categoría actual: " + currentCategory));
+            "&7Current category: " + currentCategory));
 
-        // Mostrar música
+        // Display music
         int slot = 10;
-        for (BackgroundMusicItem item : shopItems) {
+        for (BackgroundMusicItem item : musicItems) {
             if (item.getRarity().equals(currentCategory)) {
                 if (slot > 34) break;
                 setupMusicButton(inv, slot, item, player);
@@ -95,11 +95,11 @@ public class MusicShopMenu extends Menu {
             }
         }
 
-        // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver a las categorías"));
+        // Back button
+        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to categories"));
 
-        // Relleno
+        // Filler
         fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
     }
 
@@ -109,24 +109,24 @@ public class MusicShopMenu extends Menu {
                             .equals(item.getName());
         
         List<String> lore = new ArrayList<>();
-        lore.add(item.getRarityColor() + "✦ Rareza: " + item.getRarity());
+        lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
         lore.add("");
         lore.add(MessageUtils.getColor(item.getDescription()));
         lore.add("");
-        lore.add("&eClick derecho para escuchar una muestra");
+        lore.add("&eRight-click to hear a sample");
         lore.add("");
         
         if (hasMusic) {
             if (isSelected) {
-                lore.add("&aSeleccionado actualmente");
-                lore.add("&eClick para deseleccionar");
+                lore.add("&aCurrently selected");
+                lore.add("&eClick to deselect");
             } else {
-                lore.add("&eClick para seleccionar");
+                lore.add("&eClick to select");
             }
         } else {
-            lore.add("&7Click para comprar");
+            lore.add("&7Click to buy");
             lore.add("");
-            lore.add("&8➥ Precio: &e" + item.getPrice() + " KGCoins");
+            lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
         }
 
         Material material = isSelected ? Material.JUKEBOX : Material.RECORD_12;
@@ -151,7 +151,7 @@ public class MusicShopMenu extends Menu {
         ItemStack clicked = event.getCurrentItem();
 
         if (event.getSlot() == 40) {
-            // Detener cualquier música de muestra
+            // Stop any preview music
             stopPreviewMusic(player);
             plugin.getMenuManager().openMenu(player, "music_categories");
             return;
@@ -164,21 +164,21 @@ public class MusicShopMenu extends Menu {
         BackgroundMusicItem musicItem = findMusicItem(itemName);
         if (musicItem == null) return;
 
-        // Si es click derecho, reproducir muestra
+        // If right-click, play preview
         if (event.isRightClick()) {
             playPreviewMusic(player, musicItem);
             return;
         }
 
-        // Si es click izquierdo, manejar compra/selección
+        // If left-click, handle purchase/selection
         handleMusicSelection(player, musicItem);
     }
 
     private void playPreviewMusic(Player player, BackgroundMusicItem musicItem) {
-        // Detener cualquier música previa
+        // Stop any previous music
         stopPreviewMusic(player);
 
-        // Usar el MusicManager para reproducir la música
+        // Use the MusicManager to play the music
         plugin.getMusicManager().playPreviewMusic(player, musicItem.getSound());
     }
 
@@ -193,11 +193,11 @@ public class MusicShopMenu extends Menu {
         if (plugin.getCosmeticManager().hasPlayerBackgroundMusic(player.getUniqueId(), musicItem.getName())) {
             if (currentMusic.equals(musicItem.getName())) {
                 plugin.getCosmeticManager().setPlayerBackgroundMusic(player.getUniqueId(), "none");
-                player.sendMessage(MessageUtils.getColor("&aHas deseleccionado la música."));
+                player.sendMessage(MessageUtils.getColor("&aYou have deselected the music."));
                 stopBackgroundMusic(player);
             } else {
                 plugin.getCosmeticManager().setPlayerBackgroundMusic(player.getUniqueId(), musicItem.getName());
-                player.sendMessage(MessageUtils.getColor("&aHas seleccionado la música: " + musicItem.getName()));
+                player.sendMessage(MessageUtils.getColor("&aYou have selected the music: " + musicItem.getName()));
                 startBackgroundMusic(player, musicItem);
             }
             player.closeInventory();
@@ -206,18 +206,18 @@ public class MusicShopMenu extends Menu {
                 stats.removeKGCoins(musicItem.getPrice());
                 plugin.getCosmeticManager().addPlayerBackgroundMusic(player.getUniqueId(), musicItem.getName());
                 plugin.getCosmeticManager().setPlayerBackgroundMusic(player.getUniqueId(), musicItem.getName());
-                player.sendMessage(MessageUtils.getColor("&a¡Has comprado y seleccionado la música " + 
-                    musicItem.getName() + " &apor &e" + musicItem.getPrice() + " KGCoins&a!"));
+                player.sendMessage(MessageUtils.getColor("&aYou have purchased and selected the music " + 
+                    musicItem.getName() + " &afor &e" + musicItem.getPrice() + " KGCoins&a!"));
                 startBackgroundMusic(player, musicItem);
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor("&cNo tienes suficientes KGCoins para comprar esta música."));
+                player.sendMessage(MessageUtils.getColor("&cYou don't have enough KGCoins to purchase this music."));
             }
         }
     }
 
     private BackgroundMusicItem findMusicItem(String name) {
-        return shopItems.stream()
+        return musicItems.stream()
             .filter(item -> MessageUtils.stripColor(item.getName()).equals(name))
             .findFirst()
             .orElse(null);

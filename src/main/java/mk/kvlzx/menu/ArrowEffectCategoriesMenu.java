@@ -16,40 +16,40 @@ import mk.kvlzx.utils.MessageUtils;
 public class ArrowEffectCategoriesMenu extends Menu {
 
     public ArrowEffectCategoriesMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lEfectos de Flecha &8•", 45);
+        super(plugin, "&8• &e&lArrow Effects &8•", 45);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
-        // Efectos comunes
-        inv.setItem(11, createItem(Material.ARROW, "&7Efectos Comunes",
-            "&8▪ &7Precio: &f15,000 KGCoins",
-            "&8▪ &7Rareza: &7COMÚN",
+        // Common effects
+        inv.setItem(11, createItem(Material.ARROW, "&7Common Effects",
+            "&8▪ &7Price: &f15,000 KGCoins",
+            "&8▪ &7Rarity: &7COMMON",
             "",
-            "&8➥ Efectos simples y elegantes",
-            "&7Click para ver los efectos"));
+            "&8➥ Simple and elegant effects",
+            "&7Click to view effects"));
 
-        // Efectos épicos
-        inv.setItem(13, createItem(Material.ARROW, "&5Efectos Épicos",
-            "&8▪ &7Precio: &f35,000 KGCoins",
-            "&8▪ &7Rareza: &5ÉPICO",
+        // Epic effects
+        inv.setItem(13, createItem(Material.ARROW, "&5Epic Effects",
+            "&8▪ &7Price: &f35,000 KGCoins",
+            "&8▪ &7Rarity: &5EPIC",
             "",
-            "&8➥ Efectos más vistosos",
-            "&7Click para ver los efectos"));
+            "&8➥ More striking effects",
+            "&7Click to view effects"));
 
-        // Efectos legendarios
-        inv.setItem(15, createItem(Material.ARROW, "&6Efectos Legendarios",
-            "&8▪ &7Precio: &f75,000 KGCoins",
-            "&8▪ &7Rareza: &6LEGENDARIO",
+        // Legendary effects
+        inv.setItem(15, createItem(Material.ARROW, "&6Legendary Effects",
+            "&8▪ &7Price: &f75,000 KGCoins",
+            "&8▪ &7Rarity: &6LEGENDARY",
             "",
-            "&8➥ Los efectos más espectaculares",
-            "&7Click para ver los efectos"));
+            "&8➥ The most spectacular effects",
+            "&7Click to view effects"));
 
-        // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver a la tienda"));
+        // Back button
+        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
 
-        // Relleno
+        // Filler
         fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
     }
 
@@ -59,19 +59,19 @@ public class ArrowEffectCategoriesMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         
         switch(event.getSlot()) {
-            case 11: // Comunes
-                ArrowEffectShopMenu.setCurrentCategory("COMÚN");
+            case 11: // Common
+                ArrowEffectShopMenu.setCurrentCategory("COMMON");
                 plugin.getMenuManager().openMenu(player, "arrow_effect_shop");
                 break;
-            case 13: // Épicos
-                ArrowEffectShopMenu.setCurrentCategory("ÉPICO");
+            case 13: // Epic
+                ArrowEffectShopMenu.setCurrentCategory("EPIC");
                 plugin.getMenuManager().openMenu(player, "arrow_effect_shop");
                 break;
-            case 15: // Legendarios
-                ArrowEffectShopMenu.setCurrentCategory("LEGENDARIO");
+            case 15: // Legendary
+                ArrowEffectShopMenu.setCurrentCategory("LEGENDARY");
                 plugin.getMenuManager().openMenu(player, "arrow_effect_shop");
                 break;
-            case 40: // Volver
+            case 40: // Back
                 plugin.getMenuManager().openMenu(player, "shop");
                 break;
         }

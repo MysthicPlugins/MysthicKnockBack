@@ -17,18 +17,18 @@ import mk.kvlzx.utils.MessageUtils;
 public class ShopMenu extends Menu {
 
     public ShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &a&lTienda Principal &8•", 54); // Cambiar a 54 slots (6 filas)
+        super(plugin, "&8• &a&lTienda Principal &8•", 54); // Change to 54 slots (6 rows)
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Mostrar balance en el centro superior
+        // Mostrar balance en el centro superior // Display balance at the top center
         inv.setItem(4, createItem(Material.EMERALD, "&a&lTu Balance",
             "&7Balance actual: &a" + stats.getKGCoins() + " KGCoins"));
 
-        // Primera fila de items (slots 19-25)
+        // Primera fila de items (slots 19-25) // First row of items (slots 19-25)
         inv.setItem(19, createItem(Material.SANDSTONE, "&e&lBloques Personalizados",
             "&7Click para ver los bloques disponibles",
             "",
@@ -56,7 +56,7 @@ public class ShopMenu extends Menu {
             "&8➥ Incluye +15 mensajes únicos",
             "&aDisponible!"));
 
-        // Segunda fila de items (slots 28-34)
+        // Segunda fila de items (slots 28-34) // Second row of items (slots 28-34)
         inv.setItem(28, createItem(Material.BOOK_AND_QUILL, "&e&lMensajes de Muerte", 
             "&7Click para ver mensajes de muerte",
             "",
@@ -84,7 +84,7 @@ public class ShopMenu extends Menu {
             "&8➥ Incluye +8 sonidos únicos",
             "&aDisponible!"));
 
-        // Tercera fila de items (slots 37-43)
+        // Tercera fila de items (slots 37-43) // Third row of items (slots 37-43)
         inv.setItem(37, createItem(Material.DIAMOND_SWORD, "&e&lSonidos de Kill", 
             "&7Click para ver sonidos de kill",
             "",
@@ -103,11 +103,11 @@ public class ShopMenu extends Menu {
             "&8➥ Ambienta tus partidas",
             "&aDisponible!"));
 
-        // Botón para volver
+        // Botón para volver // Back button
         inv.setItem(49, createItem(Material.ARROW, "&c← Volver", 
             "&7Click para volver al menú principal"));
 
-        // Relleno
+        // Relleno // Filler
         fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
     }
 
@@ -117,31 +117,31 @@ public class ShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         
         switch(event.getSlot()) {
-            case 19: // Bloques
+            case 19: // Bloques // Blocks
                 plugin.getMenuManager().openMenu(player, "block_categories");
                 break;
-            case 22: // Knockers
+            case 22: // Knockers // Knockers
                 plugin.getMenuManager().openMenu(player, "knocker_categories");
                 break;
-            case 25: // Mensajes de Kill
+            case 25: // Mensajes de Kill // Kill Messages
                 plugin.getMenuManager().openMenu(player, "kill_message_categories");
                 break;
-            case 28: // Mensajes de muerte
+            case 28: // Mensajes de muerte // Death Messages
                 plugin.getMenuManager().openMenu(player, "death_message_categories");
                 break;
-            case 31: // Efectos de flecha
+            case 31: // Efectos de flecha // Arrow Effects
                 plugin.getMenuManager().openMenu(player, "arrow_effect_categories");
                 break;
-            case 34: // Sonidos de muerte
+            case 34: // Sonidos de muerte // Death Sounds
                 plugin.getMenuManager().openMenu(player, "death_sound_categories");
                 break;
-            case 37: // Sonidos de kill
+            case 37: // Sonidos de kill // Kill Sounds
                 plugin.getMenuManager().openMenu(player, "kill_sound_categories");
                 break;
-            case 43: // Música
+            case 43: // Música // Music
                 plugin.getMenuManager().openMenu(player, "music_categories");
                 break;
-            case 49: // Volver
+            case 49: // Volver // Back
                 plugin.getMenuManager().openMenu(player, "main");
                 break;
         }

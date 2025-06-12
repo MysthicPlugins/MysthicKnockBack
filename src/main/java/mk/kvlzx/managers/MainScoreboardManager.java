@@ -73,8 +73,8 @@ public class MainScoreboardManager {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         String currentArena = plugin.getArenaManager().getCurrentArena();
         String nextArena = plugin.getArenaManager().getNextArena();
-        if (currentArena == null) currentArena = "Ninguna";
-        if (nextArena == null) nextArena = "Ninguna";
+        if (currentArena == null) currentArena = "None";
+        if (nextArena == null) nextArena = "None";
         
         int minutes = timeLeft / 60;
         int seconds = timeLeft % 60;
@@ -153,7 +153,7 @@ public class MainScoreboardManager {
                     
                     // Alertas de tiempo
                     if (Arrays.stream(COUNTDOWN_ALERTS).anyMatch(t -> t == timeLeft)) {
-                        Bukkit.broadcastMessage(MessageUtils.getColor("&a¡La arena cambiará en &c" + timeLeft + " &asegundos!"));
+                        Bukkit.broadcastMessage(MessageUtils.getColor("&aThe arena will change in &c" + timeLeft + " &aseconds!"));
                     }
 
                     if (timeLeft <= 0) {
@@ -186,7 +186,7 @@ public class MainScoreboardManager {
         Location nextSpawn = nextArenaObj.getSpawnLocation();
         
         if (nextSpawn == null) {
-            Bukkit.broadcastMessage(MessageUtils.getColor("&cError: La arena " + nextArena + " no tiene un punto de spawn configurado."));
+            Bukkit.broadcastMessage(MessageUtils.getColor("&cError: The arena " + nextArena + " does not have a configured spawn point."));
             arenaChanging = false;
             return;
         }
@@ -223,7 +223,7 @@ public class MainScoreboardManager {
                     if (step < loadingFrames.length) {
                         TitleUtils.sendTitle(
                             player,
-                            "&b&lCambiando de Arena",
+                            "&b&lChanging Arena",
                             loadingColors[step] + loadingFrames[step] + " &7" + (step * 20 + 20) + "%",
                             10, 30, 10
                         );
@@ -238,8 +238,8 @@ public class MainScoreboardManager {
     private void teleportPlayers(String currentArena, String nextArena, Location nextSpawn) {
         // Mensaje de transición
         Bukkit.broadcastMessage(MessageUtils.getColor("&b&l=-=-=-=-=-=-=-=-=-="));
-        Bukkit.broadcastMessage(MessageUtils.getColor("&e¡Teletransportando jugadores!"));
-        Bukkit.broadcastMessage(MessageUtils.getColor("&bDe: &f" + currentArena + " &bA: &f" + nextArena));
+        Bukkit.broadcastMessage(MessageUtils.getColor("&eTeleporting players!"));
+        Bukkit.broadcastMessage(MessageUtils.getColor("&bFrom: &f" + currentArena + " &bTo: &f" + nextArena));
         Bukkit.broadcastMessage(MessageUtils.getColor("&b&l=-=-=-=-=-=-=-=-=-="));
 
         // Teletransportar jugadores
@@ -261,8 +261,8 @@ public class MainScoreboardManager {
                         player.setWalkSpeed(0.2f);
                         arenaChanging = false; // Desactivar el estado de cambio solo después de restaurar todo
                         TitleUtils.sendTitle(player, 
-                            "&a&l¡Arena " + nextArena + "!", 
-                            "&e¡Buena suerte!",
+                            "&a&lArena " + nextArena + "!", 
+                            "&eGood luck!",
                             10, 40, 10
                         );
                         player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 1.0f);

@@ -36,7 +36,7 @@ public class StreakManager {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null) {
                 Bukkit.broadcastMessage(MessageUtils.getColor("&c☠ &f" + player.getName() + 
-                    " &7perdió su racha de &c" + getStreak(uuid) + " &7kills! &c☠"));
+                    " &7lost their streak of &c" + getStreak(uuid) + " &7kills! &c☠"));
                 player.playSound(player.getLocation(), Sound.ENDERMAN_DEATH, 1.0f, 1.0f);
             }
         }
@@ -69,7 +69,7 @@ public class StreakManager {
             int elo = PlayerStats.getStats(uuid).getElo();
             
             Bukkit.broadcastMessage(MessageUtils.getColor("&e" + playerName + 
-                " &fha alcanzado una racha de &a" + streak + " &akills!"));
+                " &fhas reached a streak of &a" + streak + " &akills!"));
             
             for (Player online : Bukkit.getOnlinePlayers()) {
                 online.playSound(online.getLocation(), Sound.ENDERDRAGON_GROWL, 1.0f, 1.0f);
@@ -80,7 +80,7 @@ public class StreakManager {
                 TitleUtils.sendTitle(
                     online,
                     MessageUtils.getColor(rankPrefix + " &f" + playerName),
-                    "&7Racha de &f" + streak + " &7kills!",
+                    "&7Streak of &f" + streak + " &7kills!",
                     10, 40, 10
                 );
             }
@@ -121,7 +121,6 @@ public class StreakManager {
             armorStand.setSmall(true);
             armorStand.setMarker(true);
             armorStand.setCustomName(MessageUtils.getColor(mvpTag + " &7- Kills: " + streak));
-
 
             playerMvpTags.put(uuid, armorStand);
 

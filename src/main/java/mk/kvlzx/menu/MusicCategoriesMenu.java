@@ -16,40 +16,40 @@ import mk.kvlzx.utils.MessageUtils;
 public class MusicCategoriesMenu extends Menu {
 
     public MusicCategoriesMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &d&lMúsica de Fondo &8•", 45);
+        super(plugin, "&8• &d&lBackground Music &8•", 45);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
-        // Música común
-        inv.setItem(11, createItem(Material.GOLD_RECORD, "&7Música Común",
-            "&8▪ &7Precio: &f15,000 KGCoins",
-            "&8▪ &7Rareza: &7COMÚN",
+        // Common music
+        inv.setItem(11, createItem(Material.GOLD_RECORD, "&7Common Music",
+            "&8▪ &7Price: &f15,000 KGCoins",
+            "&8▪ &7Rarity: &7COMMON",
             "",
-            "&8➥ Melodías tranquilas",
-            "&7Click para ver las canciones"));
+            "&8➥ Soothing melodies",
+            "&7Click to view songs"));
 
-        // Música épica
-        inv.setItem(13, createItem(Material.RECORD_3, "&5Música Épica",
-            "&8▪ &7Precio: &f35,000 KGCoins",
-            "&8▪ &7Rareza: &5ÉPICO",
+        // Epic music
+        inv.setItem(13, createItem(Material.RECORD_3, "&5Epic Music",
+            "&8▪ &7Price: &f35,000 KGCoins",
+            "&8▪ &7Rarity: &5EPIC",
             "",
-            "&8➥ Melodías más intensas",
-            "&7Click para ver las canciones"));
+            "&8➥ More intense melodies",
+            "&7Click to view songs"));
 
-        // Música legendaria
-        inv.setItem(15, createItem(Material.RECORD_12, "&6Música Legendaria",
-            "&8▪ &7Precio: &f75,000 KGCoins",
-            "&8▪ &7Rareza: &6LEGENDARIO",
+        // Legendary music
+        inv.setItem(15, createItem(Material.RECORD_12, "&6Legendary Music",
+            "&8▪ &7Price: &f75,000 KGCoins",
+            "&8▪ &7Rarity: &6LEGENDARY",
             "",
-            "&8➥ Las mejores melodías",
-            "&7Click para ver las canciones"));
+            "&8➥ The best melodies",
+            "&7Click to view songs"));
 
-        // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver a la tienda"));
+        // Back button
+        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
 
-        // Relleno
+        // Filler
         fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
     }
 
@@ -59,19 +59,19 @@ public class MusicCategoriesMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         
         switch(event.getSlot()) {
-            case 11: // Común
-                MusicShopMenu.setCurrentCategory("COMÚN");
+            case 11: // Common
+                MusicShopMenu.setCurrentCategory("COMMON");
                 plugin.getMenuManager().openMenu(player, "music_shop");
                 break;
-            case 13: // Épico
-                MusicShopMenu.setCurrentCategory("ÉPICO");
+            case 13: // Epic
+                MusicShopMenu.setCurrentCategory("EPIC");
                 plugin.getMenuManager().openMenu(player, "music_shop");
                 break;
-            case 15: // Legendario
-                MusicShopMenu.setCurrentCategory("LEGENDARIO");
+            case 15: // Legendary
+                MusicShopMenu.setCurrentCategory("LEGENDARY");
                 plugin.getMenuManager().openMenu(player, "music_shop");
                 break;
-            case 40: // Volver
+            case 40: // Back
                 plugin.getMenuManager().openMenu(player, "shop");
                 break;
         }

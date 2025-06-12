@@ -17,7 +17,7 @@ import mk.kvlzx.utils.MessageUtils;
 public class PlayerListMenu extends Menu {
 
     public PlayerListMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &c&lJugadores Online &8•", 54);
+        super(plugin, "&8• &c&lOnline Players &8•", 54);
     }
 
     @Override
@@ -25,10 +25,10 @@ public class PlayerListMenu extends Menu {
         List<Player> onlinePlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
         onlinePlayers.remove(player); // Remover al jugador que está reportando
 
-        // Colocar cabezas de jugadores
+        // Place player heads
         int slot = 10;
         for (Player target : onlinePlayers) {
-            if (slot > 43) break; // Límite de slots
+            if (slot > 43) break; // Slot limit
 
             ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
             SkullMeta meta = (SkullMeta) skull.getItemMeta();
@@ -36,40 +36,40 @@ public class PlayerListMenu extends Menu {
             meta.setDisplayName(MessageUtils.getColor("&c" + target.getName()));
             
             List<String> lore = new ArrayList<>();
-            lore.add(MessageUtils.getColor("&7Click para reportar a este jugador"));
+            lore.add(MessageUtils.getColor("&7Click to report this player"));
             meta.setLore(lore);
             
             skull.setItemMeta(meta);
             inv.setItem(slot, skull);
 
-            // Incrementar slot, saltando los bordes
+            // Increment slot, skipping borders
             slot++;
             if ((slot + 1) % 9 == 0) slot += 2;
         }
 
-        // Botón para volver
-        inv.setItem(49, createItem(Material.ARROW, "&c← Volver", "&7Click para volver al menú"));
+        // Back button
+        inv.setItem(49, createItem(Material.ARROW, "&c← Back", "&7Click to return to the menu"));
 
-        // Bordes con cabezas de wither y redstone, alternando con dos espacios vacíos
-        ItemStack witherSkull = createItem(Material.SKULL_ITEM, "&7", (byte) 1); // Cabeza de wither
-        ItemStack redstone = createItem(Material.REDSTONE, "&7"); // Bloque de redstone
+        // Borders with wither skulls and redstone, alternating with two empty spaces
+        ItemStack witherSkull = createItem(Material.SKULL_ITEM, "&7", (byte) 1); // Wither skull
+        ItemStack redstone = createItem(Material.REDSTONE, "&7"); // Redstone block
 
-        // Definir los slots de los bordes
+        // Define border slots
         int[] borderSlots = {
-            0, 1, 2, 3, 4, 5, 6, 7, 8,     // Fila superior
-            9, 18, 27, 36,                   // Columna izquierda
-            17, 26, 35, 44,                  // Columna derecha
-            45, 46, 47, 48, 50, 51, 52, 53  // Fila inferior (excluye slot 49)
+            0, 1, 2, 3, 4, 5, 6, 7, 8,     // Top row
+            9, 18, 27, 36,                   // Left column
+            17, 26, 35, 44,                  // Right column
+            45, 46, 47, 48, 50, 51, 52, 53  // Bottom row (excludes slot 49)
         };
 
-        // Colocar items con patrón: wither, espacio, espacio, redstone, espacio, espacio
+        // Place items with pattern: wither, space, space, redstone, space, space
         for (int i = 0; i < borderSlots.length; i++) {
-            if (borderSlots[i] == 49) continue; // Evitar sobrescribir el botón de volver
+            if (borderSlots[i] == 49) continue; // Avoid overwriting the back button
             if (i % 6 == 0) {
-                inv.setItem(borderSlots[i], witherSkull); // Cabeza de wither
+                inv.setItem(borderSlots[i], witherSkull); // Wither skull
             } else if (i % 6 == 3) {
                 inv.setItem(borderSlots[i], redstone); // Redstone
-            } // Los slots i % 6 == 1, 2, 4, 5 quedan vacíos (null)
+            } // Slots i % 6 == 1, 2, 4, 5 remain empty (null)
         }
     }
 
@@ -79,7 +79,7 @@ public class PlayerListMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
 
         if (event.getCurrentItem() != null) {
-           // Ignorar clics en items decorativos (cabeza de wither y bloque de redstone)
+            // Ignore clicks on decorative items (wither skull and redstone block)
             if ((event.getCurrentItem().getType() == Material.SKULL_ITEM && 
                 event.getCurrentItem().getDurability() == 1) ||
                 event.getCurrentItem().getType() == Material.REDSTONE) {
