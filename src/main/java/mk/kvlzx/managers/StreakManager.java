@@ -12,10 +12,13 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import mk.kvlzx.utils.MessageUtils;
-import mk.kvlzx.utils.TitleUtils;
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.stats.PlayerStats;
+import mk.kvlzx.utils.MessageUtils;
+import mk.kvlzx.utils.TitleUtils;
+import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
 
 public class StreakManager {
     private static final Map<UUID, Integer> currentStreaks = new HashMap<>();
@@ -134,7 +137,6 @@ public class StreakManager {
                         return;
                     }
                     armorStand.teleport(p.getLocation().add(0, 2.2, 0));
-                    // Actualizar el nombre del ArmorStand si la racha cambia
                     int currentStreak = getStreak(uuid);
                     String currentMvpTag = getMvpTag(currentStreak);
                     if (currentMvpTag != null && !armorStand.getCustomName().equals(MessageUtils.getColor(currentMvpTag + " &7- Kills: " + currentStreak))) {
@@ -150,7 +152,15 @@ public class StreakManager {
     private static void removeTag(UUID uuid) {
         ArmorStand oldTag = playerMvpTags.remove(uuid);
         if (oldTag != null && !oldTag.isDead()) {
-            oldTag.remove();
+            oldTag.remove(); // Elimina la entidad del mundo
+
+            // Usar PacketPlayOutEntityDestroy para forzar la eliminación en el cliente
+            int entityId = ((CraftArmorStand) oldTag).getHandle().getId();
+            PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(new int[] {entityId});
+
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                ((CraftPlayer) online).getHandle().playerConnection.sendPacket(packet);
+            }
         }
     }
 
@@ -158,6 +168,11 @@ public class StreakManager {
         playerMvpTags.values().forEach(tag -> {
             if (tag != null && !tag.isDead()) {
                 tag.remove();
+                int entityId = ((CraftArmorStand) tag).getHandle().getId();
+                PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(new int[] {entityId});
+                for (Player online : Bukkit.getOnlinePlayers()) {
+                    ((CraftPlayer) online).getHandle().playerConnection.sendPacket(packet);
+                }
             }
         });
         playerMvpTags.clear();
