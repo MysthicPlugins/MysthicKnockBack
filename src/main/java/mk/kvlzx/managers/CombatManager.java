@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 
 import mk.kvlzx.MysthicKnockBack;
@@ -20,6 +21,12 @@ public class CombatManager {
     private double verticalKnockback = 0.385;
     private double knockbackResistanceReduction = 0.5;
     private double sprintMultiplier = 1.8;
+    
+    // Nuevos valores específicos para flechas
+    private double arrowHorizontalKnockback = 1.2;
+    private double arrowVerticalKnockback = 0.6;
+    private double arrowSprintMultiplier = 2.2;
+    
     private int hitDelay = 500; // millisegundos
     
     public CombatManager(MysthicKnockBack plugin) {
@@ -42,8 +49,12 @@ public class CombatManager {
     }
     
     public void applyCustomKnockback(Player victim, Player attacker) {
+        applyCustomKnockback(victim, attacker, false);
+    }
+    
+    public void applyCustomKnockback(Player victim, Player attacker, boolean isArrow) {
         // Calcular knockback personalizado
-        Vector knockback = calculateCustomKnockback(attacker, victim);
+        Vector knockback = calculateCustomKnockback(attacker, victim, isArrow);
         
         if (knockback != null) {
             UUID victimUUID = victim.getUniqueId();
@@ -59,7 +70,7 @@ public class CombatManager {
         }
     }
     
-    private Vector calculateCustomKnockback(Player attacker, Player victim) {
+    private Vector calculateCustomKnockback(Player attacker, Player victim, boolean isArrow) {
         // Para self-damage, usar dirección basada en la mirada del jugador
         Vector direction;
         if (attacker.equals(victim)) {
@@ -78,21 +89,31 @@ public class CombatManager {
             }
         }
         
-        // Calcular knockback base
-        double horizontal = horizontalKnockback;
-        double vertical = verticalKnockback;
+        // Calcular knockback base - usar valores específicos para flechas
+        double horizontal = isArrow ? arrowHorizontalKnockback : horizontalKnockback;
+        double vertical = isArrow ? arrowVerticalKnockback : verticalKnockback;
+        double currentSprintMultiplier = isArrow ? arrowSprintMultiplier : sprintMultiplier;
         
         // Verificar si el atacante está corriendo (sprint)
         if (attacker.isSprinting()) {
-            horizontal *= sprintMultiplier;
+            horizontal *= currentSprintMultiplier;
         }
         
         // Aplicar encantamiento Knockback con valores más altos
         ItemStack weapon = attacker.getItemInHand();
         if (weapon != null && weapon.containsEnchantment(Enchantment.KNOCKBACK)) {
             int knockbackLevel = weapon.getEnchantmentLevel(Enchantment.KNOCKBACK);
-            // Aumentado el multiplicador de 0.5 a 1.2 para que sea más notorio
-            horizontal += knockbackLevel * 1.2;
+            // Para flechas, el multiplicador es aún mayor
+            double knockbackMultiplier = isArrow ? 1.5 : 1.2;
+            horizontal += knockbackLevel * knockbackMultiplier;
+        }
+        
+        // Para flechas, también verificar el encantamiento Punch en el arco
+        if (isArrow && weapon != null && weapon.getType() == Material.BOW) {
+            if (weapon.containsEnchantment(Enchantment.ARROW_KNOCKBACK)) {
+                int punchLevel = weapon.getEnchantmentLevel(Enchantment.ARROW_KNOCKBACK);
+                horizontal += punchLevel * 0.8; // Multiplicador para Punch
+            }
         }
         
         // Reducir por resistencia al knockback
@@ -107,8 +128,8 @@ public class CombatManager {
             direction.getZ() * horizontal
         );
         
-        // Aplicar límites de velocidad estilo Hypixel (aumentados)
-        knockback = applyVelocityLimits(knockback);
+        // Aplicar límites de velocidad - más altos para flechas
+        knockback = applyVelocityLimits(knockback, isArrow);
         
         return knockback;
     }
@@ -120,9 +141,10 @@ public class CombatManager {
         return Math.max(0.0, Math.min(1.0, resistance));
     }
     
-    private Vector applyVelocityLimits(Vector velocity) {
-        double maxHorizontal = 0.9;
-        double maxVertical = 0.6;
+    private Vector applyVelocityLimits(Vector velocity, boolean isArrow) {
+        // Límites más altos para flechas
+        double maxHorizontal = isArrow ? 1.3 : 0.9;
+        double maxVertical = isArrow ? 0.8 : 0.6;
         
         // Limitar componentes horizontales
         double horizontalMagnitude = Math.sqrt(

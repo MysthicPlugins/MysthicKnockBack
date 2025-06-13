@@ -377,8 +377,6 @@ public class PlayerListener implements Listener {
                     Bukkit.broadcastMessage(MessageUtils.getColor(
                         String.format(deathMessage, player.getName())
                     ));
-                    // Manejar el sonido de muerte del jugador
-                    handlePlayerDeath(player);
                 }
                 
                 respawnPlayerAtSpawn(player, arena);
@@ -487,6 +485,8 @@ public class PlayerListener implements Listener {
                     
                     // Mostrar el borde de la arena al respawn
                     plugin.getArenaManager().showArenaBorder(arena);
+                    
+                    handlePlayerDeath(player);
 
                     // Si la arena está cambiando, asegurarse de que el jugador no pueda moverse
                     if (plugin.getScoreboardManager().isArenaChanging()) {

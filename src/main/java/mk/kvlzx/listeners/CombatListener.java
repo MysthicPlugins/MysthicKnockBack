@@ -63,7 +63,7 @@ public class CombatListener implements Listener {
                 }
                 
                 // Aplicar knockback personalizado para flechas (incluyendo self-damage)
-                plugin.getCombatManager().applyCustomKnockback(victim, shooter);
+                plugin.getCombatManager().applyCustomKnockback(victim, shooter, true);
                 event.setDamage(0.0D);
                 return;
             }

@@ -7,6 +7,8 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -17,8 +19,6 @@ import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.utils.TitleUtils;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityDestroy;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
 
 public class StreakManager {
     private static final Map<UUID, Integer> currentStreaks = new HashMap<>();
@@ -127,6 +127,9 @@ public class StreakManager {
 
             playerMvpTags.put(uuid, armorStand);
 
+            // Ocultar el armor stand para el jugador propietario usando NMS
+            hideArmorStandFromOwner(player, armorStand);
+
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -149,18 +152,26 @@ public class StreakManager {
         }
     }
 
+    private static void hideArmorStandFromOwner(Player owner, ArmorStand armorStand) {
+        try {
+            // Enviar el paquete de destrucción de entidad solo al propietario
+            CraftArmorStand craftArmorStand = (CraftArmorStand) armorStand;
+            
+            int entityId = craftArmorStand.getHandle().getId();
+            PacketPlayOutEntityDestroy destroyPacket = new PacketPlayOutEntityDestroy(entityId);
+            
+            // Enviar el paquete solo al jugador propietario
+            ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(destroyPacket);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private static void removeTag(UUID uuid) {
         ArmorStand oldTag = playerMvpTags.remove(uuid);
         if (oldTag != null && !oldTag.isDead()) {
             oldTag.remove(); // Elimina la entidad del mundo
-
-            // Usar PacketPlayOutEntityDestroy para forzar la eliminación en el cliente
-            int entityId = ((CraftArmorStand) oldTag).getHandle().getId();
-            PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(new int[] {entityId});
-
-            for (Player online : Bukkit.getOnlinePlayers()) {
-                ((CraftPlayer) online).getHandle().playerConnection.sendPacket(packet);
-            }
         }
     }
 
@@ -168,11 +179,6 @@ public class StreakManager {
         playerMvpTags.values().forEach(tag -> {
             if (tag != null && !tag.isDead()) {
                 tag.remove();
-                int entityId = ((CraftArmorStand) tag).getHandle().getId();
-                PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(new int[] {entityId});
-                for (Player online : Bukkit.getOnlinePlayers()) {
-                    ((CraftPlayer) online).getHandle().playerConnection.sendPacket(packet);
-                }
             }
         });
         playerMvpTags.clear();

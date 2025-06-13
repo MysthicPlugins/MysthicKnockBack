@@ -45,12 +45,13 @@ public class EndermiteListener implements Listener {
         SpawnReason spawnReason = event.getSpawnReason();
         
         // Comprobar si el Endermite es generado por ender pearl
-        if (entityType == EntityType.ENDERMITE && spawnReason == SpawnReason.NATURAL) {
+        if (entityType == EntityType.ENDERMITE) {
             Endermite endermite = (Endermite) event.getEntity();
             
             // Buscar al jugador más cercano (quien lanzó la ender pearl)
             Player owner = findNearestPlayer(endermite.getLocation());
             if (owner != null) {
+                owner.sendMessage("Razon de spawneo : " + spawnReason.name());
                 setupEndermitePet(endermite, owner);
             }
         }

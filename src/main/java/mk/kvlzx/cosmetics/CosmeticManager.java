@@ -257,11 +257,8 @@ public class CosmeticManager {
     }
 
     public void setPlayerArrowEffect(UUID uuid, String effectName) {
-        if (effectName.equals("none")) {
-            playerArrowEffects.remove(uuid);
-        } else {
-            playerArrowEffects.put(uuid, effectName);
-        }
+        // CAMBIO: Siempre guardamos el valor, incluso si es "none"
+        playerArrowEffects.put(uuid, effectName);
         savePlayerArrowEffect(uuid);
     }
 
@@ -298,11 +295,8 @@ public class CosmeticManager {
     }
 
     public void setPlayerDeathSound(UUID uuid, String soundName) {
-        if (soundName.equals("none")) {
-            playerDeathSounds.remove(uuid);
-        } else {
-            playerDeathSounds.put(uuid, soundName);
-        }
+        // CAMBIO: Siempre guardamos el valor, incluso si es "none"
+        playerDeathSounds.put(uuid, soundName);
         savePlayerDeathSound(uuid);
     }
 
@@ -339,11 +333,8 @@ public class CosmeticManager {
     }
 
     public void setPlayerKillSound(UUID uuid, String soundName) {
-        if (soundName.equals("none")) {
-            playerKillSounds.remove(uuid);
-        } else {
-            playerKillSounds.put(uuid, soundName);
-        }
+        // CAMBIO: Siempre guardamos el valor, incluso si es "none"
+        playerKillSounds.put(uuid, soundName);
         savePlayerKillSound(uuid);
     }
 
@@ -380,11 +371,8 @@ public class CosmeticManager {
     }
 
     public void setPlayerBackgroundMusic(UUID uuid, String musicName) {
-        if (musicName.equals("none")) {
-            playerBackgroundMusic.remove(uuid);
-        } else {
-            playerBackgroundMusic.put(uuid, musicName);
-        }
+        // CAMBIO: Siempre guardamos el valor, incluso si es "none"
+        playerBackgroundMusic.put(uuid, musicName);
         savePlayerBackgroundMusic(uuid);
     }
 
