@@ -21,6 +21,8 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.arena.Arena;
 import mk.kvlzx.arena.ArenaManager;
+import mk.kvlzx.arena.Zone;
+import mk.kvlzx.arena.ZoneType;
 import mk.kvlzx.items.ItemsManager;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
@@ -236,11 +238,6 @@ public class MainScoreboardManager {
     }
 
     private void teleportPlayers(String currentArena, String nextArena, Location nextSpawn) {
-        // Mensaje de transición
-        Bukkit.broadcastMessage(MessageUtils.getColor("&b&l=-=-=-=-=-=-=-=-=-="));
-        Bukkit.broadcastMessage(MessageUtils.getColor("&eTeleporting players!"));
-        Bukkit.broadcastMessage(MessageUtils.getColor("&bFrom: &f" + currentArena + " &bTo: &f" + nextArena));
-        Bukkit.broadcastMessage(MessageUtils.getColor("&b&l=-=-=-=-=-=-=-=-=-="));
 
         // Teletransportar jugadores
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -255,6 +252,9 @@ public class MainScoreboardManager {
                     player.teleport(nextSpawn);
                     plugin.getArenaManager().addPlayerToArena(player, nextArena);
                     player.setNoDamageTicks(60); // Asegurar invulnerabilidad por 3 segundos después del teleport
+                    
+                    // NUEVO: Forzar actualización de zona inmediatamente después del teleport
+                    updatePlayerZone(player, nextArena);
                     
                     // Restaurar movimiento después de 1.5 segundos
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -273,6 +273,31 @@ public class MainScoreboardManager {
 
         // Actualizar la arena actual
         plugin.getArenaManager().setCurrentArena(nextArena);
+    }
+
+    private void updatePlayerZone(Player player, String arenaName) {
+        Arena arena = plugin.getArenaManager().getArena(arenaName);
+        if (arena == null) return;
+        
+        Location playerLoc = player.getLocation();
+        String currentZone = null;
+        
+        // Verificar en qué zona está el jugador
+        for (ZoneType zoneType : ZoneType.values()) {
+            Zone zone = arena.getZone(zoneType.getId());
+            if (zone != null && zone.isInside(playerLoc)) {
+                currentZone = zoneType.getId();
+                break;
+            }
+        }
+        
+        // Actualizar la zona del jugador en el ArenaManager
+        plugin.getArenaManager().setPlayerZone(player, arenaName, currentZone);
+        
+        // Debug: mostrar mensaje para confirmar la actualización
+        if (currentZone != null) {
+            plugin.getLogger().info("Player " + player.getName() + " zone updated to: " + currentZone + " in arena: " + arenaName);
+        }
     }
 
     // Añadir métodos para limpiar las referencias cuando el jugador se desconecta

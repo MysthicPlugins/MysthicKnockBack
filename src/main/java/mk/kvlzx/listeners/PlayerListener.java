@@ -290,12 +290,7 @@ public class PlayerListener implements Listener {
             .filter(entity -> ((EnderPearl) entity).getShooter() == player)
             .forEach(entity -> entity.remove());
 
-        String currentMusic = plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId());
-        if (currentMusic != null && !currentMusic.equals("none")) {
-            plugin.getCosmeticManager().setPlayerBackgroundMusic(player.getUniqueId(), "none");
-            // Detener la música del jugador
-            plugin.getMusicManager().stopMusicForPlayer(player);
-        }
+        stopMusic(player);
     }
 
     private void handlePlayerKill(Player player) {
@@ -310,6 +305,15 @@ public class PlayerListener implements Listener {
                     soundItem.getPitch()
                 );
             }
+        }
+    }
+
+    private void stopMusic(Player player) {
+        String currentMusic = plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId());
+        if (currentMusic != null && !currentMusic.equals("none")) {
+            plugin.getCosmeticManager().setPlayerBackgroundMusic(player.getUniqueId(), "none");
+            // Detener la música del jugador
+            plugin.getMusicManager().stopMusicForPlayer(player);
         }
     }
 
@@ -356,6 +360,7 @@ public class PlayerListener implements Listener {
                     
                     // Resetear el combate después de una muerte
                     plugin.getCombatListener().resetCombat(player);
+                    stopMusic(player);
                 } else {
                     playerStats.addDeath();
                     playerStats.resetStreak();

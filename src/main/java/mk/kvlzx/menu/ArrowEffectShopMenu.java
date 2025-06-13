@@ -73,13 +73,13 @@ public class ArrowEffectShopMenu extends Menu {
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Current balance
+        // Mostrar el balance del jugador y la categoría actual
         inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
             "&7Current balance: &e" + stats.getKGCoins() + " KGCoins",
             "",
             "&7Current category: " + currentCategory));
 
-        // Display effects
+        // Mostrar efectos por categoría
         int slot = 10;
         for (ArrowEffectItem item : shopItems) {
             if (item.getRarity().equals(currentCategory)) {
@@ -163,9 +163,9 @@ public class ArrowEffectShopMenu extends Menu {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         String currentEffect = plugin.getCosmeticManager().getPlayerArrowEffect(player.getUniqueId());
 
-        // If they already have the effect
+        // Si ya tiene el efecto seleccionado
         if (plugin.getCosmeticManager().hasPlayerArrowEffect(player.getUniqueId(), effectItem.getName())) {
-            // If selected, deselect
+            // Si el efecto ya está seleccionado, lo deselecciona
             if (currentEffect.equals(effectItem.getName())) {
                 plugin.getCosmeticManager().setPlayerArrowEffect(player.getUniqueId(), "none");
                 player.sendMessage(MessageUtils.getColor("&aYou have deselected the effect."));

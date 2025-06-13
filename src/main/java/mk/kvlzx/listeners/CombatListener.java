@@ -62,17 +62,21 @@ public class CombatListener implements Listener {
                     lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
                 }
                 
-                // Aplicar knockback personalizado para flechas
+                // Aplicar knockback personalizado para flechas (incluyendo self-damage)
                 plugin.getCombatManager().applyCustomKnockback(victim, shooter);
                 event.setDamage(0.0D);
                 return;
             }
         } else if (event.getDamager() instanceof EnderPearl) {
-            // Permitir el kb personalizado de las perlas
+            // Las perlas de ender solo deben dar knockback a otros jugadores, NO al que la lanzó
             EnderPearl pearl = (EnderPearl) event.getDamager();
             if (pearl.getShooter() instanceof Player) {
                 Player thrower = (Player) pearl.getShooter();
-                plugin.getCombatManager().applyCustomKnockback(victim, thrower);
+                
+                // Solo aplicar knockback si NO es self-damage (thrower != victim)
+                if (!thrower.equals(victim)) {
+                    plugin.getCombatManager().applyCustomKnockback(victim, thrower);
+                }
             }
             event.setDamage(0.0D);
             return;

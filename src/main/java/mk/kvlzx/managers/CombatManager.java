@@ -16,10 +16,10 @@ public class CombatManager {
     private final Map<UUID, Long> lastHitTime = new HashMap<>();
     private final Map<UUID, Vector> pendingKnockback = new HashMap<>();
     
-    private double horizontalKnockback = 0.4;
+    private double horizontalKnockback = 0.7;
     private double verticalKnockback = 0.385;
     private double knockbackResistanceReduction = 0.5;
-    private double sprintMultiplier = 1.5;
+    private double sprintMultiplier = 1.8;
     private int hitDelay = 500; // millisegundos
     
     public CombatManager(MysthicKnockBack plugin) {
@@ -60,10 +60,23 @@ public class CombatManager {
     }
     
     private Vector calculateCustomKnockback(Player attacker, Player victim) {
-        // Obtener dirección del knockback
-        Vector direction = victim.getLocation().toVector()
-                .subtract(attacker.getLocation().toVector())
-                .normalize();
+        // Para self-damage, usar dirección basada en la mirada del jugador
+        Vector direction;
+        if (attacker.equals(victim)) {
+            // Usar la dirección donde está mirando el jugador para self-knockback
+            direction = victim.getLocation().getDirection().normalize();
+        } else {
+            // Obtener dirección del knockback normal
+            direction = victim.getLocation().toVector()
+                    .subtract(attacker.getLocation().toVector())
+                    .normalize();
+            
+            // Verificar si la dirección es válida (no es cero)
+            if (direction.lengthSquared() < 0.01) {
+                // Si los jugadores están en la misma posición, usar dirección aleatoria
+                direction = new Vector(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
+            }
+        }
         
         // Calcular knockback base
         double horizontal = horizontalKnockback;
@@ -74,11 +87,12 @@ public class CombatManager {
             horizontal *= sprintMultiplier;
         }
         
-        // Aplicar encantamiento Knockback
+        // Aplicar encantamiento Knockback con valores más altos
         ItemStack weapon = attacker.getItemInHand();
         if (weapon != null && weapon.containsEnchantment(Enchantment.KNOCKBACK)) {
             int knockbackLevel = weapon.getEnchantmentLevel(Enchantment.KNOCKBACK);
-            horizontal += knockbackLevel * 0.5;
+            // Aumentado el multiplicador de 0.5 a 1.2 para que sea más notorio
+            horizontal += knockbackLevel * 1.2;
         }
         
         // Reducir por resistencia al knockback
@@ -93,7 +107,7 @@ public class CombatManager {
             direction.getZ() * horizontal
         );
         
-        // Aplicar límites de velocidad estilo Hypixel
+        // Aplicar límites de velocidad estilo Hypixel (aumentados)
         knockback = applyVelocityLimits(knockback);
         
         return knockback;
@@ -107,9 +121,8 @@ public class CombatManager {
     }
     
     private Vector applyVelocityLimits(Vector velocity) {
-        // Aplicar límites estilo Hypixel
-        double maxHorizontal = 0.6;
-        double maxVertical = 0.5;
+        double maxHorizontal = 0.9;
+        double maxVertical = 0.6;
         
         // Limitar componentes horizontales
         double horizontalMagnitude = Math.sqrt(
@@ -136,7 +149,7 @@ public class CombatManager {
         pendingKnockback.clear();
     }
     
-    // Método para verificar se há knockback pendente (usado pelo listener)
+    // Método para verificar si hay knockback pendente (usado en CombatListener)
     public boolean hasPendingKnockback(UUID playerUUID) {
         return pendingKnockback.containsKey(playerUUID);
     }

@@ -1,7 +1,13 @@
 package mk.kvlzx;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -20,6 +26,7 @@ import mk.kvlzx.hotbar.PlayerHotbar;
 import mk.kvlzx.listeners.ArrowEffectListener;
 import mk.kvlzx.listeners.ChatListener;
 import mk.kvlzx.listeners.CombatListener;
+import mk.kvlzx.listeners.EndermiteListener;
 import mk.kvlzx.listeners.ItemListener;
 import mk.kvlzx.listeners.PlayerListener;
 import mk.kvlzx.listeners.MenuListener;
@@ -57,7 +64,7 @@ public class MysthicKnockBack extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        // Nuevo banner ASCII grande
+        // Nuevo banner ASCII
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&b██╗  ██╗██████╗ ███████╗███████╗ █████╗ ");
@@ -71,14 +78,14 @@ public class MysthicKnockBack extends JavaPlugin {
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Estado: &aIniciando");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Versión: &f" + version);
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Status: &aStarting");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Version: &f" + version);
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
 
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b1&8] &7Registrando managers...");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b1&8] &7Registering managers...");
         registerManagers();
 
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Inicializando datos...");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Initializing data...");
         PlayerStats.initializeStatsData(this);
         InventoryData inventoryData = new InventoryData(this);
         PlayerHotbar.init(inventoryData);
@@ -86,21 +93,22 @@ public class MysthicKnockBack extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                PlayerStats.loadAllStats(); // Mover después de que el servidor esté completamente iniciado
+                PlayerStats.loadAllStats();
             }
-        }.runTaskLater(this, 20L); // Esperar 1 segundo para asegurar que todo esté listo
+        }.runTaskLater(this, 20L); // Esperar 1 segundo para cargar las estadísticas
 
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Cargando arenas...");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Loading arenas...");
         arenaManager.loadArenas();
 
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b4&8] &7Registrando comandos y eventos...");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b4&8] &7Registering commands and events...");
         registerCommands();
         registerEvents();
         startPlaytimeUpdater();
+        startItemCleanup();
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&a✔&8] &aPlugin iniciado correctamente");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Desarrollado por: &bKvlzx &8& &bGabo");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&a✔&8] &aPlugin started successfully");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Developed by: &bKvlzx &8& &bGabo");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
     }
@@ -112,23 +120,24 @@ public class MysthicKnockBack extends JavaPlugin {
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "                    &b&lKBFFA");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "                  &b≽^•⩊•^≼");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Estado: &cDesactivando");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Versión: &f" + version);
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Status: &cShutting down");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Version: &f" + version);
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
 
         try {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b1&8] &7Guardando datos...");
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b1&8] &7Saving data...");
             PlayerStats.saveAllStats();
             cosmeticManager.saveAll();
             combatManager.cleanup();
 
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Guardando arenas...");
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Saving arenas...");
             arenaManager.saveArenas();
 
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Limpiando bloques e items...");
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Cleaning blocks and items...");
             ItemListener.cleanup();
+            cleanupAllDroppedItems();
         } catch (Exception e) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&c!&8] &cError al guardar datos: " + e.getMessage());
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&c!&8] &cError saving data: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -137,7 +146,7 @@ public class MysthicKnockBack extends JavaPlugin {
         }
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&c✕&8] &cPlugin desactivado correctamente");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&c✕&8] &cPlugin disabled successfully");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
     }
@@ -163,6 +172,37 @@ public class MysthicKnockBack extends JavaPlugin {
         }, 1200L, 1200L); // 1200 ticks = 1 minuto
     }
 
+    private void startItemCleanup() {
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            cleanupAllDroppedItems();
+        }, 600L, 600L); // 600 ticks = 30 segundos
+    }
+
+    private void cleanupAllDroppedItems() {
+        
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                // Remover los items que esten en el suelo
+                if (entity instanceof Item) {
+                    entity.remove();
+                }
+                // Remover las flechas que hayan estado en el suelo por un tiempo o esten atascadas
+                else if (entity instanceof Arrow) {
+                    Arrow arrow = (Arrow) entity;
+                    if (arrow.isOnGround() || arrow.getTicksLived() > 600) { // 30 segundos
+                        entity.remove();
+                    }
+                }
+                // Remover otros proyectiles que no sean perlas
+                else if (entity instanceof Projectile && !(entity instanceof EnderPearl)) {
+                    if (entity.getTicksLived() > 600) { // 30 segundos
+                        entity.remove();
+                    }
+                }
+            }
+        }
+    }
+
     public void registerCommands() {
         getCommand("mysthicknockback").setExecutor(new MainCommand(this));
         getCommand("mysthicknockback").setTabCompleter(new MainTabCompleter());
@@ -182,6 +222,7 @@ public class MysthicKnockBack extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         getServer().getPluginManager().registerEvents(new ArrowEffectListener(this), this);
+        getServer().getPluginManager().registerEvents(new EndermiteListener(this), this);
     }
 
     public static MysthicKnockBack getInstance() {
