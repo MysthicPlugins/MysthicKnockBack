@@ -13,7 +13,6 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -88,10 +87,6 @@ public class PlayerListener implements Listener {
         "&b{killer} &fgave &b{victim} &fan express ticket to the lobby of the fallen!"
     );
 
-    private static final Material[] ALLOWED_SPAWN_ITEMS = {
-        Material.SKULL_ITEM
-    };
-
     public PlayerListener(MysthicKnockBack plugin) {
         this.plugin = plugin;
     }
@@ -122,7 +117,7 @@ public class PlayerListener implements Listener {
             }
         }
 
-                // Verificar si la arena está cambiando al conectarse
+        // Verificar si la arena está cambiando al conectarse
         if (plugin.getScoreboardManager().isArenaChanging()) {
             // Si la arena está cambiando, congelar al jugador temporalmente
             player.setWalkSpeed(0.0f);
@@ -219,6 +214,8 @@ public class PlayerListener implements Listener {
             // Detener la música del jugador
             plugin.getMusicManager().stopMusicForPlayer(player);
         }
+
+        plugin.getItemVerificationManager().removePlayer(player);
     }
 
     @EventHandler
@@ -404,7 +401,6 @@ public class PlayerListener implements Listener {
                             player.sendMessage(MessageUtils.getColor("&aYou have entered the Spawn zone of the arena! " + foundArena));
                             ItemsManager.giveSpawnItems(player);
                             player.spigot().setCollidesWithEntities(false);
-                            checkAndRemoveIllegalItems(player); // Añadir esta línea
                             break;
                         case "pvp":
                             player.sendMessage(MessageUtils.getColor("&cYou have entered the PvP zone of the arena! " + foundArena));
@@ -495,50 +491,5 @@ public class PlayerListener implements Listener {
                 }
             }.runTaskLater(plugin, 1L);
         }
-    }
-
-    @EventHandler
-    public void onPlayerRespawn(PlayerRespawnEvent event) {
-        Player player = event.getPlayer();
-        // Actualizar el rango en el respawn por si acaso
-        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
-        RankManager.updatePlayerRank(player, stats.getElo());
-        
-        // Si la arena está cambiando, asegurarse de que el jugador no pueda moverse
-        if (plugin.getScoreboardManager().isArenaChanging()) {
-            player.setWalkSpeed(0.0f);
-        }
-    }
-
-    // Añadir este nuevo método
-    private void checkAndRemoveIllegalItems(Player player) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                String currentZone = plugin.getArenaManager().getPlayerZone(player);
-                // Cancelar el task si el jugador ya no está en spawn o está offline
-                if (!player.isOnline() || currentZone == null || !currentZone.equals("spawn")) {
-                    this.cancel();
-                    return;
-                }
-
-                // Verificar cada slot del inventario
-                for (int i = 0; i < player.getInventory().getSize(); i++) {
-                    ItemStack item = player.getInventory().getItem(i);
-                    if (item != null && !isAllowedInSpawn(item.getType())) {
-                        player.getInventory().setItem(i, null);
-                    }
-                }
-            }
-        }.runTaskTimer(plugin, 0L, 5L); // Verificar cada 5 ticks (0.25 segundos)
-    }
-
-    private boolean isAllowedInSpawn(Material material) {
-        for (Material allowed : ALLOWED_SPAWN_ITEMS) {
-            if (material == allowed) {
-                return true;
-            }
-        }
-        return false;
     }
 }

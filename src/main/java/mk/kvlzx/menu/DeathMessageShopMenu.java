@@ -220,10 +220,10 @@ public class DeathMessageShopMenu extends Menu {
             // Si está seleccionado, deseleccionar
             if (currentMessage.equals(messageItem.getName())) {
                 plugin.getCosmeticManager().setPlayerDeathMessage(player.getUniqueId(), "default");
-                player.sendMessage(MessageUtils.getColor("&aYou have deselected the message. Using default messages."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have deselected the message. Using default messages."));
             } else {
                 plugin.getCosmeticManager().setPlayerDeathMessage(player.getUniqueId(), messageItem.getName());
-                player.sendMessage(MessageUtils.getColor("&aYou have selected the message: " + messageItem.getName()));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have selected the message: " + messageItem.getName()));
             }
             player.closeInventory();
         } else {
@@ -231,11 +231,11 @@ public class DeathMessageShopMenu extends Menu {
                 stats.removeKGCoins(messageItem.getPrice());
                 plugin.getCosmeticManager().addPlayerDeathMessage(player.getUniqueId(), messageItem.getName());
                 plugin.getCosmeticManager().setPlayerDeathMessage(player.getUniqueId(), messageItem.getName());
-                player.sendMessage(MessageUtils.getColor("&aYou have purchased and selected the message " + 
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have purchased and selected the message " + 
                     messageItem.getName() + " &afor &e" + messageItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor("&cYou don't have enough KGCoins to purchase this message."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou don't have enough KGCoins to purchase this message."));
             }
         }
     }

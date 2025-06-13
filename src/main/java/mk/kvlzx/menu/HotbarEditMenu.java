@@ -100,7 +100,7 @@ public class HotbarEditMenu extends Menu {
                 }
                 saveHotbar(player);
                 player.closeInventory();
-                player.sendMessage(MessageUtils.getColor("&aHotbar saved successfully"));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aHotbar saved successfully"));
                 break;
             case 46: // Restablecer
                 if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
@@ -109,7 +109,7 @@ public class HotbarEditMenu extends Menu {
                 }
                 PlayerHotbar.resetLayout(player.getUniqueId());
                 player.closeInventory();
-                player.sendMessage(MessageUtils.getColor("&aHotbar reset to default"));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aHotbar reset to default"));
                 break;
             case 49: // Volver
                 // Si tiene un item en el cursor, no permitir salir

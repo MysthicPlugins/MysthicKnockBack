@@ -45,13 +45,12 @@ public class EndermiteListener implements Listener {
         SpawnReason spawnReason = event.getSpawnReason();
         
         // Comprobar si el Endermite es generado por ender pearl
-        if (entityType == EntityType.ENDERMITE) {
+        if (entityType == EntityType.ENDERMITE && spawnReason == SpawnReason.DEFAULT) {
             Endermite endermite = (Endermite) event.getEntity();
             
             // Buscar al jugador más cercano (quien lanzó la ender pearl)
             Player owner = findNearestPlayer(endermite.getLocation());
             if (owner != null) {
-                owner.sendMessage("Razon de spawneo : " + spawnReason.name());
                 setupEndermitePet(endermite, owner);
             }
         }
@@ -78,10 +77,13 @@ public class EndermiteListener implements Listener {
         // Configurar el endermite
         endermite.setRemoveWhenFarAway(false);
         endermite.setCanPickupItems(false);
-        endermite.setHealth(20.0); // Salud completa
-        endermite.setMaxHealth(20.0); // Salud máxima
-        endermite.setLeashHolder(owner);
-        endermite.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2, false, false)); // Efecto de velocidad
+
+        endermite.setMaxHealth(8.0);
+        endermite.setHealth(8.0);
+        
+        endermite.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2, false, false));
+        endermite.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 3, false, false));
+        endermite.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, Integer.MAX_VALUE, 4, false, false));
         
         // Montar al jugador en el endermite
         endermite.setPassenger(owner);
@@ -118,7 +120,7 @@ public class EndermiteListener implements Listener {
                 endermite.remove();
                 cleanupEndermite(endermiteId);
             }
-        }, 0L, 10L); // Cada medio segundo
+        }, 0L, 20L); // CORRECCIÓN: Cambiado a 20L (cada segundo) para mejor rendimiento
         
         endermiteTasks.put(endermiteId, task);
     }

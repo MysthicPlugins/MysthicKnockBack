@@ -24,7 +24,7 @@ public class ArenaCommand implements CommandExecutor {
         }
 
         if (!sender.hasPermission("mysthicknockback.arena")) {
-            sender.sendMessage(MessageUtils.getColor("&cYou do not have permission to use this command."));
+            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou do not have permission to use this command."));
             return true;
         }
 
@@ -40,65 +40,65 @@ public class ArenaCommand implements CommandExecutor {
         switch (subCommand) {
             case "create":
                 if (plugin.getArenaManager().createArena(arenaName)) {
-                    sender.sendMessage(MessageUtils.getColor("&aArena " + arenaName + " created successfully."));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aArena " + arenaName + " created successfully."));
                 } else {
-                    sender.sendMessage(MessageUtils.getColor("&cThe arena already exists."));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cThe arena already exists."));
                 }
                 break;
             case "setzone":
                 if (args.length < 3) {
-                    sender.sendMessage(MessageUtils.getColor("&cUsage: /arena setzone <arena> <spawn/pvp/void>"));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cUsage: /arena setzone <arena> <spawn/pvp/void>"));
                     return true;
                 }
                 String zoneType = args[2].toLowerCase();
                 if (!isValidZoneType(zoneType)) {
-                    sender.sendMessage(MessageUtils.getColor("&cInvalid zone type. Use: spawn, pvp or void"));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cInvalid zone type. Use: spawn, pvp or void"));
                     return true;
                 }
                 
                 if (plugin.getArenaManager().setZone(arenaName, zoneType, player)) {
                     String action = hasExistingZone(arenaName, zoneType) ? "updated" : "set";
-                    sender.sendMessage(MessageUtils.getColor("&aZone " + zoneType + " " + action + " for arena " + arenaName));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aZone " + zoneType + " " + action + " for arena " + arenaName));
                 } else {
-                    sender.sendMessage(MessageUtils.getColor("&cError setting zone. Make sure you have a valid selection."));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cError setting zone. Make sure you have a valid selection."));
                 }
                 break;
             case "setspawn":
                 if (plugin.getArenaManager().setSpawn(arenaName, player.getLocation())) {
-                    sender.sendMessage(MessageUtils.getColor("&aSpawn point set for arena " + arenaName));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aSpawn point set for arena " + arenaName));
                 } else {
-                    sender.sendMessage(MessageUtils.getColor("&cThe arena does not exist."));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cThe arena does not exist."));
                 }
                 break;
             case "delete":
                 if (plugin.getArenaManager().deleteArena(arenaName)) {
-                    sender.sendMessage(MessageUtils.getColor("&aArena " + arenaName + " deleted successfully."));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aArena " + arenaName + " deleted successfully."));
                 } else {
-                    sender.sendMessage(MessageUtils.getColor("&cThe arena does not exist."));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cThe arena does not exist."));
                 }
                 break;
             case "setborder":
                 if (args.length < 3) {
-                    sender.sendMessage(MessageUtils.getColor("&cUsage: /arena setborder <arena> <size>"));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cUsage: /arena setborder <arena> <size>"));
                     return true;
                 }
                 try {
                     int size = Integer.parseInt(args[2]);
                     if (size <= 0) {
-                        sender.sendMessage(MessageUtils.getColor("&cSize must be greater than 0."));
+                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cSize must be greater than 0."));
                         return true;
                     }
                     if (plugin.getArenaManager().setBorder(arenaName, size)) {
-                        sender.sendMessage(MessageUtils.getColor("&aBorder set for arena " + arenaName));
+                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aBorder set for arena " + arenaName));
                         // Si la arena es la actual, actualizamos el borde inmediatamente
                         if (arenaName.equals(plugin.getArenaManager().getCurrentArena())) {
                             plugin.getArenaManager().setCurrentArena(arenaName);
                         }
                     } else {
-                        sender.sendMessage(MessageUtils.getColor("&cThe arena does not exist."));
+                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cThe arena does not exist."));
                     }
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(MessageUtils.getColor("&cSize must be a valid number."));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cSize must be a valid number."));
                 }
                 break;
             default:

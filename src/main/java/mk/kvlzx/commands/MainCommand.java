@@ -23,7 +23,7 @@ public class MainCommand implements CommandExecutor{
 
         if(!(sender instanceof Player)){
             // Consola :3
-            Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&c You can only use this command as a player."));
+            Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&cYou can only use this command as a player."));
             return true;
         }
 
@@ -55,6 +55,7 @@ public class MainCommand implements CommandExecutor{
         sender.sendMessage(MessageUtils.getColor("/stats remove <player> <stat> <value>"));
         sender.sendMessage(MessageUtils.getColor("/stats reset <player>"));
         sender.sendMessage(MessageUtils.getColor("/stats resetall"));
+        sender.sendMessage(MessageUtils.getColor("/music"));
         sender.sendMessage(MessageUtils.getColor("--------&r &b&lCommands MysthicKnockBack &8&m--------"));
     }
 }

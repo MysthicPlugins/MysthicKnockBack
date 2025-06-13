@@ -24,7 +24,6 @@ public class CombatManager {
     
     // Nuevos valores específicos para flechas
     private double arrowHorizontalKnockback = 1.2;
-    private double arrowVerticalKnockback = 0.6;
     private double arrowSprintMultiplier = 2.2;
     
     private int hitDelay = 500; // millisegundos
@@ -91,7 +90,7 @@ public class CombatManager {
         
         // Calcular knockback base - usar valores específicos para flechas
         double horizontal = isArrow ? arrowHorizontalKnockback : horizontalKnockback;
-        double vertical = isArrow ? arrowVerticalKnockback : verticalKnockback;
+        double vertical = verticalKnockback;
         double currentSprintMultiplier = isArrow ? arrowSprintMultiplier : sprintMultiplier;
         
         // Verificar si el atacante está corriendo (sprint)
@@ -144,7 +143,7 @@ public class CombatManager {
     private Vector applyVelocityLimits(Vector velocity, boolean isArrow) {
         // Límites más altos para flechas
         double maxHorizontal = isArrow ? 1.3 : 0.9;
-        double maxVertical = isArrow ? 0.8 : 0.6;
+        double maxVertical = 0.6;
         
         // Limitar componentes horizontales
         double horizontalMagnitude = Math.sqrt(

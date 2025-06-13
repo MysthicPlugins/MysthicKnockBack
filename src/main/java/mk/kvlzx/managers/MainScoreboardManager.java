@@ -155,7 +155,7 @@ public class MainScoreboardManager {
                     
                     // Alertas de tiempo
                     if (Arrays.stream(COUNTDOWN_ALERTS).anyMatch(t -> t == timeLeft)) {
-                        Bukkit.broadcastMessage(MessageUtils.getColor("&aThe arena will change in &c" + timeLeft + " &aseconds!"));
+                        Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aThe arena will change in &c" + timeLeft + " &aseconds!"));
                     }
 
                     if (timeLeft <= 0) {
@@ -188,7 +188,7 @@ public class MainScoreboardManager {
         Location nextSpawn = nextArenaObj.getSpawnLocation();
         
         if (nextSpawn == null) {
-            Bukkit.broadcastMessage(MessageUtils.getColor("&cError: The arena " + nextArena + " does not have a configured spawn point."));
+            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cError: The arena " + nextArena + " does not have a configured spawn point."));
             arenaChanging = false;
             return;
         }
@@ -293,11 +293,6 @@ public class MainScoreboardManager {
         
         // Actualizar la zona del jugador en el ArenaManager
         plugin.getArenaManager().setPlayerZone(player, arenaName, currentZone);
-        
-        // Debug: mostrar mensaje para confirmar la actualización
-        if (currentZone != null) {
-            plugin.getLogger().info("Player " + player.getName() + " zone updated to: " + currentZone + " in arena: " + arenaName);
-        }
     }
 
     // Añadir métodos para limpiar las referencias cuando el jugador se desconecta

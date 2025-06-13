@@ -38,7 +38,7 @@ public class StreakManager {
         if (getStreak(uuid) >= 5) {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null) {
-                Bukkit.broadcastMessage(MessageUtils.getColor("&c☠ &f" + player.getName() + 
+                Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&c☠ &f" + player.getName() + 
                     " &7lost their streak of &c" + getStreak(uuid) + " &7kills! &c☠"));
                 player.playSound(player.getLocation(), Sound.ENDERMAN_DEATH, 1.0f, 1.0f);
             }
@@ -71,7 +71,7 @@ public class StreakManager {
             String playerName = player.getName();
             int elo = PlayerStats.getStats(uuid).getElo();
             
-            Bukkit.broadcastMessage(MessageUtils.getColor("&e" + playerName + 
+            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&e" + playerName + 
                 " &fhas reached a streak of &a" + streak + " &akills!"));
             
             for (Player online : Bukkit.getOnlinePlayers()) {

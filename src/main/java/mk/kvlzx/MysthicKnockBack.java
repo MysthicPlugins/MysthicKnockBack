@@ -32,6 +32,7 @@ import mk.kvlzx.listeners.PlayerListener;
 import mk.kvlzx.listeners.MenuListener;
 import mk.kvlzx.managers.CombatManager;
 import mk.kvlzx.managers.CooldownManager;
+import mk.kvlzx.managers.ItemVerificationManager;
 import mk.kvlzx.managers.MainScoreboardManager;
 import mk.kvlzx.managers.TabManager;
 import mk.kvlzx.managers.MenuManager;
@@ -59,6 +60,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private CosmeticManager cosmeticManager;
     private CombatManager combatManager;
     private MusicManager musicManager;
+    private ItemVerificationManager itemVerificationManager;
 
     @Override
     public void onEnable() {
@@ -105,6 +107,7 @@ public class MysthicKnockBack extends JavaPlugin {
         registerEvents();
         startPlaytimeUpdater();
         startItemCleanup();
+        itemVerificationManager.startVerification();
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&a✔&8] &aPlugin started successfully");
@@ -129,6 +132,7 @@ public class MysthicKnockBack extends JavaPlugin {
             PlayerStats.saveAllStats();
             cosmeticManager.saveAll();
             combatManager.cleanup();
+            itemVerificationManager.stopVerification();
 
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Saving arenas...");
             arenaManager.saveArenas();
@@ -161,6 +165,7 @@ public class MysthicKnockBack extends JavaPlugin {
         cosmeticManager = new CosmeticManager(this);
         combatManager = new CombatManager(this);
         musicManager = new MusicManager(this);
+        itemVerificationManager = new ItemVerificationManager(this);
     }
 
     private void startPlaytimeUpdater() {
@@ -271,5 +276,9 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public MusicManager getMusicManager() {
         return musicManager;
+    }
+
+    public ItemVerificationManager getItemVerificationManager() {
+        return itemVerificationManager;
     }
 }

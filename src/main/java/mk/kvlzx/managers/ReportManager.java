@@ -39,7 +39,7 @@ public class ReportManager {
             
             long remainingTime = (reportCooldowns.get(reporterId) + COOLDOWN - currentTime) / 1000;
             
-            reporter.sendMessage(MessageUtils.getColor("&cYou must wait " + remainingTime + " seconds to report this player."));
+            reporter.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou must wait " + remainingTime + " seconds to report this player."));
             return;
         }
 
@@ -53,12 +53,12 @@ public class ReportManager {
 
         for (Player staff : Bukkit.getOnlinePlayers()) {
             if (staff.hasPermission("mysthicknockback.reports.view")) {
-                staff.sendMessage(MessageUtils.getColor(reportMessage));
+                staff.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + reportMessage));
             }
         }
 
         // Notificar al reportador
-        reporter.sendMessage(MessageUtils.getColor("&aReport sent successfully."));
+        reporter.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aReport sent successfully."));
         
         // Establecer cooldown
         reportCooldowns.put(reporterId, currentTime);

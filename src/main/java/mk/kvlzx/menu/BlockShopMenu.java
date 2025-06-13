@@ -215,25 +215,25 @@ public class BlockShopMenu extends Menu {
         // Verificación especial para Bedrock
         if (shopItem.getMaterial() == Material.BEDROCK) {
             if (!hasAllBlocks(player.getUniqueId())) {
-                player.sendMessage(MessageUtils.getColor("&cYou need to unlock all other blocks first!"));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou need to unlock all other blocks first!"));
                 return;
             }
         }
 
         if (plugin.getCosmeticManager().hasPlayerBlock(player.getUniqueId(), shopItem.getMaterial())) {
             plugin.getCosmeticManager().setPlayerBlock(player.getUniqueId(), shopItem.getMaterial());
-            player.sendMessage(MessageUtils.getColor("&aYou have selected the " + shopItem.getName() + " block"));
+            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have selected the " + shopItem.getName() + " block"));
             player.closeInventory();
         } else {
             if (stats.getKGCoins() >= shopItem.getPrice()) {
                 stats.removeKGCoins(shopItem.getPrice());
                 plugin.getCosmeticManager().addPlayerBlock(player.getUniqueId(), shopItem.getMaterial());
                 plugin.getCosmeticManager().setPlayerBlock(player.getUniqueId(), shopItem.getMaterial());
-                player.sendMessage(MessageUtils.getColor("&aYou have purchased and selected the " + 
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have purchased and selected the " + 
                     shopItem.getName() + " block &afor &e" + shopItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor("&cYou don't have enough KGCoins to purchase this block."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou don't have enough KGCoins to purchase this block."));
             }
         }
     }

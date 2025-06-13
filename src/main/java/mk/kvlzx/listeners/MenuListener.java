@@ -68,7 +68,7 @@ public class MenuListener implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (item != null && item.getType() == Material.SKULL_ITEM) {
                 String zone = plugin.getArenaManager().getPlayerZone(player);
-                if (zone != null && zone.equalsIgnoreCase("spawn")) {
+                if (zone != null && zone.equals("spawn")) {
                     event.setCancelled(true);
                     plugin.getMenuManager().openMenu(player, "main");
                 }
