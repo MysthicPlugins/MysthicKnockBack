@@ -1,39 +1,27 @@
 package mk.kvlzx.listeners;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.Endermite;
-import org.bukkit.entity.Entity;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.vehicle.VehicleExitEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitTask;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.utils.MessageUtils;
+import mk.kvlzx.endermite.CustomEndermite;
+import net.minecraft.server.v1_8_R3.WorldServer;
 
 public class EndermiteListener implements Listener {
 
     private final MysthicKnockBack plugin;
-    private final Map<UUID, UUID> endermiteOwners = new HashMap<>(); // UUID del endermite -> UUID del jugador
-    private final Map<UUID, BukkitTask> endermiteTasks = new HashMap<>(); // UUID del endermite -> Task de countdown
-    private final Map<UUID, BukkitTask> followTasks = new HashMap<>(); // UUID del endermite -> Task de seguimiento
+    private final Map<UUID, CustomEndermite> playerEndermites = new HashMap<>();
     
     public EndermiteListener(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -41,17 +29,20 @@ public class EndermiteListener implements Listener {
 
     @EventHandler
     public void onEndermiteSpawn(CreatureSpawnEvent event) {
-        EntityType entityType = event.getEntityType();
-        SpawnReason spawnReason = event.getSpawnReason();
-        
-        // Comprobar si el Endermite es generado por ender pearl
-        if (entityType == EntityType.ENDERMITE && spawnReason == SpawnReason.DEFAULT) {
-            Endermite endermite = (Endermite) event.getEntity();
+        // Cancelar el spawn default de un endermite
+        if (event.getEntityType() == EntityType.ENDERMITE && 
+            event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.DEFAULT) {
             
-            // Buscar al jugador más cercano (quien lanzó la ender pearl)
-            Player owner = findNearestPlayer(endermite.getLocation());
+            event.setCancelled(true);
+            
+            // Encontrar el jugador más cerca (el que tiro la perla)
+            Player owner = findNearestPlayer(event.getLocation());
             if (owner != null) {
-                setupEndermitePet(endermite, owner);
+                // Remover el endermite anterior (si existe)
+                removeExistingEndermite(owner);
+                
+                // Spawnear el endermite
+                spawnCustomEndermite(event.getLocation(), owner);
             }
         }
     }
@@ -62,7 +53,7 @@ public class EndermiteListener implements Listener {
         
         for (Player player : location.getWorld().getPlayers()) {
             double distance = player.getLocation().distance(location);
-            if (distance < minDistance && distance <= 10) { // Máximo 10 bloques de distancia
+            if (distance < minDistance && distance <= 10) { // Maximum 10 blocks distance
                 minDistance = distance;
                 nearest = player;
             }
@@ -70,180 +61,63 @@ public class EndermiteListener implements Listener {
         return nearest;
     }
     
-    private void setupEndermitePet(Endermite endermite, Player owner) {
-        UUID endermiteId = endermite.getUniqueId();
-        endermiteOwners.put(endermiteId, owner.getUniqueId());
+    private void spawnCustomEndermite(Location location, Player owner) {
+        WorldServer nmsWorld = ((CraftWorld) location.getWorld()).getHandle();
+        CustomEndermite customEndermite = new CustomEndermite(nmsWorld, owner);
         
-        // Configurar el endermite
-        endermite.setRemoveWhenFarAway(false);
-        endermite.setCanPickupItems(false);
-
-        endermite.setMaxHealth(8.0);
-        endermite.setHealth(8.0);
+        // Setear la location
+        customEndermite.setLocation(location.getX(), location.getY(), location.getZ(), 
+            location.getYaw(), location.getPitch());
         
-        endermite.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2, false, false));
-        endermite.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 3, false, false));
-        endermite.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, Integer.MAX_VALUE, 4, false, false));
+        // Agregar al mundo el endermite
+        nmsWorld.addEntity(customEndermite);
         
-        // Montar al jugador en el endermite
-        endermite.setPassenger(owner);
+        // Guardar la referencia
+        playerEndermites.put(owner.getUniqueId(), customEndermite);
         
-        // Iniciar el sistema de countdown y nombre
-        startEndermiteCountdown(endermite, owner);
+        // Hacer que el dueño se suba al endermite
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (customEndermite.isAlive() && owner.isOnline()) {
+                customEndermite.getBukkitEntity().setPassenger(owner);
+            }
+        }, 1L);
         
-        // Iniciar el comportamiento de ataque
-        startAttackBehavior(endermite, owner);
+        // Eliminar el endermite luego de 30 segundos
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            removeEndermite(owner, customEndermite);
+        }, 600L); // 30 segundos
     }
     
-    private void startEndermiteCountdown(Endermite endermite, Player owner) {
-        UUID endermiteId = endermite.getUniqueId();
-        final int[] timeLeft = {30}; // 30 segundos de vida
-        
-        BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            if (!endermite.isValid() || endermite.isDead()) {
-                cleanupEndermite(endermiteId);
-                return;
-            }
-            
-            // Actualizar nombre con tiempo restante
-            String displayName = MessageUtils.getColor("&e" + owner.getName() + "'s Pet &7(" + timeLeft[0] + "s)");
-            endermite.setCustomName(displayName);
-            endermite.setCustomNameVisible(true);
-            
-            timeLeft[0]--;
-            
-            if (timeLeft[0] <= 0) {
-                // Desmontar al jugador si sigue montado
-                if (endermite.getPassenger() != null && endermite.getPassenger().equals(owner)) {
-                    endermite.setPassenger(null);
-                }
-                endermite.remove();
-                cleanupEndermite(endermiteId);
-            }
-        }, 0L, 20L); // CORRECCIÓN: Cambiado a 20L (cada segundo) para mejor rendimiento
-        
-        endermiteTasks.put(endermiteId, task);
-    }
-    
-    private void startAttackBehavior(Endermite endermite, Player owner) {
-        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            if (!endermite.isValid() || endermite.isDead()) {
-                return;
-            }
-            
-            for (Entity entity : endermite.getNearbyEntities(5, 5, 5)) {
-                if (entity instanceof Player) {
-                    Player target = (Player) entity;
-                    
-                    // No atacar al dueño
-                    if (!target.getUniqueId().equals(owner.getUniqueId())) {
-                        // Hacer que el endermite ataque al jugador
-                        if (endermite instanceof Creature) {
-                            ((Creature) endermite).setTarget(target);
-                        }
-                        break; // Solo atacar a un jugador a la vez
-                    }
-                }
-            }
-        }, 0L, 20L); // Cada segundo
-    }
-    
-    @EventHandler
-    public void onEntityDeath(EntityDeathEvent event) {
-        if (event.getEntity() instanceof Endermite) {
-            UUID endermiteId = event.getEntity().getUniqueId();
-            cleanupEndermite(endermiteId);
+    private void removeExistingEndermite(Player player) {
+        CustomEndermite existingEndermite = playerEndermites.get(player.getUniqueId());
+        if (existingEndermite != null) {
+            removeEndermite(player, existingEndermite);
         }
+    }
+    
+    private void removeEndermite(Player player, CustomEndermite endermite) {
+        if (endermite != null && endermite.isAlive()) {
+            // Bajar al dueño del endermite si estaba arriba
+            if (endermite.getBukkitEntity().getPassenger() != null) {
+                endermite.getBukkitEntity().setPassenger(null);
+            }
+            endermite.die();
+        }
+        playerEndermites.remove(player.getUniqueId());
     }
     
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        
-        // Remover endermites del jugador que se desconecta
-        List<UUID> toRemove = new ArrayList<>();
-        for (Map.Entry<UUID, UUID> entry : endermiteOwners.entrySet()) {
-            if (entry.getValue().equals(player.getUniqueId())) {
-                // Buscar el endermite en todos los mundos
-                for (World world : Bukkit.getWorlds()) {
-                    for (Entity entity : world.getEntities()) {
-                        if (entity.getUniqueId().equals(entry.getKey()) && entity instanceof Endermite) {
-                            entity.remove();
-                            break;
-                        }
-                    }
-                }
-                toRemove.add(entry.getKey());
-            }
-        }
-        
-        // Limpiar las referencias
-        for (UUID endermiteId : toRemove) {
-            cleanupEndermite(endermiteId);
-        }
+        removeExistingEndermite(player);
     }
     
-    @EventHandler
-    public void onVehicleExit(VehicleExitEvent event) {
-        if (event.getVehicle() instanceof Endermite && event.getExited() instanceof Player) {
-            Endermite endermite = (Endermite) event.getVehicle();
-            Player player = (Player) event.getExited();
-            
-            // Verificar si es el dueño del endermite
-            UUID endermiteId = endermite.getUniqueId();
-            UUID ownerId = endermiteOwners.get(endermiteId);
-            
-            if (ownerId != null && ownerId.equals(player.getUniqueId())) {
-                // Permitir que el jugador se baje, pero el endermite sigue siendo suyo
-                // Opcional: Se puede hacer que el endermite siga al jugador
-                followOwner(endermite, player);
-            }
-        }
+    public CustomEndermite getPlayerEndermite(Player player) {
+        return playerEndermites.get(player.getUniqueId());
     }
     
-    private void followOwner(Endermite endermite, Player owner) {
-        UUID endermiteId = endermite.getUniqueId();
-        
-        BukkitTask followTask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
-            @Override
-            public void run() {
-                if (!endermite.isValid() || endermite.isDead() || !owner.isOnline()) {
-                    BukkitTask task = followTasks.remove(endermiteId);
-                    if (task != null) {
-                        task.cancel();
-                    }
-                    return;
-                }
-                
-                // Si el endermite está lejos del dueño, teletransportarlo
-                Location ownerLoc = owner.getLocation();
-                Location endermiteLoc = endermite.getLocation();
-                
-                if (ownerLoc.distance(endermiteLoc) > 10) {
-                    Location teleportLoc = ownerLoc.clone().add(
-                        (Math.random() - 0.5) * 4, // Posición aleatoria cerca del jugador
-                        1,
-                        (Math.random() - 0.5) * 4
-                    );
-                    endermite.teleport(teleportLoc);
-                }
-            }
-        }, 0L, 40L); // Cada 2 segundos
-        
-        followTasks.put(endermiteId, followTask);
-    }
-    
-    private void cleanupEndermite(UUID endermiteId) {
-        endermiteOwners.remove(endermiteId);
-        
-        BukkitTask task = endermiteTasks.remove(endermiteId);
-        if (task != null) {
-            task.cancel();
-        }
-        
-        BukkitTask followTask = followTasks.remove(endermiteId);
-        if (followTask != null) {
-            followTask.cancel();
-        }
+    public boolean hasEndermite(Player player) {
+        CustomEndermite endermite = playerEndermites.get(player.getUniqueId());
+        return endermite != null && endermite.isAlive();
     }
 }
