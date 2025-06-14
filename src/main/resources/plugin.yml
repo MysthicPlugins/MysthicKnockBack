@@ -15,7 +15,7 @@ commands:
   report:
     description: Command to report a player
     aliases:
-      -report
+      - report
   arena:
     description: Command to define an arena
   stats:
@@ -23,3 +23,28 @@ commands:
     aliases: [statistics]
   music:
     description: Open the music menu
+  msg:
+    description: Command to send a message to another player
+    aliases: [message, tell]
+  r:
+    description: Command to reply to the last private message received
+    aliases: [reply]
+  socialspy:
+    description: Command to toggle monitoring of private messages
+  friend:
+    description: Command to manage your friends list
+    aliases: [amigo]
+  friendaccept:
+    description: Command to accept a friend request
+    aliases: [friendaceptar]
+  friendreject:
+    description: Command to reject a friend request
+    aliases: [friendrechazar]
+  friendignore:
+    description: Command to ignore a friend request
+    aliases: [friendignorar]
+
+permissions:
+  staff.spy:
+    description: Allows staff to view private messages
+    default: op
