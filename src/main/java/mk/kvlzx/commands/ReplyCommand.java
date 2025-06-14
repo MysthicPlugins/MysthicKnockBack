@@ -1,7 +1,5 @@
 package mk.kvlzx.commands;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -13,13 +11,11 @@ import org.bukkit.entity.Player;
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.utils.MessageUtils;
 
-public class MsgCommand implements CommandExecutor {
+public class ReplyCommand implements CommandExecutor {
     
     private final MysthicKnockBack plugin;
-    // Almacenar la última persona con la que cada jugador habló
-    private static Map<UUID, UUID> lastMessagedPlayer = new HashMap<>();
 
-    public MsgCommand(MysthicKnockBack plugin) {
+    public ReplyCommand(MysthicKnockBack plugin) {
         this.plugin = plugin;
     }
 
@@ -32,36 +28,34 @@ public class MsgCommand implements CommandExecutor {
         
         Player player = (Player) sender;
         
-        if (args.length < 2) {
-            player.sendMessage(MessageUtils.getColor("&cUsage: /msg <player> <message>"));
+        if (args.length == 0) {
+            player.sendMessage(MessageUtils.getColor("&cUsage: /r <message>"));
             return true;
         }
         
-        String targetName = args[0];
-        Player target = Bukkit.getPlayer(targetName);
+        UUID playerId = player.getUniqueId();
+        UUID targetId = MsgCommand.getLastMessagedPlayer(playerId);
         
+        if (targetId == null) {
+            player.sendMessage(MessageUtils.getColor("&cYou have no one to reply to."));
+            return true;
+        }
+        
+        Player target = Bukkit.getPlayer(targetId);
         if (target == null) {
-            player.sendMessage(MessageUtils.getColor("&cPlayer " + targetName + " is not online."));
-            return true;
-        }
-        
-        if (target.equals(player)) {
-            player.sendMessage(MessageUtils.getColor("&cYou cannot send a message to yourself."));
+            player.sendMessage(MessageUtils.getColor("&cThe player you want to reply to is no longer online."));
             return true;
         }
         
         // Construir el mensaje
         StringBuilder messageBuilder = new StringBuilder();
-        for (int i = 1; i < args.length; i++) {
+        for (int i = 0; i < args.length; i++) {
             messageBuilder.append(args[i]);
             if (i < args.length - 1) {
                 messageBuilder.append(" ");
             }
         }
         String message = messageBuilder.toString();
-        
-        UUID playerId = player.getUniqueId();
-        UUID targetId = target.getUniqueId();
         
         // Verificar si son amigos
         boolean areFriends = FriendCommand.areFriends(playerId, targetId);
@@ -77,20 +71,6 @@ public class MsgCommand implements CommandExecutor {
         String receiverMessage = MessageUtils.getColor(tag + " &7from " + player.getName() + "&7: &f" + message);
         target.sendMessage(receiverMessage);
         
-        // Actualizar el registro de último mensaje para ambos jugadores
-        lastMessagedPlayer.put(playerId, targetId);
-        lastMessagedPlayer.put(targetId, playerId);
-        
         return true;
-    }
-    
-    // Método estático para obtener el último jugador con el que se habló
-    public static UUID getLastMessagedPlayer(UUID playerId) {
-        return lastMessagedPlayer.get(playerId);
-    }
-    
-    // Método estático para verificar si un jugador tiene conversación reciente
-    public static boolean hasRecentConversation(UUID playerId) {
-        return lastMessagedPlayer.containsKey(playerId);
     }
 }

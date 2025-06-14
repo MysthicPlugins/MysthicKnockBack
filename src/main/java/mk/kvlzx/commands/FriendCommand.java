@@ -1,393 +1,410 @@
 package mk.kvlzx.commands;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import mk.kvlzx.stats.PlayerStats;
-import mk.kvlzx.utils.MessageUtils;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.List;
+
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.utils.MessageUtils;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class FriendCommand implements CommandExecutor {
-    private final JavaPlugin plugin;
-    private final Map<UUID, Set<UUID>> friends = new ConcurrentHashMap<>();
-    private final Map<UUID, Set<UUID>> pendingRequests = new ConcurrentHashMap<>();
-    private final Map<UUID, Map<UUID, Long>> requestCooldowns = new ConcurrentHashMap<>();
-    private final Map<UUID, Boolean> notificationsEnabled = new ConcurrentHashMap<>();
-    private File friendFile;
-    private FileConfiguration friendConfig;
-    private final int maxFriends;
-    private final long requestCooldown = 60 * 1000; // 1 minute
+    private final MysthicKnockBack plugin;
+    
+    private static Map<UUID, Set<UUID>> friends = new HashMap<>();
+    private static Map<UUID, Set<UUID>> pendingRequests = new HashMap<>();
+    private static Map<String, UUID> playerUUIDs = new HashMap<>();
 
-    public FriendCommand(JavaPlugin plugin) {
+    public FriendCommand(MysthicKnockBack plugin) {
         this.plugin = plugin;
-        this.maxFriends = plugin.getConfig().getInt("max-friends", 50);
-        loadFriends();
     }
-
-    public JavaPlugin getPlugin() {
-        return plugin;
-    }
-
+    
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            MessageUtils.sendMsg(sender, "&cThis command can only be used by players.");
+            sender.sendMessage(MessageUtils.getColor("&cOnly players can use this command."));
             return true;
         }
-
+        
         Player player = (Player) sender;
-
+        
         if (args.length == 0) {
-            showFriendCommands(player);
+            sendHelpMessage(player);
             return true;
         }
-
+        
         String subCommand = args[0].toLowerCase();
-
+        
         switch (subCommand) {
             case "add":
-                if (args.length != 2) {
-                    MessageUtils.sendMsg(player, "&cUsage: /friend add <player>");
-                    return true;
-                }
-                handleFriendAdd(player, args[1]);
+                handleAddFriend(player, args);
                 break;
-
-            case "list":
-                handleFriendList(player, false);
-                break;
-
-            case "online":
-                handleFriendList(player, true);
-                break;
-
             case "remove":
-                if (args.length != 2) {
-                    MessageUtils.sendMsg(player, "&cUsage: /friend remove <player>");
-                    return true;
-                }
-                handleFriendRemove(player, args[1]);
+                handleRemoveFriend(player, args);
                 break;
-
+            case "list":
+                handleListFriends(player);
+                break;
+            case "accept":
+                handleAcceptRequest(player, args);
+                break;
+            case "deny":
+                handleDenyRequest(player, args);
+                break;
             case "requests":
-                handleFriendRequests(player);
+                handleShowRequests(player);
                 break;
-
-            case "toggle":
-                handleToggleNotifications(player);
+            case "help":
+                sendHelpMessage(player);
                 break;
-
             default:
-                MessageUtils.sendMsg(player, "&cUnknown subcommand. Use /friend to see available commands.");
+                player.sendMessage(MessageUtils.getColor("&cUnknown subcommand. Use /friend help to see help."));
                 break;
         }
-
+        
         return true;
     }
-
-    private void showFriendCommands(Player player) {
-        MessageUtils.sendMsg(player, "&e=== Friend Commands ===");
-        MessageUtils.sendMsg(player, "&b/friend add <player> &f- Sends a friend request to a player.");
-        MessageUtils.sendMsg(player, "&b/friend list &f- Shows your friend list.");
-        MessageUtils.sendMsg(player, "&b/friend online &f- Shows your online friends.");
-        MessageUtils.sendMsg(player, "&b/friend remove <player> &f- Removes a player from your friend list.");
-        MessageUtils.sendMsg(player, "&b/friend requests &f- Shows pending friend requests.");
-        MessageUtils.sendMsg(player, "&b/friend toggle &f- Toggles friend notifications on/off.");
+    
+    private void handleAddFriend(Player player, String[] args) {
+        if (args.length < 2) {
+            player.sendMessage(MessageUtils.getColor("&cUsage: /friend add <player>"));
+            return;
+        }
+        
+        String targetName = args[1];
+        Player target = Bukkit.getPlayer(targetName);
+        
+        if (target == null) {
+            player.sendMessage(MessageUtils.getColor("&cPlayer " + targetName + " is not online."));
+            return;
+        }
+        
+        if (target.equals(player)) {
+            player.sendMessage(MessageUtils.getColor("&cYou cannot add yourself as a friend."));
+            return;
+        }
+        
+        UUID playerId = player.getUniqueId();
+        UUID targetId = target.getUniqueId();
+        
+        // Ver si los jugadores ya son amigos
+        if (areFriends(playerId, targetId)) {
+            player.sendMessage(MessageUtils.getColor("&eYou are already friends with " + target.getName() + "."));
+            return;
+        }
+        
+        // Ver si ya tienen una solicitud pendiente
+        if (hasPendingRequest(targetId, playerId)) {
+            player.sendMessage(MessageUtils.getColor("&eYou already have a pending request from " + target.getName() + "."));
+            return;
+        }
+        
+        if (hasPendingRequest(playerId, targetId)) {
+            player.sendMessage(MessageUtils.getColor("&eYou already sent a request to " + target.getName() + "."));
+            return;
+        }
+        
+        // Mandar solicitud
+        addPendingRequest(playerId, targetId);
+        playerUUIDs.put(player.getName().toLowerCase(), playerId);
+        playerUUIDs.put(target.getName().toLowerCase(), targetId);
+        
+        player.sendMessage(MessageUtils.getColor("&aFriend request sent to " + target.getName() + "."));
+        
+        // Mandar los mensajes clickeables al target
+        sendClickableRequest(target, player);
     }
-
-    private void handleFriendAdd(Player sender, String targetName) {
-        Player target = plugin.getServer().getPlayer(targetName);
-        if (target == null || !target.isOnline()) {
-            MessageUtils.sendMsg(sender, "&cPlayer " + targetName + " is not online.");
-            return;
-        }
-
-        if (target.equals(sender)) {
-            MessageUtils.sendMsg(sender, "&cYou cannot send a friend request to yourself.");
-            return;
-        }
-
-        UUID senderUUID = sender.getUniqueId();
-        UUID targetUUID = target.getUniqueId();
-
-        if (friends.getOrDefault(senderUUID, new HashSet<>()).contains(targetUUID)) {
-            MessageUtils.sendMsg(sender, "&cYou are already friends with " + targetName + ".");
-            return;
-        }
-
-        if (friends.getOrDefault(senderUUID, new HashSet<>()).size() >= maxFriends) {
-            MessageUtils.sendMsg(sender, "&cYou have reached the friend limit (" + maxFriends + ").");
-            return;
-        }
-
-        Map<UUID, Long> senderCooldowns = requestCooldowns.computeIfAbsent(senderUUID, k -> new HashMap<>());
-        if (senderCooldowns.containsKey(targetUUID) && (System.currentTimeMillis() - senderCooldowns.get(targetUUID)) < requestCooldown) {
-            MessageUtils.sendMsg(sender, "&cYou must wait before sending another request to " + targetName + ".");
-            return;
-        }
-
-        if (pendingRequests.getOrDefault(targetUUID, new HashSet<>()).contains(senderUUID)) {
-            MessageUtils.sendMsg(sender, "&cYou have already sent a friend request to " + targetName + ".");
-            return;
-        }
-
-        pendingRequests.computeIfAbsent(targetUUID, k -> new HashSet<>()).add(senderUUID);
-        senderCooldowns.put(targetUUID, System.currentTimeMillis());
-        saveFriends();
-
-        MessageUtils.sendMsg(target, "&e" + sender.getName() + " has sent you a friend request.");
-
-        TextComponent acceptButton = new TextComponent("[ACCEPT]");
-        acceptButton.setColor(net.md_5.bungee.api.ChatColor.GREEN);
-        acceptButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friendaccept " + sender.getName()));
-        acceptButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Accept the friend request").color(net.md_5.bungee.api.ChatColor.GREEN).create()));
-
-        TextComponent rejectButton = new TextComponent("[REJECT]");
-        rejectButton.setColor(net.md_5.bungee.api.ChatColor.RED);
-        rejectButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friendreject " + sender.getName()));
-        rejectButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Reject the friend request").color(net.md_5.bungee.api.ChatColor.RED).create()));
-
-        TextComponent ignoreButton = new TextComponent("[IGNORE]");
-        ignoreButton.setColor(net.md_5.bungee.api.ChatColor.GRAY);
-        ignoreButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friendignore " + sender.getName()));
-        ignoreButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Ignore the friend request").color(net.md_5.bungee.api.ChatColor.GRAY).create()));
-
-        target.spigot().sendMessage(acceptButton, rejectButton, ignoreButton);
-        MessageUtils.sendMsg(sender, "&aFriend request sent to " + targetName + ".");
+    
+    private void sendClickableRequest(Player target, Player requester) {
+        target.sendMessage(MessageUtils.getColor("&6═══════════════════════════════════"));
+        target.sendMessage(MessageUtils.getColor("&e" + requester.getName() + " has sent you a friend request!"));
+        
+        // Crear los componentes clickeables
+        TextComponent acceptButton = new TextComponent(MessageUtils.getColor("&a[ACCEPT]"));
+        acceptButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friend accept " + requester.getName()));
+        acceptButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, 
+            new ComponentBuilder(MessageUtils.getColor("&aClick to accept the request")).create()));
+        
+        TextComponent separator = new TextComponent(MessageUtils.getColor("&7 | "));
+        
+        TextComponent denyButton = new TextComponent(MessageUtils.getColor("&c[DENY]"));
+        denyButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friend deny " + requester.getName()));
+        denyButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, 
+            new ComponentBuilder(MessageUtils.getColor("&cClick to deny the request")).create()));
+        
+        TextComponent message = new TextComponent("");
+        message.addExtra(acceptButton);
+        message.addExtra(separator);
+        message.addExtra(denyButton);
+        
+        target.spigot().sendMessage(message);
+        target.sendMessage(MessageUtils.getColor("&6═══════════════════════════════════"));
     }
-
-    private void handleFriendList(Player player, boolean onlineOnly) {
-        Set<UUID> friendUUIDs = friends.getOrDefault(player.getUniqueId(), new HashSet<>());
-        if (friendUUIDs.isEmpty()) {
-            MessageUtils.sendMsg(player, "&eYou have no friends added.");
+    
+    private void handleRemoveFriend(Player player, String[] args) {
+        if (args.length < 2) {
+            player.sendMessage(MessageUtils.getColor("&cUsage: /friend remove <player>"));
             return;
         }
-
-        MessageUtils.sendMsg(player, "&e=== Friend List" + (onlineOnly ? " (Online)" : "") + " ===");
-        for (UUID friendUUID : friendUUIDs) {
-            Player friend = plugin.getServer().getPlayer(friendUUID);
-            if (onlineOnly && (friend == null || !friend.isOnline())) {
-                continue;
-            }
-            String friendName = friend != null ? friend.getName() : plugin.getServer().getOfflinePlayer(friendUUID).getName();
-            int kills = PlayerStats.getStats(friendUUID).getKills();
-
-            TextComponent friendLabel = new TextComponent(ChatColor.AQUA + friendName + ChatColor.WHITE + " (Kills: " + kills + ") ");
-            TextComponent messageButton = new TextComponent("[Message]");
-            messageButton.setColor(net.md_5.bungee.api.ChatColor.YELLOW);
-            messageButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/msg " + friendName));
-            messageButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Send a message").color(net.md_5.bungee.api.ChatColor.YELLOW).create()));
-
-            TextComponent removeButton = new TextComponent("[Remove]");
-            removeButton.setColor(net.md_5.bungee.api.ChatColor.RED);
-            removeButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friend remove " + friendName));
-            removeButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Remove friend").color(net.md_5.bungee.api.ChatColor.RED).create()));
-
-            player.spigot().sendMessage(friendLabel, messageButton, removeButton);
-        }
-    }
-
-    private void handleFriendRemove(Player player, String targetName) {
-        Player target = plugin.getServer().getPlayer(targetName);
-        UUID targetUUID = target != null ? target.getUniqueId() : plugin.getServer().getOfflinePlayer(targetName).getUniqueId();
-
-        Set<UUID> playerFriends = friends.getOrDefault(player.getUniqueId(), new HashSet<>());
-        if (!playerFriends.contains(targetUUID)) {
-            MessageUtils.sendMsg(player, "&c" + targetName + " is not in your friend list.");
+        
+        String targetName = args[1];
+        UUID targetId = getPlayerUUID(targetName);
+        
+        if (targetId == null) {
+            player.sendMessage(MessageUtils.getColor("&cPlayer " + targetName + " not found."));
             return;
         }
-
-        playerFriends.remove(targetUUID);
-        friends.put(player.getUniqueId(), playerFriends);
-
-        Set<UUID> targetFriends = friends.getOrDefault(targetUUID, new HashSet<>());
-        targetFriends.remove(player.getUniqueId());
-        friends.put(targetUUID, targetFriends);
-
-        saveFriends();
-
-        MessageUtils.sendMsg(player, "&aYou have removed " + targetName + " from your friend list.");
-        if (target != null && target.isOnline()) {
-            MessageUtils.sendMsg(target, "&e" + player.getName() + " has removed you from their friend list.");
+        
+        UUID playerId = player.getUniqueId();
+        
+        if (!areFriends(playerId, targetId)) {
+            player.sendMessage(MessageUtils.getColor("&c" + targetName + " is not in your friends list."));
+            return;
+        }
+        
+        removeFriend(playerId, targetId);
+        player.sendMessage(MessageUtils.getColor("&eYou have removed " + targetName + " from your friends list."));
+        
+        // Notificar al otro jugador si está conectado
+        Player target = Bukkit.getPlayer(targetId);
+        if (target != null) {
+            target.sendMessage(MessageUtils.getColor("&e" + player.getName() + " has removed you from their friends list."));
         }
     }
-
-    private void handleFriendRequests(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        Set<UUID> pending = pendingRequests.getOrDefault(playerUUID, new HashSet<>());
-        if (pending.isEmpty()) {
-            MessageUtils.sendMsg(player, "&eYou have no pending friend requests.");
+    
+    private void handleListFriends(Player player) {
+        UUID playerId = player.getUniqueId();
+        Set<UUID> friendList = friends.getOrDefault(playerId, new HashSet<>());
+        
+        if (friendList.isEmpty()) {
+            player.sendMessage(MessageUtils.getColor("&eYou have no friends added."));
             return;
         }
-
-        MessageUtils.sendMsg(player, "&e=== Pending Friend Requests ===");
-        for (UUID senderUUID : pending) {
-            String senderName = plugin.getServer().getOfflinePlayer(senderUUID).getName();
-
-            TextComponent requestLabel = new TextComponent(ChatColor.AQUA + senderName + ": ");
-            TextComponent acceptButton = new TextComponent("[ACCEPT]");
-            acceptButton.setColor(net.md_5.bungee.api.ChatColor.GREEN);
-            acceptButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friendaccept " + senderName));
-            acceptButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Accept").color(net.md_5.bungee.api.ChatColor.GREEN).create()));
-
-            TextComponent rejectButton = new TextComponent("[REJECT]");
-            rejectButton.setColor(net.md_5.bungee.api.ChatColor.RED);
-            rejectButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friendreject " + senderName));
-            rejectButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Reject").color(net.md_5.bungee.api.ChatColor.RED).create()));
-
-            player.spigot().sendMessage(requestLabel, acceptButton, rejectButton);
+        
+        player.sendMessage(MessageUtils.getColor("&6═══════ FRIENDS LIST ═══════"));
+        int count = 1;
+        for (UUID friendId : friendList) {
+            String friendName = getPlayerName(friendId);
+            Player friend = Bukkit.getPlayer(friendId);
+            String status = friend != null ? MessageUtils.getColor("&a (Online)") : MessageUtils.getColor("&7 (Offline)");
+            player.sendMessage(MessageUtils.getColor("&e" + count + ". &f" + friendName + status));
+            count++;
         }
+        player.sendMessage(MessageUtils.getColor("&6═══════════════════════════════"));
     }
-
-    private void handleToggleNotifications(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        boolean currentState = notificationsEnabled.getOrDefault(playerUUID, true);
-        notificationsEnabled.put(playerUUID, !currentState);
-        MessageUtils.sendMsg(player, "&eFriend notifications " + (!currentState ? "enabled" : "disabled") + ".");
-    }
-
-    public void handleFriendAccept(Player player, String senderName) {
-        Player sender = plugin.getServer().getPlayer(senderName);
-        if (sender == null || !sender.isOnline()) {
-            MessageUtils.sendMsg(player, "&cPlayer " + senderName + " is not online.");
+    
+    private void handleAcceptRequest(Player player, String[] args) {
+        if (args.length < 2) {
+            player.sendMessage(MessageUtils.getColor("&cUsage: /friend accept <player>"));
             return;
         }
-
-        UUID senderUUID = sender.getUniqueId();
-        UUID playerUUID = player.getUniqueId();
-
-        if (!pendingRequests.getOrDefault(playerUUID, new HashSet<>()).contains(senderUUID)) {
-            MessageUtils.sendMsg(player, "&cYou do not have a pending friend request from " + senderName + ".");
+        
+        String requesterName = args[1];
+        UUID requesterId = getPlayerUUID(requesterName);
+        
+        if (requesterId == null) {
+            player.sendMessage(MessageUtils.getColor("&cPlayer " + requesterName + " not found."));
             return;
         }
-
-        if (friends.getOrDefault(playerUUID, new HashSet<>()).size() >= maxFriends) {
-            MessageUtils.sendMsg(player, "&cYou have reached the friend limit (" + maxFriends + ").");
-            pendingRequests.get(playerUUID).remove(senderUUID);
-            saveFriends();
+        
+        UUID playerId = player.getUniqueId();
+        
+        if (!hasPendingRequest(requesterId, playerId)) {
+            player.sendMessage(MessageUtils.getColor("&cYou have no pending requests from " + requesterName + "."));
             return;
         }
-
-        friends.computeIfAbsent(playerUUID, k -> new HashSet<>()).add(senderUUID);
-        friends.computeIfAbsent(senderUUID, k -> new HashSet<>()).add(playerUUID);
-        pendingRequests.get(playerUUID).remove(senderUUID);
-
-        saveFriends();
-
-        MessageUtils.sendMsg(player, "&aYou have accepted " + senderName + "'s friend request.");
-        MessageUtils.sendMsg(sender, "&a" + player.getName() + " has accepted your friend request.");
+        
+        // Acceptar solicitud
+        removePendingRequest(requesterId, playerId);
+        addFriend(playerId, requesterId);
+        
+        player.sendMessage(MessageUtils.getColor("&aYou have accepted " + requesterName + "'s friend request."));
+        
+        // Notificar al otro jugador
+        Player requester = Bukkit.getPlayer(requesterId);
+        if (requester != null) {
+            requester.sendMessage(MessageUtils.getColor("&a" + player.getName() + " has accepted your friend request!"));
+        }
     }
-
-    public void handleFriendReject(Player player, String senderName) {
-        Player sender = plugin.getServer().getPlayer(senderName);
-        UUID senderUUID = sender != null ? sender.getUniqueId() : plugin.getServer().getOfflinePlayer(senderName).getUniqueId();
-        UUID playerUUID = player.getUniqueId();
-
-        if (!pendingRequests.getOrDefault(playerUUID, new HashSet<>()).contains(senderUUID)) {
-            MessageUtils.sendMsg(player, "&cYou do not have a pending friend request from " + senderName + ".");
+    
+    private void handleDenyRequest(Player player, String[] args) {
+        if (args.length < 2) {
+            player.sendMessage(MessageUtils.getColor("&cUsage: /friend deny <player>"));
             return;
         }
-
-        pendingRequests.get(playerUUID).remove(senderUUID);
-        saveFriends();
-
-        MessageUtils.sendMsg(player, "&cYou have rejected " + senderName + "'s friend request.");
-        if (sender != null && sender.isOnline()) {
-            MessageUtils.sendMsg(sender, "&c" + player.getName() + " has rejected your friend request.");
-        }
-    }
-
-    public void handleFriendIgnore(Player player, String senderName) {
-        Player sender = plugin.getServer().getPlayer(senderName);
-        UUID senderUUID = sender != null ? sender.getUniqueId() : plugin.getServer().getOfflinePlayer(senderName).getUniqueId();
-        UUID playerUUID = player.getUniqueId();
-
-        if (!pendingRequests.getOrDefault(playerUUID, new HashSet<>()).contains(senderUUID)) {
-            MessageUtils.sendMsg(player, "&cYou do not have a pending friend request from " + senderName + ".");
+        
+        String requesterName = args[1];
+        UUID requesterId = getPlayerUUID(requesterName);
+        
+        if (requesterId == null) {
+            player.sendMessage(MessageUtils.getColor("&cPlayer " + requesterName + " not found."));
             return;
         }
-
-        pendingRequests.get(playerUUID).remove(senderUUID);
-        saveFriends();
-
-        MessageUtils.sendMsg(player, "&8You have ignored " + senderName + "'s friend request.");
-    }
-
-    public Set<UUID> getFriends(UUID playerUUID) {
-        return friends.getOrDefault(playerUUID, new HashSet<>());
-    }
-
-    public boolean areNotificationsEnabled(UUID playerUUID) {
-        return notificationsEnabled.getOrDefault(playerUUID, true);
-    }
-
-    public void saveFriends() {
-        friendFile = new File(plugin.getDataFolder(), "friends.yml");
-        friendConfig = new YamlConfiguration();
-
-        for (Map.Entry<UUID, Set<UUID>> entry : friends.entrySet()) {
-            UUID playerUUID = entry.getKey();
-            Set<UUID> friendSet = entry.getValue();
-            List<String> friendUUIDs = new java.util.ArrayList<>();
-            for (UUID friendUUID : friendSet) {
-                friendUUIDs.add(friendUUID.toString());
-            }
-            friendConfig.set(playerUUID.toString() + ".friends", friendUUIDs);
+        
+        UUID playerId = player.getUniqueId();
+        
+        if (!hasPendingRequest(requesterId, playerId)) {
+            player.sendMessage(MessageUtils.getColor("&cYou have no pending requests from " + requesterName + "."));
+            return;
         }
-
+        
+        // Denegar solicitud
+        removePendingRequest(requesterId, playerId);
+        player.sendMessage(MessageUtils.getColor("&eYou have denied " + requesterName + "'s friend request."));
+        
+        // Notificar al otro jugador
+        Player requester = Bukkit.getPlayer(requesterId);
+        if (requester != null) {
+            requester.sendMessage(MessageUtils.getColor("&c" + player.getName() + " has denied your friend request."));
+        }
+    }
+    
+    private void handleShowRequests(Player player) {
+        UUID playerId = player.getUniqueId();
+        Set<UUID> requests = new HashSet<>();
+        
+        // Encontrar solicitudes pendientes
         for (Map.Entry<UUID, Set<UUID>> entry : pendingRequests.entrySet()) {
-            UUID playerUUID = entry.getKey();
-            Set<UUID> pendingSet = entry.getValue();
-            List<String> pendingUUIDs = new java.util.ArrayList<>();
-            for (UUID pendingUUID : pendingSet) {
-                pendingUUIDs.add(pendingUUID.toString());
+            if (entry.getValue().contains(playerId)) {
+                requests.add(entry.getKey());
             }
-            friendConfig.set(playerUUID.toString() + ".pending", pendingUUIDs);
         }
-
-        try {
-            friendConfig.save(friendFile);
-        } catch (IOException e) {
-            plugin.getLogger().severe("Error saving friends.yml: " + e.getMessage());
+        
+        if (requests.isEmpty()) {
+            player.sendMessage(MessageUtils.getColor("&eYou have no pending friend requests."));
+            return;
         }
+        
+        player.sendMessage(MessageUtils.getColor("&6═══════ PENDING REQUESTS ═══════"));
+        int count = 1;
+        for (UUID requesterId : requests) {
+            String requesterName = getPlayerName(requesterId);
+            player.sendMessage(MessageUtils.getColor("&e" + count + ". &f" + requesterName));
+            count++;
+        }
+        player.sendMessage(MessageUtils.getColor("&7Use /friend accept <player> or /friend deny <player>"));
+        player.sendMessage(MessageUtils.getColor("&6═══════════════════════════════════════"));
+    }
+    
+    private void sendHelpMessage(Player player) {
+        player.sendMessage(MessageUtils.getColor("&6═══════ FRIEND SYSTEM ═══════"));
+        player.sendMessage(MessageUtils.getColor("&e/friend add <player>&f - Send friend request"));
+        player.sendMessage(MessageUtils.getColor("&e/friend remove <player>&f - Remove friend"));
+        player.sendMessage(MessageUtils.getColor("&e/friend list&f - View friends list"));
+        player.sendMessage(MessageUtils.getColor("&e/friend accept <player>&f - Accept request"));
+        player.sendMessage(MessageUtils.getColor("&e/friend deny <player>&f - Deny request"));
+        player.sendMessage(MessageUtils.getColor("&e/friend requests&f - View pending requests"));
+        player.sendMessage(MessageUtils.getColor("&e/friend help&f - Show this help"));
+        player.sendMessage(MessageUtils.getColor("&6═══════════════════════════════════"));
     }
 
-    private void loadFriends() {
-        friendFile = new File(plugin.getDataFolder(), "friends.yml");
-        friendConfig = YamlConfiguration.loadConfiguration(friendFile);
+    // Métodos públicos para el TabCompleter
+    public static Set<UUID> getFriends(UUID playerId) {
+        return friends.get(playerId);
+    }
 
-        for (String playerUUIDStr : friendConfig.getKeys(false)) {
-            UUID playerUUID = UUID.fromString(playerUUIDStr);
-            List<String> friendUUIDs = friendConfig.getStringList(playerUUIDStr + ".friends");
-            Set<UUID> friendSet = new HashSet<>();
-            for (String friendUUID : friendUUIDs) {
-                friendSet.add(UUID.fromString(friendUUID));
+    public static Set<UUID> getPlayersWhoHaveAsFriend(UUID playerId) {
+        Set<UUID> result = new HashSet<>();
+        for (Map.Entry<UUID, Set<UUID>> entry : friends.entrySet()) {
+            if (entry.getValue().contains(playerId)) {
+                result.add(entry.getKey());
             }
-            friends.put(playerUUID, friendSet);
-
-            List<String> pendingUUIDs = friendConfig.getStringList(playerUUIDStr + ".pending");
-            Set<UUID> pendingSet = new HashSet<>();
-            for (String pendingUUID : pendingUUIDs) {
-                pendingSet.add(UUID.fromString(pendingUUID));
-            }
-            pendingRequests.put(playerUUID, pendingSet);
         }
+        return result;
+    }
+
+    public static boolean areFriends(UUID player1, UUID player2) {
+        Set<UUID> friendList = friends.get(player1);
+        return friendList != null && friendList.contains(player2);
+    }
+    
+    // Métodos públicos para el TabCompleter
+    public static boolean hasPendingRequestPublic(UUID from, UUID to) {
+        return hasPendingRequest(from, to);
+    }
+    
+    public static Set<UUID> getPendingRequestsFor(UUID playerId) {
+        Set<UUID> requests = new HashSet<>();
+        for (Map.Entry<UUID, Set<UUID>> entry : pendingRequests.entrySet()) {
+            if (entry.getValue().contains(playerId)) {
+                requests.add(entry.getKey());
+            }
+        }
+        return requests;
+    }
+    
+    public static String getPlayerNamePublic(UUID uuid) {
+        return getPlayerName(uuid);
+    }
+    
+    public static UUID getPlayerUUIDPublic(String playerName) {
+        return getPlayerUUID(playerName);
+    }
+    
+    private static void addFriend(UUID player1, UUID player2) {
+        friends.computeIfAbsent(player1, k -> new HashSet<>()).add(player2);
+        friends.computeIfAbsent(player2, k -> new HashSet<>()).add(player1);
+    }
+    
+    private static void removeFriend(UUID player1, UUID player2) {
+        Set<UUID> list1 = friends.get(player1);
+        Set<UUID> list2 = friends.get(player2);
+        
+        if (list1 != null) list1.remove(player2);
+        if (list2 != null) list2.remove(player1);
+    }
+    
+    private static boolean hasPendingRequest(UUID from, UUID to) {
+        Set<UUID> requests = pendingRequests.get(from);
+        return requests != null && requests.contains(to);
+    }
+    
+    private static void addPendingRequest(UUID from, UUID to) {
+        pendingRequests.computeIfAbsent(from, k -> new HashSet<>()).add(to);
+    }
+    
+    private static void removePendingRequest(UUID from, UUID to) {
+        Set<UUID> requests = pendingRequests.get(from);
+        if (requests != null) {
+            requests.remove(to);
+            if (requests.isEmpty()) {
+                pendingRequests.remove(from);
+            }
+        }
+    }
+    
+    private static UUID getPlayerUUID(String playerName) {
+        Player onlinePlayer = Bukkit.getPlayer(playerName);
+        if (onlinePlayer != null) {
+            return onlinePlayer.getUniqueId();
+        }
+        
+        return playerUUIDs.get(playerName.toLowerCase());
+    }
+    
+    private static String getPlayerName(UUID uuid) {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null) {
+            return player.getName();
+        }
+        
+        for (Map.Entry<String, UUID> entry : playerUUIDs.entrySet()) {
+            if (entry.getValue().equals(uuid)) {
+                return entry.getKey();
+            }
+        }
+        
+        return "Unknown Player";
     }
 }

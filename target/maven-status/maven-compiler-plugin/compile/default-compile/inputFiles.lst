@@ -5,9 +5,13 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\arena\Zone.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\arena\ZoneType.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\ArenaCommand.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\ArenaTabCompleter.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\FriendCommand.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\FriendTabCompleter.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\MainCommand.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\MainTabCompleter.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\MsgCommand.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\MusicCommand.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\ReplyCommand.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\ReportCommand.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\StatsCommand.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\StatsTabCompleter.java
@@ -30,6 +34,7 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\ArrowEffectListener
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\ChatListener.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\CombatListener.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\EndermiteListener.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\FriendListener.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\ItemListener.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\MenuListener.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\PlayerListener.java

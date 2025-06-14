@@ -10,13 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.EventHandler;
-import org.bukkit.ChatColor;
-import java.util.UUID;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import mk.kvlzx.arena.ArenaManager;
 import mk.kvlzx.commands.ArenaCommand;
@@ -27,9 +20,10 @@ import mk.kvlzx.commands.MsgCommand;
 import mk.kvlzx.commands.StatsCommand;
 import mk.kvlzx.commands.StatsTabCompleter;
 import mk.kvlzx.commands.MusicCommand;
+import mk.kvlzx.commands.ReplyCommand;
 import mk.kvlzx.commands.ReportCommand;
-import mk.kvlzx.commands.FriendResponseCommand;
 import mk.kvlzx.commands.FriendCommand;
+import mk.kvlzx.commands.FriendTabCompleter;
 import mk.kvlzx.cosmetics.CosmeticManager;
 import mk.kvlzx.data.InventoryData;
 import mk.kvlzx.hotbar.PlayerHotbar;
@@ -37,6 +31,7 @@ import mk.kvlzx.listeners.ArrowEffectListener;
 import mk.kvlzx.listeners.ChatListener;
 import mk.kvlzx.listeners.CombatListener;
 import mk.kvlzx.listeners.EndermiteListener;
+import mk.kvlzx.listeners.FriendListener;
 import mk.kvlzx.listeners.ItemListener;
 import mk.kvlzx.listeners.PlayerListener;
 import mk.kvlzx.listeners.MenuListener;
@@ -50,9 +45,8 @@ import mk.kvlzx.managers.MusicManager;
 import mk.kvlzx.managers.ReportManager;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
-import mk.kvlzx.listeners.FriendListener;
 
-public class MysthicKnockBack extends JavaPlugin implements Listener {
+public class MysthicKnockBack extends JavaPlugin {
     public static String prefix = "&b[&3KBFFA&b] ";
     public String version = getDescription().getVersion();
     private static MysthicKnockBack instance;
@@ -68,8 +62,6 @@ public class MysthicKnockBack extends JavaPlugin implements Listener {
     private CombatManager combatManager;
     private MusicManager musicManager;
     private ItemVerificationManager itemVerificationManager;
-    private FriendCommand friendCommand;
-    private Scoreboard scoreboard;
 
     @Override
     public void onEnable() {
@@ -142,7 +134,6 @@ public class MysthicKnockBack extends JavaPlugin implements Listener {
             cosmeticManager.saveAll();
             combatManager.cleanup();
             itemVerificationManager.stopVerification();
-            friendCommand.saveFriends();
 
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Saving arenas...");
             arenaManager.saveArenas();
@@ -221,14 +212,10 @@ public class MysthicKnockBack extends JavaPlugin implements Listener {
         getCommand("stats").setTabCompleter(new StatsTabCompleter());
         getCommand("music").setExecutor(new MusicCommand(this));
         getCommand("report").setExecutor(new ReportCommand(this));
-        friendCommand = new FriendCommand(this);
-        getCommand("friend").setExecutor(friendCommand);
-        getCommand("friendaccept").setExecutor(new FriendResponseCommand(friendCommand));
-        getCommand("friendreject").setExecutor(new FriendResponseCommand(friendCommand));
-        getCommand("friendignore").setExecutor(new FriendResponseCommand(friendCommand));
-        getCommand("msg").setExecutor(new MsgCommand(this, friendCommand));
-        getCommand("r").setExecutor(new MsgCommand(this, friendCommand));
-        getCommand("socialspy").setExecutor(new MsgCommand(this, friendCommand));
+        getCommand("friend").setExecutor(new FriendCommand(this));
+        getCommand("friend").setTabCompleter(new FriendTabCompleter());
+        getCommand("msg").setExecutor(new MsgCommand(this));
+        getCommand("r").setExecutor(new ReplyCommand(this));
     }
 
     public void registerEvents() {
@@ -240,27 +227,7 @@ public class MysthicKnockBack extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         getServer().getPluginManager().registerEvents(new ArrowEffectListener(this), this);
         getServer().getPluginManager().registerEvents(new EndermiteListener(this), this);
-        getServer().getPluginManager().registerEvents(new FriendListener(friendCommand), this);
-        getServer().getPluginManager().registerEvents(this, this);
-        scoreboard = getServer().getScoreboardManager().getMainScoreboard();
-        Team friendTeam = scoreboard.getTeam("friends");
-        if (friendTeam == null) {
-            friendTeam = scoreboard.registerNewTeam("friends");
-            friendTeam.setPrefix(ChatColor.AQUA.toString());
-        }
-    }
-
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        Team friendTeam = scoreboard.getTeam("friends");
-        for (UUID friendUUID : friendCommand.getFriends(player.getUniqueId())) {
-            Player friend = getServer().getPlayer(friendUUID);
-            if (friend != null && friend.isOnline()) {
-                friendTeam.addEntry(friend.getName());
-            }
-        }
-        friendTeam.addEntry(player.getName());
+        getServer().getPluginManager().registerEvents(new FriendListener(this), this);
     }
 
     public static MysthicKnockBack getInstance() {
