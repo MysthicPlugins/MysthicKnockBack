@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.entity.Endermite;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -23,8 +24,13 @@ public class CombatManager {
     private double sprintMultiplier = 1.8;
     
     // Nuevos valores específicos para flechas
-    private double arrowHorizontalKnockback = 1.2;
+    private double arrowHorizontalKnockback = 2.2;
     private double arrowSprintMultiplier = 2.2;
+    
+    // NUEVO: Valores específicos para endermites
+    private double endermiteHorizontalKnockback = 1.2;
+    private double endermiteVerticalKnockback = 0.45;
+    private int endermiteKnockbackLevel = 2; // Equivalente a Knockback II
     
     private int hitDelay = 500; // millisegundos
     
@@ -54,6 +60,24 @@ public class CombatManager {
     public void applyCustomKnockback(Player victim, Player attacker, boolean isArrow) {
         // Calcular knockback personalizado
         Vector knockback = calculateCustomKnockback(attacker, victim, isArrow);
+        
+        if (knockback != null) {
+            UUID victimUUID = victim.getUniqueId();
+            pendingKnockback.put(victimUUID, knockback);
+            
+            // Aplicar knockback en el siguiente tick
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                if (victim.isOnline() && pendingKnockback.containsKey(victimUUID)) {
+                    victim.setVelocity(pendingKnockback.get(victimUUID));
+                    pendingKnockback.remove(victimUUID);
+                }
+            }, 1L);
+        }
+    }
+    
+    // NUEVO: Método específico para knockback de endermites
+    public void applyEndermiteKnockback(Player victim, Player owner, Endermite endermite) {
+        Vector knockback = calculateEndermiteKnockback(owner, victim, endermite);
         
         if (knockback != null) {
             UUID victimUUID = victim.getUniqueId();
@@ -111,7 +135,7 @@ public class CombatManager {
         if (isArrow && weapon != null && weapon.getType() == Material.BOW) {
             if (weapon.containsEnchantment(Enchantment.ARROW_KNOCKBACK)) {
                 int punchLevel = weapon.getEnchantmentLevel(Enchantment.ARROW_KNOCKBACK);
-                horizontal += punchLevel * 0.8; // Multiplicador para Punch
+                horizontal += punchLevel * 0.5; // Multiplicador para Punch
             }
         }
         
@@ -132,6 +156,56 @@ public class CombatManager {
         
         return knockback;
     }
+    
+    // NUEVO: Método para calcular knockback específico de endermites
+    private Vector calculateEndermiteKnockback(Player owner, Player victim, Endermite endermite) {
+        // Obtener dirección del knockback desde el endermite hacia la víctima
+        Vector direction = victim.getLocation().toVector()
+                .subtract(endermite.getLocation().toVector())
+                .normalize();
+        
+        // Verificar si la dirección es válida
+        if (direction.lengthSquared() < 0.01) {
+            // Si están en la misma posición, usar dirección aleatoria
+            direction = new Vector(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
+        }
+        
+        // Usar valores base específicos para endermites
+        double horizontal = endermiteHorizontalKnockback;
+        double vertical = endermiteVerticalKnockback;
+        
+        // Aplicar el nivel de knockback del endermite (simula Knockback II)
+        horizontal += endermiteKnockbackLevel * 1.2;
+        
+        // Si el dueño está corriendo, aplicar multiplicador (el endermite "hereda" el sprint)
+        if (owner.isSprinting()) {
+            horizontal *= sprintMultiplier;
+        }
+        
+        // Verificar si el dueño tiene items con knockback adicional
+        ItemStack ownerWeapon = owner.getItemInHand();
+        if (ownerWeapon != null && ownerWeapon.containsEnchantment(Enchantment.KNOCKBACK)) {
+            int knockbackLevel = ownerWeapon.getEnchantmentLevel(Enchantment.KNOCKBACK);
+            horizontal += knockbackLevel * 0.8; // Multiplicador reducido para endermites
+        }
+        
+        // Reducir por resistencia al knockback
+        double resistance = getKnockbackResistance(victim);
+        horizontal *= (1.0 - (resistance * knockbackResistanceReduction));
+        vertical *= (1.0 - (resistance * knockbackResistanceReduction));
+        
+        // Crear vector final
+        Vector knockback = new Vector(
+            direction.getX() * horizontal,
+            vertical,
+            direction.getZ() * horizontal
+        );
+        
+        // Aplicar límites de velocidad específicos para endermites
+        knockback = applyEndermiteVelocityLimits(knockback);
+        
+        return knockback;
+    }
 
     private double getKnockbackResistance(Player player) {
         // Acá se puede agregar lógica para detectar la resistencia al knockback si es necesario
@@ -142,8 +216,33 @@ public class CombatManager {
     
     private Vector applyVelocityLimits(Vector velocity, boolean isArrow) {
         // Límites más altos para flechas
-        double maxHorizontal = isArrow ? 1.3 : 0.9;
+        double maxHorizontal = isArrow ? 2.4 : 0.9;
         double maxVertical = 0.6;
+        
+        // Limitar componentes horizontales
+        double horizontalMagnitude = Math.sqrt(
+            velocity.getX() * velocity.getX() + 
+            velocity.getZ() * velocity.getZ()
+        );
+        
+        if (horizontalMagnitude > maxHorizontal) {
+            double ratio = maxHorizontal / horizontalMagnitude;
+            velocity.setX(velocity.getX() * ratio);
+            velocity.setZ(velocity.getZ() * ratio);
+        }
+        
+        // Limitar componente vertical
+        if (velocity.getY() > maxVertical) {
+            velocity.setY(maxVertical);
+        }
+        
+        return velocity;
+    }
+    
+    // NUEVO: Límites de velocidad específicos para endermites
+    private Vector applyEndermiteVelocityLimits(Vector velocity) {
+        double maxHorizontal = 1.5; // Límite específico para endermites
+        double maxVertical = 0.5;
         
         // Limitar componentes horizontales
         double horizontalMagnitude = Math.sqrt(

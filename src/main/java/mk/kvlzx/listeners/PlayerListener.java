@@ -146,7 +146,8 @@ public class PlayerListener implements Listener {
             // Si no hay cambio de arena, asegurar velocidad normal
             player.setWalkSpeed(0.2f);
         }
-
+        
+        plugin.getScoreboardManager().updatePlayerZone(player, currentArena);
     }
 
     @EventHandler

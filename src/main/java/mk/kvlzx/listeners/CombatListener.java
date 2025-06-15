@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.Endermite;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.arena.ZoneType;
@@ -80,6 +81,39 @@ public class CombatListener implements Listener {
             }
             event.setDamage(0.0D);
             return;
+        } else if (event.getDamager() instanceof Endermite) {
+            // NUEVO: Manejar ataques de endermites
+            Endermite endermite = (Endermite) event.getDamager();
+            
+            // Verificar si el endermite tiene un dueño registrado
+            Player owner = plugin.getEndermiteListener().getEndermiteOwner(endermite);
+            if (owner != null) {
+                // No permitir que el endermite ataque a su propio dueño
+                if (owner.equals(victim)) {
+                    event.setCancelled(true);
+                    return;
+                }
+                
+                // Verificar estados de la arena
+                if (plugin.getScoreboardManager().isArenaChanging()) {
+                    event.setCancelled(true);
+                    return;
+                }
+                
+                if (isInSpawn(victim) || isInSpawn(owner)) {
+                    event.setCancelled(true);
+                    return;
+                }
+                
+                // Registrar el dueño del endermite como atacante
+                lastAttacker.put(victim.getUniqueId(), owner.getUniqueId());
+                lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
+                
+                // Aplicar knockback específico para endermites
+                plugin.getCombatManager().applyEndermiteKnockback(victim, owner, endermite);
+                event.setDamage(0.0D);
+                return;
+            }
         }
 
         // Verificar que el atacante no sea nulo

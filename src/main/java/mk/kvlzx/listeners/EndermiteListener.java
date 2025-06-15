@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Endermite;
@@ -33,9 +34,13 @@ public class EndermiteListener implements Listener {
 
     private final MysthicKnockBack plugin;
     private final Map<UUID, UUID> endermiteOwners = new HashMap<>(); // UUID del endermite -> UUID del jugador
+    private final Map<UUID, List<UUID>> playerEndermites = new HashMap<>(); // UUID del jugador -> Lista de endermites
     private final Map<UUID, BukkitTask> endermiteTasks = new HashMap<>(); // UUID del endermite -> Task de countdown
     private final Map<UUID, BukkitTask> followTasks = new HashMap<>(); // UUID del endermite -> Task de seguimiento
     private final Map<UUID, BukkitTask> attackTasks = new HashMap<>(); // UUID del endermite -> Task de ataque
+    private final Map<UUID, UUID> currentAttackTargets = new HashMap<>(); // UUID del endermite -> UUID del objetivo actual
+    
+    private static final int MAX_ENDERMITES_PER_PLAYER = 3;
     
     public EndermiteListener(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -53,9 +58,42 @@ public class EndermiteListener implements Listener {
             // Buscar al jugador más cercano (quien lanzó la ender pearl)
             Player owner = findNearestPlayer(endermite.getLocation());
             if (owner != null) {
-                setupEndermitePet(endermite, owner);
+                // Verificar límite de endermites
+                if (canPlayerHaveMoreEndermites(owner)) {
+                    setupEndermitePet(endermite, owner);
+                } else {
+                    // Si ya tiene el máximo, cancelar el spawn
+                    event.setCancelled(true);
+                    owner.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou already have the maximum allowed endermites (" + MAX_ENDERMITES_PER_PLAYER + ")"));
+                }
             }
         }
+    }
+    
+    private boolean canPlayerHaveMoreEndermites(Player player) {
+        UUID playerId = player.getUniqueId();
+        List<UUID> playerEndermiteList = playerEndermites.get(playerId);
+        
+        if (playerEndermiteList == null) {
+            return true;
+        }
+        
+        // Limpiar endermites muertos de la lista
+        playerEndermiteList.removeIf(endermiteId -> {
+            boolean exists = false;
+            for (World world : Bukkit.getWorlds()) {
+                for (Entity entity : world.getEntities()) {
+                    if (entity.getUniqueId().equals(endermiteId) && entity instanceof Endermite && entity.isValid()) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (exists) break;
+            }
+            return !exists;
+        });
+        
+        return playerEndermiteList.size() < MAX_ENDERMITES_PER_PLAYER;
     }
     
     private Player findNearestPlayer(Location location) {
@@ -74,11 +112,17 @@ public class EndermiteListener implements Listener {
     
     private void setupEndermitePet(Endermite endermite, Player owner) {
         UUID endermiteId = endermite.getUniqueId();
-        endermiteOwners.put(endermiteId, owner.getUniqueId());
+        UUID ownerId = owner.getUniqueId();
+        
+        endermiteOwners.put(endermiteId, ownerId);
+        
+        // Agregar a la lista de endermites del jugador
+        playerEndermites.computeIfAbsent(ownerId, k -> new ArrayList<>()).add(endermiteId);
         
         // Configurar el endermite
         endermite.setRemoveWhenFarAway(false);
         endermite.setCanPickupItems(false);
+        endermite.setCustomNameVisible(true);
         endermite.setMaxHealth(8.0);
         endermite.setHealth(8.0);
         
@@ -89,11 +133,8 @@ public class EndermiteListener implements Listener {
         // Iniciar el sistema de countdown y nombre
         startEndermiteCountdown(endermite, owner);
         
-        // Iniciar el comportamiento de ataque
-        startAttackBehavior(endermite, owner);
-
-        // Iniciar el comportamiento de seguir al dueño
-        followOwner(endermite, owner);
+        // Iniciar el comportamiento de ataque y seguimiento combinado
+        startCombinedBehavior(endermite, owner);
     }
     
     private void startEndermiteCountdown(Endermite endermite, Player owner) {
@@ -114,40 +155,65 @@ public class EndermiteListener implements Listener {
             timeLeft[0]--;
             
             if (timeLeft[0] <= 0) {
-                // Desmontar al jugador si sigue montado
-                if (endermite.getPassenger() != null && endermite.getPassenger().equals(owner)) {
-                    endermite.setPassenger(null);
-                }
                 endermite.remove();
                 cleanupEndermite(endermiteId);
             }
-        }, 0L, 10L); // Cada medio segundo
+        }, 0L, 20L); // Cada segundo
         
         endermiteTasks.put(endermiteId, task);
     }
     
-    private void startAttackBehavior(Endermite endermite, Player owner) {
+    private void startCombinedBehavior(Endermite endermite, Player owner) {
         UUID endermiteId = endermite.getUniqueId();
         
-        BukkitTask attackTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            if (!endermite.isValid() || endermite.isDead()) {
+        BukkitTask behaviorTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            if (!endermite.isValid() || endermite.isDead() || !owner.isOnline()) {
                 return;
             }
             
+            if (!(endermite instanceof Creature)) return;
+            Creature creature = (Creature) endermite;
+            
             // Verificar si el endermite está apuntando al dueño y cancelar el targeting
-            if (endermite instanceof Creature) {
-                Creature creature = (Creature) endermite;
-                LivingEntity currentTarget = creature.getTarget();
-                
-                // Si está apuntando al dueño, cancelar el targeting
-                if (currentTarget instanceof Player && 
-                    currentTarget.getUniqueId().equals(owner.getUniqueId())) {
-                    creature.setTarget(null);
-                }
+            LivingEntity currentTarget = creature.getTarget();
+            if (currentTarget instanceof Player && 
+                currentTarget.getUniqueId().equals(owner.getUniqueId())) {
+                creature.setTarget(null);
+                currentTarget = null;
             }
             
-            // Buscar enemigos válidos (que no sean el dueño)
-            Player validTarget = null;
+            // Obtener el objetivo actual almacenado
+            UUID currentStoredTargetId = currentAttackTargets.get(endermiteId);
+            Player currentStoredTarget = null;
+            
+            if (currentStoredTargetId != null) {
+                currentStoredTarget = Bukkit.getPlayer(currentStoredTargetId);
+            }
+            
+            // Si hay un objetivo almacenado, verificar si sigue siendo válido
+            if (currentStoredTarget != null && currentStoredTarget.isOnline()) {
+                double distanceToOwner = currentStoredTarget.getLocation().distance(owner.getLocation());
+                
+                // Si el objetivo se alejó más de 10 bloques del dueño, dejar de atacarlo
+                if (distanceToOwner > 10) {
+                    currentAttackTargets.remove(endermiteId);
+                    creature.setTarget(null);
+                    currentStoredTarget = null;
+                }
+            } else {
+                // El objetivo ya no es válido, limpiarlo
+                currentAttackTargets.remove(endermiteId);
+                currentStoredTarget = null;
+            }
+            
+            // Si tenemos un objetivo válido, continuar atacándolo
+            if (currentStoredTarget != null) {
+                creature.setTarget(currentStoredTarget);
+                return; // No seguir al dueño mientras esté atacando
+            }
+            
+            // No hay objetivo current, buscar nuevos enemigos válidos
+            Player newTarget = null;
             double closestDistance = Double.MAX_VALUE;
             
             for (Entity entity : endermite.getNearbyEntities(10, 10, 10)) {
@@ -156,51 +222,65 @@ public class EndermiteListener implements Listener {
                     
                     // No atacar al dueño
                     if (!target.getUniqueId().equals(owner.getUniqueId())) {
-                        double distance = endermite.getLocation().distance(target.getLocation());
-                        if (distance < closestDistance) {
-                            closestDistance = distance;
-                            validTarget = target;
+                        double distanceToEndermite = endermite.getLocation().distance(target.getLocation());
+                        double distanceToOwner = target.getLocation().distance(owner.getLocation());
+                        
+                        // El jugador debe estar dentro de 10 bloques del dueño para ser considerado
+                        if (distanceToOwner <= 10 && distanceToEndermite < closestDistance) {
+                            closestDistance = distanceToEndermite;
+                            newTarget = target;
                         }
                     }
                 }
             }
             
-            // Asignar el objetivo válido más cercano
-            if (validTarget != null && endermite instanceof Creature) {
-                ((Creature) endermite).setTarget(validTarget);
+            // Si encontramos un nuevo objetivo, empezar a atacarlo
+            if (newTarget != null) {
+                currentAttackTargets.put(endermiteId, newTarget.getUniqueId());
+                creature.setTarget(newTarget);
+                return; // No seguir al dueño si encontramos un objetivo
             }
             
-        }, 0L, 10L); // Cada medio segundo para mejor respuesta
-        
-        attackTasks.put(endermiteId, attackTask);
-    }
-    
-    private void followOwner(Endermite endermite, Player owner) {
-        UUID endermiteId = endermite.getUniqueId();
-
-        BukkitTask followTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            if (!endermite.isValid() || endermite.isDead() || !owner.isOnline()) {
-                BukkitTask task = followTasks.remove(endermiteId);
-                if (task != null) task.cancel();
-                return;
-            }
-
-            if (!(endermite instanceof Creature)) return;
-            Creature creature = (Creature) endermite;
-
-            double distance = endermite.getLocation().distance(owner.getLocation());
-
-            if (distance > 3.5) {
+            // No hay objetivos que atacar, seguir al dueño
+            double distanceToOwner = endermite.getLocation().distance(owner.getLocation());
+            
+            // Si el dueño está muy lejos (más de 10 bloques), teletransportar el endermite
+            if (distanceToOwner > 10) {
+                Location teleportLocation = owner.getLocation().clone();
+                // Buscar una ubicación segura cerca del jugador
+                teleportLocation = findSafeTeleportLocation(teleportLocation);
+                endermite.teleport(teleportLocation);
+                creature.setTarget(null); // Limpiar el objetivo después del tp
+            } else if (distanceToOwner > 3.5) {
+                // Si está lejos pero no muy lejos, seguir normalmente
                 creature.setTarget(owner);
             } else {
+                // Si está cerca, no seguir
                 if (creature.getTarget() != null && creature.getTarget().equals(owner)) {
                     creature.setTarget(null);
                 }
             }
-
-        }, 0L, 20L);
-
-        followTasks.put(endermiteId, followTask);
+            
+        }, 0L, 5L); // Cada cuarto de segundo para mayor responsividad
+        
+        attackTasks.put(endermiteId, behaviorTask);
+    }
+    
+    private Location findSafeTeleportLocation(Location ownerLocation) {
+        Location teleportLocation = ownerLocation.clone();
+        
+        // Intentar encontrar un bloque sólido cerca del jugador
+        for (int y = -2; y <= 2; y++) {
+            Location testLocation = teleportLocation.clone().add(0, y, 0);
+            if (testLocation.getBlock().getType().isSolid() && 
+                testLocation.clone().add(0, 1, 0).getBlock().getType() == Material.AIR &&
+                testLocation.clone().add(0, 2, 0).getBlock().getType() == Material.AIR) {
+                return testLocation.add(0, 1, 0);
+            }
+        }
+        
+        // Si no encuentra un lugar seguro, usar la ubicación del jugador
+        return ownerLocation;
     }
 
     @EventHandler
@@ -213,25 +293,28 @@ public class EndermiteListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        List<UUID> toRemove = new ArrayList<>();
-
-        for (Map.Entry<UUID, UUID> entry : endermiteOwners.entrySet()) {
-            if (entry.getValue().equals(player.getUniqueId())) {
+        UUID playerId = player.getUniqueId();
+        
+        // Obtener la lista de endermites del jugador
+        List<UUID> playerEndermiteList = playerEndermites.get(playerId);
+        if (playerEndermiteList != null) {
+            List<UUID> toRemove = new ArrayList<>(playerEndermiteList);
+            
+            for (UUID endermiteId : toRemove) {
                 for (World world : Bukkit.getWorlds()) {
                     for (Entity entity : world.getEntities()) {
-                        if (entity.getUniqueId().equals(entry.getKey()) && entity instanceof Endermite) {
+                        if (entity.getUniqueId().equals(endermiteId) && entity instanceof Endermite) {
                             entity.remove();
                             break;
                         }
                     }
                 }
-                toRemove.add(entry.getKey());
+                cleanupEndermite(endermiteId);
             }
         }
-
-        for (UUID endermiteId : toRemove) {
-            cleanupEndermite(endermiteId);
-        }
+        
+        // Limpiar la lista del jugador
+        playerEndermites.remove(playerId);
     }
 
     @EventHandler
@@ -244,9 +327,46 @@ public class EndermiteListener implements Listener {
             }
         }
     }
+
+    public Player getEndermiteOwner(Endermite endermite) {
+        if (endermite == null) {
+            return null;
+        }
+        
+        UUID endermiteId = endermite.getUniqueId();
+        UUID ownerId = endermiteOwners.get(endermiteId);
+        
+        if (ownerId == null) {
+            return null;
+        }
+        
+        // Obtener el jugador usando el UUID
+        Player owner = Bukkit.getPlayer(ownerId);
+        
+        // Verificar que el jugador esté conectado
+        if (owner == null || !owner.isOnline()) {
+            return null;
+        }
+        
+        return owner;
+    }
     
     private void cleanupEndermite(UUID endermiteId) {
-        endermiteOwners.remove(endermiteId);
+        // Obtener el dueño del endermite
+        UUID ownerId = endermiteOwners.remove(endermiteId);
+        
+        // Remover de la lista del jugador si existe
+        if (ownerId != null) {
+            List<UUID> playerEndermiteList = playerEndermites.get(ownerId);
+            if (playerEndermiteList != null) {
+                playerEndermiteList.remove(endermiteId);
+                if (playerEndermiteList.isEmpty()) {
+                    playerEndermites.remove(ownerId);
+                }
+            }
+        }
+        
+        currentAttackTargets.remove(endermiteId);
         
         BukkitTask task = endermiteTasks.remove(endermiteId);
         if (task != null) {
@@ -262,5 +382,47 @@ public class EndermiteListener implements Listener {
         if (attackTask != null) {
             attackTask.cancel();
         }
+    }
+    
+    // Método público para limpiar todos los endermites (llamado al apagar el servidor)
+    public void cleanupAllEndermites() {
+        // Remover todos los endermites del mundo
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (entity instanceof Endermite) {
+                    UUID endermiteId = entity.getUniqueId();
+                    if (endermiteOwners.containsKey(endermiteId)) {
+                        entity.remove();
+                    }
+                }
+            }
+        }
+        
+        // Cancelar todas las tareas
+        for (BukkitTask task : endermiteTasks.values()) {
+            if (task != null) {
+                task.cancel();
+            }
+        }
+        
+        for (BukkitTask task : followTasks.values()) {
+            if (task != null) {
+                task.cancel();
+            }
+        }
+        
+        for (BukkitTask task : attackTasks.values()) {
+            if (task != null) {
+                task.cancel();
+            }
+        }
+        
+        // Limpiar todos los mapas
+        endermiteOwners.clear();
+        playerEndermites.clear();
+        endermiteTasks.clear();
+        followTasks.clear();
+        attackTasks.clear();
+        currentAttackTargets.clear();
     }
 }

@@ -62,6 +62,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private CombatManager combatManager;
     private MusicManager musicManager;
     private ItemVerificationManager itemVerificationManager;
+    private EndermiteListener endermiteListener;
 
     @Override
     public void onEnable() {
@@ -140,6 +141,11 @@ public class MysthicKnockBack extends JavaPlugin {
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Cleaning blocks and items...");
             ItemListener.cleanup();
             cleanupAllDroppedItems();
+
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b4&8] &7Cleaning up endermites...");
+            if (endermiteListener != null) {
+                endermiteListener.cleanupAllEndermites();
+            }
         } catch (Exception e) {
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&c!&8] &cError saving data: " + e.getMessage());
             e.printStackTrace();
@@ -225,7 +231,8 @@ public class MysthicKnockBack extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         getServer().getPluginManager().registerEvents(new ArrowEffectListener(this), this);
-        getServer().getPluginManager().registerEvents(new EndermiteListener(this), this);
+        endermiteListener = new EndermiteListener(this);
+        getServer().getPluginManager().registerEvents(endermiteListener, this);
         getServer().getPluginManager().registerEvents(new FriendListener(this), this);
     }
 
@@ -279,5 +286,9 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public ItemVerificationManager getItemVerificationManager() {
         return itemVerificationManager;
+    }
+
+    public EndermiteListener getEndermiteListener() {
+        return endermiteListener;
     }
 }

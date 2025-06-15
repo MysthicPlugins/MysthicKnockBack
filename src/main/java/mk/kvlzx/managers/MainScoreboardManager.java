@@ -217,7 +217,6 @@ public class MainScoreboardManager {
                 if (step >= loadingFrames.length + 2) {
                     this.cancel();
                     teleportPlayers(currentArena, nextArena, nextSpawn);
-                    arenaChanging = false; // Desactivar el estado de cambio cuando termina
                     return;
                 }
 
@@ -275,7 +274,7 @@ public class MainScoreboardManager {
         plugin.getArenaManager().setCurrentArena(nextArena);
     }
 
-    private void updatePlayerZone(Player player, String arenaName) {
+    public void updatePlayerZone(Player player, String arenaName) {
         Arena arena = plugin.getArenaManager().getArena(arenaName);
         if (arena == null) return;
         
