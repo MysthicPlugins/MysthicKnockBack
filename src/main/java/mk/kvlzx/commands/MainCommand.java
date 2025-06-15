@@ -56,6 +56,7 @@ public class MainCommand implements CommandExecutor{
         sender.sendMessage(MessageUtils.getColor("/stats reset <player>"));
         sender.sendMessage(MessageUtils.getColor("/stats resetall"));
         sender.sendMessage(MessageUtils.getColor("/music"));
+        sender.sendMessage(MessageUtils.getColor("/report"));
         sender.sendMessage(MessageUtils.getColor("--------&r &b&lCommands MysthicKnockBack &8&m--------"));
     }
 }

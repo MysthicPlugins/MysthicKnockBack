@@ -25,6 +25,7 @@ import mk.kvlzx.commands.ReportCommand;
 import mk.kvlzx.commands.FriendCommand;
 import mk.kvlzx.commands.FriendTabCompleter;
 import mk.kvlzx.commands.IgnoreCommand;
+import mk.kvlzx.commands.IgnoreTabCompleter;
 import mk.kvlzx.cosmetics.CosmeticManager;
 import mk.kvlzx.data.InventoryData;
 import mk.kvlzx.hotbar.PlayerHotbar;
@@ -64,6 +65,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private MusicManager musicManager;
     private ItemVerificationManager itemVerificationManager;
     private EndermiteListener endermiteListener;
+    private FriendCommand friendCommand;
     private IgnoreCommand ignoreCommand;
 
     @Override
@@ -102,6 +104,14 @@ public class MysthicKnockBack extends JavaPlugin {
             }
         }.runTaskLater(this, 20L);
 
+        if (friendCommand != null) {
+            friendCommand.loadAllData();
+        }
+
+        if (ignoreCommand != null) {
+            ignoreCommand.loadAllIgnoreData();
+        }
+
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Loading arenas...");
         arenaManager.loadArenas();
 
@@ -110,10 +120,12 @@ public class MysthicKnockBack extends JavaPlugin {
         registerEvents();
         startPlaytimeUpdater();
         startItemCleanup();
+        startAutoSave(); // Nuevo: Iniciar auto-guardado
         itemVerificationManager.startVerification();
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&a✔&8] &aPlugin started successfully");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Auto-save enabled every 5 minutes");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Developed by: &bKvlzx &8& &bGabo");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
@@ -132,11 +144,7 @@ public class MysthicKnockBack extends JavaPlugin {
 
         try {
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b1&8] &7Saving data...");
-            PlayerStats.saveAllStats();
-            cosmeticManager.saveAll();
-            combatManager.cleanup();
-            itemVerificationManager.stopVerification();
-            ignoreCommand.saveIgnoredPlayers();
+            saveAllData(); // Usar el método centralizado
 
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Saving arenas...");
             arenaManager.saveArenas();
@@ -192,6 +200,37 @@ public class MysthicKnockBack extends JavaPlugin {
         }, 600L, 600L);
     }
 
+    // Nuevo método para auto-guardado cada 5 minutos
+    private void startAutoSave() {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+            try {
+                MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&e⚠&8] &7Auto-saving data...");
+                saveAllData();
+                arenaManager.saveArenas();
+                MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&a✔&8] &7Auto-save completed successfully");
+            } catch (Exception e) {
+                MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&c!&8] &cAuto-save failed: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }, 6000L, 6000L); // 6000 ticks = 5 minutos (20 ticks = 1 segundo)
+    }
+
+    // Método centralizado para guardar toda la data
+    private void saveAllData() {
+        PlayerStats.saveAllStats();
+        cosmeticManager.saveAll();
+        combatManager.cleanup();
+        itemVerificationManager.stopVerification();
+
+        if (friendCommand != null) {
+            friendCommand.saveAllData();
+        }
+        
+        if (ignoreCommand != null) {
+            ignoreCommand.saveAllIgnoreData();
+        }
+    }
+
     private void cleanupAllDroppedItems() {
         for (World world : Bukkit.getWorlds()) {
             for (Entity entity : world.getEntities()) {
@@ -221,11 +260,13 @@ public class MysthicKnockBack extends JavaPlugin {
         getCommand("music").setExecutor(new MusicCommand(this));
         getCommand("report").setExecutor(new ReportCommand(this));
         ignoreCommand = new IgnoreCommand(this);
-        getCommand("friend").setExecutor(new FriendCommand(this, ignoreCommand));
+        friendCommand = new FriendCommand(this, ignoreCommand);
+        getCommand("friend").setExecutor(friendCommand);
         getCommand("friend").setTabCompleter(new FriendTabCompleter());
         getCommand("msg").setExecutor(new MsgCommand(this));
         getCommand("r").setExecutor(new ReplyCommand(this));
         getCommand("ignore").setExecutor(ignoreCommand);
+        getCommand("ignore").setTabCompleter(new IgnoreTabCompleter(this, ignoreCommand));
     }
 
     public void registerEvents() {

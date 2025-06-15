@@ -67,11 +67,7 @@ public class MsgCommand implements CommandExecutor {
         boolean areFriends = FriendCommand.areFriends(playerId, targetId);
         
         // Determinar el tag a usar
-        String tag = areFriends ? "&d&lFRIEND" : "&7&lMSG";
-        
-        // Enviar tag [MSG] en color aqua antes del mensaje
-        player.sendMessage(MessageUtils.getColor("&b[MSG]"));
-        target.sendMessage(MessageUtils.getColor("&b[MSG]"));
+        String tag = areFriends ? "&7[&d&lFRIEND&7]" : "&7[&bMSG&7]";
         
         // Enviar mensaje al remitente
         String senderMessage = MessageUtils.getColor(tag + " &7from &8" + player.getName() + "&8: &f" + message);

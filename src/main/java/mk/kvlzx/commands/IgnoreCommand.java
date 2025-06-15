@@ -4,29 +4,24 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.data.IgnoreData;
 import mk.kvlzx.utils.MessageUtils;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Map;
 import java.util.UUID;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 
 public class IgnoreCommand implements CommandExecutor {
     private final MysthicKnockBack plugin;
-    private final Map<UUID, Set<UUID>> ignoredPlayers = new ConcurrentHashMap<>();
-    private File ignoreFile;
-    private FileConfiguration ignoreConfig;
+    private final Map<UUID, Set<UUID>> ignoredPlayers = new HashMap<>();
+    private final IgnoreData ignoreData;
 
     public IgnoreCommand(MysthicKnockBack plugin) {
         this.plugin = plugin;
-        loadIgnoredPlayers();
+        this.ignoreData = new IgnoreData(plugin);
+        loadAllIgnoreData();
     }
 
     @Override
@@ -99,8 +94,10 @@ public class IgnoreCommand implements CommandExecutor {
         }
 
         ignored.add(targetUUID);
-        saveIgnoredPlayers();
         player.sendMessage(MessageUtils.getColor("&aYou have ignored " + targetName + "."));
+        
+        // Guardar datos
+        savePlayerIgnoreData(playerUUID);
     }
 
     private void handleIgnoreRemove(Player player, String targetName) {
@@ -115,8 +112,10 @@ public class IgnoreCommand implements CommandExecutor {
         }
 
         ignored.remove(targetUUID);
-        saveIgnoredPlayers();
         player.sendMessage(MessageUtils.getColor("&aYou have stopped ignoring " + targetName + "."));
+        
+        // Guardar datos
+        savePlayerIgnoreData(playerUUID);
     }
 
     private void handleIgnoreList(Player player) {
@@ -140,39 +139,46 @@ public class IgnoreCommand implements CommandExecutor {
         return ignoredPlayers.getOrDefault(targetUUID, new HashSet<>()).contains(senderUUID);
     }
 
-    public void saveIgnoredPlayers() {
-        ignoreFile = new File(plugin.getDataFolder(), "ignore.yml");
-        ignoreConfig = new YamlConfiguration();
-
-        for (Map.Entry<UUID, Set<UUID>> entry : ignoredPlayers.entrySet()) {
-            UUID playerUUID = entry.getKey();
-            Set<UUID> ignoredSet = entry.getValue();
-            List<String> ignoredUUIDs = new ArrayList<>();
-            for (UUID ignoredUUID : ignoredSet) {
-                ignoredUUIDs.add(ignoredUUID.toString());
-            }
-            ignoreConfig.set(playerUUID.toString() + ".ignored", ignoredUUIDs);
-        }
-
+    // Métodos para persistencia de datos
+    public void loadAllIgnoreData() {
         try {
-            ignoreConfig.save(ignoreFile);
-        } catch (IOException e) {
-            plugin.getLogger().severe("Error saving ignore.yml: " + e.getMessage());
+            Map<UUID, Set<UUID>> loadedData = ignoreData.loadAllIgnoreData();
+            ignoredPlayers.clear();
+            ignoredPlayers.putAll(loadedData);
+            plugin.getLogger().info("Loaded ignore data for " + ignoredPlayers.size() + " players");
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to load ignore data: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    private void loadIgnoredPlayers() {
-        ignoreFile = new File(plugin.getDataFolder(), "ignore.yml");
-        ignoreConfig = YamlConfiguration.loadConfiguration(ignoreFile);
-
-        for (String playerUUIDStr : ignoreConfig.getKeys(false)) {
-            UUID playerUUID = UUID.fromString(playerUUIDStr);
-            List<String> ignoredUUIDs = ignoreConfig.getStringList(playerUUIDStr + ".ignored");
-            Set<UUID> ignoredSet = new HashSet<>();
-            for (String ignoredUUID : ignoredUUIDs) {
-                ignoredSet.add(UUID.fromString(ignoredUUID));
-            }
-            ignoredPlayers.put(playerUUID, ignoredSet);
+    public void saveAllIgnoreData() {
+        try {
+            ignoreData.saveAllIgnoreData(ignoredPlayers);
+            plugin.getLogger().info("Saved ignore data for " + ignoredPlayers.size() + " players");
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to save ignore data: " + e.getMessage());
+            e.printStackTrace();
         }
+    }
+
+    private void savePlayerIgnoreData(UUID playerUUID) {
+        try {
+            Set<UUID> ignored = ignoredPlayers.getOrDefault(playerUUID, new HashSet<>());
+            ignoreData.saveIgnoreData(playerUUID, ignored);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to save ignore data for player " + playerUUID + ": " + e.getMessage());
+        }
+    }
+
+    public void onPlayerQuit(UUID playerUUID) {
+        // Opcional: Guardar datos del jugador cuando se desconecta
+        if (ignoredPlayers.containsKey(playerUUID)) {
+            savePlayerIgnoreData(playerUUID);
+        }
+    }
+
+    public Set<UUID> getIgnoredPlayers(UUID playerUUID) {
+        return ignoredPlayers.getOrDefault(playerUUID, new HashSet<>());
     }
 }

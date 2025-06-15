@@ -14,8 +14,6 @@ commands:
       - kbffa
   report:
     description: Command to report a player
-    aliases:
-      - report
   arena:
     description: Command to define an arena
   stats:
@@ -33,4 +31,3 @@ commands:
     aliases: [reply]
   ignore:
     description: Command to manage ignored players
-    aliases: [ignorar]

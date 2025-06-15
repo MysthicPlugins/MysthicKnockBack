@@ -92,34 +92,26 @@ public class MusicManager {
     }
 
     public void startMusicForPlayer(Player player, String musicName) {
-        plugin.getLogger().info("Starting music for " + player.getName() + ": " + musicName);
         
         stopMusicForPlayer(player);
         
         String simpleName = musicName.replace("records.", "");
         MusicData musicData = MUSIC_DATA.get(simpleName);
         if (musicData == null) {
-            plugin.getLogger().warning("Music not found: " + simpleName);
             return;
         }
 
         Location jukeboxLoc = getValidJukeboxLocation(player);
         if (jukeboxLoc == null) {
-            plugin.getLogger().warning("No valid location found for the jukebox");
             player.sendMessage(MessageUtils.getColor("&cThere is not enough space to place the jukebox."));
             return;
         }
-
-        plugin.getLogger().info("Placing jukebox at: " + jukeboxLoc);
 
         // Colocar la jukebox
         Block block = jukeboxLoc.getBlock();
         block.setType(Material.JUKEBOX);
         
-        plugin.getLogger().info("Jukebox placed at: " + jukeboxLoc);
-        
         if (block.getType() != Material.JUKEBOX) {
-            plugin.getLogger().warning("Error placing the jukebox at: " + jukeboxLoc);
             player.sendMessage(MessageUtils.getColor("&cError placing the jukebox."));
             return;
         }
@@ -144,14 +136,12 @@ public class MusicManager {
         BukkitTask checkTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (!player.isOnline() || 
                 !simpleName.equalsIgnoreCase(plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId()))) {
-                plugin.getLogger().info("Stopping music due to disconnection or change: " + player.getName());
                 stopMusicForPlayer(player);
                 return;
             }
 
             // Verificar distancia
             if (jukeboxLoc.distance(player.getLocation()) > MAX_DISTANCE) {
-                plugin.getLogger().info(player.getName() + " moved too far from the jukebox");
                 player.sendMessage(MessageUtils.getColor("&cYou have moved too far from your jukebox."));
                 stopMusicForPlayer(player);
                 return;
@@ -160,7 +150,6 @@ public class MusicManager {
             // Verificar si la jukebox sigue ahí
             Block jukeboxBlock = jukeboxLoc.getBlock();
             if (jukeboxBlock.getType() != Material.JUKEBOX) {
-                plugin.getLogger().info("Jukebox not found, stopping music for " + player.getName());
                 stopMusicForPlayer(player);
                 return;
             }
@@ -168,7 +157,6 @@ public class MusicManager {
         }, 0L, 40L); // Verificar cada 2 segundos (40 ticks)
 
         playerTasks.put(player.getUniqueId(), checkTask);
-        plugin.getLogger().info("Music started successfully for " + player.getName());
     }
 
     private void startMusicLoop(Player player, String simpleName, Location jukeboxLoc, MusicData musicData) {
@@ -202,7 +190,6 @@ public class MusicManager {
                 Jukebox jukebox = (Jukebox) jukeboxBlock.getState();
                 jukebox.setPlaying(musicData.discMaterial);
                 jukebox.update();
-                plugin.getLogger().info("Restarting music cycle for " + player.getName() + " - " + simpleName);
                 
                 // Programar el siguiente ciclo
                 startMusicLoop(player, simpleName, jukeboxLoc, musicData);
@@ -270,18 +257,15 @@ public class MusicManager {
     }
 
     private boolean canPlaceJukebox(Location location) {
-        plugin.getLogger().info("Checking location for jukebox: " + location);
         
         Block block = location.getBlock();
         Block below = block.getRelative(BlockFace.DOWN);
         
         if (block.getType() != Material.AIR && block.getType() != Material.JUKEBOX) {
-            plugin.getLogger().info("Block occupied: " + block.getType());
             return false;
         }
         
         if (!below.getType().isSolid()) {
-            plugin.getLogger().info("No solid block below: " + below.getType());
             return false;
         }
 
@@ -289,12 +273,10 @@ public class MusicManager {
         for (Location existingLoc : playerJukeboxes.values()) {
             if (existingLoc.getWorld().equals(location.getWorld()) && 
                 existingLoc.distance(location) < 2) {
-                plugin.getLogger().info("Jukebox too close at: " + existingLoc);
                 return false;
             }
         }
 
-        plugin.getLogger().info("Valid location for jukebox");
         return true;
     }
 

@@ -13,6 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.data.FriendData;
 import mk.kvlzx.utils.MessageUtils;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -22,6 +23,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class FriendCommand implements CommandExecutor {
     private final MysthicKnockBack plugin;
     private final IgnoreCommand ignoreCommand;
+    private final FriendData friendData;
     
     private static Map<UUID, Set<UUID>> friends = new HashMap<>();
     private static Map<UUID, Set<UUID>> pendingRequests = new HashMap<>();
@@ -30,6 +32,20 @@ public class FriendCommand implements CommandExecutor {
     public FriendCommand(MysthicKnockBack plugin, IgnoreCommand ignoreCommand) {
         this.plugin = plugin;
         this.ignoreCommand = ignoreCommand;
+        this.friendData = new FriendData(plugin);
+        
+        // Cargar datos al inicializar
+        loadAllData();
+    }
+    
+    public void loadAllData() {
+        friends = friendData.loadFriends();
+        pendingRequests = friendData.loadPendingRequests();
+        playerUUIDs = friendData.loadPlayerUUIDs();
+    }
+    
+    public void saveAllData() {
+        friendData.saveAllData(friends, pendingRequests, playerUUIDs);
     }
     
     @Override
@@ -128,6 +144,9 @@ public class FriendCommand implements CommandExecutor {
         playerUUIDs.put(player.getName().toLowerCase(), playerId);
         playerUUIDs.put(target.getName().toLowerCase(), targetId);
         
+        // Guardar datos después de la modificación
+        saveAllData();
+        
         player.sendMessage(MessageUtils.getColor("&aFriend request sent to " + target.getName() + "."));
         
         // Mandar los mensajes clickeables al target
@@ -182,6 +201,10 @@ public class FriendCommand implements CommandExecutor {
         }
         
         removeFriend(playerId, targetId);
+        
+        // Guardar datos después de la modificación
+        saveAllData();
+        
         player.sendMessage(MessageUtils.getColor("&6You have removed " + targetName + " from your friends list."));
         
         // Notificar al otro jugador si está conectado
@@ -237,6 +260,9 @@ public class FriendCommand implements CommandExecutor {
         removePendingRequest(requesterId, playerId);
         addFriend(playerId, requesterId);
         
+        // Guardar datos después de la modificación
+        saveAllData();
+        
         player.sendMessage(MessageUtils.getColor("&aYou have accepted " + requesterName + "'s friend request."));
         
         // Notificar al otro jugador
@@ -269,6 +295,10 @@ public class FriendCommand implements CommandExecutor {
         
         // Denegar solicitud
         removePendingRequest(requesterId, playerId);
+        
+        // Guardar datos después de la modificación
+        saveAllData();
+        
         player.sendMessage(MessageUtils.getColor("&6You have denied " + requesterName + "'s friend request."));
         
         // Notificar al otro jugador

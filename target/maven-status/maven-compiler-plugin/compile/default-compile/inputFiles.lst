@@ -7,6 +7,8 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\ArenaCommand.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\ArenaTabCompleter.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\FriendCommand.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\FriendTabCompleter.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\IgnoreCommand.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\IgnoreTabCompleter.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\MainCommand.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\MainTabCompleter.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\MsgCommand.java
@@ -25,6 +27,8 @@ E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\KillMessageItem.jav
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\KillSoundItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\KnockerShopItem.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\data\ArenaData.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\data\FriendData.java
+E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\data\IgnoreData.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\data\InventoryData.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\data\StatsData.java
 E:\Plugins\MysthicKnockBack\src\main\java\mk\kvlzx\hotbar\PlayerHotbar.java
