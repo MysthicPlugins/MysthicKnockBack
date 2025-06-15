@@ -24,6 +24,7 @@ import mk.kvlzx.commands.ReplyCommand;
 import mk.kvlzx.commands.ReportCommand;
 import mk.kvlzx.commands.FriendCommand;
 import mk.kvlzx.commands.FriendTabCompleter;
+import mk.kvlzx.commands.IgnoreCommand;
 import mk.kvlzx.cosmetics.CosmeticManager;
 import mk.kvlzx.data.InventoryData;
 import mk.kvlzx.hotbar.PlayerHotbar;
@@ -63,6 +64,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private MusicManager musicManager;
     private ItemVerificationManager itemVerificationManager;
     private EndermiteListener endermiteListener;
+    private IgnoreCommand ignoreCommand;
 
     @Override
     public void onEnable() {
@@ -134,6 +136,7 @@ public class MysthicKnockBack extends JavaPlugin {
             cosmeticManager.saveAll();
             combatManager.cleanup();
             itemVerificationManager.stopVerification();
+            ignoreCommand.saveIgnoredPlayers();
 
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Saving arenas...");
             arenaManager.saveArenas();
@@ -217,10 +220,12 @@ public class MysthicKnockBack extends JavaPlugin {
         getCommand("stats").setTabCompleter(new StatsTabCompleter());
         getCommand("music").setExecutor(new MusicCommand(this));
         getCommand("report").setExecutor(new ReportCommand(this));
-        getCommand("friend").setExecutor(new FriendCommand(this));
+        ignoreCommand = new IgnoreCommand(this);
+        getCommand("friend").setExecutor(new FriendCommand(this, ignoreCommand));
         getCommand("friend").setTabCompleter(new FriendTabCompleter());
         getCommand("msg").setExecutor(new MsgCommand(this));
         getCommand("r").setExecutor(new ReplyCommand(this));
+        getCommand("ignore").setExecutor(ignoreCommand);
     }
 
     public void registerEvents() {

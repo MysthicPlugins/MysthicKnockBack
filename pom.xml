@@ -59,6 +59,7 @@
                     <include>data/inventories.yml</include>
                     <include>data/cosmetics.yml</include>
                     <include>data/friends.yml</include>
+                    <include>data/ignore.yml</include>
                 </includes>
             </resource>
         </resources>

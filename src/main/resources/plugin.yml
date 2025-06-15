@@ -3,7 +3,7 @@ version: 1.0.0-SNAPSHOT
 name: MysthicKnockBack
 authors: [Kvlzx, Gabo]
 api-version: 1.13
-depend: [WorldEdit]
+depends: [WorldEdit]
 
 commands:
   mysthicknockback:
@@ -31,3 +31,6 @@ commands:
   r:
     description: Command to reply to the last private message received
     aliases: [reply]
+  ignore:
+    description: Command to manage ignored players
+    aliases: [ignorar]

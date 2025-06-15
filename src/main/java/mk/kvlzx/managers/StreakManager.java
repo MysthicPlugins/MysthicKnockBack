@@ -42,6 +42,10 @@ public class StreakManager {
                     " &7lost their streak of &c" + getStreak(uuid) + " &7kills! &c☠"));
                 player.playSound(player.getLocation(), Sound.ENDERMAN_DEATH, 1.0f, 1.0f);
             }
+        if (player != null) {
+            player.setLevel(getStreak(uuid));
+            player.setExp(1.0f);
+        }
         }
         currentStreaks.put(uuid, 0);
         removeTag(uuid);

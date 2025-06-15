@@ -21,13 +21,15 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class FriendCommand implements CommandExecutor {
     private final MysthicKnockBack plugin;
+    private final IgnoreCommand ignoreCommand;
     
     private static Map<UUID, Set<UUID>> friends = new HashMap<>();
     private static Map<UUID, Set<UUID>> pendingRequests = new HashMap<>();
     private static Map<String, UUID> playerUUIDs = new HashMap<>();
 
-    public FriendCommand(MysthicKnockBack plugin) {
+    public FriendCommand(MysthicKnockBack plugin, IgnoreCommand ignoreCommand) {
         this.plugin = plugin;
+        this.ignoreCommand = ignoreCommand;
     }
     
     @Override
@@ -98,20 +100,26 @@ public class FriendCommand implements CommandExecutor {
         UUID playerId = player.getUniqueId();
         UUID targetId = target.getUniqueId();
         
+        // Verificar si el target ignora al remitente
+        if (ignoreCommand.isPlayerIgnored(playerId, targetId)) {
+            player.sendMessage(MessageUtils.getColor("&c" + targetName + " is ignoring you."));
+            return;
+        }
+        
         // Ver si los jugadores ya son amigos
         if (areFriends(playerId, targetId)) {
-            player.sendMessage(MessageUtils.getColor("&eYou are already friends with " + target.getName() + "."));
+            player.sendMessage(MessageUtils.getColor("&6You are already friends with " + target.getName() + "."));
             return;
         }
         
         // Ver si ya tienen una solicitud pendiente
         if (hasPendingRequest(targetId, playerId)) {
-            player.sendMessage(MessageUtils.getColor("&eYou already have a pending request from " + target.getName() + "."));
+            player.sendMessage(MessageUtils.getColor("&6You already have a pending request from " + target.getName() + "."));
             return;
         }
         
         if (hasPendingRequest(playerId, targetId)) {
-            player.sendMessage(MessageUtils.getColor("&eYou already sent a request to " + target.getName() + "."));
+            player.sendMessage(MessageUtils.getColor("&6You already sent a request to " + target.getName() + "."));
             return;
         }
         
@@ -127,8 +135,8 @@ public class FriendCommand implements CommandExecutor {
     }
     
     private void sendClickableRequest(Player target, Player requester) {
-        target.sendMessage(MessageUtils.getColor("&6═══════════════════════════════════"));
-        target.sendMessage(MessageUtils.getColor("&e" + requester.getName() + " has sent you a friend request!"));
+        target.sendMessage(MessageUtils.getColor("&b═-═-═-═-═-═-═-═-═-═-═-═-═-═-═-═-═-═"));
+        target.sendMessage(MessageUtils.getColor("&6" + requester.getName() + " has sent you a friend request!"));
         
         // Crear los componentes clickeables
         TextComponent acceptButton = new TextComponent(MessageUtils.getColor("&a[ACCEPT]"));
@@ -149,7 +157,7 @@ public class FriendCommand implements CommandExecutor {
         message.addExtra(denyButton);
         
         target.spigot().sendMessage(message);
-        target.sendMessage(MessageUtils.getColor("&6═══════════════════════════════════"));
+        target.sendMessage(MessageUtils.getColor("&b═-═-═-═-═-═-═-═-═-═-═-═-═-═-═-═-═-═"));
     }
     
     private void handleRemoveFriend(Player player, String[] args) {
@@ -174,12 +182,12 @@ public class FriendCommand implements CommandExecutor {
         }
         
         removeFriend(playerId, targetId);
-        player.sendMessage(MessageUtils.getColor("&eYou have removed " + targetName + " from your friends list."));
+        player.sendMessage(MessageUtils.getColor("&6You have removed " + targetName + " from your friends list."));
         
         // Notificar al otro jugador si está conectado
         Player target = Bukkit.getPlayer(targetId);
         if (target != null) {
-            target.sendMessage(MessageUtils.getColor("&e" + player.getName() + " has removed you from their friends list."));
+            target.sendMessage(MessageUtils.getColor("&6" + player.getName() + " has removed you from their friends list."));
         }
     }
     
@@ -188,20 +196,20 @@ public class FriendCommand implements CommandExecutor {
         Set<UUID> friendList = friends.getOrDefault(playerId, new HashSet<>());
         
         if (friendList.isEmpty()) {
-            player.sendMessage(MessageUtils.getColor("&eYou have no friends added."));
+            player.sendMessage(MessageUtils.getColor("&6You have no friends added."));
             return;
         }
         
-        player.sendMessage(MessageUtils.getColor("&6═══════ FRIENDS LIST ═══════"));
+        player.sendMessage(MessageUtils.getColor("&b═-═-═-═-═ FRIENDS LIST ═-═-═-═-═"));
         int count = 1;
         for (UUID friendId : friendList) {
             String friendName = getPlayerName(friendId);
             Player friend = Bukkit.getPlayer(friendId);
             String status = friend != null ? MessageUtils.getColor("&a (Online)") : MessageUtils.getColor("&7 (Offline)");
-            player.sendMessage(MessageUtils.getColor("&e" + count + ". &f" + friendName + status));
+            player.sendMessage(MessageUtils.getColor("&6" + count + ". &f" + friendName + status));
             count++;
         }
-        player.sendMessage(MessageUtils.getColor("&6═══════════════════════════════"));
+        player.sendMessage(MessageUtils.getColor("&b═-═-═-═-═ FRIENDS LIST ═-═-═-═-═"));
     }
     
     private void handleAcceptRequest(Player player, String[] args) {
@@ -261,7 +269,7 @@ public class FriendCommand implements CommandExecutor {
         
         // Denegar solicitud
         removePendingRequest(requesterId, playerId);
-        player.sendMessage(MessageUtils.getColor("&eYou have denied " + requesterName + "'s friend request."));
+        player.sendMessage(MessageUtils.getColor("&6You have denied " + requesterName + "'s friend request."));
         
         // Notificar al otro jugador
         Player requester = Bukkit.getPlayer(requesterId);
@@ -286,27 +294,27 @@ public class FriendCommand implements CommandExecutor {
             return;
         }
         
-        player.sendMessage(MessageUtils.getColor("&6═══════ PENDING REQUESTS ═══════"));
+        player.sendMessage(MessageUtils.getColor("&b═-═-═-═-═ PENDING REQUESTS ═-═-═-═-═"));
         int count = 1;
         for (UUID requesterId : requests) {
             String requesterName = getPlayerName(requesterId);
-            player.sendMessage(MessageUtils.getColor("&e" + count + ". &f" + requesterName));
+            player.sendMessage(MessageUtils.getColor("&6" + count + ". &f" + requesterName));
             count++;
         }
         player.sendMessage(MessageUtils.getColor("&7Use /friend accept <player> or /friend deny <player>"));
-        player.sendMessage(MessageUtils.getColor("&6═══════════════════════════════════════"));
+        player.sendMessage(MessageUtils.getColor("&b═-═-═-═-═ PENDING REQUESTS ═-═-═-═-═"));
     }
     
     private void sendHelpMessage(Player player) {
-        player.sendMessage(MessageUtils.getColor("&6═══════ FRIEND SYSTEM ═══════"));
-        player.sendMessage(MessageUtils.getColor("&e/friend add <player>&f - Send friend request"));
-        player.sendMessage(MessageUtils.getColor("&e/friend remove <player>&f - Remove friend"));
-        player.sendMessage(MessageUtils.getColor("&e/friend list&f - View friends list"));
-        player.sendMessage(MessageUtils.getColor("&e/friend accept <player>&f - Accept request"));
-        player.sendMessage(MessageUtils.getColor("&e/friend deny <player>&f - Deny request"));
-        player.sendMessage(MessageUtils.getColor("&e/friend requests&f - View pending requests"));
-        player.sendMessage(MessageUtils.getColor("&e/friend help&f - Show this help"));
-        player.sendMessage(MessageUtils.getColor("&6═══════════════════════════════════"));
+        player.sendMessage(MessageUtils.getColor("&b═-═-═-═-═ FRIEND SYSTEM ═-═-═-═-═"));
+        player.sendMessage(MessageUtils.getColor("&b/friend add <player>&f - Send friend request"));
+        player.sendMessage(MessageUtils.getColor("&b/friend remove <player>&f - Remove friend"));
+        player.sendMessage(MessageUtils.getColor("&b/friend list&f - View friends list"));
+        player.sendMessage(MessageUtils.getColor("&b/friend accept <player>&f - Accept request"));
+        player.sendMessage(MessageUtils.getColor("&b/friend deny <player>&f - Deny request"));
+        player.sendMessage(MessageUtils.getColor("&b/friend requests&f - View pending requests"));
+        player.sendMessage(MessageUtils.getColor("&b/friend help&f - Show this help"));
+        player.sendMessage(MessageUtils.getColor("&b═-═-═-═-═ FRIEND SYSTEM ═-═-═-═-═"));
     }
 
     // Métodos públicos para el TabCompleter
