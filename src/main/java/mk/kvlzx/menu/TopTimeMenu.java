@@ -66,24 +66,23 @@ public class TopTimeMenu extends Menu {
                 String playerName = Bukkit.getOfflinePlayer(uuid).getName();
                 
                 List<String> lore = new ArrayList<>();
-                lore.add("&7Posición: &f#" + (i + 1));
-                lore.add("&7Tiempo: &b" + stats.getFormattedPlayTime());
+                lore.add("&7Position: &f#" + (i + 1));
+                lore.add("&7Time: &b" + stats.getFormattedPlayTime());
                 
                 skull = CustomItem.createSkullFromUUID(uuid, 
                     "&b" + playerName,
                     lore.toArray(new String[0]));
             } else {
-                skull = CustomItem.createEmptyTopSkull(i + 1, "&7Sin datos", 
-                    "&7Posición: &f#" + (i + 1),
-                    "&7Tiempo: &e0h 00m");
+                skull = CustomItem.createEmptyTopSkull(i + 1, "&7No data", 
+                    "&7Position: &f#" + (i + 1),
+                    "&7Time: &e0h 00m");
             }
-            
             inv.setItem(slots[i], skull);
         }
 
         // Botón para volver
-        ItemStack backButton = createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver al menú principal");
+        ItemStack backButton = createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to main menu");
         inv.setItem(40, backButton);
     }
 

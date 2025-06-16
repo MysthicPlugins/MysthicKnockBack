@@ -20,7 +20,7 @@ import mk.kvlzx.items.CustomItem;
 public class TopStreakMenu extends Menu {
 
     public TopStreakMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &d&lTop Rachas &8•", 45);
+        super(plugin, "&8• &d&lTop Streaks &8•", 45);
     }
 
     @Override
@@ -66,24 +66,24 @@ public class TopStreakMenu extends Menu {
                 String playerName = Bukkit.getOfflinePlayer(uuid).getName();
                 
                 List<String> lore = new ArrayList<>();
-                lore.add("&7Posición: &f#" + (i + 1));
-                lore.add("&7Máxima Racha: &d" + stats.getMaxStreak());
-                lore.add("&7Racha Actual: &5" + stats.getCurrentStreak());
+                lore.add("&7Position: &f#" + (i + 1));
+                lore.add("&7Max Streak: &d" + stats.getMaxStreak());
+                lore.add("&7Current Streak: &5" + stats.getCurrentStreak());
                 
                 skull = CustomItem.createSkullFromUUID(uuid, 
                     "&d" + playerName,
                     lore.toArray(new String[0]));
             } else {
-                skull = CustomItem.createEmptyTopSkull(i + 1, "&7Sin datos", 
-                    "&7Posición: &f#" + (i + 1),
-                    "&7Racha: &d0");
+                skull = CustomItem.createEmptyTopSkull(i + 1, "&7No data", 
+                    "&7Position: &f#" + (i + 1),
+                    "&7Streak: &d0");
             }
             inv.setItem(slots[i], skull);
         }
 
         // Botón para volver
-        ItemStack backButton = createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver al menú principal");
+        ItemStack backButton = createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to main menu");
         inv.setItem(40, backButton);
     }
 

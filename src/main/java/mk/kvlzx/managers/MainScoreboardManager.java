@@ -8,6 +8,8 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -254,6 +256,11 @@ public class MainScoreboardManager {
                     
                     // NUEVO: Forzar actualización de zona inmediatamente después del teleport
                     updatePlayerZone(player, nextArena);
+
+                    player.getWorld().getEntities().stream()
+                        .filter(entity -> entity.getType() == EntityType.ENDER_PEARL)
+                        .filter(entity -> ((EnderPearl) entity).getShooter() == player)
+                        .forEach(entity -> entity.remove());
                     
                     // Restaurar movimiento después de 1.5 segundos
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {

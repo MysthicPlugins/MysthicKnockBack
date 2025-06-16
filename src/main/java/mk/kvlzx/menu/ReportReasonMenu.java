@@ -18,20 +18,20 @@ import mk.kvlzx.utils.MessageUtils;
 public class ReportReasonMenu extends Menu {
 
     public ReportReasonMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &c&lSeleccionar Razón &8•", 54);
+        super(plugin, "&8• &c&lSelect Reason &8•", 54);
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
 
-        // Cabeza del jugador a reportar // Head of the player to report
+        // Cabeza del jugador a reportar
         ItemStack targetHead = CustomItem.createSkullFromUUID(
             plugin.getServer().getPlayer(targetName).getUniqueId(),
-            "&c&lReportando a: &f" + targetName,
-            "&8▪ &7Selecciona una razón para el reporte",
+            "&c&lReporting: &f" + targetName,
+            "&8▪ &7Select a reason for the report",
             "",
-            "&8➥ &7Elige cuidadosamente"
+            "&8➥ &7Choose carefully"
         );
         inv.setItem(13, targetHead);
 
@@ -42,7 +42,7 @@ public class ReportReasonMenu extends Menu {
             if (index >= reasonSlots.length) break;
             
             List<String> lore = new ArrayList<>();
-            lore.add("&8▪ &7Click para seleccionar este motivo");
+            lore.add("&8▪ &7Click to select this reason");
             lore.add("");
             lore.add("&8➥ &7" + reason.getDescription());
             
@@ -58,7 +58,7 @@ public class ReportReasonMenu extends Menu {
         ItemStack blackWool = createItem(Material.WOOL, "&8", (byte) 15); // Lana negra
         ItemStack yellowWool = createItem(Material.WOOL, "&e", (byte) 4); // Lana amarilla
         
-        // Fila superior (slots 0-8) // Top row (slots 0-8)
+        // Fila superior (slots 0-8)
         for (int i = 0; i < 9; i++) {
             if (i != 4) { // Slot 4 se deja para evitar conflictos, pero no tiene nada especial
                 inv.setItem(i, (i % 2 == 0) ? blackWool : yellowWool);
@@ -81,8 +81,8 @@ public class ReportReasonMenu extends Menu {
         }
 
         // Botón para cancelar (slot 49)
-        inv.setItem(49, createItem(Material.ARROW, "&c← Cancelar", 
-            "&7Click para volver a la lista de jugadores"));
+        inv.setItem(49, createItem(Material.ARROW, "&c← Cancel", 
+            "&7Click to return to the player list"));
     }
 
     @Override
@@ -96,11 +96,11 @@ public class ReportReasonMenu extends Menu {
         String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
         if (targetName == null) {
             player.closeInventory();
-            player.sendMessage(MessageUtils.getColor("&cError: No se encontró el jugador a reportar"));
+            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cError: Player to report not found"));
             return;
         }
 
-        // Botón cancelar // Cancel button
+        // Botón cancelar
         if (event.getSlot() == 49 && clicked.getType() == Material.ARROW) {
             plugin.getMenuManager().openMenu(player, "player_list");
             return;

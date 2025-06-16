@@ -5,12 +5,12 @@ import org.bukkit.Material;
 import mk.kvlzx.utils.MessageUtils;
 
 public enum ReportReason {
-    HACKS(Material.DIAMOND_SWORD, "&c&lHacks", "Uso de hacks o ventajas injustas"),
-    TOXIC(Material.POISONOUS_POTATO, "&e&lToxicidad", "Comportamiento tóxico o irrespetuoso"),
-    TEAMING(Material.GOLD_INGOT, "&6&lTeaming", "Aliarse con otros jugadores"),
-    BUG_ABUSE(Material.REDSTONE, "&4&lBug Abuse", "Abuso de bugs del juego"),
-    INAPPROPRIATE_SKIN(Material.LEATHER_CHESTPLATE, "&d&lSkin Inapropiada", "Skin no apropiada"),
-    OTHER(Material.PAPER, "&7&lOtro", "Otra razón no listada");
+    HACKS(Material.DIAMOND_SWORD, "&c&lHacks", "Use of hacks or unfair advantages"),
+    TOXIC(Material.POISONOUS_POTATO, "&e&lToxicity", "Toxic or disrespectful behavior"),
+    TEAMING(Material.GOLD_INGOT, "&6&lTeaming", "Teaming up with other players"),
+    BUG_ABUSE(Material.REDSTONE, "&4&lBug Abuse", "Exploiting game bugs"),
+    INAPPROPRIATE_SKIN(Material.LEATHER_CHESTPLATE, "&d&lInappropriate Skin", "Inappropriate skin"),
+    OTHER(Material.PAPER, "&7&lOther", "Other reason not listed");
 
     private final Material icon;
     private final String displayName;

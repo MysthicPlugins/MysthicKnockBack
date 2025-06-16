@@ -17,7 +17,7 @@ import mk.kvlzx.utils.MessageUtils;
 public class ShopMenu extends Menu {
 
     public ShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &a&lTienda Principal &8•", 54);
+        super(plugin, "&8• &a&lMain Shop &8•", 54);
     }
 
     @Override
@@ -25,87 +25,87 @@ public class ShopMenu extends Menu {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
         // Mostrar balance en el centro superior
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lTu Balance",
-            "&7Balance actual: &a" + stats.getKGCoins() + " KGCoins"));
+        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
+            "&7Current balance: &a" + stats.getKGCoins() + " KGCoins"));
 
         // Primera fila de items (slots 19-25)
-        inv.setItem(19, createItem(Material.SANDSTONE, "&e&lBloques Personalizados",
-            "&7Click para ver los bloques disponibles",
+        inv.setItem(19, createItem(Material.SANDSTONE, "&e&lCustom Blocks",
+            "&7Click to view available blocks",
             "",
-            "&8▪ &7Bloques decorativos especiales",
-            "&8▪ &7Perfecto para construir",
+            "&8▪ &7Special decorative blocks",
+            "&8▪ &7Perfect for building",
             "",
-            "&8➥ Incluye +30 bloques únicos",
-            "&aDisponible!"));
+            "&8➥ Includes +30 unique blocks",
+            "&aAvailable!"));
 
-        inv.setItem(22, createItem(Material.STICK, "&e&lKnockers Personalizados", 
-            "&7Click para ver los knockers disponibles",
+        inv.setItem(22, createItem(Material.STICK, "&e&lCustom Knockers", 
+            "&7Click to view available knockers",
             "",
-            "&8▪ &7Palos de empuje especiales",
-            "&8▪ &7Efectos visuales al golpear",
+            "&8▪ &7Special knockback sticks",
+            "&8▪ &7Visual effects when hitting",
             "",
-            "&8➥ Incluye +20 knockers únicos",
-            "&aDisponible!"));
+            "&8➥ Includes +20 unique knockers",
+            "&aAvailable!"));
 
-        inv.setItem(25, createItem(Material.PAPER, "&e&lMensajes de Kill", 
-            "&7Click para ver mensajes de kill",
+        inv.setItem(25, createItem(Material.PAPER, "&e&lKill Messages", 
+            "&7Click to view kill messages",
             "",
-            "&8▪ &7Mensajes al eliminar jugadores",
-            "&8▪ &7Muestra tu estilo",
+            "&8▪ &7Messages when eliminating players",
+            "&8▪ &7Show your style",
             "",
-            "&8➥ Incluye +15 mensajes únicos",
-            "&aDisponible!"));
+            "&8➥ Includes +10 unique messages",
+            "&aAvailable!"));
 
         // Segunda fila de items (slots 28-34)
-        inv.setItem(28, createItem(Material.BOOK_AND_QUILL, "&e&lMensajes de Muerte", 
-            "&7Click para ver mensajes de muerte",
+        inv.setItem(28, createItem(Material.BOOK_AND_QUILL, "&e&lDeath Messages", 
+            "&7Click to view death messages",
             "",
-            "&8▪ &7Mensajes personalizados al morir",
-            "&8▪ &7Muere con estilo",
+            "&8▪ &7Custom messages when dying",
+            "&8▪ &7Die in style",
             "",
-            "&8➥ Incluye +20 mensajes únicos",
-            "&aDisponible!"));
+            "&8➥ Includes +20 unique messages",
+            "&aAvailable!"));
 
-        inv.setItem(31, createItem(Material.ARROW, "&e&lEfectos de Flecha", 
-            "&7Click para ver efectos de flecha",
+        inv.setItem(31, createItem(Material.ARROW, "&e&lArrow Effects", 
+            "&7Click to view arrow effects",
             "",
-            "&8▪ &7Efectos especiales en tus flechas",
-            "&8▪ &7Partículas y animaciones",
+            "&8▪ &7Special effects on your arrows",
+            "&8▪ &7Particles and animations",
             "",
-            "&8➥ Incluye +10 efectos únicos",
-            "&aDisponible!"));
+            "&8➥ Includes +5 unique effects",
+            "&aAvailable!"));
 
-        inv.setItem(34, createItem(Material.NOTE_BLOCK, "&d&lSonidos de muerte", 
-            "&7Click para ver sonidos de muerte",
+        inv.setItem(34, createItem(Material.NOTE_BLOCK, "&d&lDeath Sounds", 
+            "&7Click to view death sounds",
             "",
-            "&8▪ &7Sonidos especiales al morir",
-            "&8▪ &7Efectos de audio únicos",
+            "&8▪ &7Special sounds when dying",
+            "&8▪ &7Unique audio effects",
             "",
-            "&8➥ Incluye +8 sonidos únicos",
-            "&aDisponible!"));
+            "&8➥ Includes +5 unique sounds",
+            "&aAvailable!"));
 
         // Tercera fila de items (slots 37-43)
-        inv.setItem(37, createItem(Material.DIAMOND_SWORD, "&e&lSonidos de Kill", 
-            "&7Click para ver sonidos de kill",
+        inv.setItem(37, createItem(Material.DIAMOND_SWORD, "&e&lKill Sounds", 
+            "&7Click to view kill sounds",
             "",
-            "&8▪ &7Sonidos especiales al eliminar jugadores",
-            "&8▪ &7Efectos de audio únicos",
+            "&8▪ &7Special sounds when eliminating players",
+            "&8▪ &7Unique audio effects",
             "",
-            "&8➥ Incluye +8 sonidos únicos",
-            "&aDisponible!"));
+            "&8➥ Includes +5 unique sounds",
+            "&aAvailable!"));
 
-        inv.setItem(43, createItem(Material.GOLD_RECORD, "&5&lMúsica",
-            "&7Click para ver música",
+        inv.setItem(43, createItem(Material.GOLD_RECORD, "&5&lMusic",
+            "&7Click to view music",
             "",
-            "&8▪ &7Música personalizada",
-            "&8▪ &7Temas exclusivos",
+            "&8▪ &7Custom music",
+            "&8▪ &7Exclusive themes",
             "",
-            "&8➥ Ambienta tus partidas",
-            "&aDisponible!"));
+            "&8➥ Includes +5 unique music",
+            "&aAvailable!"));
 
         // Botón para volver
-        inv.setItem(49, createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver al menú principal"));
+        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to main menu"));
 
         // Relleno
         fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));

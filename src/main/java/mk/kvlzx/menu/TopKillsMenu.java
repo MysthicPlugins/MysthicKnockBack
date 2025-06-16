@@ -67,24 +67,24 @@ public class TopKillsMenu extends Menu {
                 String playerName = Bukkit.getOfflinePlayer(uuid).getName();
                 
                 List<String> lore = new ArrayList<>();
-                lore.add("&7Posición: &f#" + (i + 1));
+                lore.add("&7Position: &f#" + (i + 1));
                 lore.add("&7Kills: &a" + stats.getKills());
                 
                 skull = CustomItem.createSkullFromUUID(uuid, 
                     "&a" + playerName,
                     lore.toArray(new String[0]));
             } else {
-                skull = CustomItem.createEmptyTopSkull(i + 1, "&7Sin datos", 
-                    "&7Posición: &f#" + (i + 1),
-                    "&7Kills: &a0");
+                skull = CustomItem.createEmptyTopSkull(i + 1, "&7No data", 
+                    "&7Position: &f#" + (i + 1),
+                    "&7Kills: &b0");
             }
             
             inv.setItem(slots[i], skull);
         }
 
         // Botón para volver centrado en la última fila
-        ItemStack backButton = createItem(Material.ARROW, "&c← Volver", 
-            "&7Click para volver al menú principal");
+        ItemStack backButton = createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to main menu");
         inv.setItem(40, backButton);
     }
 

@@ -79,7 +79,7 @@ public class IgnoreCommand implements CommandExecutor {
 
     private void handleIgnoreAdd(Player player, String targetName) {
         Player target = plugin.getServer().getPlayer(targetName);
-        UUID targetUUID = target != null ? target.getUniqueId() : plugin.getServer().getOfflinePlayer(targetName).getUniqueId();
+        UUID targetUUID = target != null ? target.getUniqueId() : plugin.getServer().getPlayer(targetName).getUniqueId();
         UUID playerUUID = player.getUniqueId();
 
         if (targetUUID.equals(playerUUID)) {
@@ -102,7 +102,7 @@ public class IgnoreCommand implements CommandExecutor {
 
     private void handleIgnoreRemove(Player player, String targetName) {
         Player target = plugin.getServer().getPlayer(targetName);
-        UUID targetUUID = target != null ? target.getUniqueId() : plugin.getServer().getOfflinePlayer(targetName).getUniqueId();
+        UUID targetUUID = target != null ? target.getUniqueId() : plugin.getServer().getPlayer(targetName).getUniqueId();
         UUID playerUUID = player.getUniqueId();
 
         Set<UUID> ignored = ignoredPlayers.getOrDefault(playerUUID, new HashSet<>());
@@ -145,7 +145,6 @@ public class IgnoreCommand implements CommandExecutor {
             Map<UUID, Set<UUID>> loadedData = ignoreData.loadAllIgnoreData();
             ignoredPlayers.clear();
             ignoredPlayers.putAll(loadedData);
-            plugin.getLogger().info("Loaded ignore data for " + ignoredPlayers.size() + " players");
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to load ignore data: " + e.getMessage());
             e.printStackTrace();
@@ -155,7 +154,6 @@ public class IgnoreCommand implements CommandExecutor {
     public void saveAllIgnoreData() {
         try {
             ignoreData.saveAllIgnoreData(ignoredPlayers);
-            plugin.getLogger().info("Saved ignore data for " + ignoredPlayers.size() + " players");
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to save ignore data: " + e.getMessage());
             e.printStackTrace();
@@ -168,13 +166,6 @@ public class IgnoreCommand implements CommandExecutor {
             ignoreData.saveIgnoreData(playerUUID, ignored);
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to save ignore data for player " + playerUUID + ": " + e.getMessage());
-        }
-    }
-
-    public void onPlayerQuit(UUID playerUUID) {
-        // Opcional: Guardar datos del jugador cuando se desconecta
-        if (ignoredPlayers.containsKey(playerUUID)) {
-            savePlayerIgnoreData(playerUUID);
         }
     }
 

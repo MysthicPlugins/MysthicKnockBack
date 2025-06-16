@@ -25,10 +25,10 @@ public class PlayerListMenu extends Menu {
         List<Player> onlinePlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
         onlinePlayers.remove(player); // Remover al jugador que está reportando
 
-        // Place player heads
+        // Poner las cabezas de jugadores
         int slot = 10;
         for (Player target : onlinePlayers) {
-            if (slot > 43) break; // Slot limit
+            if (slot > 43) break; // Limite de slots
 
             ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
             SkullMeta meta = (SkullMeta) skull.getItemMeta();
@@ -42,34 +42,34 @@ public class PlayerListMenu extends Menu {
             skull.setItemMeta(meta);
             inv.setItem(slot, skull);
 
-            // Increment slot, skipping borders
+            // Incrementar slots saltando bordes
             slot++;
             if ((slot + 1) % 9 == 0) slot += 2;
         }
 
-        // Back button
+        // Boton de volver
         inv.setItem(49, createItem(Material.ARROW, "&c← Back", "&7Click to return to the menu"));
 
-        // Borders with wither skulls and redstone, alternating with two empty spaces
-        ItemStack witherSkull = createItem(Material.SKULL_ITEM, "&7", (byte) 1); // Wither skull
-        ItemStack redstone = createItem(Material.REDSTONE, "&7"); // Redstone block
+        // Bordes de cabezas de wither y redstone, dejando 2 espacios
+        ItemStack witherSkull = createItem(Material.SKULL_ITEM, "&7", (byte) 1); // Cabeza de wither
+        ItemStack redstone = createItem(Material.REDSTONE, "&7"); // Redstone
 
-        // Define border slots
+        // Definir los slots de los bordes
         int[] borderSlots = {
-            0, 1, 2, 3, 4, 5, 6, 7, 8,     // Top row
-            9, 18, 27, 36,                   // Left column
-            17, 26, 35, 44,                  // Right column
-            45, 46, 47, 48, 50, 51, 52, 53  // Bottom row (excludes slot 49)
+            0, 1, 2, 3, 4, 5, 6, 7, 8,     // Linea superior
+            9, 18, 27, 36,                   // Columna izquierda
+            17, 26, 35, 44,                  // Columna derecha
+            45, 46, 47, 48, 50, 51, 52, 53  // Ultima fila (excluyendo el boton de volver)
         };
 
-        // Place items with pattern: wither, space, space, redstone, space, space
+        // Poner los items con el patron de wither, espacio, espacio, redstone, espacio, espacio
         for (int i = 0; i < borderSlots.length; i++) {
-            if (borderSlots[i] == 49) continue; // Avoid overwriting the back button
+            if (borderSlots[i] == 49) continue; // Evitar sobreescribir el boton de volver
             if (i % 6 == 0) {
-                inv.setItem(borderSlots[i], witherSkull); // Wither skull
+                inv.setItem(borderSlots[i], witherSkull); // Cabeza de wither
             } else if (i % 6 == 3) {
                 inv.setItem(borderSlots[i], redstone); // Redstone
-            } // Slots i % 6 == 1, 2, 4, 5 remain empty (null)
+            } // Slots i % 6 == 1, 2, 4, 5 quedan vacios (null)
         }
     }
 
@@ -79,7 +79,7 @@ public class PlayerListMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
 
         if (event.getCurrentItem() != null) {
-            // Ignore clicks on decorative items (wither skull and redstone block)
+            // Ignorar clicks en items decorativos
             if ((event.getCurrentItem().getType() == Material.SKULL_ITEM && 
                 event.getCurrentItem().getDurability() == 1) ||
                 event.getCurrentItem().getType() == Material.REDSTONE) {
