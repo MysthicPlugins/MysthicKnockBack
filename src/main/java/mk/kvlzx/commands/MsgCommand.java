@@ -16,11 +16,13 @@ import mk.kvlzx.utils.MessageUtils;
 public class MsgCommand implements CommandExecutor {
     
     private final MysthicKnockBack plugin;
+    private final IgnoreCommand ignoreCommand;
     // Almacenar la última persona con la que cada jugador habló
     private static Map<UUID, UUID> lastMessagedPlayer = new HashMap<>();
 
-    public MsgCommand(MysthicKnockBack plugin) {
+    public MsgCommand(MysthicKnockBack plugin, IgnoreCommand ignoreCommand) {
         this.plugin = plugin;
+        this.ignoreCommand = ignoreCommand;
     }
 
     @Override
@@ -50,6 +52,15 @@ public class MsgCommand implements CommandExecutor {
             return true;
         }
         
+        UUID playerId = player.getUniqueId();
+        UUID targetId = target.getUniqueId();
+        
+        // Verificar si el target ignora al remitente
+        if (ignoreCommand.isPlayerIgnored(playerId, targetId)) {
+            player.sendMessage(MessageUtils.getColor("&c" + targetName + " is ignoring you."));
+            return true;
+        }
+        
         // Construir el mensaje
         StringBuilder messageBuilder = new StringBuilder();
         for (int i = 1; i < args.length; i++) {
@@ -59,9 +70,6 @@ public class MsgCommand implements CommandExecutor {
             }
         }
         String message = messageBuilder.toString();
-        
-        UUID playerId = player.getUniqueId();
-        UUID targetId = target.getUniqueId();
         
         // Verificar si son amigos
         boolean areFriends = FriendCommand.areFriends(playerId, targetId);

@@ -263,8 +263,8 @@ public class MysthicKnockBack extends JavaPlugin {
         friendCommand = new FriendCommand(this, ignoreCommand);
         getCommand("friend").setExecutor(friendCommand);
         getCommand("friend").setTabCompleter(new FriendTabCompleter());
-        getCommand("msg").setExecutor(new MsgCommand(this));
-        getCommand("r").setExecutor(new ReplyCommand(this));
+        getCommand("msg").setExecutor(new MsgCommand(this, ignoreCommand)); // Inyectar IgnoreCommand
+        getCommand("r").setExecutor(new ReplyCommand(this)); // Inyectar IgnoreCommand
         getCommand("ignore").setExecutor(ignoreCommand);
         getCommand("ignore").setTabCompleter(new IgnoreTabCompleter(this, ignoreCommand));
     }
