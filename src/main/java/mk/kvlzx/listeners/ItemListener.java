@@ -266,7 +266,7 @@ public class ItemListener implements Listener {
                 }
 
                 ItemStack restoredBow = CustomItem.create(ItemType.BOW);
-                restoredBow.setDurability((short)0);
+                restoredBow.setDurability((short)384);
                 player.getInventory().setItem(bowSlot, restoredBow);
             }
         }.runTaskLater(plugin, COOLDOWN_SECONDS * 20L);

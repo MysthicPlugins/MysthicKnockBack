@@ -1,0 +1,33 @@
+messages:
+  commands:
+    arena:
+      create:
+        create: "&aArena %arena% created successfully."
+        already-exist: "&cThe arena already exists."
+      zone:
+        action:
+          updated: "updated"
+          set: "set"
+        usage: "&cUsage: /arena setzone <arena> <spawn/pvp/void>"
+        invalid-zone: "&cInvalid zone type. Use: spawn, pvp or void"
+        successfully: "&aZone %zone_type% %action% for arena %arena%"
+        error: "&cError setting zone. Make sure you have a valid selection."
+      setspawn:
+        successfully: "&aSpawn point set for arena %arena%"
+        error: "&cThe arena does not exist."
+      delete:
+        successfully: "&aArena %arena%% deleted successfully."
+        error: "&cThe arena does not exist."
+      setborder:
+        usage: "&cUsage: /arena setborder <arena> <size>"
+        error-size: "&cSize must be greater than 0."
+        successfully: "&aBorder set for arena %arena%"
+        error: "&cThe arena does not exist."
+        number-error: "&cSize must be a valid number."
+      help-message:
+        - "&b=== Arena Commands ==="
+        - "&f/arena create <name> &7- Creates a new arena"
+        - "&f/arena setzone <arena> <spawn/pvp/void> &7- Sets/updates a zone"
+        - "&f/arena setspawn <arena> &7- Sets the spawn point"
+        - "&f/arena delete <arena> &7- Deletes an arena"
+        - "&f/arena setborder <arena> <size> &7- Sets the arena border"

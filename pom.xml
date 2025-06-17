@@ -60,6 +60,8 @@
                     <include>data/cosmetics.yml</include>
                     <include>data/friends.yml</include>
                     <include>data/ignore.yml</include>
+                    <include>config/global/config.yml</include>
+                    <include>config/global/messages.yml</include>
                 </includes>
             </resource>
         </resources>

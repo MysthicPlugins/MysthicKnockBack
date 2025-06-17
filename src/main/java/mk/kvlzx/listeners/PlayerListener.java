@@ -21,7 +21,6 @@ import org.bukkit.Bukkit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
@@ -322,114 +321,103 @@ public class PlayerListener implements Listener {
         Location to = event.getTo();
         String currentArena = plugin.getArenaManager().getPlayerArena(player);
         String currentZone = plugin.getArenaManager().getPlayerZone(player);
-        
-        // Verificar si está en zona void de cualquier arena
+
         for (Arena arena : plugin.getArenaManager().getArenas()) {
             Zone voidZone = arena.getZone("void");
             if (voidZone != null && voidZone.isInside(to)) {
-                handleVoidDeath(player, arena);
+                PlayerStats playerStats = PlayerStats.getStats(player.getUniqueId());
+                if (!playerStats.canDie()) {
+                    return;
+                }
+
+                CombatListener combatListener = plugin.getCombatListener();
+                Player killer = combatListener.getLastAttacker(player);
+
+                if (killer != null && killer != player) {
+                    givePearlToKiller(killer);
+                    playerStats.addDeath();
+                    playerStats.resetStreak();
+                    PlayerStats killerStats = PlayerStats.getStats(killer.getUniqueId());
+                    killerStats.addKill();
+
+                    // Broadcast kill message
+                    String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
+                    String killMessage;
+                    if (messageName.equals("default")) {
+                        killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
+                    } else {
+                        KillMessageItem messageItem = KillMessageItem.getByName(messageName);
+                        killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
+                    }
+                    Bukkit.broadcastMessage(MessageUtils.getColor(
+                        killMessage.replace("{killer}", killer.getName())
+                                    .replace("{victim}", player.getName())
+                    ));
+                    handlePlayerKill(killer);
+
+                    // Resetear el combate después de una muerte
+                    plugin.getCombatListener().resetCombat(player);
+                    stopMusic(player);
+                } else {
+                    playerStats.addDeath();
+                    playerStats.resetStreak();
+
+                    // Natural death message
+                    String messageName = plugin.getCosmeticManager().getPlayerDeathMessage(player.getUniqueId());
+                    String deathMessage;
+                    if (messageName.equals("default")) {
+                        deathMessage = DEATH_MESSAGES.get(random.nextInt(DEATH_MESSAGES.size()));
+                    } else {
+                        DeathMessageItem messageItem = DeathMessageItem.getByName(messageName);
+                        deathMessage = messageItem != null ? messageItem.getMessage() : DEATH_MESSAGES.get(0);
+                    }
+                    Bukkit.broadcastMessage(MessageUtils.getColor(
+                        String.format(deathMessage, player.getName())
+                    ));
+                    // Manejar el sonido de muerte del jugador
+                    handlePlayerDeath(player);
+                }
+
+                respawnPlayerAtSpawn(player, arena);
+                plugin.getScoreboardManager().updatePlayerZone(player, currentArena);
+                return;
+            }
+
+            String foundZone = null;
+            String foundArena = null;
+
+            for (String zoneType : new String[]{"spawn", "pvp", "void"}) {
+                Zone zone = arena.getZone(zoneType);
+                if (zone != null && zone.isInside(to)) {
+                    foundZone = zoneType;
+                    foundArena = arena.getName();
+                    break;
+                }
+            }
+
+            if (foundZone != null) {
+                if (!foundZone.equals(currentZone) || !foundArena.equals(currentArena)) {
+                    plugin.getArenaManager().setPlayerZone(player, foundArena, foundZone);
+
+                    switch (foundZone) {
+                        case "spawn":
+                            ItemsManager.giveSpawnItems(player);
+                            player.spigot().setCollidesWithEntities(false);
+                            break;
+                        case "pvp":
+                            ItemsManager.givePvPItems(player);
+                            player.spigot().setCollidesWithEntities(true);
+                            break;
+                        case "void":
+                            break;
+                    }
+                }
                 return;
             }
         }
-        
-        // Actualizar zona del jugador usando el método centralizado
-        if (currentArena != null) {
-            String previousZone = currentZone;
-            plugin.getScoreboardManager().updatePlayerZone(player, currentArena);
-            String newZone = plugin.getArenaManager().getPlayerZone(player);
-            
-            // Solo procesar cambio de zona si realmente cambió
-            if (!Objects.equals(previousZone, newZone)) {
-                handleZoneChange(player, newZone, currentArena);
-            }
-        }
-    }
 
-    private void handleVoidDeath(Player player, Arena arena) {
-        PlayerStats playerStats = PlayerStats.getStats(player.getUniqueId());
-        if (!playerStats.canDie()) {
-            return;
-        }
-        
-        CombatListener combatListener = plugin.getCombatListener();
-        Player killer = combatListener.getLastAttacker(player);
-        
-        if (killer != null && killer != player) {
-            // Muerte por PvP
-            handlePvPKill(player, killer, playerStats);
-        } else {
-            // Muerte natural
-            handleNaturalDeath(player, playerStats);
-        }
-        
-        respawnPlayerAtSpawn(player, arena);
-    }
-
-    private void handlePvPKill(Player player, Player killer, PlayerStats playerStats) {
-        givePearlToKiller(killer);
-        playerStats.addDeath();
-        playerStats.resetStreak();
-        
-        PlayerStats killerStats = PlayerStats.getStats(killer.getUniqueId());
-        killerStats.addKill();
-        
-        // Broadcast kill message
-        String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
-        String killMessage;
-        if (messageName.equals("default")) {
-            killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
-        } else {
-            KillMessageItem messageItem = KillMessageItem.getByName(messageName);
-            killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
-        }
-        
-        Bukkit.broadcastMessage(MessageUtils.getColor(
-            killMessage.replace("{killer}", killer.getName())
-                    .replace("{victim}", player.getName())
-        ));
-        
-        handlePlayerKill(killer);
-        plugin.getCombatListener().resetCombat(player);
-        stopMusic(player);
-    }
-
-    private void handleNaturalDeath(Player player, PlayerStats playerStats) {
-        playerStats.addDeath();
-        playerStats.resetStreak();
-        
-        String messageName = plugin.getCosmeticManager().getPlayerDeathMessage(player.getUniqueId());
-        String deathMessage;
-        if (messageName.equals("default")) {
-            deathMessage = DEATH_MESSAGES.get(random.nextInt(DEATH_MESSAGES.size()));
-        } else {
-            DeathMessageItem messageItem = DeathMessageItem.getByName(messageName);
-            deathMessage = messageItem != null ? messageItem.getMessage() : DEATH_MESSAGES.get(0);
-        }
-        
-        Bukkit.broadcastMessage(MessageUtils.getColor(
-            String.format(deathMessage, player.getName())
-        ));
-
-        handlePlayerDeath(player);
-    }
-
-    private void handleZoneChange(Player player, String newZone, String arenaName) {
-        if (newZone == null) return;
-        
-        switch (newZone) {
-            case "spawn":
-                player.sendMessage(MessageUtils.getColor("&aYou have entered the Spawn zone of the arena! " + arenaName));
-                ItemsManager.giveSpawnItems(player);
-                player.spigot().setCollidesWithEntities(false);
-                break;
-            case "pvp":
-                player.sendMessage(MessageUtils.getColor("&cYou have entered the PvP zone of the arena! " + arenaName));
-                ItemsManager.givePvPItems(player);
-                player.spigot().setCollidesWithEntities(true);
-                break;
-            case "void":
-                player.sendMessage(MessageUtils.getColor("&7You have entered the Void zone of the arena! " + arenaName));
-                break;
+        if (currentZone != null) {
+            plugin.getArenaManager().setPlayerZone(player, null, null);
         }
     }
 
