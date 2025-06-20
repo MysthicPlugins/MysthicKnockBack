@@ -10,12 +10,15 @@ import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.managers.RankManager;
+import mk.kvlzx.config.MessagesConfig;
 
 public class StatsCommand implements CommandExecutor {
     private final MysthicKnockBack plugin;
+    private final MessagesConfig messages;
 
     public StatsCommand(MysthicKnockBack plugin) {
         this.plugin = plugin;
+        this.messages = plugin.getMessagesConfig();
     }
 
     @Override
@@ -35,48 +38,43 @@ public class StatsCommand implements CommandExecutor {
             String targetName = args[0];
             Player target = Bukkit.getPlayer(targetName);
             if (target == null) {
-                sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cPlayer not found."));
+                sender.sendMessage(MessageUtils.getColor(messages.getStatsNotFound()));
                 return true;
             }
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                showPlayerStats(player, target);
-            } else {
-                showPlayerStatsConsole(sender, target);
-            }
+            showPlayerStats(sender, target);
             return true;
         }
 
         // A partir de aquí, todos los comandos requieren permiso admin
-        if (!sender.hasPermission("kvknockback.admin")) {
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou don't have permission to use this command."));
+        if (!sender.hasPermission("kvknockback.stats.admin")) {
+            sender.sendMessage(MessageUtils.getColor(messages.getStatsNoPermission()));
             return true;
         }
 
         if (args[0].equalsIgnoreCase("resetall")) {
             resetAllStats();
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aAll players' statistics have been reset."));
+            sender.sendMessage(MessageUtils.getColor(messages.getStatsResetAllSuccess()));
             return true;
         }
 
         if (args[0].equalsIgnoreCase("reset")) {
             if (args.length < 2) {
-                sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cUsage: /stats reset <player>"));
+                sender.sendMessage(MessageUtils.getColor(messages.getStatsAdminUsage()));
                 return true;
             }
             Player target = Bukkit.getPlayer(args[1]);
             if (target == null) {
-                sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cPlayer not found."));
+                sender.sendMessage(MessageUtils.getColor(messages.getStatsNotFound()));
                 return true;
             }
             resetPlayerStats(target);
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&a" + target.getName() + "'s statistics have been reset."));
+            sender.sendMessage(MessageUtils.getColor(messages.getStatsResetSuccess().replace("%player%", target.getName())));
             return true;
         }
 
         // Comandos de modificación de stats
         if (args.length < 4) {
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cUsage: /stats <set/add/remove> <elo/kills/deaths/coins> <player> <amount>"));
+            sender.sendMessage(MessageUtils.getColor(messages.getStatsAdminUsage()));
             return true;
         }
 
@@ -92,33 +90,23 @@ public class StatsCommand implements CommandExecutor {
                 arg.equalsIgnoreCase("resetall");
     }
 
-    private void showPlayerStats(Player viewer, Player target) {
+    private void showPlayerStats(CommandSender sender, Player target) {
         PlayerStats stats = PlayerStats.getStats(target.getUniqueId());
-        viewer.sendMessage(MessageUtils.getColor("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"));
-        viewer.sendMessage(MessageUtils.getColor("&b" + target.getName() + "'s Statistics"));
-        viewer.sendMessage(MessageUtils.getColor("&7Rank: " + RankManager.getRankPrefix(stats.getElo())));
-        viewer.sendMessage(MessageUtils.getColor("&7ELO: &6" + stats.getElo()));
-        viewer.sendMessage(MessageUtils.getColor("&7Kills: &a" + stats.getKills()));
-        viewer.sendMessage(MessageUtils.getColor("&7Deaths: &c" + stats.getDeaths()));
-        viewer.sendMessage(MessageUtils.getColor("&7KDR: &b" + String.format("%.2f", stats.getKDR())));
-        viewer.sendMessage(MessageUtils.getColor("&7Current Streak: &d" + stats.getCurrentStreak()));
-        viewer.sendMessage(MessageUtils.getColor("&7Best Streak: &d" + stats.getMaxStreak()));
-        viewer.sendMessage(MessageUtils.getColor("&7Play Time: &e" + stats.getFormattedPlayTime()));
-        viewer.sendMessage(MessageUtils.getColor("&7KGCoins: &e" + stats.getKGCoins()));
-        viewer.sendMessage(MessageUtils.getColor("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"));
-    }
-
-    private void showPlayerStatsConsole(CommandSender sender, Player target) {
-        PlayerStats stats = PlayerStats.getStats(target.getUniqueId());
-        sender.sendMessage(MessageUtils.getColor("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"));
-        sender.sendMessage(MessageUtils.getColor("&b" + target.getName() + "'s Statistics"));
-        sender.sendMessage(MessageUtils.getColor("&7ELO: &6" + stats.getElo()));
-        sender.sendMessage(MessageUtils.getColor("&7Kills: &a" + stats.getKills()));
-        sender.sendMessage(MessageUtils.getColor("&7Deaths: &c" + stats.getDeaths()));
-        sender.sendMessage(MessageUtils.getColor("&7KDR: &b" + String.format("%.2f", stats.getKDR())));
-        sender.sendMessage(MessageUtils.getColor("&7Current Streak: &d" + stats.getCurrentStreak()));
-        sender.sendMessage(MessageUtils.getColor("&7KGCoins: &e" + stats.getKGCoins()));
-        sender.sendMessage(MessageUtils.getColor("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"));
+        String rank = RankManager.getRankPrefix(stats.getElo());
+        for (String line : messages.getStatsFormat()) {
+            sender.sendMessage(MessageUtils.getColor(line
+                .replace("%player%", target.getName())
+                .replace("%rank%", rank)
+                .replace("%elo%", String.valueOf(stats.getElo()))
+                .replace("%kills%", String.valueOf(stats.getKills()))
+                .replace("%deaths%", String.valueOf(stats.getDeaths()))
+                .replace("%kdr%", String.format("%.2f", stats.getKDR()))
+                .replace("%current_streak%", String.valueOf(stats.getCurrentStreak()))
+                .replace("%max_streak%", String.valueOf(stats.getMaxStreak()))
+                .replace("%playtime%", stats.getFormattedPlayTime())
+                .replace("%kgcoins%", String.valueOf(stats.getKGCoins()))
+            ));
+        }
     }
 
     private void resetAllStats() {
@@ -144,13 +132,13 @@ public class StatsCommand implements CommandExecutor {
         try {
             amount = Integer.parseInt(args[3]);
         } catch (NumberFormatException e) {
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cAmount must be a valid number."));
+            sender.sendMessage(MessageUtils.getColor(messages.getStatsAmountError()));
             return;
         }
 
         Player target = Bukkit.getPlayer(targetName);
         if (target == null) {
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cPlayer not found."));
+            sender.sendMessage(MessageUtils.getColor(messages.getStatsNotFound()));
             return;
         }
 
@@ -188,15 +176,17 @@ public class StatsCommand implements CommandExecutor {
                             () -> stats.removeKGCoins(amount));
                 break;
             default:
-                sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cInvalid statistic. Use: elo, kills, deaths or coins"));
+                sender.sendMessage(MessageUtils.getColor(messages.getStatsInvalidStat()));
                 return;
         }
 
         String operationName = operation.equals("set") ? "set" : 
                                 operation.equals("add") ? "added" : "removed";
-        
-        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +
-            String.format("&aYou have %s %d %s to %s", operationName, amount, statName, target.getName())
+        sender.sendMessage(MessageUtils.getColor(messages.getStatsStatUpdated()
+            .replace("%operation%", operationName)
+            .replace("%amount%", String.valueOf(amount))
+            .replace("%stat%", statName)
+            .replace("%player%", target.getName())
         ));
     }
 

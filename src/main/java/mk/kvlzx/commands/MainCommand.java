@@ -7,14 +7,17 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.MessagesConfig;
 import mk.kvlzx.utils.MessageUtils;
 
 public class MainCommand implements CommandExecutor{
 
     private MysthicKnockBack plugin;
+    private MessagesConfig messages;
 
     public MainCommand(MysthicKnockBack plugin){
         this.plugin = plugin;
+        this.messages = plugin.getMessagesConfig();
     }
 
 
@@ -23,7 +26,7 @@ public class MainCommand implements CommandExecutor{
 
         if(!(sender instanceof Player)){
             // Consola :3
-            Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&cYou can only use this command as a player."));
+            Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou can only use this command as a player."));
             return true;
         }
 
@@ -32,6 +35,19 @@ public class MainCommand implements CommandExecutor{
         if(args.length >= 1){
             if(args[0].equalsIgnoreCase("pet")){
                 sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&f ≽^•⩊•^≼ &b " + player.getName()));
+            } else if (args[0].equalsIgnoreCase("reload")) {
+                if (sender.hasPermission("mysthicknockback.reload")) {
+                    try {
+                        plugin.getMessagesConfig().reload();
+                    } catch (Exception e) {
+                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cAn error occurred while reloading the configuration"));
+                        e.printStackTrace();
+                        return true;
+                    }
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getReloadConfig()));
+                } else {
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getNoPermission()));
+                }
             }
             help(sender);
         } else {
@@ -41,22 +57,8 @@ public class MainCommand implements CommandExecutor{
     }
 
     public void help(CommandSender sender){
-        sender.sendMessage(MessageUtils.getColor("--------&r &b&lCommands MysthicKnockBack &8&m--------"));
-        sender.sendMessage(MessageUtils.getColor("/kb pet"));
-        sender.sendMessage(MessageUtils.getColor("/arena create <name>"));
-        sender.sendMessage(MessageUtils.getColor("/arena setzone <arena> <zoneType>"));
-        sender.sendMessage(MessageUtils.getColor("/arena setborder <arena> <size>"));
-        sender.sendMessage(MessageUtils.getColor("/arena setspawn <arena>"));
-        sender.sendMessage(MessageUtils.getColor("/arena delete <arena>"));
-        sender.sendMessage(MessageUtils.getColor("/stats"));
-        sender.sendMessage(MessageUtils.getColor("/stats <player>"));
-        sender.sendMessage(MessageUtils.getColor("/stats set <player> <stat> <value>"));
-        sender.sendMessage(MessageUtils.getColor("/stats add <player> <stat> <value>"));
-        sender.sendMessage(MessageUtils.getColor("/stats remove <player> <stat> <value>"));
-        sender.sendMessage(MessageUtils.getColor("/stats reset <player>"));
-        sender.sendMessage(MessageUtils.getColor("/stats resetall"));
-        sender.sendMessage(MessageUtils.getColor("/music"));
-        sender.sendMessage(MessageUtils.getColor("/report"));
-        sender.sendMessage(MessageUtils.getColor("--------&r &b&lCommands MysthicKnockBack &8&m--------"));
+        for (String line : messages.getHelp()) {
+            sender.sendMessage(MessageUtils.getColor(line));
+        } 
     }
 }

@@ -21,13 +21,3 @@ commands:
     aliases: [statistics]
   music:
     description: Open the music menu
-  friend:
-    description: Command to manage your friends list
-  msg:
-    description: Command to send a message to another player
-    aliases: [message, tell]
-  r:
-    description: Command to reply to the last private message received
-    aliases: [reply]
-  ignore:
-    description: Command to manage ignored players

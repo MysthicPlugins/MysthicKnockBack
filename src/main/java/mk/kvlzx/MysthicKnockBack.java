@@ -16,16 +16,12 @@ import mk.kvlzx.commands.ArenaCommand;
 import mk.kvlzx.commands.ArenaTabCompleter;
 import mk.kvlzx.commands.MainCommand;
 import mk.kvlzx.commands.MainTabCompleter;
-import mk.kvlzx.commands.MsgCommand;
 import mk.kvlzx.commands.StatsCommand;
 import mk.kvlzx.commands.StatsTabCompleter;
+import mk.kvlzx.config.MainConfig;
+import mk.kvlzx.config.MessagesConfig;
 import mk.kvlzx.commands.MusicCommand;
-import mk.kvlzx.commands.ReplyCommand;
 import mk.kvlzx.commands.ReportCommand;
-import mk.kvlzx.commands.FriendCommand;
-import mk.kvlzx.commands.FriendTabCompleter;
-import mk.kvlzx.commands.IgnoreCommand;
-import mk.kvlzx.commands.IgnoreTabCompleter;
 import mk.kvlzx.cosmetics.CosmeticManager;
 import mk.kvlzx.data.InventoryData;
 import mk.kvlzx.hotbar.PlayerHotbar;
@@ -33,7 +29,6 @@ import mk.kvlzx.listeners.ArrowEffectListener;
 import mk.kvlzx.listeners.ChatListener;
 import mk.kvlzx.listeners.CombatListener;
 import mk.kvlzx.listeners.EndermiteListener;
-import mk.kvlzx.listeners.FriendListener;
 import mk.kvlzx.listeners.ItemListener;
 import mk.kvlzx.listeners.PlayerListener;
 import mk.kvlzx.listeners.MenuListener;
@@ -49,7 +44,7 @@ import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 
 public class MysthicKnockBack extends JavaPlugin {
-    public static String prefix = "&b[&3KBFFA&b] ";
+    public static String prefix;
     public String version = getDescription().getVersion();
     private static MysthicKnockBack instance;
     private ArenaManager arenaManager;
@@ -65,12 +60,19 @@ public class MysthicKnockBack extends JavaPlugin {
     private MusicManager musicManager;
     private ItemVerificationManager itemVerificationManager;
     private EndermiteListener endermiteListener;
-    private FriendCommand friendCommand;
-    private IgnoreCommand ignoreCommand;
+    private MessagesConfig messagesConfig;
+    private MainConfig mainConfig;
 
     @Override
     public void onEnable() {
         instance = this;
+
+        // Cargar configuración primero
+        mainConfig = new MainConfig(this);
+        messagesConfig = new MessagesConfig(this);
+        
+        // Actualizar el prefix desde la configuración
+        prefix = mainConfig.getPrefix();
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
@@ -104,14 +106,6 @@ public class MysthicKnockBack extends JavaPlugin {
             }
         }.runTaskLater(this, 20L);
 
-        if (friendCommand != null) {
-            friendCommand.loadAllData();
-        }
-
-        if (ignoreCommand != null) {
-            ignoreCommand.loadAllIgnoreData();
-        }
-
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Loading arenas...");
         arenaManager.loadArenas();
 
@@ -120,12 +114,12 @@ public class MysthicKnockBack extends JavaPlugin {
         registerEvents();
         startPlaytimeUpdater();
         startItemCleanup();
-        startAutoSave(); // Nuevo: Iniciar auto-guardado
+        startAutoSave(); // Iniciar auto-guardado con tiempo configurado
         itemVerificationManager.startVerification();
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&a✔&8] &aPlugin started successfully");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Auto-save enabled every 5 minutes");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Auto-save enabled every " + mainConfig.getAutoSaveInterval() + " minutes");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Developed by: &bKvlzx &8& &bGabo");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
@@ -200,8 +194,11 @@ public class MysthicKnockBack extends JavaPlugin {
         }, 600L, 600L);
     }
 
-    // Nuevo método para auto-guardado cada 5 minutos
+    // Método de auto-guardado usando el tiempo configurado
     private void startAutoSave() {
+        long autoSaveMinutes = mainConfig.getAutoSaveInterval();
+        long autoSaveTicks = autoSaveMinutes * 60 * 20; // Convertir minutos a ticks (1 minuto = 1200 ticks)
+        
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             try {
                 MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&e⚠&8] &7Auto-saving data...");
@@ -212,7 +209,7 @@ public class MysthicKnockBack extends JavaPlugin {
                 MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&c!&8] &cAuto-save failed: " + e.getMessage());
                 e.printStackTrace();
             }
-        }, 6000L, 6000L); // 6000 ticks = 5 minutos (20 ticks = 1 segundo)
+        }, autoSaveTicks, autoSaveTicks); // Usar el tiempo configurado
     }
 
     // Método centralizado para guardar toda la data
@@ -221,14 +218,6 @@ public class MysthicKnockBack extends JavaPlugin {
         cosmeticManager.saveAll();
         combatManager.cleanup();
         itemVerificationManager.stopVerification();
-
-        if (friendCommand != null) {
-            friendCommand.saveAllData();
-        }
-        
-        if (ignoreCommand != null) {
-            ignoreCommand.saveAllIgnoreData();
-        }
     }
 
     private void cleanupAllDroppedItems() {
@@ -259,14 +248,6 @@ public class MysthicKnockBack extends JavaPlugin {
         getCommand("stats").setTabCompleter(new StatsTabCompleter());
         getCommand("music").setExecutor(new MusicCommand(this));
         getCommand("report").setExecutor(new ReportCommand(this));
-        ignoreCommand = new IgnoreCommand(this);
-        friendCommand = new FriendCommand(this, ignoreCommand);
-        getCommand("friend").setExecutor(friendCommand);
-        getCommand("friend").setTabCompleter(new FriendTabCompleter());
-        getCommand("msg").setExecutor(new MsgCommand(this, ignoreCommand)); // Inyectar IgnoreCommand
-        getCommand("r").setExecutor(new ReplyCommand(this)); // Inyectar IgnoreCommand
-        getCommand("ignore").setExecutor(ignoreCommand);
-        getCommand("ignore").setTabCompleter(new IgnoreTabCompleter(this, ignoreCommand));
     }
 
     public void registerEvents() {
@@ -279,7 +260,6 @@ public class MysthicKnockBack extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ArrowEffectListener(this), this);
         endermiteListener = new EndermiteListener(this);
         getServer().getPluginManager().registerEvents(endermiteListener, this);
-        getServer().getPluginManager().registerEvents(new FriendListener(this), this);
     }
 
     public static MysthicKnockBack getInstance() {
@@ -336,5 +316,13 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public EndermiteListener getEndermiteListener() {
         return endermiteListener;
+    }
+
+    public MessagesConfig getMessagesConfig() {
+        return messagesConfig;
+    }
+
+    public MainConfig getMainConfig() {
+        return mainConfig;
     }
 }
