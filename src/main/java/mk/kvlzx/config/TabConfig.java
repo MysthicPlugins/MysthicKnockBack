@@ -41,7 +41,7 @@ public class TabConfig {
     private List<String> scoreArenaChangeFrames;
 
     public TabConfig(MysthicKnockBack plugin) {
-        configFile = new CustomConfig("config.yml", "config/global", plugin);
+        configFile = new CustomConfig("tab.yml", "config/global", plugin);
         configFile.registerConfig();
         loadConfig();
     }
