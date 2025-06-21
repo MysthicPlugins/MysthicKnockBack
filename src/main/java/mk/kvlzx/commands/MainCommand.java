@@ -29,6 +29,7 @@ public class MainCommand implements CommandExecutor{
             if (args.length >= 1 && args[0].equalsIgnoreCase("reload")) {
                 try {
                     plugin.getMessagesConfig().reload();
+                    plugin.getMainConfig().reload();
                 } catch (Exception e) {
                     Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cAn error occurred while reloading the configuration"));
                     e.printStackTrace();
@@ -46,7 +47,7 @@ public class MainCommand implements CommandExecutor{
 
         if(args.length >= 1){
             if(args[0].equalsIgnoreCase("pet")){
-                sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&f ≽^•⩊•^≼ &b " + player.getName()));
+                sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&f ≽^•⩊•^≼ &b " + player.getName()));            
             } else if (args[0].equalsIgnoreCase("reload")) {
                 if (sender.hasPermission("mysthicknockback.reload")) {
                     try {
@@ -60,6 +61,7 @@ public class MainCommand implements CommandExecutor{
                 } else {
                     sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getNoPermission()));
                 }
+                return true;
             }
             help(sender);
         } else {

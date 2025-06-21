@@ -19,6 +19,7 @@ C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\BlockShopIt
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\CosmeticManager.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\DeathMessageItem.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\DeathSoundItem.java
+C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\JoinMessageItem.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\KillMessageItem.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\KillSoundItem.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\cosmetics\KnockerShopItem.java
@@ -33,6 +34,7 @@ C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\ChatListene
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\CombatListener.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\EndermiteListener.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\ItemListener.java
+C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\JoinMessageListener.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\MenuListener.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\listeners\PlayerListener.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\managers\CombatManager.java
@@ -54,6 +56,8 @@ C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\DeathMessageShop
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\DeathSoundCategoriesMenu.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\DeathSoundShopMenu.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\HotbarEditMenu.java
+C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\JoinMessageCategoriesMenu.java
+C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\JoinMessageShopMenu.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KillMessageCategoriesMenu.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KillMessageShopMenu.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\KillSoundCategoriesMenu.java

@@ -16,6 +16,8 @@ import mk.kvlzx.menu.TopEloMenu;
 import mk.kvlzx.menu.TopStreakMenu;
 import mk.kvlzx.menu.TopTimeMenu;
 import mk.kvlzx.menu.HotbarEditMenu;
+import mk.kvlzx.menu.JoinMessageCategoriesMenu;
+import mk.kvlzx.menu.JoinMessageShopMenu;
 import mk.kvlzx.menu.StatsMenu;
 import mk.kvlzx.menu.PlayerListMenu;
 import mk.kvlzx.menu.ReportReasonMenu;
@@ -77,6 +79,8 @@ public class MenuManager {
         registerMenu("kill_sound_shop", new KillSoundShopMenu(plugin));
         registerMenu("music_categories", new MusicCategoriesMenu(plugin));
         registerMenu("music_shop", new MusicShopMenu(plugin));
+        registerMenu("join_message_categories", new JoinMessageCategoriesMenu(plugin));
+        registerMenu("join_message_shop", new JoinMessageShopMenu(plugin));
         // Aquí registraremos los demás menús
     }
 

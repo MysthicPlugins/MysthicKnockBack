@@ -30,6 +30,7 @@ import mk.kvlzx.listeners.ChatListener;
 import mk.kvlzx.listeners.CombatListener;
 import mk.kvlzx.listeners.EndermiteListener;
 import mk.kvlzx.listeners.ItemListener;
+import mk.kvlzx.listeners.JoinMessageListener;
 import mk.kvlzx.listeners.PlayerListener;
 import mk.kvlzx.listeners.MenuListener;
 import mk.kvlzx.managers.CombatManager;
@@ -266,6 +267,7 @@ public class MysthicKnockBack extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ArrowEffectListener(this), this);
         endermiteListener = new EndermiteListener(this);
         getServer().getPluginManager().registerEvents(endermiteListener, this);
+        getServer().getPluginManager().registerEvents(new JoinMessageListener(this), this);
     }
 
     public static MysthicKnockBack getInstance() {

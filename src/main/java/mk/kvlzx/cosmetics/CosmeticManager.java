@@ -39,6 +39,8 @@ public class CosmeticManager {
     private final Map<UUID, Set<String>> playerOwnedKillSounds = new HashMap<>();
     private final Map<UUID, String> playerBackgroundMusic = new HashMap<>();
     private final Map<UUID, Set<String>> playerOwnedMusic = new HashMap<>();
+    private final Map<UUID, String> playerJoinMessages = new HashMap<>();
+    private final Map<UUID, Set<String>> playerOwnedJoinMessages = new HashMap<>();
 
     public CosmeticManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -404,6 +406,42 @@ public class CosmeticManager {
         }
     }
 
+    public String getPlayerJoinMessage(UUID uuid) {
+        return playerJoinMessages.getOrDefault(uuid, "default");
+    }
+
+    public void setPlayerJoinMessage(UUID uuid, String messageName) {
+        playerJoinMessages.put(uuid, messageName);
+        savePlayerJoinMessage(uuid);
+    }
+
+    public boolean hasPlayerJoinMessage(UUID uuid, String messageName) {
+        if (messageName.equals("default")) return true;
+        Set<String> owned = playerOwnedJoinMessages.getOrDefault(uuid, new HashSet<>());
+        return owned.contains(messageName);
+    }
+
+    public void addPlayerJoinMessage(UUID uuid, String messageName) {
+        playerOwnedJoinMessages.computeIfAbsent(uuid, k -> new HashSet<>()).add(messageName);
+        savePlayerJoinMessages(uuid);
+    }
+
+    private void savePlayerJoinMessage(UUID uuid) {
+        String message = playerJoinMessages.get(uuid);
+        if (message != null) {
+            cosmeticConfig.getConfig().set("join_messages." + uuid.toString(), message);
+            cosmeticConfig.saveConfig();
+        }
+    }
+
+    private void savePlayerJoinMessages(UUID uuid) {
+        Set<String> messages = playerOwnedJoinMessages.get(uuid);
+        if (messages != null) {
+            cosmeticConfig.getConfig().set("owned_join_messages." + uuid.toString(), new ArrayList<>(messages));
+            cosmeticConfig.saveConfig();
+        }
+    }
+
     public void saveAll() {
         for (Map.Entry<UUID, Material> entry : playerBlocks.entrySet()) {
             cosmeticConfig.getConfig().set("blocks." + entry.getKey().toString(), entry.getValue().name());
@@ -468,6 +506,12 @@ public class CosmeticManager {
         playerOwnedMusic.forEach((uuid, music) -> {
             cosmeticConfig.getConfig().set("owned_background_music." + uuid.toString(), 
                 new ArrayList<>(music));
+        });
+        for (Map.Entry<UUID, String> entry : playerJoinMessages.entrySet()) {
+            cosmeticConfig.getConfig().set("join_messages." + entry.getKey().toString(), entry.getValue());
+        }
+        playerOwnedJoinMessages.forEach((uuid, messages) -> {
+            cosmeticConfig.getConfig().set("owned_join_messages." + uuid.toString(), new ArrayList<>(messages));
         });
         cosmeticConfig.saveConfig();
     }
@@ -678,6 +722,31 @@ public class CosmeticManager {
                     playerOwnedMusic.put(playerUUID, new HashSet<>(musicNames));
                 } catch (IllegalArgumentException e) {
                     plugin.getLogger().warning("Error loading owned background music for " + uuid);
+                }
+            }
+        }
+
+        ConfigurationSection joinMessageSection = cosmeticConfig.getConfig().getConfigurationSection("join_messages");
+        if (joinMessageSection != null) {
+            for (String uuid : joinMessageSection.getKeys(false)) {
+                try {
+                    UUID playerUUID = UUID.fromString(uuid);
+                    String message = joinMessageSection.getString(uuid);
+                    playerJoinMessages.put(playerUUID, message);
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Error loading join message for " + uuid);
+                }
+            }
+        }
+        ConfigurationSection ownedJoinMessagesSection = cosmeticConfig.getConfig().getConfigurationSection("owned_join_messages");
+        if (ownedJoinMessagesSection != null) {
+            for (String uuid : ownedJoinMessagesSection.getKeys(false)) {
+                try {
+                    UUID playerUUID = UUID.fromString(uuid);
+                    List<String> messageNames = ownedJoinMessagesSection.getStringList(uuid);
+                    playerOwnedJoinMessages.put(playerUUID, new HashSet<>(messageNames));
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Error loading owned join messages for " + uuid);
                 }
             }
         }

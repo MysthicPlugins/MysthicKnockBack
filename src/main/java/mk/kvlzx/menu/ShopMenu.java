@@ -94,6 +94,15 @@ public class ShopMenu extends Menu {
             "&8➥ Includes +5 unique sounds",
             "&aAvailable!"));
 
+        inv.setItem(40, createItem(Material.ANVIL, "&e&lJoin Messages", 
+            "&7Click to view join messages",
+            "",
+            "&8▪ &7Messages when joining the game",
+            "&8▪ &7Show your style",
+            "",
+            "&8➥ Includes +10 unique messages",
+            "&aAvailable!"));
+
         inv.setItem(43, createItem(Material.GOLD_RECORD, "&5&lMusic",
             "&7Click to view music",
             "",
@@ -137,6 +146,9 @@ public class ShopMenu extends Menu {
                 break;
             case 37: // Sonidos de kill
                 plugin.getMenuManager().openMenu(player, "kill_sound_categories");
+                break;
+            case 40: // Mensajes de entrada
+                plugin.getMenuManager().openMenu(player, "join_message_categories");
                 break;
             case 43: // Música
                 plugin.getMenuManager().openMenu(player, "music_categories");
