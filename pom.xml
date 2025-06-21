@@ -22,6 +22,10 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+        <repository>
+            <id>placeholderapi</id>
+            <url>https://repo.extendedclip.com/releases/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -45,6 +49,12 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/depends/spigot-1.8.8.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.11.6</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -60,6 +70,7 @@
                     <include>data/cosmetics.yml</include>
                     <include>config/global/config.yml</include>
                     <include>config/global/messages.yml</include>
+                    <include>config/global/tab.yml</include>
                 </includes>
             </resource>
         </resources>

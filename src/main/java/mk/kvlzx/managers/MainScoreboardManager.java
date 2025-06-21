@@ -2,6 +2,7 @@ package mk.kvlzx.managers;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,11 +21,13 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.arena.Arena;
 import mk.kvlzx.arena.ArenaManager;
 import mk.kvlzx.arena.Zone;
 import mk.kvlzx.arena.ZoneType;
+import mk.kvlzx.config.TabConfig;
 import mk.kvlzx.items.ItemsManager;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
@@ -32,32 +35,49 @@ import mk.kvlzx.utils.TitleUtils;
 
 public class MainScoreboardManager {
     private final MysthicKnockBack plugin;
-    private int timeLeft = 120;
-    private final int ARENA_TIME = 120;
-    private final int[] COUNTDOWN_ALERTS = {60, 30, 10, 5, 4, 3, 2, 1};
+    private final TabConfig config;
     private final ScoreboardManager scoreboardManager;
-    private boolean arenaChanging = false; // Nueva variable
+    private boolean placeholderAPIEnabled;
+    
+    private int timeLeft;
+    private boolean arenaChanging = false;
+    private int animationFrame = 0;
 
     private final Map<UUID, Scoreboard> playerScoreboards = new HashMap<>();
     private final Map<UUID, Objective> playerObjectives = new HashMap<>();
 
     public MainScoreboardManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
+        this.config = plugin.getTabConfig();
         this.scoreboardManager = Bukkit.getScoreboardManager();
-        setupScoreboard();
-        startArenaRotation();
+        
+        // Verificar si PlaceholderAPI está disponible
+        this.placeholderAPIEnabled = plugin.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null;
+        
+        // Inicializar tiempo desde configuración
+        this.timeLeft = config.getScoreArenaChange();
+        
+        // Solo iniciar si el scoreboard está habilitado
+        if (config.isScoreEnabled()) {
+            setupScoreboard();
+            startArenaRotation();
+        }
     }
 
     private void setupScoreboard() {
-        // Cambiar el intervalo de actualización a 2L (0.1 segundos)
         new BukkitRunnable() {
             @Override
             public void run() {
+                if (!config.isScoreEnabled()) {
+                    this.cancel();
+                    return;
+                }
+                
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     updatePlayerScoreboard(player);
                 }
             }
-        }.runTaskTimer(plugin, 2L, 2L);
+        }.runTaskTimer(plugin, config.getScoreUpdateInterval(), config.getScoreUpdateInterval());
     }
 
     private void updatePlayerScoreboard(Player player) {
@@ -67,57 +87,82 @@ public class MainScoreboardManager {
         if (board == null || obj == null) {
             board = scoreboardManager.getNewScoreboard();
             obj = board.registerNewObjective("main", "dummy");
-            obj.setDisplayName(MessageUtils.getColor("&b&lKnockback&3&lFFA"));
+            
+            // Usar título de configuración
+            String title = processPlaceholders(config.getScoreTitle(), player);
+            obj.setDisplayName(MessageUtils.getColor(title));
             obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+            
             playerScoreboards.put(player.getUniqueId(), board);
             playerObjectives.put(player.getUniqueId(), obj);
             player.setScoreboard(board);
         }
 
+        // Obtener datos del jugador y arena
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         String currentArena = plugin.getArenaManager().getCurrentArena();
         String nextArena = plugin.getArenaManager().getNextArena();
-        if (currentArena == null) currentArena = "None";
-        if (nextArena == null) nextArena = "None";
+        
+        if (currentArena == null) currentArena = config.getScoreNullArena();
+        if (nextArena == null) nextArena = config.getScoreNullNextArena();
         
         int minutes = timeLeft / 60;
         int seconds = timeLeft % 60;
-        String formattedTime = String.format("&e%02d:%02d", minutes, seconds);
-        
-        double kdr = stats.getKDR();
-        String kdrColor;
-        if (kdr < 1.0) {
-            kdrColor = "&c"; // Rojo para KDR < 1
-        } else if (kdr < 2.0) {
-            kdrColor = "&6"; // Naranja para 1 ≤ KDR < 2
-        } else if (kdr < 3.0) {
-            kdrColor = "&e"; // Amarillo para 2 ≤ KDR < 3
-        } else {
-            kdrColor = "&a"; // Verde para KDR ≥ 3
+        String formattedTime = String.format("%02d:%02d", minutes, seconds);
+
+        // Usar líneas de configuración
+        List<String> configLines = config.getScoreLines();
+        if (configLines == null || configLines.isEmpty()) {
+            return;
         }
 
-        // Crear un buffer con los valores actuales - usando espacios únicos
         Map<Integer, String> newScores = new HashMap<>();
-        newScores.put(14, " "); // Espacio normal
-        newScores.put(13, "&7Information:");
-        newScores.put(12, " &8➥ &fPlayer: &b" + player.getName());
-        newScores.put(11, " &8➥ &fArena: &b" + currentArena);
-        newScores.put(10, "  "); // Dos espacios
-        newScores.put(9, "&7Statistics:");
-        newScores.put(8, " &8➥ &fKills: &a" + stats.getKills());
-        newScores.put(7, " &8➥ &fDeaths: &c" + stats.getDeaths());
-        newScores.put(6, " &8➥ &fK/D: " + kdrColor + String.format("%.2f", kdr));
-        newScores.put(5, "   "); // Tres espacios
-        newScores.put(4, "&7Arena Change:");
-        newScores.put(3, " &8➥ &fChange: " + formattedTime);
-        newScores.put(2, " &8➥ &fNext: &e" + nextArena);
-        newScores.put(1, "    "); // Cuatro espacios
-        newScores.put(0, "&eplay.mysthicknockback.gg");
+        int scoreValue = configLines.size() - 1;
+        
+        for (String line : configLines) {
+            // Procesar placeholders
+            String processedLine = processScoreboardPlaceholders(line, player, stats, 
+                currentArena, nextArena, formattedTime);
+            
+            newScores.put(scoreValue, processedLine);
+            scoreValue--;
+        }
 
-        // Actualizar solo los scores que han cambiado
+        // Actualizar scores
         for (Map.Entry<Integer, String> entry : newScores.entrySet()) {
             updateScore(obj, entry.getValue(), entry.getKey());
         }
+    }
+
+    private String processScoreboardPlaceholders(String text, Player player, PlayerStats stats, 
+                                                String currentArena, String nextArena, String formattedTime) {
+        // Procesar placeholders básicos del scoreboard
+        text = text.replace("%player_name%", player.getName())
+                  .replace("%arena_name%", currentArena)
+                  .replace("%next_arena%", nextArena)
+                  .replace("%time_formatted%", "&e" + formattedTime)
+                  .replace("%kills%", String.valueOf(stats.getKills()))
+                  .replace("%deaths%", String.valueOf(stats.getDeaths()))
+                  .replace("%kdr%", String.format("%.2f", stats.getKDR()));
+        
+        // Procesar líneas en blanco con espacios únicos
+        if (text.equals("%blank_line%")) {
+            text = generateUniqueSpace();
+        }
+        
+        // Usar PlaceholderAPI si está disponible
+        text = processPlaceholders(text, player);
+        
+        return text;
+    }
+
+    private String generateUniqueSpace() {
+        // Generar espacios únicos para evitar conflictos en el scoreboard
+        StringBuilder spaces = new StringBuilder();
+        for (int i = 0; i <= animationFrame % 10; i++) {
+            spaces.append(" ");
+        }
+        return spaces.toString();
     }
 
     private void updateScore(Objective obj, String text, int score) {
@@ -127,17 +172,14 @@ public class MainScoreboardManager {
         for (String entry : obj.getScoreboard().getEntries()) {
             Score existingScore = obj.getScore(entry);
             if (existingScore.getScore() == score) {
-                // Si el texto es el mismo, no hacer nada para evitar parpadeo
                 if (entry.equals(coloredText)) {
                     return;
                 }
-                // Si el texto es diferente, eliminar el score antiguo
                 obj.getScoreboard().resetScores(entry);
                 break;
             }
         }
         
-        // Establecer nuevo score solo si es necesario
         Score scoreObj = obj.getScore(coloredText);
         scoreObj.setScore(score);
     }
@@ -148,25 +190,35 @@ public class MainScoreboardManager {
 
             @Override
             public void run() {
+                if (!config.isScoreEnabled()) {
+                    this.cancel();
+                    return;
+                }
+                
                 long currentSecond = System.currentTimeMillis() / 1000;
                 
-                // Solo actualizar cuando realmente haya pasado un segundo
                 if (currentSecond > lastSecond) {
                     timeLeft--;
+                    animationFrame++; // Incrementar frame de animación
                     lastSecond = currentSecond;
                     
-                    // Alertas de tiempo
-                    if (Arrays.stream(COUNTDOWN_ALERTS).anyMatch(t -> t == timeLeft)) {
-                        Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aThe arena will change in &c" + timeLeft + " &aseconds!"));
+                    // Usar alertas de configuración
+                    List<Integer> alertSeconds = config.getScoreArenaChangeAlert();
+                    if (alertSeconds != null && alertSeconds.contains(timeLeft)) {
+                        String message = config.getScoreMessageArenaChange();
+                        if (message != null) {
+                            message = message.replace("%seconds%", String.valueOf(timeLeft));
+                            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.prefix + message));
+                        }
                     }
 
                     if (timeLeft <= 0) {
                         rotateArena();
-                        timeLeft = ARENA_TIME;
+                        timeLeft = config.getScoreArenaChange(); // Resetear desde configuración
                     }
                 }
             }
-        }.runTaskTimer(plugin, 20L, 1L); // Actualizar cada tick pero controlar el tiempo con currentTimeMillis
+        }.runTaskTimer(plugin, 20L, 1L);
     }
 
     public boolean isArenaChanging() {
@@ -174,7 +226,6 @@ public class MainScoreboardManager {
     }
 
     private void rotateArena() {
-        // Activar el estado de cambio de arena ANTES de cualquier otra operación
         arenaChanging = true;
 
         ArenaManager arenaManager = plugin.getArenaManager();
@@ -190,7 +241,6 @@ public class MainScoreboardManager {
         Location nextSpawn = nextArenaObj.getSpawnLocation();
         
         if (nextSpawn == null) {
-            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cError: The arena " + nextArena + " does not have a configured spawn point."));
             arenaChanging = false;
             return;
         }
@@ -201,34 +251,44 @@ public class MainScoreboardManager {
             player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 128, false, false));
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 1, false, false));
             player.playSound(player.getLocation(), Sound.PORTAL_TRIGGER, 1.0f, 1.0f);
-            // Dar invulnerabilidad temporal
             player.setNoDamageTicks(100);
         }
 
-        // Activar el estado de cambio de arena
-        arenaChanging = true;
-
-        // Secuencia de animación
+        // Secuencia de animación usando configuración
         new BukkitRunnable() {
             int step = 0;
-            String[] loadingFrames = {"▌", "▌▌", "▌▌▌", "▌▌▌▌", "▌▌▌▌▌"};
-            String[] loadingColors = {"&c", "&6", "&e", "&a", "&2"};
+            List<String> loadingFrames = config.getScoreArenaChangeFrames();
+            List<String> loadingColors = config.getScoreArenaChangeColors();
             
             @Override
             public void run() {
-                if (step >= loadingFrames.length + 2) {
+                if (loadingFrames == null || loadingColors == null || 
+                    step >= loadingFrames.size() + 2) {
                     this.cancel();
                     teleportPlayers(currentArena, nextArena, nextSpawn);
                     return;
                 }
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (step < loadingFrames.length) {
+                    if (step < loadingFrames.size()) {
+                        // Usar configuración para títulos
+                        String title = config.getScoreTitleBeforeChangeTitle();
+                        String subtitle = config.getScoreTitleBeforeChangeSubtitle();
+                        
+                        if (title != null) title = processPlaceholders(title, player);
+                        if (subtitle != null) {
+                            subtitle = subtitle.replace("%title-animation%", 
+                                loadingColors.get(step) + loadingFrames.get(step) + " &7" + (step * 20 + 20) + "%");
+                            subtitle = processPlaceholders(subtitle, player);
+                        }
+                        
                         TitleUtils.sendTitle(
                             player,
-                            "&b&lChanging Arena",
-                            loadingColors[step] + loadingFrames[step] + " &7" + (step * 20 + 20) + "%",
-                            10, 30, 10
+                            MessageUtils.getColor(title),
+                            MessageUtils.getColor(subtitle),
+                            config.getScoreTitleBeforeChangeFadeIn(),
+                            config.getScoreTitleBeforeChangeStay(),
+                            config.getScoreTitleBeforeChangeFadeOut()
                         );
                         player.playSound(player.getLocation(), Sound.CLICK, 1.0f, 1.0f);
                     }
@@ -239,8 +299,6 @@ public class MainScoreboardManager {
     }
 
     private void teleportPlayers(String currentArena, String nextArena, Location nextSpawn) {
-
-        // Teletransportar jugadores
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (currentArena != null) {
                 plugin.getArenaManager().removePlayerFromArena(player, currentArena);
@@ -252,9 +310,8 @@ public class MainScoreboardManager {
                     ItemsManager.giveSpawnItems(player);
                     player.teleport(nextSpawn);
                     plugin.getArenaManager().addPlayerToArena(player, nextArena);
-                    player.setNoDamageTicks(60); // Asegurar invulnerabilidad por 3 segundos después del teleport
+                    player.setNoDamageTicks(60);
                     
-                    // NUEVO: Forzar actualización de zona inmediatamente después del teleport
                     updatePlayerZone(player, nextArena);
 
                     player.getWorld().getEntities().stream()
@@ -262,14 +319,28 @@ public class MainScoreboardManager {
                         .filter(entity -> ((EnderPearl) entity).getShooter() == player)
                         .forEach(entity -> entity.remove());
                     
-                    // Restaurar movimiento después de 1.5 segundos
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
                         player.setWalkSpeed(0.2f);
-                        arenaChanging = false; // Desactivar el estado de cambio solo después de restaurar todo
+                        arenaChanging = false;
+                        
+                        // Usar configuración para título después del cambio
+                        String title = config.getScoreTitleAfterChangeTitle();
+                        String subtitle = config.getScoreTitleAfterChangeSubtitle();
+                        
+                        if (title != null) {
+                            title = title.replace("%next_arena%", nextArena);
+                            title = processPlaceholders(title, player);
+                        }
+                        if (subtitle != null) {
+                            subtitle = processPlaceholders(subtitle, player);
+                        }
+                        
                         TitleUtils.sendTitle(player, 
-                            "&a&lArena " + nextArena + "!", 
-                            "&eGood luck!",
-                            10, 40, 10
+                            MessageUtils.getColor(title), 
+                            MessageUtils.getColor(subtitle),
+                            config.getScoreTitleAfterChangeFadeIn(),
+                            config.getScoreTitleAfterChangeStay(),
+                            config.getScoreTitleAfterChangeFadeOut()
                         );
                         player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 1.0f);
                     }, 30L);
@@ -277,7 +348,6 @@ public class MainScoreboardManager {
             }.runTaskLater(plugin, 2L);
         }
 
-        // Actualizar la arena actual
         plugin.getArenaManager().setCurrentArena(nextArena);
     }
 
@@ -288,7 +358,6 @@ public class MainScoreboardManager {
         Location playerLoc = player.getLocation();
         String currentZone = null;
         
-        // Verificar en qué zona está el jugador
         for (ZoneType zoneType : ZoneType.values()) {
             Zone zone = arena.getZone(zoneType.getId());
             if (zone != null && zone.isInside(playerLoc)) {
@@ -297,13 +366,42 @@ public class MainScoreboardManager {
             }
         }
         
-        // Actualizar la zona del jugador en el ArenaManager
         plugin.getArenaManager().setPlayerZone(player, arenaName, currentZone);
     }
 
-    // Añadir métodos para limpiar las referencias cuando el jugador se desconecta
     public void removePlayer(Player player) {
         playerScoreboards.remove(player.getUniqueId());
         playerObjectives.remove(player.getUniqueId());
+    }
+
+    public void reload() {
+        // Recargar configuración
+        config.reload();
+        
+        // Reiniciar tiempo desde configuración
+        timeLeft = config.getScoreArenaChange();
+        
+        // Limpiar scoreboards existentes si el scoreboard está deshabilitado
+        if (!config.isScoreEnabled()) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.setScoreboard(scoreboardManager.getMainScoreboard());
+            }
+            playerScoreboards.clear();
+            playerObjectives.clear();
+        }
+    }
+
+    private String processPlaceholders(String text, Player player) {
+        if (text == null) return "";
+        
+        if (placeholderAPIEnabled) {
+            if (player != null) {
+                text = PlaceholderAPI.setPlaceholders(player, text);
+            } else {
+                text = PlaceholderAPI.setPlaceholders(null, text);
+            }
+        }
+        
+        return text;
     }
 }

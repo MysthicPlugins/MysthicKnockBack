@@ -1,0 +1,82 @@
+# Support for PlaceholderAPI
+tab:
+  display:
+    enabled: true
+    header:
+      animation: true
+      animation-delay: 20 # Delay in ticks (20 ticks = 1 second)
+      lines-with-animation:
+        - "&b&l≽^•⩊•^≼ &6&lKnockbackFFA &b&l≽^•⩊•^≼"
+        - "&3&l≽^•⩊•^≼ &e&lKnockbackFFA &3&l≽^•⩊•^≼"
+        - "&9&l≽^•⩊•^≼ &f&lKnockbackFFA &9&l≽^•⩊•^≼"
+        - "&7Show your KnockBack skills!"
+      lines-without-animation: 
+        - "&b&l≽^•⩊•^≼ &6&lKnockbackFFA &b&l≽^•⩊•^≼"
+        - "&7Show your KnockBack skills!"
+    footer:
+      - "&eStore: &fstore.server.com"
+      - "&eDiscord: &fdiscord.server.com"
+      - "&aOnline Players: &f%server_online%"
+    player-display: "%kbffa_rank% &f%player_name% &8[&f%player_ping%ms&8]"
+scoreboard:
+  enabled: true
+  update-interval: 2 # Update interval in ticks (20 ticks = 1 second)
+  utils:
+    null-arena: "None"
+    null-next-arena: "None"
+  title: "&b&lKnockback&3&lFFA"
+  lines:
+    - "%blank_line%"
+    - "&7Information:"
+    - "&8➥ &fPlayer: &b%player_name%"
+    - " &8➥ &fArena: &b%arena_name%"
+    - "%blank_line%"
+    - "&7Statistics:"
+    - " &8➥ &fKills: &a%kills%"
+    - " &8➥ &fDeaths: &c%deaths%"
+    - " &8➥ &fK/D: &a%kdr%"
+    - "%blank_line%"
+    - "&7Arena Change:"
+    - " &8➥ &fChange: %time_formatted%"
+    - " &8➥ &fNext: &e%next_arena%"
+    - "%blank_line%"
+    - "&eplay.mysthicknockback.gg"
+  arena-change:
+    time: 120 # Time in seconds before arena change
+    seconds-to-alert:
+      - 60
+      - 30
+      - 15
+      - 10
+      - 5
+      - 4
+      - 3
+      - 2
+      - 1
+    title-before-change:
+      fade-in: 10 # Fade in time in ticks
+      stay: 30 # Time to stay on the title in ticks
+      fade-out: 10 # Fade out time in ticks
+      title: "&b&lChanging Arena"
+      subtitle: "%title-animation%"
+    title-after-change:
+      fade-in: 10 # Fade in time in ticks
+      stay: 40 # Time to stay on the title in ticks
+      fade-out: 10 # Fade out time in ticks
+      title: "&a&lArena %next_arena%!"
+      subtitle: "&eGood luck!"
+  message:
+    arena-change: "&aThe arena will change in &c%seconds% &aseconds!"
+  title-animation:
+    colors:
+      - "&c"
+      - "&6"
+      - "&e"
+      - "&a"
+      - "&2"
+    frames:
+      - "▌"
+      - "▌▌"
+      - "▌▌▌"
+      - "▌▌▌▌"
+      - "▌▌▌▌▌"

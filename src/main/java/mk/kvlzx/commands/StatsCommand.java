@@ -38,7 +38,7 @@ public class StatsCommand implements CommandExecutor {
             String targetName = args[0];
             Player target = Bukkit.getPlayer(targetName);
             if (target == null) {
-                sender.sendMessage(MessageUtils.getColor(messages.getStatsNotFound()));
+                sender.sendMessage(MysthicKnockBack.prefix + MessageUtils.getColor(messages.getStatsNotFound()));
                 return true;
             }
             showPlayerStats(sender, target);
@@ -47,34 +47,34 @@ public class StatsCommand implements CommandExecutor {
 
         // A partir de aquí, todos los comandos requieren permiso admin
         if (!sender.hasPermission("kvknockback.stats.admin")) {
-            sender.sendMessage(MessageUtils.getColor(messages.getStatsNoPermission()));
+            sender.sendMessage(MysthicKnockBack.prefix + MessageUtils.getColor(messages.getStatsNoPermission()));
             return true;
         }
 
         if (args[0].equalsIgnoreCase("resetall")) {
             resetAllStats();
-            sender.sendMessage(MessageUtils.getColor(messages.getStatsResetAllSuccess()));
+            sender.sendMessage(MysthicKnockBack.prefix + MessageUtils.getColor(messages.getStatsResetAllSuccess()));
             return true;
         }
 
         if (args[0].equalsIgnoreCase("reset")) {
             if (args.length < 2) {
-                sender.sendMessage(MessageUtils.getColor(messages.getStatsAdminUsage()));
+                sender.sendMessage(MysthicKnockBack.prefix + MessageUtils.getColor(messages.getStatsAdminUsage()));
                 return true;
             }
             Player target = Bukkit.getPlayer(args[1]);
             if (target == null) {
-                sender.sendMessage(MessageUtils.getColor(messages.getStatsNotFound()));
+                sender.sendMessage(MysthicKnockBack.prefix + MessageUtils.getColor(messages.getStatsNotFound()));
                 return true;
             }
             resetPlayerStats(target);
-            sender.sendMessage(MessageUtils.getColor(messages.getStatsResetSuccess().replace("%player%", target.getName())));
+            sender.sendMessage(MysthicKnockBack.prefix + MessageUtils.getColor(messages.getStatsResetSuccess().replace("%player%", target.getName())));
             return true;
         }
 
         // Comandos de modificación de stats
         if (args.length < 4) {
-            sender.sendMessage(MessageUtils.getColor(messages.getStatsAdminUsage()));
+            sender.sendMessage(MysthicKnockBack.prefix + MessageUtils.getColor(messages.getStatsAdminUsage()));
             return true;
         }
 
@@ -132,13 +132,13 @@ public class StatsCommand implements CommandExecutor {
         try {
             amount = Integer.parseInt(args[3]);
         } catch (NumberFormatException e) {
-            sender.sendMessage(MessageUtils.getColor(messages.getStatsAmountError()));
+            sender.sendMessage(MysthicKnockBack.prefix + MessageUtils.getColor(messages.getStatsAmountError()));
             return;
         }
 
         Player target = Bukkit.getPlayer(targetName);
         if (target == null) {
-            sender.sendMessage(MessageUtils.getColor(messages.getStatsNotFound()));
+            sender.sendMessage(MysthicKnockBack.prefix + MessageUtils.getColor(messages.getStatsNotFound()));
             return;
         }
 
@@ -176,13 +176,13 @@ public class StatsCommand implements CommandExecutor {
                             () -> stats.removeKGCoins(amount));
                 break;
             default:
-                sender.sendMessage(MessageUtils.getColor(messages.getStatsInvalidStat()));
+                sender.sendMessage(MysthicKnockBack.prefix + MessageUtils.getColor(messages.getStatsInvalidStat()));
                 return;
         }
 
         String operationName = operation.equals("set") ? "set" : 
                                 operation.equals("add") ? "added" : "removed";
-        sender.sendMessage(MessageUtils.getColor(messages.getStatsStatUpdated()
+        sender.sendMessage(MysthicKnockBack.prefix + MessageUtils.getColor(messages.getStatsStatUpdated()
             .replace("%operation%", operationName)
             .replace("%amount%", String.valueOf(amount))
             .replace("%stat%", statName)

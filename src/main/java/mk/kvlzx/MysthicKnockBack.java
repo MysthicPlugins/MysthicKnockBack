@@ -20,6 +20,7 @@ import mk.kvlzx.commands.StatsCommand;
 import mk.kvlzx.commands.StatsTabCompleter;
 import mk.kvlzx.config.MainConfig;
 import mk.kvlzx.config.MessagesConfig;
+import mk.kvlzx.config.TabConfig;
 import mk.kvlzx.commands.MusicCommand;
 import mk.kvlzx.commands.ReportCommand;
 import mk.kvlzx.cosmetics.CosmeticManager;
@@ -63,6 +64,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private EndermiteListener endermiteListener;
     private MessagesConfig messagesConfig;
     private MainConfig mainConfig;
+    private TabConfig tabConfig;
 
     @Override
     public void onEnable() {
@@ -71,6 +73,7 @@ public class MysthicKnockBack extends JavaPlugin {
         // Cargar configuración primero
         mainConfig = new MainConfig(this);
         messagesConfig = new MessagesConfig(this);
+        tabConfig = new TabConfig(this);
         
         // Actualizar el prefix desde la configuración
         prefix = mainConfig.getPrefix();
@@ -93,9 +96,14 @@ public class MysthicKnockBack extends JavaPlugin {
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
 
         if (Bukkit.getPluginManager().getPlugin("MysthicFriends") != null) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &dMysthicKnockBack detected! Both plugins are part of the &bMysthic&d Series.");
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &MysthicFriends detected! Both plugins are part of the &bMysthic&d Series.");
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &7Thanks for using both plugins together!");
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+        }
+
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &7PlaceholderAPI detected! Placeholder support is enabled.");
+            // Agregar registro de placeholders acá
         }
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b1&8] &7Registering managers...");
@@ -332,5 +340,9 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public MainConfig getMainConfig() {
         return mainConfig;
+    }
+
+    public TabConfig getTabConfig() {
+        return tabConfig;
     }
 }

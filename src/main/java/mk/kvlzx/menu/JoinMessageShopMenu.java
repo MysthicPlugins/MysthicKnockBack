@@ -33,29 +33,113 @@ public class JoinMessageShopMenu extends Menu {
 
     private List<JoinMessageItem> initializeShopItems() {
         List<JoinMessageItem> items = new ArrayList<>();
+        
         // Comunes
-        items.add(new JoinMessageItem("&a¡%player% &bha irrumpido en el servidor con fuerza!", "¡Irrumpe!", 15000, "COMMON", "&7"));
-        items.add(new JoinMessageItem("&6%player% &ese une al reino, ¡preparen las espadas!", "Reino", 15000, "COMMON", "&7"));
-        items.add(new JoinMessageItem("&c¡Atención! &f%player% &cse ha colado en la aventura.", "Atención", 15000, "COMMON", "&7"));
-        items.add(new JoinMessageItem("&b%player% &3llega desde tierras lejanas al servidor.", "Lejanas", 15000, "COMMON", "&7"));
-        items.add(new JoinMessageItem("&d¡Miren! &5%player% &dtrae caos y diversión.", "Caos", 15000, "COMMON", "&7"));
-        items.add(new JoinMessageItem("&e%player% &6ha entrado, ¡que tiemblen los creepers!", "Creepers", 15000, "COMMON", "&7"));
-        items.add(new JoinMessageItem("&f%player% &7se conectó, listo para dejar su marca.", "Marca", 15000, "COMMON", "&7"));
+        items.add(new JoinMessageItem(
+            "&a¡%player% &bhas burst into the server with force!", 
+            "Burst", 15000, "COMMON", "&7",
+            "Make a dramatic entrance with explosive energy!"
+        ));
+        items.add(new JoinMessageItem(
+            "&6%player% &ejoins the kingdom, prepare your swords!", 
+            "Kingdom", 15000, "COMMON", "&7",
+            "Join the realm as a noble warrior ready for battle!"
+        ));
+        items.add(new JoinMessageItem(
+            "&c¡Attention! &f%player% &chas snuck into the adventure.", 
+            "Attention", 15000, "COMMON", "&7",
+            "Alert everyone of your stealthy arrival!"
+        ));
+        items.add(new JoinMessageItem(
+            "&b%player% &3arrives from distant lands to the server.", 
+            "Distant", 15000, "COMMON", "&7",
+            "Come from far away lands with tales to tell!"
+        ));
+        items.add(new JoinMessageItem(
+            "&d¡Look! &5%player% &dbrings chaos and fun.", 
+            "Chaos", 15000, "COMMON", "&7",
+            "Bring excitement and unpredictable fun to the server!"
+        ));
+        items.add(new JoinMessageItem(
+            "&e%player% &6has entered, let the creepers tremble!", 
+            "Creepers", 15000, "COMMON", "&7",
+            "Strike fear into the hearts of all hostile mobs!"
+        ));
+        items.add(new JoinMessageItem(
+            "&f%player% &7connected, ready to leave their mark.", 
+            "Mark", 15000, "COMMON", "&7",
+            "Join with determination to make your presence known!"
+        ));
+        
         // Épicos
-        items.add(new JoinMessageItem("&a¡%player% &2ha llegado para sembrar épica!", "Épica", 35000, "EPIC", "&5"));
-        items.add(new JoinMessageItem("&c%player% &4entra al servidor con sed de victoria.", "Victoria", 35000, "EPIC", "&5"));
-        items.add(new JoinMessageItem("&b¡%player% &9desciende del cielo con un tridente!", "Tridente", 35000, "EPIC", "&5"));
-        items.add(new JoinMessageItem("&d%player% &5se une, ¡magia en el horizonte!", "Magia", 35000, "EPIC", "&5"));
-        items.add(new JoinMessageItem("&e¡Cuidado! &6%player% &eestá aquí para brillar.", "Brillar", 35000, "EPIC", "&5"));
-        items.add(new JoinMessageItem("&a%player% &2entra con un arco y flechas listas.", "Arco", 35000, "EPIC", "&5"));
+        items.add(new JoinMessageItem(
+            "&a¡%player% &2has arrived to sow epic tales!", 
+            "Epic", 35000, "EPIC", "&5",
+            "Become the protagonist of legendary adventures!"
+        ));
+        items.add(new JoinMessageItem(
+            "&c%player% &4enters the server with thirst for victory.", 
+            "Victory", 35000, "EPIC", "&5",
+            "Join with an unstoppable desire to conquer all challenges!"
+        ));
+        items.add(new JoinMessageItem(
+            "&b¡%player% &9descends from the sky with a trident!", 
+            "Trident", 35000, "EPIC", "&5",
+            "Make a godly entrance wielding the power of the seas!"
+        ));
+        items.add(new JoinMessageItem(
+            "&d%player% &5joins, magic on the horizon!", 
+            "Magic", 35000, "EPIC", "&5",
+            "Bring mystical powers and enchanting abilities!"
+        ));
+        items.add(new JoinMessageItem(
+            "&e¡Careful! &6%player% &eis here to shine.", 
+            "Shine", 35000, "EPIC", "&5",
+            "Radiate brilliance and become the center of attention!"
+        ));
+        items.add(new JoinMessageItem(
+            "&a%player% &2enters with a bow and arrows ready.", 
+            "Archer", 35000, "EPIC", "&5",
+            "Join as a skilled marksman ready for precise combat!"
+        ));
+        
         // Legendarios
-        items.add(new JoinMessageItem("&f¡%player% &bha llegado para forjar leyendas!", "Leyendas", 75000, "LEGENDARY", "&6"));
-        items.add(new JoinMessageItem("&c%player% &4susurra: 'El Nether me teme...'.", "Nether", 75000, "LEGENDARY", "&6"));
-        items.add(new JoinMessageItem("&b¡%player% &3se conecta con un plan maestro!", "Maestro", 75000, "LEGENDARY", "&6"));
-        items.add(new JoinMessageItem("&d%player% &episa el servidor con botas encantadas.", "Botas", 75000, "LEGENDARY", "&6"));
-        items.add(new JoinMessageItem("&6¡Atención! &c%player% &6trae fuego al juego.", "Fuego", 75000, "LEGENDARY", "&6"));
-        items.add(new JoinMessageItem("&a%player% &bha llegado, ¡el End lo espera!", "End", 75000, "LEGENDARY", "&6"));
-        items.add(new JoinMessageItem("&e%player% &7entra sigiloso, ¡cuidado con los diamantes!", "Diamantes", 75000, "LEGENDARY", "&6"));
+        items.add(new JoinMessageItem(
+            "&f¡%player% &bhas arrived to forge legends!", 
+            "Legends", 75000, "LEGENDARY", "&6",
+            "Create stories that will be remembered for generations!"
+        ));
+        items.add(new JoinMessageItem(
+            "&c%player% &4whispers: 'The Nether fears me...'",
+            "Nether", 75000, "LEGENDARY", "&6",
+            "Command respect from the most dangerous dimensions!"
+        ));
+        items.add(new JoinMessageItem(
+            "&b¡%player% &3connects with a master plan!", 
+            "Master", 75000, "LEGENDARY", "&6",
+            "Arrive with calculated strategies for ultimate success!"
+        ));
+        items.add(new JoinMessageItem(
+            "&d%player% &esteps on the server with enchanted boots.", 
+            "Boots", 75000, "LEGENDARY", "&6",
+            "Walk with magical footwear that enhances your journey!"
+        ));
+        items.add(new JoinMessageItem(
+            "&6¡Attention! &c%player% &6brings fire to the game.", 
+            "Fire", 75000, "LEGENDARY", "&6",
+            "Ignite passion and intensity in every adventure!"
+        ));
+        items.add(new JoinMessageItem(
+            "&a%player% &bhas arrived, the End awaits!", 
+            "End", 75000, "LEGENDARY", "&6",
+            "Prepare for the ultimate challenge in the final dimension!"
+        ));
+        items.add(new JoinMessageItem(
+            "&e%player% &7enters stealthily, beware of the diamonds!", 
+            "Diamonds", 75000, "LEGENDARY", "&6",
+            "Move with the grace of a master treasure hunter!"
+        ));
+        
         return items;
     }
 
@@ -85,8 +169,12 @@ public class JoinMessageShopMenu extends Menu {
         boolean hasMessage = plugin.getCosmeticManager().hasPlayerJoinMessage(player.getUniqueId(), item.getMessage());
         boolean isSelected = currentMessage.equals(item.getMessage());
         List<String> lore = new ArrayList<>();
-        lore.add(item.getRarityColor() + "✦ Rareza: " + item.getRarity());
+        lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
         lore.add("");
+        lore.add("&7Description:");
+        lore.add("&8» " + item.getDescription());
+        lore.add("");
+        lore.add("&7Preview:");
         lore.add(MessageUtils.getColor(item.getMessage().replace("%player%", player.getName())));
         lore.add("");
         
@@ -132,7 +220,7 @@ public class JoinMessageShopMenu extends Menu {
         if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE || 
             clicked.getType() == Material.EMERALD) return;
         
-            String itemName = MessageUtils.stripColor(clicked.getItemMeta().getDisplayName());
+        String itemName = MessageUtils.stripColor(clicked.getItemMeta().getDisplayName());
         JoinMessageItem messageItem = findMessageItem(itemName);
         if (messageItem == null) return;
         
@@ -192,4 +280,4 @@ public class JoinMessageShopMenu extends Menu {
             .findFirst()
             .orElse(null);
     }
-}    
+} 
