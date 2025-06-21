@@ -30,6 +30,7 @@ public class MainCommand implements CommandExecutor{
                 try {
                     plugin.getMessagesConfig().reload();
                     plugin.getMainConfig().reload();
+                    plugin.getTabConfig().reload();
                 } catch (Exception e) {
                     Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cAn error occurred while reloading the configuration"));
                     e.printStackTrace();
