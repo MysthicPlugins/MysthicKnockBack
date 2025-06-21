@@ -91,6 +91,12 @@ public class MysthicKnockBack extends JavaPlugin {
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Version: &f" + version);
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
 
+        if (Bukkit.getPluginManager().getPlugin("MysthicFriends") != null) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &dMysthicKnockBack detected! Both plugins are part of the &bMysthic&d Series.");
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &7Thanks for using both plugins together!");
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+        }
+
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b1&8] &7Registering managers...");
         registerManagers();
 

@@ -4,6 +4,7 @@ name: MysthicKnockBack
 authors: [Kvlzx, Gabo]
 api-version: 1.13
 depends: [WorldEdit]
+softdepend: [MysthicFriends]
 
 commands:
   mysthicknockback:

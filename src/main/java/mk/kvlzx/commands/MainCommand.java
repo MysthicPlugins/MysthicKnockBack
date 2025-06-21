@@ -25,9 +25,21 @@ public class MainCommand implements CommandExecutor{
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args){
 
         if(!(sender instanceof Player)){
-            // Consola :3
-            Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou can only use this command as a player."));
-            return true;
+            // Permitir que la consola use el reload
+            if (args.length >= 1 && args[0].equalsIgnoreCase("reload")) {
+                try {
+                    plugin.getMessagesConfig().reload();
+                } catch (Exception e) {
+                    Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cAn error occurred while reloading the configuration"));
+                    e.printStackTrace();
+                    return true;
+                }
+                Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getReloadConfig()));
+                return true;
+            } else {
+                Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou can only use this command as a player."));
+                return true;
+            }
         }
 
         Player player = (Player) sender;
