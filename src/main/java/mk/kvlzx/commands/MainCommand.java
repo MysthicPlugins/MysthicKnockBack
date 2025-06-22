@@ -31,12 +31,12 @@ public class MainCommand implements CommandExecutor{
                     plugin.getMessagesConfig().reload();
                     plugin.getMainConfig().reload();
                     plugin.getTabConfig().reload();
+                    Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getReloadConfig()));
                 } catch (Exception e) {
                     Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cAn error occurred while reloading the configuration"));
                     e.printStackTrace();
                     return true;
                 }
-                Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getReloadConfig()));
                 return true;
             } else {
                 Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou can only use this command as a player."));
@@ -53,12 +53,14 @@ public class MainCommand implements CommandExecutor{
                 if (sender.hasPermission("mysthicknockback.reload")) {
                     try {
                         plugin.getMessagesConfig().reload();
+                        plugin.getMainConfig().reload();
+                        plugin.getTabConfig().reload();
+                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getReloadConfig()));
                     } catch (Exception e) {
                         sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cAn error occurred while reloading the configuration"));
                         e.printStackTrace();
                         return true;
                     }
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getReloadConfig()));
                 } else {
                     sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getNoPermission()));
                 }

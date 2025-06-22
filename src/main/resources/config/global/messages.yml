@@ -38,7 +38,7 @@ messages:
         successfully: "&aSpawn point set for arena %arena%"
         error: "&cThe arena does not exist."
       delete:
-        successfully: "&aArena %arena%% deleted successfully."
+        successfully: "&aArena %arena% deleted successfully."
         error: "&cThe arena does not exist."
       setborder:
         usage: "&cUsage: /arena setborder <arena> <size>"

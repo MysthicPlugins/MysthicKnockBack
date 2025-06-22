@@ -44,6 +44,7 @@ import mk.kvlzx.managers.MusicManager;
 import mk.kvlzx.managers.ReportManager;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
+import mk.kvlzx.utils.PlaceholdersUtils;
 
 public class MysthicKnockBack extends JavaPlugin {
     public static String prefix;
@@ -96,14 +97,14 @@ public class MysthicKnockBack extends JavaPlugin {
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
 
         if (Bukkit.getPluginManager().getPlugin("MysthicFriends") != null) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &MysthicFriends detected! Both plugins are part of the &bMysthic&d Series.");
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &fMysthicFriends detected! Both plugins are part of the &bMysthic&d Series.");
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &7Thanks for using both plugins together!");
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         }
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &7PlaceholderAPI detected! Placeholder support is enabled.");
-            // Agregar registro de placeholders acá
+            new PlaceholdersUtils().register();
         }
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b1&8] &7Registering managers...");

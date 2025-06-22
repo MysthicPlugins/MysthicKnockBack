@@ -1,7 +1,7 @@
 package mk.kvlzx.managers;
 
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -42,6 +42,7 @@ public class MainScoreboardManager {
     private int timeLeft;
     private boolean arenaChanging = false;
     private int animationFrame = 0;
+    private int uniqueSpaceCounter = 0;
 
     private final Map<UUID, Scoreboard> playerScoreboards = new HashMap<>();
     private final Map<UUID, Objective> playerObjectives = new HashMap<>();
@@ -81,6 +82,9 @@ public class MainScoreboardManager {
     }
 
     private void updatePlayerScoreboard(Player player) {
+        // Resetear contador al inicio de cada actualización
+        uniqueSpaceCounter = 0;
+        
         Scoreboard board = playerScoreboards.get(player.getUniqueId());
         Objective obj = playerObjectives.get(player.getUniqueId());
 
@@ -88,7 +92,6 @@ public class MainScoreboardManager {
             board = scoreboardManager.getNewScoreboard();
             obj = board.registerNewObjective("main", "dummy");
             
-            // Usar título de configuración
             String title = processPlaceholders(config.getScoreTitle(), player);
             obj.setDisplayName(MessageUtils.getColor(title));
             obj.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -98,7 +101,12 @@ public class MainScoreboardManager {
             player.setScoreboard(board);
         }
 
-        // Obtener datos del jugador y arena
+        // Limpiar todas las entradas existentes para evitar duplicados
+        for (String entry : new HashSet<>(obj.getScoreboard().getEntries())) {
+            obj.getScoreboard().resetScores(entry);
+        }
+
+        // Resto del método permanece igual...
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         String currentArena = plugin.getArenaManager().getCurrentArena();
         String nextArena = plugin.getArenaManager().getNextArena();
@@ -110,7 +118,6 @@ public class MainScoreboardManager {
         int seconds = timeLeft % 60;
         String formattedTime = String.format("%02d:%02d", minutes, seconds);
 
-        // Usar líneas de configuración
         List<String> configLines = config.getScoreLines();
         if (configLines == null || configLines.isEmpty()) {
             return;
@@ -120,7 +127,6 @@ public class MainScoreboardManager {
         int scoreValue = configLines.size() - 1;
         
         for (String line : configLines) {
-            // Procesar placeholders
             String processedLine = processScoreboardPlaceholders(line, player, stats, 
                 currentArena, nextArena, formattedTime);
             
@@ -138,12 +144,12 @@ public class MainScoreboardManager {
                                                 String currentArena, String nextArena, String formattedTime) {
         // Procesar placeholders básicos del scoreboard
         text = text.replace("%player_name%", player.getName())
-                  .replace("%arena_name%", currentArena)
-                  .replace("%next_arena%", nextArena)
-                  .replace("%time_formatted%", "&e" + formattedTime)
-                  .replace("%kills%", String.valueOf(stats.getKills()))
-                  .replace("%deaths%", String.valueOf(stats.getDeaths()))
-                  .replace("%kdr%", String.format("%.2f", stats.getKDR()));
+                    .replace("%arena_name%", currentArena)
+                    .replace("%next_arena%", nextArena)
+                    .replace("%time_formatted%", "&e" + formattedTime)
+                    .replace("%kills%", String.valueOf(stats.getKills()))
+                    .replace("%deaths%", String.valueOf(stats.getDeaths()))
+                    .replace("%kdr%", String.format("%.2f", stats.getKDR()));
         
         // Procesar líneas en blanco con espacios únicos
         if (text.equals("%blank_line%")) {
@@ -157,12 +163,29 @@ public class MainScoreboardManager {
     }
 
     private String generateUniqueSpace() {
-        // Generar espacios únicos para evitar conflictos en el scoreboard
-        StringBuilder spaces = new StringBuilder();
-        for (int i = 0; i <= animationFrame % 10; i++) {
-            spaces.append(" ");
+        // Usar caracteres invisibles diferentes para cada línea en blanco
+        String[] invisibleChars = {
+            "§0", "§1", "§2", "§3", "§4", "§5", "§6", "§7", 
+            "§8", "§9", "§a", "§b", "§c", "§d", "§e", "§f"
+        };
+        
+        // Crear una combinación única usando códigos de color invisibles + espacios
+        StringBuilder uniqueSpace = new StringBuilder();
+        
+        // Usar el contador para generar diferentes tipos de espacios únicos
+        int index = uniqueSpaceCounter % invisibleChars.length;
+        uniqueSpace.append(invisibleChars[index]);
+        
+        // Agregar espacios adicionales basados en el contador
+        for (int i = 0; i <= (uniqueSpaceCounter / invisibleChars.length); i++) {
+            uniqueSpace.append(" ");
         }
-        return spaces.toString();
+        
+        // Agregar caracteres de reset para asegurar que sea invisible
+        uniqueSpace.append("§r");
+        
+        uniqueSpaceCounter++;
+        return uniqueSpace.toString();
     }
 
     private void updateScore(Objective obj, String text, int score) {

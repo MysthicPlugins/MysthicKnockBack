@@ -1,3 +1,65 @@
 config:
   prefix: "&b[&3KBFFA&b] "
   auto-save-interval: 5 # Minutes
+  chat:
+    enabled: true
+    format: "%kbffa_rank% &r %player_name% &7: &f%message%"
+  endermite:
+    enabled: true
+    limit: 3 # Maximum number of endermites per player
+    name: "&e %player%'s Pet &7(%seconds%s)"
+    time: 30 # Seconds before the endermite despawns
+    messages:
+      spawn: "&aYou have spawned an endermite pet!"
+      limit: "&cYou already have the maximum allowed endermites (%limit%)!"
+  hotbar:
+    default:
+      items:
+        knocker:
+          id: STICK
+          name: "&5Knocker"
+          lore: "&8 It's not the strength, it's the technique."
+          knockback:
+            enabled: true # Item has knockback
+            level: 1
+        blocks:
+          id: SANDSTONE
+          name: "&3Sandstone"
+          lore: "&8 A desert classic"
+          knockback:
+            enabled: false # Item does not have knockback
+        bow:
+          id: BOW
+          name: "&bBow"
+          lore: "&7Click to shoot an arrow"
+          knockback:
+            enabled: true # Item has knockback
+            level: 2
+        plate:
+          id: GOLD_PLATE
+          name: "&6Plate"
+          lore: "&8 Ready to fly? Step on it and see."
+          knockback:
+            enabled: false # Item does not have knockback
+        feather:
+          id: FEATHER
+          name: "&eFeather"
+          lore: "&8 It's not magic, it's pure aerodynamics."
+          knockback:
+            enabled: false # Item does not have knockback
+        pearl:
+          id: ENDER_PEARL
+          name: "&5Pearl"
+          lore: "&8 Each throw rewrites your destiny."
+          knockback:
+            enabled: false # Item does not have knockback
+        arrow:
+          id: ARROW
+          name: "&5Arrow"
+          lore: null # No lore for the arrow
+          knockback:
+            enabled: false # Item does not have knockback
+        
+  combat:
+    default-elo: 500
+    combat-log: 10000 # Milliseconds (10 seconds)

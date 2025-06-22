@@ -32,7 +32,7 @@ public class PlayerStats {
         this.uuid = uuid;
         this.kills = 0;
         this.deaths = 0;
-        this.elo = 500;
+        this.elo = MysthicKnockBack.getInstance().getMainConfig().getDefaultElo(); // Valor por defecto
         this.playTime = 0;
         this.lastJoin = System.currentTimeMillis();
         this.kgCoins = 0;

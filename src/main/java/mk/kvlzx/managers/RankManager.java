@@ -53,7 +53,7 @@ public class RankManager {
     }
 
     public static void updatePlayerRank(Player player, int elo) {
-        // Add a small delay to ensure the player is fully spawned
+        // Agregar un pequeño delay para asegurar que el jugador esté completamente cargado
         new BukkitRunnable() {
             @Override
             public void run() {

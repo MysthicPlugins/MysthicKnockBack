@@ -75,7 +75,7 @@ public class TabConfig {
         scoreTitleAfterChangeFadeOut = config.getInt("scoreboard.arena-change.title-after-change.fade-out");
         scoreTitleAfterChangeTitle = config.getString("scoreboard.arena-change.title-after-change.title");
         scoreTitleAfterChangeSubtitle = config.getString("scoreboard.arena-change.title-after-change.subtitle");
-        scoreMessageArenaChange = config.getString("scoreboard.message");
+        scoreMessageArenaChange = config.getString("scoreboard.message.arena-change");
         scoreArenaChangeColors = config.getStringList("scoreboard.title-animation.colors");
         scoreArenaChangeFrames = config.getStringList("scoreboard.title-animation.frames");
     }

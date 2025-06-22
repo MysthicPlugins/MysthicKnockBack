@@ -22,7 +22,7 @@ public class CombatListener implements Listener {
     private final MysthicKnockBack plugin;
     private final Map<UUID, UUID> lastAttacker = new HashMap<>();
     private final Map<UUID, Long> lastAttackTime = new HashMap<>();
-    private static final long COMBAT_TIMEOUT = 10000; // 10 segundos
+    private static final long COMBAT_TIMEOUT = MysthicKnockBack.getInstance().getMainConfig().getCombatLog();
 
     public CombatListener(MysthicKnockBack plugin) {
         this.plugin = plugin;

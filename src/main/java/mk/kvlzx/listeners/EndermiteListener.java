@@ -40,7 +40,7 @@ public class EndermiteListener implements Listener {
     private final Map<UUID, BukkitTask> attackTasks = new HashMap<>(); // UUID del endermite -> Task de ataque
     private final Map<UUID, UUID> currentAttackTargets = new HashMap<>(); // UUID del endermite -> UUID del objetivo actual
     
-    private static final int MAX_ENDERMITES_PER_PLAYER = 3;
+    private static final int MAX_ENDERMITES_PER_PLAYER = MysthicKnockBack.getInstance().getMainConfig().getEndermiteLimit();
     
     public EndermiteListener(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -57,15 +57,21 @@ public class EndermiteListener implements Listener {
             
             // Buscar al jugador más cercano (quien lanzó la ender pearl)
             Player owner = findNearestPlayer(endermite.getLocation());
-            if (owner != null) {
-                // Verificar límite de endermites
-                if (canPlayerHaveMoreEndermites(owner)) {
-                    setupEndermitePet(endermite, owner);
-                } else {
-                    // Si ya tiene el máximo, cancelar el spawn
-                    event.setCancelled(true);
-                    owner.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou already have the maximum allowed endermites (" + MAX_ENDERMITES_PER_PLAYER + ")"));
+            if (plugin.getMainConfig().getEndermiteEnabled()) {
+                if (owner != null) {
+                    // Verificar límite de endermites
+                    if (canPlayerHaveMoreEndermites(owner)) {
+                        setupEndermitePet(endermite, owner);
+                        owner.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + plugin.getMainConfig().getEndermiteSpawnMessage()));
+                    } else {
+                        // Si ya tiene el máximo, cancelar el spawn
+                        event.setCancelled(true);
+                        owner.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +  " " + plugin.getMainConfig().getEndermiteLimitMessage().replace("%limit%", String.valueOf(MAX_ENDERMITES_PER_PLAYER))));
+                    }
                 }
+            } else {
+                // Si los endermites están deshabilitados, cancelar el spawn
+                event.setCancelled(true);
             }
         }
     }
@@ -139,7 +145,7 @@ public class EndermiteListener implements Listener {
     
     private void startEndermiteCountdown(Endermite endermite, Player owner) {
         UUID endermiteId = endermite.getUniqueId();
-        final int[] timeLeft = {30}; // 30 segundos de vida
+        final int[] timeLeft = {plugin.getMainConfig().getEndermiteTime()};
         
         BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (!endermite.isValid() || endermite.isDead()) {
@@ -148,7 +154,9 @@ public class EndermiteListener implements Listener {
             }
             
             // Actualizar nombre con tiempo restante
-            String displayName = MessageUtils.getColor("&e" + owner.getName() + "'s Pet &7(" + timeLeft[0] + "s)");
+            String displayName = MessageUtils.getColor(plugin.getMainConfig().getEndermiteName())
+                    .replace("%time%", String.valueOf(timeLeft[0]))
+                    .replace("%player%", owner.getName());
             endermite.setCustomName(displayName);
             endermite.setCustomNameVisible(true);
             
