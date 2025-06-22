@@ -193,11 +193,11 @@ public class MusicShopMenu extends Menu {
         if (plugin.getCosmeticManager().hasPlayerBackgroundMusic(player.getUniqueId(), musicItem.getName())) {
             if (currentMusic.equals(musicItem.getName())) {
                 plugin.getCosmeticManager().setPlayerBackgroundMusic(player.getUniqueId(), "none");
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have deselected the music."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have deselected the music."));
                 stopBackgroundMusic(player);
             } else {
                 plugin.getCosmeticManager().setPlayerBackgroundMusic(player.getUniqueId(), musicItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have selected the music: " + musicItem.getName()));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have selected the music: " + musicItem.getName()));
                 startBackgroundMusic(player, musicItem);
             }
             player.closeInventory();
@@ -206,12 +206,12 @@ public class MusicShopMenu extends Menu {
                 stats.removeKGCoins(musicItem.getPrice());
                 plugin.getCosmeticManager().addPlayerBackgroundMusic(player.getUniqueId(), musicItem.getName());
                 plugin.getCosmeticManager().setPlayerBackgroundMusic(player.getUniqueId(), musicItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have purchased and selected the music " + 
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have purchased and selected the music " + 
                     musicItem.getName() + " &afor &e" + musicItem.getPrice() + " KGCoins&a!"));
                 startBackgroundMusic(player, musicItem);
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou don't have enough KGCoins to purchase this music."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou don't have enough KGCoins to purchase this music."));
             }
         }
     }

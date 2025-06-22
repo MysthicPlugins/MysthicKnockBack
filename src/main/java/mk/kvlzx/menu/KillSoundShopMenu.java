@@ -177,10 +177,10 @@ public class KillSoundShopMenu extends Menu {
         if (plugin.getCosmeticManager().hasPlayerKillSound(player.getUniqueId(), soundItem.getName())) {
             if (currentSound.equals(soundItem.getName())) {
                 plugin.getCosmeticManager().setPlayerKillSound(player.getUniqueId(), "none");
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have deselected the sound."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have deselected the sound."));
             } else {
                 plugin.getCosmeticManager().setPlayerKillSound(player.getUniqueId(), soundItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have selected the sound: " + soundItem.getName()));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have selected the sound: " + soundItem.getName()));
             }
             player.closeInventory();
         } else {
@@ -188,11 +188,11 @@ public class KillSoundShopMenu extends Menu {
                 stats.removeKGCoins(soundItem.getPrice());
                 plugin.getCosmeticManager().addPlayerKillSound(player.getUniqueId(), soundItem.getName());
                 plugin.getCosmeticManager().setPlayerKillSound(player.getUniqueId(), soundItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have purchased and selected the sound " + 
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have purchased and selected the sound " +
                     soundItem.getName() + " &afor &e" + soundItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou don't have enough KGCoins to purchase this sound."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou don't have enough KGCoins to purchase this sound."));
             }
         }
     }

@@ -213,10 +213,10 @@ public class KillMessageShopMenu extends Menu {
             // Si está seleccionado, deseleccionar
             if (currentMessage.equals(messageItem.getName())) {
                 plugin.getCosmeticManager().setPlayerKillMessage(player.getUniqueId(), "default");
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have deselected the message. Using default messages."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have deselected the message. Using default messages."));
             } else {
                 plugin.getCosmeticManager().setPlayerKillMessage(player.getUniqueId(), messageItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have selected the message: " + messageItem.getName()));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have selected the message: " + messageItem.getName()));
             }
             player.closeInventory();
         } else {
@@ -224,11 +224,11 @@ public class KillMessageShopMenu extends Menu {
                 stats.removeKGCoins(messageItem.getPrice());
                 plugin.getCosmeticManager().addPlayerKillMessage(player.getUniqueId(), messageItem.getName());
                 plugin.getCosmeticManager().setPlayerKillMessage(player.getUniqueId(), messageItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have purchased and selected the message " + 
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have purchased and selected the message " + 
                     messageItem.getName() + " &afor &e" + messageItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou don't have enough KGCoins to purchase this message."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou don't have enough KGCoins to purchase this message."));
             }
         }
     }

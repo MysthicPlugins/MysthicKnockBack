@@ -179,18 +179,18 @@ public class KnockerShopMenu extends Menu {
         // Si ya tiene el knocker o es el palo por defecto
         if (plugin.getCosmeticManager().hasPlayerKnocker(player.getUniqueId(), shopItem.getMaterial())) {
             plugin.getCosmeticManager().setPlayerKnocker(player.getUniqueId(), shopItem.getMaterial());
-            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have selected the " + shopItem.getName() + " knocker"));
+            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have selected the " + shopItem.getName() + " knocker"));
             player.closeInventory();
         } else {
             if (stats.getKGCoins() >= shopItem.getPrice()) {
                 stats.removeKGCoins(shopItem.getPrice());
                 plugin.getCosmeticManager().addPlayerKnocker(player.getUniqueId(), shopItem.getMaterial());
                 plugin.getCosmeticManager().setPlayerKnocker(player.getUniqueId(), shopItem.getMaterial());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have purchased and selected the " + 
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have purchased and selected the " +
                     shopItem.getName() + " knocker &afor &e" + shopItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou don't have enough KGCoins to purchase this knocker."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou don't have enough KGCoins to purchase this knocker."));
             }
         }
     }

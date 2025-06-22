@@ -96,7 +96,7 @@ public class ReportReasonMenu extends Menu {
         String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
         if (targetName == null) {
             player.closeInventory();
-            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cError: Player to report not found"));
+            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cError: Player to report not found"));
             return;
         }
 

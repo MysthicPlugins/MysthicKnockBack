@@ -62,11 +62,11 @@ public class EndermiteListener implements Listener {
                     // Verificar límite de endermites
                     if (canPlayerHaveMoreEndermites(owner)) {
                         setupEndermitePet(endermite, owner);
-                        owner.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + plugin.getMainConfig().getEndermiteSpawnMessage()));
+                        owner.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMainConfig().getEndermiteSpawnMessage()));
                     } else {
                         // Si ya tiene el máximo, cancelar el spawn
                         event.setCancelled(true);
-                        owner.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +  " " + plugin.getMainConfig().getEndermiteLimitMessage().replace("%limit%", String.valueOf(MAX_ENDERMITES_PER_PLAYER))));
+                        owner.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() +  " " + plugin.getMainConfig().getEndermiteLimitMessage().replace("%limit%", String.valueOf(MAX_ENDERMITES_PER_PLAYER))));
                     }
                 }
             } else {

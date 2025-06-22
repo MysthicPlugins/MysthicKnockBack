@@ -13,13 +13,10 @@ import mk.kvlzx.utils.MessageUtils;
 public class MainCommand implements CommandExecutor{
 
     private MysthicKnockBack plugin;
-    private MessagesConfig messages;
 
     public MainCommand(MysthicKnockBack plugin){
         this.plugin = plugin;
-        this.messages = plugin.getMessagesConfig();
     }
-
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args){
@@ -28,18 +25,16 @@ public class MainCommand implements CommandExecutor{
             // Permitir que la consola use el reload
             if (args.length >= 1 && args[0].equalsIgnoreCase("reload")) {
                 try {
-                    plugin.getMessagesConfig().reload();
-                    plugin.getMainConfig().reload();
-                    plugin.getTabConfig().reload();
-                    Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getReloadConfig()));
+                    // Usar el método centralizado de reloadConfigs
+                    plugin.reloadConfigs();
+                    Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMessagesConfig().getReloadConfig()));
                 } catch (Exception e) {
-                    Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cAn error occurred while reloading the configuration"));
+                    Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cAn error occurred while reloading the configuration"));
                     e.printStackTrace();
-                    return true;
                 }
                 return true;
             } else {
-                Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou can only use this command as a player."));
+                Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou can only use this command as a player."));
                 return true;
             }
         }
@@ -48,32 +43,32 @@ public class MainCommand implements CommandExecutor{
 
         if(args.length >= 1){
             if(args[0].equalsIgnoreCase("pet")){
-                sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix +"&f ≽^•⩊•^≼ &b " + player.getName()));            
+                sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() +"&f ≽^•⩊•^≼ &b " + player.getName()));            
             } else if (args[0].equalsIgnoreCase("reload")) {
                 if (sender.hasPermission("mysthicknockback.reload")) {
                     try {
-                        plugin.getMessagesConfig().reload();
-                        plugin.getMainConfig().reload();
-                        plugin.getTabConfig().reload();
-                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getReloadConfig()));
+                        // Usar el método centralizado de reloadConfigs
+                        plugin.reloadConfigs();
+                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMessagesConfig().getReloadConfig()));
                     } catch (Exception e) {
-                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cAn error occurred while reloading the configuration"));
+                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cAn error occurred while reloading the configuration"));
                         e.printStackTrace();
-                        return true;
                     }
+                    return true;
                 } else {
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getNoPermission()));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMessagesConfig().getNoPermission()));
                 }
                 return true;
             }
             help(sender);
         } else {
-        help(sender);
+            help(sender);
         }
         return true;
     }
 
     public void help(CommandSender sender){
+        MessagesConfig messages = plugin.getMessagesConfig();
         for (String line : messages.getHelp()) {
             sender.sendMessage(MessageUtils.getColor(line));
         } 

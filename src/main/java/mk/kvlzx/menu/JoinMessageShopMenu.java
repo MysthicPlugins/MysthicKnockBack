@@ -171,9 +171,6 @@ public class JoinMessageShopMenu extends Menu {
         List<String> lore = new ArrayList<>();
         lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
         lore.add("");
-        lore.add("&7Description:");
-        lore.add("&8» " + item.getDescription());
-        lore.add("");
         lore.add("&7Preview:");
         lore.add(MessageUtils.getColor(item.getMessage().replace("%player%", player.getName())));
         lore.add("");
@@ -230,25 +227,25 @@ public class JoinMessageShopMenu extends Menu {
     private void handleMessageSelection(Player player, JoinMessageItem messageItem) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         String currentMessage = plugin.getCosmeticManager().getPlayerJoinMessage(player.getUniqueId());
-        if (plugin.getCosmeticManager().hasPlayerJoinMessage(player.getUniqueId(), messageItem.getMessage())) {
-            if (currentMessage.equals(messageItem.getMessage())) {
+        if (plugin.getCosmeticManager().hasPlayerJoinMessage(player.getUniqueId(), messageItem.getName())) {
+            if (currentMessage.equals(messageItem.getName())) {
                 plugin.getCosmeticManager().setPlayerJoinMessage(player.getUniqueId(), "default");
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have deselected the message. Using default messages."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have deselected the message. Using default messages."));
             } else {
-                plugin.getCosmeticManager().setPlayerJoinMessage(player.getUniqueId(), messageItem.getMessage());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have selected the message: " + messageItem.getName()));
+                plugin.getCosmeticManager().setPlayerJoinMessage(player.getUniqueId(), messageItem.getName());
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have selected the message: " + messageItem.getName()));
             }
             player.closeInventory();
         } else {
             if (stats.getKGCoins() >= messageItem.getPrice()) {
                 stats.removeKGCoins(messageItem.getPrice());
-                plugin.getCosmeticManager().addPlayerJoinMessage(player.getUniqueId(), messageItem.getMessage());
-                plugin.getCosmeticManager().setPlayerJoinMessage(player.getUniqueId(), messageItem.getMessage());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have purchased and selected the message " + 
+                plugin.getCosmeticManager().addPlayerJoinMessage(player.getUniqueId(), messageItem.getName());
+                plugin.getCosmeticManager().setPlayerJoinMessage(player.getUniqueId(), messageItem.getName());
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have purchased and selected the message " +
                     messageItem.getName() + " &afor &e" + messageItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou don't have enough KGCoins to purchase this message."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou don't have enough KGCoins to purchase this message."));
             }
         }
     }

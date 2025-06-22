@@ -12,6 +12,12 @@ config:
     messages:
       spawn: "&aYou have spawned an endermite pet!"
       limit: "&cYou already have the maximum allowed endermites (%limit%)!"
+  items:
+    spawn-items:
+      skull:
+        name: "&a✦ Main Menu"
+        lore: "&7Right click to open the menu"
+        slot: 4
   hotbar:
     default:
       items:
@@ -63,3 +69,86 @@ config:
   combat:
     default-elo: 500
     combat-log: 10000 # Milliseconds (10 seconds)
+    knockback-hit:
+      horizontal-knockback: 0.7
+      vertical-knockback: 0.385
+      knockback-resistance-reduction: 0.5
+      sprint-multiplier: 1.8
+    knockback-arrow:
+      horizontal-knockback: 2.2
+      sprint-multiplier: 2.2
+    knockback-endermite:
+      horizontal-knockback: 1.2
+      vertical-knockback: 0.45
+      knockback-level: 2
+    knockback-limits:
+      max-horizontal-knockback: 0.9
+      max-horizontal-knockback-arrow: 2.4
+      max-vertical-knockback: 0.6
+    ranks:
+      divino:
+        display: "&d&l[Divine]"
+        elo: 30500
+      grand_master:
+        display: "&4&l[Grand Master]"
+        elo: 25500
+      god:
+        display: "&b&l[God]"
+        elo: 20500
+      titan:
+        display: "&6&l[Titan]"
+        elo: 18500
+      immortal:
+        display: "&5&l[Immortal]"
+        elo: 16500
+      supreme:
+        display: "&c&l[Supreme]"
+        elo: 14500
+      mysthic:
+        display: "&6&l[Mythic]"
+        elo: 12500
+      legend:
+        display: "&e&l[Legend]"
+        elo: 9500
+      hero:
+        display: "&a&l[Hero]"
+        elo: 8500
+      champion:
+        display: "&2&l[Champion]"
+        elo: 7500
+      master:
+        display: "&9&l[Master]"
+        elo: 6500
+      elite:
+        display: "&1&l[Elite]"
+        elo: 5500
+      veteran:
+        display: "&8&l[Veteran]"
+        elo: 4500
+      competitor:
+        display: "&7&l[Competitor]"
+        elo: 3500
+      apprentice:
+        display: "&f&l[Apprentice]"
+        elo: 2000
+      novice:
+        display: "&7[Novice]"
+        elo: 1000
+      random:
+        display: "&8[Random]"
+        elo: 500
+  titles:
+    join-title:
+      enabled: true
+      title: "&a Welcome to &6KnockbackFFA&a!"
+      subtitle: "&fDominate the arena and leave your mark!."
+      fade-in: 20 # Ticks
+      stay: 60 # Ticks
+      fade-out: 20 # Ticks
+  music:
+    messages:
+      non-space-preview: "&cThere is no space for the music preview."
+      non-space: "&cThere is not enough space to place the jukebox."
+      jukebox-error: "&cError placing the jukebox."
+      move-too-far: "&cYou have moved too far from your jukebox."
+      limit: 30 # Maximum blocks the player can move away from the jukebox

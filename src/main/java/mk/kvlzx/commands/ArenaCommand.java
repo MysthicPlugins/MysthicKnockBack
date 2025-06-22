@@ -27,7 +27,7 @@ public class ArenaCommand implements CommandExecutor {
         }
 
         if (!sender.hasPermission("mysthicknockback.arena")) {
-            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getNoPermission()));
+            sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getNoPermission()));
             return true;
         }
 
@@ -43,19 +43,19 @@ public class ArenaCommand implements CommandExecutor {
         switch (subCommand) {
             case "create":
                 if (plugin.getArenaManager().createArena(arenaName)) {
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaCreate().replace("%arena%", arenaName)));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaCreate().replace("%arena%", arenaName)));
                 } else {
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaAlreadyExist()));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaAlreadyExist()));
                 }
                 break;
             case "setzone":
                 if (args.length < 3) {
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaZoneUsage()));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaZoneUsage()));
                     return true;
                 }
                 String zoneType = args[2].toLowerCase();
                 if (!isValidZoneType(zoneType)) {
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaZoneInvalid()));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaZoneInvalid()));
                     return true;
                 }
                 boolean existed = hasExistingZone(arenaName, zoneType);
@@ -65,46 +65,46 @@ public class ArenaCommand implements CommandExecutor {
                         .replace("%zone_type%", zoneType)
                         .replace("%action%", action)
                         .replace("%arena%", arenaName);
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + msg));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + msg));
                 } else {
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaZoneError()));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaZoneError()));
                 }
                 break;
             case "setspawn":
                 if (plugin.getArenaManager().setSpawn(arenaName, player.getLocation())) {
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaSetSpawnSuccess().replace("%arena%", arenaName)));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaSetSpawnSuccess().replace("%arena%", arenaName)));
                 } else {
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaSetSpawnError()));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaSetSpawnError()));
                 }
                 break;
             case "delete":
                 if (plugin.getArenaManager().deleteArena(arenaName)) {
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaDeleteSuccess().replace("%arena%", arenaName)));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaDeleteSuccess().replace("%arena%", arenaName)));
                 } else {
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaDeleteError()));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaDeleteError()));
                 }
                 break;
             case "setborder":
                 if (args.length < 3) {
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaSetBorderUsage()));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaSetBorderUsage()));
                     return true;
                 }
                 try {
                     int size = Integer.parseInt(args[2]);
                     if (size <= 0) {
-                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaSetBorderErrorSize()));
+                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaSetBorderErrorSize()));
                         return true;
                     }
                     if (plugin.getArenaManager().setBorder(arenaName, size)) {
-                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaSetBorderSuccess().replace("%arena%", arenaName)));
+                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaSetBorderSuccess().replace("%arena%", arenaName)));
                         if (arenaName.equals(plugin.getArenaManager().getCurrentArena())) {
                             plugin.getArenaManager().setCurrentArena(arenaName);
                         }
                     } else {
-                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaSetBorderError()));
+                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaSetBorderError()));
                     }
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + messages.getArenaSetBorderNumberError()));
+                    sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getArenaSetBorderNumberError()));
                 }
                 break;
             default:

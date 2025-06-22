@@ -38,7 +38,7 @@ public class StreakManager {
         if (getStreak(uuid) >= 5) {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null) {
-                Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&c☠ &f" + player.getName() + 
+                Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&c☠ &f" + player.getName() + 
                     " &7lost their streak of &c" + getStreak(uuid) + " &7kills! &c☠"));
                 player.playSound(player.getLocation(), Sound.ENDERMAN_DEATH, 1.0f, 1.0f);
             }
@@ -75,7 +75,7 @@ public class StreakManager {
             String playerName = player.getName();
             int elo = PlayerStats.getStats(uuid).getElo();
             
-            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&e" + playerName + 
+            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&e" + playerName + 
                 " &fhas reached a streak of &a" + streak + " &akills!"));
             
             for (Player online : Bukkit.getOnlinePlayers()) {
@@ -97,7 +97,7 @@ public class StreakManager {
     }
 
     private static String getMvpTag(int streak) {
-        if (streak < 5) return null;
+        if (streak < 40) return null;
         if (streak >= 500) return "&5MVP+";
         else if (streak >= 300) return "&cMVP";
         else if (streak >= 250) return "&6MVP";
@@ -107,7 +107,7 @@ public class StreakManager {
         else if (streak >= 80) return "&9MVP";
         else if (streak >= 60) return "&dMVP";
         else if (streak >= 40) return "&7MVP";
-        return "&8MVP";
+        return "&8MVP"; // Esta línea nunca se ejecutará ahora
     }
 
     private static void updateMvpTag(Player player) {
@@ -117,7 +117,7 @@ public class StreakManager {
         int streak = getStreak(uuid);
         String mvpTag = getMvpTag(streak);
 
-        if (streak >= 5) {
+        if (streak >= 40) {
             removeTag(uuid);
             
             Location loc = player.getLocation().add(0, 2.2, 0);
@@ -138,7 +138,7 @@ public class StreakManager {
                 @Override
                 public void run() {
                     Player p = Bukkit.getPlayer(uuid);
-                    if (p == null || !p.isOnline() || p.isDead() || getStreak(uuid) < 5) {
+                    if (p == null || !p.isOnline() || p.isDead() || getStreak(uuid) < 40) {
                         removeTag(uuid);
                         cancel();
                         return;

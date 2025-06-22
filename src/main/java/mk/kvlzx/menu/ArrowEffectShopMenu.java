@@ -168,10 +168,10 @@ public class ArrowEffectShopMenu extends Menu {
             // Si el efecto ya está seleccionado, lo deselecciona
             if (currentEffect.equals(effectItem.getName())) {
                 plugin.getCosmeticManager().setPlayerArrowEffect(player.getUniqueId(), "none");
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have deselected the effect."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have deselected the effect."));
             } else {
                 plugin.getCosmeticManager().setPlayerArrowEffect(player.getUniqueId(), effectItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have selected the effect: " + effectItem.getName()));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have selected the effect: " + effectItem.getName()));
             }
             player.closeInventory();
         } else {
@@ -179,11 +179,11 @@ public class ArrowEffectShopMenu extends Menu {
                 stats.removeKGCoins(effectItem.getPrice());
                 plugin.getCosmeticManager().addPlayerArrowEffect(player.getUniqueId(), effectItem.getName());
                 plugin.getCosmeticManager().setPlayerArrowEffect(player.getUniqueId(), effectItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&aYou have purchased and selected the effect " + 
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have purchased and selected the effect " +
                     effectItem.getName() + " &afor &e" + effectItem.getPrice() + " KGCoins&a!"));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.prefix + "&cYou don't have enough KGCoins to purchase this effect."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou don't have enough KGCoins to purchase this effect."));
             }
         }
     }

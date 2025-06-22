@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
+
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import mk.kvlzx.arena.ArenaManager;
 import mk.kvlzx.commands.ArenaCommand;
@@ -47,7 +49,7 @@ import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.utils.PlaceholdersUtils;
 
 public class MysthicKnockBack extends JavaPlugin {
-    public static String prefix;
+    
     public String version = getDescription().getVersion();
     private static MysthicKnockBack instance;
     private ArenaManager arenaManager;
@@ -66,6 +68,8 @@ public class MysthicKnockBack extends JavaPlugin {
     private MessagesConfig messagesConfig;
     private MainConfig mainConfig;
     private TabConfig tabConfig;
+    
+    private BukkitTask autoSaveTask;
 
     @Override
     public void onEnable() {
@@ -75,9 +79,6 @@ public class MysthicKnockBack extends JavaPlugin {
         mainConfig = new MainConfig(this);
         messagesConfig = new MessagesConfig(this);
         tabConfig = new TabConfig(this);
-        
-        // Actualizar el prefix desde la configuración
-        prefix = mainConfig.getPrefix();
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
@@ -97,7 +98,7 @@ public class MysthicKnockBack extends JavaPlugin {
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
 
         if (Bukkit.getPluginManager().getPlugin("MysthicFriends") != null) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &fMysthicFriends detected! Both plugins are part of the &bMysthic&d Series.");
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &dMysthicFriends detected! Both plugins are part of the &bMysthic&d Series.");
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &7Thanks for using both plugins together!");
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         }
@@ -172,6 +173,11 @@ public class MysthicKnockBack extends JavaPlugin {
             e.printStackTrace();
         }
 
+        // Cancelar el auto-save task si existe
+        if (autoSaveTask != null) {
+            autoSaveTask.cancel();
+        }
+
         if (musicManager != null) {
             musicManager.onDisable();
         }
@@ -215,7 +221,7 @@ public class MysthicKnockBack extends JavaPlugin {
         long autoSaveMinutes = mainConfig.getAutoSaveInterval();
         long autoSaveTicks = autoSaveMinutes * 60 * 20; // Convertir minutos a ticks (1 minuto = 1200 ticks)
         
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+        autoSaveTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             try {
                 MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&e⚠&8] &7Auto-saving data...");
                 saveAllData();
@@ -226,6 +232,32 @@ public class MysthicKnockBack extends JavaPlugin {
                 e.printStackTrace();
             }
         }, autoSaveTicks, autoSaveTicks); // Usar el tiempo configurado
+    }
+
+    // Método para reiniciar el auto-save con nueva configuración
+    public void restartAutoSave() {
+        // Cancelar el task actual si existe
+        if (autoSaveTask != null) {
+            autoSaveTask.cancel();
+        }
+        
+        // Iniciar nuevo auto-save con la configuración actualizada
+        startAutoSave();
+        
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&a✔&8] &7Auto-save restarted with new interval: " + mainConfig.getAutoSaveInterval() + " minutes");
+    }
+
+    // Método para recargar configuraciones dinámicamente
+    public void reloadConfigs() {
+        // Recargar configuraciones
+        mainConfig.reload();
+        messagesConfig.reload();
+        tabConfig.reload();
+        
+        // Reiniciar auto-save con nueva configuración
+        restartAutoSave();
+        
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&a✔&8] &7Configurations reloaded successfully");
     }
 
     // Método centralizado para guardar toda la data
@@ -277,6 +309,11 @@ public class MysthicKnockBack extends JavaPlugin {
         endermiteListener = new EndermiteListener(this);
         getServer().getPluginManager().registerEvents(endermiteListener, this);
         getServer().getPluginManager().registerEvents(new JoinMessageListener(this), this);
+    }
+
+    // Método estático para obtener el prefix dinámicamente
+    public static String getPrefix() {
+        return getInstance().getMainConfig().getPrefix();
     }
 
     public static MysthicKnockBack getInstance() {

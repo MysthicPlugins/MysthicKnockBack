@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -42,10 +43,16 @@ public class MainScoreboardManager {
     private int timeLeft;
     private boolean arenaChanging = false;
     private int animationFrame = 0;
-    private int uniqueSpaceCounter = 0;
 
     private final Map<UUID, Scoreboard> playerScoreboards = new HashMap<>();
     private final Map<UUID, Objective> playerObjectives = new HashMap<>();
+    
+    // Cache para evitar actualizaciones innecesarias
+    private final Map<UUID, Map<Integer, String>> lastScoreCache = new HashMap<>();
+    private final Map<UUID, String> lastTitleCache = new HashMap<>();
+    
+    // Espacios únicos pre-generados para evitar regeneración constante
+    private final Map<Integer, String> uniqueSpaces = new HashMap<>();
 
     public MainScoreboardManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -58,10 +65,34 @@ public class MainScoreboardManager {
         // Inicializar tiempo desde configuración
         this.timeLeft = config.getScoreArenaChange();
         
+        // Pre-generar espacios únicos
+        generateUniqueSpaces();
+        
         // Solo iniciar si el scoreboard está habilitado
         if (config.isScoreEnabled()) {
             setupScoreboard();
             startArenaRotation();
+        }
+    }
+
+    private void generateUniqueSpaces() {
+        // Pre-generar hasta 50 espacios únicos diferentes
+        String[] invisibleChars = {
+            "§0", "§1", "§2", "§3", "§4", "§5", "§6", "§7", 
+            "§8", "§9", "§a", "§b", "§c", "§d", "§e", "§f"
+        };
+        
+        for (int i = 0; i < 50; i++) {
+            StringBuilder uniqueSpace = new StringBuilder();
+            int index = i % invisibleChars.length;
+            uniqueSpace.append(invisibleChars[index]);
+            
+            for (int j = 0; j <= (i / invisibleChars.length); j++) {
+                uniqueSpace.append(" ");
+            }
+            
+            uniqueSpace.append("§r");
+            uniqueSpaces.put(i, uniqueSpace.toString());
         }
     }
 
@@ -82,11 +113,9 @@ public class MainScoreboardManager {
     }
 
     private void updatePlayerScoreboard(Player player) {
-        // Resetear contador al inicio de cada actualización
-        uniqueSpaceCounter = 0;
-        
-        Scoreboard board = playerScoreboards.get(player.getUniqueId());
-        Objective obj = playerObjectives.get(player.getUniqueId());
+        UUID playerId = player.getUniqueId();
+        Scoreboard board = playerScoreboards.get(playerId);
+        Objective obj = playerObjectives.get(playerId);
 
         if (board == null || obj == null) {
             board = scoreboardManager.getNewScoreboard();
@@ -96,18 +125,25 @@ public class MainScoreboardManager {
             obj.setDisplayName(MessageUtils.getColor(title));
             obj.setDisplaySlot(DisplaySlot.SIDEBAR);
             
-            playerScoreboards.put(player.getUniqueId(), board);
-            playerObjectives.put(player.getUniqueId(), obj);
+            playerScoreboards.put(playerId, board);
+            playerObjectives.put(playerId, obj);
             player.setScoreboard(board);
+            
+            // Inicializar cache para este jugador
+            lastScoreCache.put(playerId, new HashMap<>());
+            lastTitleCache.put(playerId, "");
         }
 
-        // Limpiar todas las entradas existentes para evitar duplicados
-        for (String entry : new HashSet<>(obj.getScoreboard().getEntries())) {
-            obj.getScoreboard().resetScores(entry);
+        // Verificar si el título cambió
+        String newTitle = processPlaceholders(config.getScoreTitle(), player);
+        String lastTitle = lastTitleCache.get(playerId);
+        if (!newTitle.equals(lastTitle)) {
+            obj.setDisplayName(MessageUtils.getColor(newTitle));
+            lastTitleCache.put(playerId, newTitle);
         }
 
-        // Resto del método permanece igual...
-        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        // Obtener datos del jugador
+        PlayerStats stats = PlayerStats.getStats(playerId);
         String currentArena = plugin.getArenaManager().getCurrentArena();
         String nextArena = plugin.getArenaManager().getNextArena();
         
@@ -123,25 +159,54 @@ public class MainScoreboardManager {
             return;
         }
 
+        // Procesar nuevas líneas
         Map<Integer, String> newScores = new HashMap<>();
         int scoreValue = configLines.size() - 1;
+        int blankLineCounter = 0;
         
         for (String line : configLines) {
             String processedLine = processScoreboardPlaceholders(line, player, stats, 
-                currentArena, nextArena, formattedTime);
+                currentArena, nextArena, formattedTime, blankLineCounter);
+            
+            if (line.equals("%blank_line%")) {
+                blankLineCounter++;
+            }
             
             newScores.put(scoreValue, processedLine);
             scoreValue--;
         }
 
-        // Actualizar scores
+        // Obtener cache anterior del jugador
+        Map<Integer, String> lastScores = lastScoreCache.get(playerId);
+        
+        // Solo actualizar scores que hayan cambiado
         for (Map.Entry<Integer, String> entry : newScores.entrySet()) {
-            updateScore(obj, entry.getValue(), entry.getKey());
+            int score = entry.getKey();
+            String newText = entry.getValue();
+            String lastText = lastScores.get(score);
+            
+            if (!newText.equals(lastText)) {
+                updateScoreOptimized(obj, newText, lastText, score);
+                lastScores.put(score, newText);
+            }
+        }
+        
+        // Remover scores que ya no existen
+        Set<Integer> scoresToRemove = new HashSet<>(lastScores.keySet());
+        scoresToRemove.removeAll(newScores.keySet());
+        
+        for (Integer scoreToRemove : scoresToRemove) {
+            String textToRemove = lastScores.get(scoreToRemove);
+            if (textToRemove != null) {
+                obj.getScoreboard().resetScores(MessageUtils.getColor(textToRemove));
+            }
+            lastScores.remove(scoreToRemove);
         }
     }
 
     private String processScoreboardPlaceholders(String text, Player player, PlayerStats stats, 
-                                                String currentArena, String nextArena, String formattedTime) {
+                                                String currentArena, String nextArena, 
+                                                String formattedTime, int blankLineIndex) {
         // Procesar placeholders básicos del scoreboard
         text = text.replace("%player_name%", player.getName())
                     .replace("%arena_name%", currentArena)
@@ -151,9 +216,9 @@ public class MainScoreboardManager {
                     .replace("%deaths%", String.valueOf(stats.getDeaths()))
                     .replace("%kdr%", String.format("%.2f", stats.getKDR()));
         
-        // Procesar líneas en blanco con espacios únicos
+        // Procesar líneas en blanco con espacios únicos pre-generados
         if (text.equals("%blank_line%")) {
-            text = generateUniqueSpace();
+            text = uniqueSpaces.getOrDefault(blankLineIndex, " ");
         }
         
         // Usar PlaceholderAPI si está disponible
@@ -162,48 +227,17 @@ public class MainScoreboardManager {
         return text;
     }
 
-    private String generateUniqueSpace() {
-        // Usar caracteres invisibles diferentes para cada línea en blanco
-        String[] invisibleChars = {
-            "§0", "§1", "§2", "§3", "§4", "§5", "§6", "§7", 
-            "§8", "§9", "§a", "§b", "§c", "§d", "§e", "§f"
-        };
+    private void updateScoreOptimized(Objective obj, String newText, String oldText, int score) {
+        String coloredNewText = MessageUtils.getColor(newText);
         
-        // Crear una combinación única usando códigos de color invisibles + espacios
-        StringBuilder uniqueSpace = new StringBuilder();
-        
-        // Usar el contador para generar diferentes tipos de espacios únicos
-        int index = uniqueSpaceCounter % invisibleChars.length;
-        uniqueSpace.append(invisibleChars[index]);
-        
-        // Agregar espacios adicionales basados en el contador
-        for (int i = 0; i <= (uniqueSpaceCounter / invisibleChars.length); i++) {
-            uniqueSpace.append(" ");
+        // Si hay texto anterior, removerlo
+        if (oldText != null && !oldText.isEmpty()) {
+            String coloredOldText = MessageUtils.getColor(oldText);
+            obj.getScoreboard().resetScores(coloredOldText);
         }
         
-        // Agregar caracteres de reset para asegurar que sea invisible
-        uniqueSpace.append("§r");
-        
-        uniqueSpaceCounter++;
-        return uniqueSpace.toString();
-    }
-
-    private void updateScore(Objective obj, String text, int score) {
-        String coloredText = MessageUtils.getColor(text);
-        
-        // Verificar si el score actual ya tiene ese texto
-        for (String entry : obj.getScoreboard().getEntries()) {
-            Score existingScore = obj.getScore(entry);
-            if (existingScore.getScore() == score) {
-                if (entry.equals(coloredText)) {
-                    return;
-                }
-                obj.getScoreboard().resetScores(entry);
-                break;
-            }
-        }
-        
-        Score scoreObj = obj.getScore(coloredText);
+        // Agregar el nuevo texto
+        Score scoreObj = obj.getScore(coloredNewText);
         scoreObj.setScore(score);
     }
 
@@ -222,7 +256,7 @@ public class MainScoreboardManager {
                 
                 if (currentSecond > lastSecond) {
                     timeLeft--;
-                    animationFrame++; // Incrementar frame de animación
+                    animationFrame++;
                     lastSecond = currentSecond;
                     
                     // Usar alertas de configuración
@@ -231,13 +265,13 @@ public class MainScoreboardManager {
                         String message = config.getScoreMessageArenaChange();
                         if (message != null) {
                             message = message.replace("%seconds%", String.valueOf(timeLeft));
-                            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.prefix + message));
+                            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
                         }
                     }
 
                     if (timeLeft <= 0) {
                         rotateArena();
-                        timeLeft = config.getScoreArenaChange(); // Resetear desde configuración
+                        timeLeft = config.getScoreArenaChange();
                     }
                 }
             }
@@ -294,7 +328,6 @@ public class MainScoreboardManager {
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     if (step < loadingFrames.size()) {
-                        // Usar configuración para títulos
                         String title = config.getScoreTitleBeforeChangeTitle();
                         String subtitle = config.getScoreTitleBeforeChangeSubtitle();
                         
@@ -346,7 +379,6 @@ public class MainScoreboardManager {
                         player.setWalkSpeed(0.2f);
                         arenaChanging = false;
                         
-                        // Usar configuración para título después del cambio
                         String title = config.getScoreTitleAfterChangeTitle();
                         String subtitle = config.getScoreTitleAfterChangeSubtitle();
                         
@@ -393,8 +425,11 @@ public class MainScoreboardManager {
     }
 
     public void removePlayer(Player player) {
-        playerScoreboards.remove(player.getUniqueId());
-        playerObjectives.remove(player.getUniqueId());
+        UUID playerId = player.getUniqueId();
+        playerScoreboards.remove(playerId);
+        playerObjectives.remove(playerId);
+        lastScoreCache.remove(playerId);
+        lastTitleCache.remove(playerId);
     }
 
     public void reload() {
@@ -403,6 +438,14 @@ public class MainScoreboardManager {
         
         // Reiniciar tiempo desde configuración
         timeLeft = config.getScoreArenaChange();
+        
+        // Limpiar caches
+        lastScoreCache.clear();
+        lastTitleCache.clear();
+        
+        // Regenerar espacios únicos
+        uniqueSpaces.clear();
+        generateUniqueSpaces();
         
         // Limpiar scoreboards existentes si el scoreboard está deshabilitado
         if (!config.isScoreEnabled()) {

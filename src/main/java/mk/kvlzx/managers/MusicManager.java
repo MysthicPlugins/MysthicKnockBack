@@ -37,7 +37,7 @@ public class MusicManager {
         }
     }
 
-    private final int MAX_DISTANCE = 30;
+    private final int MAX_DISTANCE = MysthicKnockBack.getInstance().getMainConfig().getMaxDistanceJukebox();
 
     public MusicManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -64,7 +64,7 @@ public class MusicManager {
         // Para preview, crear una jukebox temporal solo por 10 segundos
         Location previewLoc = getValidJukeboxLocation(player);
         if (previewLoc == null) {
-            player.sendMessage(MessageUtils.getColor("&cThere is no space for the music preview."));
+            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMainConfig().getMusicNonSpacePreview()));
             return;
         }
 
@@ -103,7 +103,7 @@ public class MusicManager {
 
         Location jukeboxLoc = getValidJukeboxLocation(player);
         if (jukeboxLoc == null) {
-            player.sendMessage(MessageUtils.getColor("&cThere is not enough space to place the jukebox."));
+            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMainConfig().getMusicNonSpace()));
             return;
         }
 
@@ -112,7 +112,7 @@ public class MusicManager {
         block.setType(Material.JUKEBOX);
         
         if (block.getType() != Material.JUKEBOX) {
-            player.sendMessage(MessageUtils.getColor("&cError placing the jukebox."));
+            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMainConfig().getJukeboxError()));
             return;
         }
 
@@ -142,7 +142,7 @@ public class MusicManager {
 
             // Verificar distancia
             if (jukeboxLoc.distance(player.getLocation()) > MAX_DISTANCE) {
-                player.sendMessage(MessageUtils.getColor("&cYou have moved too far from your jukebox."));
+                player.sendMessage(MessageUtils.getColor(plugin.getMainConfig().getMoveTooFar()));
                 stopMusicForPlayer(player);
                 return;
             }

@@ -9,12 +9,10 @@ public class MessagesConfig {
     private final CustomConfig configFile;
 
 
-    // Main
     private String reloadConfig;
     private String noPermission;
     private List<String> help;
 
-    // Arena
     private String arenaCreate;
     private String arenaAlreadyExist;
     private String arenaZoneUsage;
@@ -32,7 +30,6 @@ public class MessagesConfig {
     private String arenaSetBorderNumberError;
     private List<String> arenaHelpMessage;
 
-    // Stats
     private String statsUsage;
     private String statsNotFound;
     private String statsReset;
@@ -49,6 +46,10 @@ public class MessagesConfig {
     private String statsResetAllSuccess;
     private String statsStatUpdated;
     private List<String> statsFormat;
+
+    private List<String> joinMessages;
+    private List<String> deathMessages;
+    private List<String> killMessages;
 
     public MessagesConfig(MysthicKnockBack plugin) {
         configFile = new CustomConfig("messages.yml", "config/global", plugin);
@@ -99,6 +100,10 @@ public class MessagesConfig {
         statsResetAllSuccess = config.getString("messages.commands.stats.resetall-success");
         statsStatUpdated = config.getString("messages.commands.stats.stat-updated");
         statsFormat = config.getStringList("messages.commands.stats.format");
+
+        joinMessages = config.getStringList("messages.join-messages");
+        deathMessages = config.getStringList("messages.death-messages");
+        killMessages = config.getStringList("messages.kill-messages");
     }
 
     public void reload() {
@@ -106,12 +111,10 @@ public class MessagesConfig {
         loadConfig();
     }
 
-    // Main Getters
     public String getReloadConfig() { return reloadConfig; }
     public String getNoPermission() { return noPermission; }
     public List<String> getHelp() { return help; }
 
-    // Arena Getters
     public String getArenaCreate() { return arenaCreate; }
     public String getArenaAlreadyExist() { return arenaAlreadyExist; }
     public String getArenaZoneUsage() { return arenaZoneUsage; }
@@ -129,7 +132,6 @@ public class MessagesConfig {
     public String getArenaSetBorderNumberError() { return arenaSetBorderNumberError; }
     public List<String> getArenaHelpMessage() { return arenaHelpMessage; }
     
-    // Stats Getters
     public String getStatsUsage() { return statsUsage; }
     public String getStatsNotFound() { return statsNotFound; }
     public String getStatsReset() { return statsReset; }
@@ -146,4 +148,8 @@ public class MessagesConfig {
     public String getStatsResetAllSuccess() { return statsResetAllSuccess; }
     public String getStatsStatUpdated() { return statsStatUpdated; }
     public List<String> getStatsFormat() { return statsFormat; }
+
+    public List<String> getJoinMessages() { return joinMessages; }
+    public List<String> getDeathMessages() { return deathMessages; }
+    public List<String> getKillMessages() { return killMessages; }
 }

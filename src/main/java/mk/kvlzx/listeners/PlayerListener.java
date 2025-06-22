@@ -18,7 +18,6 @@ import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.bukkit.Bukkit;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -51,41 +50,9 @@ public class PlayerListener implements Listener {
     private final MysthicKnockBack plugin;
     private final Random random = new Random();
 
-    private static final List<String> DEATH_MESSAGES = Arrays.asList(
-        "&b%s &fslipped on a banana peel. &aHow clumsy!",
-        "&b%s &finvented trying to fly, but forgot their wings.",
-        "&b%s &ffell into the void shouting &a'I'll be back!'",
-        "&b%s &fwas tricked by a mirage and crashed.",
-        "&b%s &fwanted to dance on the edge and... &aouch! &fTo the ground.",
-        "&b%s &fthought they were immortal. &aSpoiler: ðey weren't.",
-        "&b%s &ftripped over their own ego.",
-        "&b%s &fwas defeated by gravity, their worst enemy.",
-        "&b%s &finvented an epic trick and ended up on the ground.",
-        "&b%s &fgot distracted watching a kitten and &a goodbye!",
-        "&b%s &fbelieved they could run faster than the wind. &aNop.",
-        "&b%s &ffell, just like their Wi-Fi in the middle of a match.",
-        "&b%s &fwanted to be a hero, but physics said &a'nope'.",
-        "&b%s &fjumped into the void with &atoo much &fconfidence.",
-        "&b%s &fwas betrayed by their own coordination.",
-        "&b%s &fthought the ground was lava... and wasn't entirely wrong.",
-        "&b%s &finvented a somersault and stayed in mortal.",
-        "&b%s &ffell for the lies of the invisible platform.",
-        "&b%s &fwanted to impress and only impressed the ground.",
-        "&b%s &fshouted &a'I'm invincible!' &fjust before falling."
-    );
+    private static final List<String> DEATH_MESSAGES = MysthicKnockBack.getInstance().getMessagesConfig().getDeathMessages();
 
-    private static final List<String> KILL_MESSAGES = Arrays.asList(
-        "&b{killer} &fhas sent &b{victim} &fon a one-way trip to the void!",
-        "&b{victim} &ftried to fly, but &b{killer} &fcut their wings.",
-        "&b{killer} &fgave &b{victim} &fan epic push to the beyond!",
-        "&b{victim} &fthought they could, but &b{killer} &fsaid '&aNOPE, to the ground!'",
-        "&b{killer} &fturned &b{victim} &finto a shooting star... that didn't go far!",
-        "&b{victim} &fwanted to dance with &b{killer}&f, but ended up dancing with death.",
-        "&b{killer} &ftaught &b{victim} &fthat gravity doesn't forgive!",
-        "&b{victim} &fdreamed of victory, but &b{killer} &fwoke them with a blow.",
-        "&b{killer} &fsent &b{victim} &fto explore the bottom of the map!",
-        "&b{killer} &fgave &b{victim} &fan express ticket to the lobby of the fallen!"
-    );
+    private static final List<String> KILL_MESSAGES =  MysthicKnockBack.getInstance().getMessagesConfig().getKillMessages();
 
     public PlayerListener(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -95,12 +62,16 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         ItemsManager.giveSpawnItems(player);
-        TitleUtils.sendTitle(
-            player, 
-            "&a Welcome to &6KnockbackFFA&a!", 
-            "&fDominate the arena and leave your mark!.",
-            20, 60, 20
-        );
+        if (plugin.getMainConfig().getJoinTitleEnabled()) {
+            TitleUtils.sendTitle(
+                player,
+                plugin.getMainConfig().getJoinTitleTitle(),
+                plugin.getMainConfig().getJoinTitleSubtitle(),
+                plugin.getMainConfig().getJoinTitleFadeIn(),
+                plugin.getMainConfig().getJoinTitleStay(),
+                plugin.getMainConfig().getJoinTitleFadeOut()
+            );
+        }
         
         // Actualizar rango
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
@@ -180,8 +151,8 @@ public class PlayerListener implements Listener {
             }
             
             Bukkit.broadcastMessage(MessageUtils.getColor(
-                killMessage.replace("{killer}", killer.getName())
-                            .replace("{victim}", player.getName())
+                killMessage.replace("%killer%", killer.getName())
+                            .replace("%victim%", player.getName())
             ));
 
             // Reproducir sonido de kill al asesino
@@ -350,8 +321,8 @@ public class PlayerListener implements Listener {
                         killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
                     }
                     Bukkit.broadcastMessage(MessageUtils.getColor(
-                        killMessage.replace("{killer}", killer.getName())
-                                    .replace("{victim}", player.getName())
+                        killMessage.replace("%killer%", killer.getName())
+                                    .replace("%victim%", player.getName())
                     ));
                     handlePlayerKill(killer);
 

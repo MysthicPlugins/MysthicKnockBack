@@ -18,20 +18,20 @@ public class CombatManager {
     private final Map<UUID, Long> lastHitTime = new HashMap<>();
     private final Map<UUID, Vector> pendingKnockback = new HashMap<>();
     
-    private double horizontalKnockback = 0.7;
-    private double verticalKnockback = 0.385;
-    private double knockbackResistanceReduction = 0.5;
-    private double sprintMultiplier = 1.8;
+    private double horizontalKnockback = MysthicKnockBack.getInstance().getMainConfig().getHorizontalKnockback();
+    private double verticalKnockback = MysthicKnockBack.getInstance().getMainConfig().getVerticalKnockback();
+    private double knockbackResistanceReduction = MysthicKnockBack.getInstance().getMainConfig().getKnockbackReduction();
+    private double sprintMultiplier = MysthicKnockBack.getInstance().getMainConfig().getKnockbackSprintMultiplier();
     
     // Nuevos valores específicos para flechas
-    private double arrowHorizontalKnockback = 2.2;
-    private double arrowSprintMultiplier = 2.2;
+    private double arrowHorizontalKnockback = MysthicKnockBack.getInstance().getMainConfig().getHorizontalKnockbackArrow();
+    private double arrowSprintMultiplier =  MysthicKnockBack.getInstance().getMainConfig().getSprintKnockbackArrow();
     
     // NUEVO: Valores específicos para endermites
-    private double endermiteHorizontalKnockback = 1.2;
-    private double endermiteVerticalKnockback = 0.45;
-    private int endermiteKnockbackLevel = 2; // Equivalente a Knockback II
-    
+    private double endermiteHorizontalKnockback = MysthicKnockBack.getInstance().getMainConfig().getKnockbackHorizontalEndermite();
+    private double endermiteVerticalKnockback = MysthicKnockBack.getInstance().getMainConfig().getKnockbackVerticalEndermite();
+    private int endermiteKnockbackLevel = MysthicKnockBack.getInstance().getMainConfig().getKnockbackLevelEndermite();
+
     private int hitDelay = 500; // millisegundos
     
     public CombatManager(MysthicKnockBack plugin) {
@@ -216,8 +216,8 @@ public class CombatManager {
     
     private Vector applyVelocityLimits(Vector velocity, boolean isArrow) {
         // Límites más altos para flechas
-        double maxHorizontal = isArrow ? 2.4 : 0.9;
-        double maxVertical = 0.6;
+        double maxHorizontal = isArrow ? plugin.getMainConfig().getMaxKnockbackHorizontalArrow() : plugin.getMainConfig().getMaxKnockbackHorizontal();
+        double maxVertical = plugin.getMainConfig().getMaxKnockbackVertical();
         
         // Limitar componentes horizontales
         double horizontalMagnitude = Math.sqrt(
