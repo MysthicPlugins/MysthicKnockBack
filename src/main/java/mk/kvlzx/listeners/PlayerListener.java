@@ -45,6 +45,7 @@ import mk.kvlzx.cosmetics.DeathSoundItem;
 import mk.kvlzx.cosmetics.KillMessageItem;
 import mk.kvlzx.cosmetics.KillSoundItem;
 import mk.kvlzx.stats.PlayerStats;
+import mk.kvlzx.menu.Menu;
 
 public class PlayerListener implements Listener {
     private final MysthicKnockBack plugin;
@@ -368,6 +369,12 @@ public class PlayerListener implements Listener {
 
             if (foundZone != null) {
                 if (!foundZone.equals(currentZone) || !foundArena.equals(currentArena)) {
+                    // Cerrar menú si tiene uno abierto
+                    Menu openMenu = plugin.getMenuManager().getOpenMenu(player);
+                    if (openMenu != null) {
+                        player.closeInventory();
+                        plugin.getMenuManager().closeMenu(player);
+                    }
                     plugin.getArenaManager().setPlayerZone(player, foundArena, foundZone);
 
                     switch (foundZone) {

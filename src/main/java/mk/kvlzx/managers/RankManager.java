@@ -8,7 +8,7 @@ import mk.kvlzx.MysthicKnockBack;
 
 public class RankManager {
     public enum Rank {
-        DIVINE(MysthicKnockBack.getInstance().getMainConfig().getRankDivinoElo(), MysthicKnockBack.getInstance().getMainConfig().getRankDivinoDisplay()),
+        DIVINE(MysthicKnockBack.getInstance().getMainConfig().getDivineElo(), MysthicKnockBack.getInstance().getMainConfig().getDivineDisplay()),
         GRAND_MASTER(MysthicKnockBack.getInstance().getMainConfig().getGrandMasterElo(), MysthicKnockBack.getInstance().getMainConfig().getGrandMasterDisplay()),
         GOD(MysthicKnockBack.getInstance().getMainConfig().getGodElo(), MysthicKnockBack.getInstance().getMainConfig().getGodDisplay()),
         TITAN(MysthicKnockBack.getInstance().getMainConfig().getTitanElo(), MysthicKnockBack.getInstance().getMainConfig().getTitanDisplay()),
@@ -43,7 +43,9 @@ public class RankManager {
         }
 
         public static Rank getRankByElo(int elo) {
-            for (Rank rank : values()) {
+            // Ordenar los rangos por ELO de mayor a menor
+            Rank[] ranks = values();
+            for (Rank rank : ranks) {
                 if (elo >= rank.getMinElo()) {
                     return rank;
                 }
@@ -53,19 +55,32 @@ public class RankManager {
     }
 
     public static void updatePlayerRank(Player player, int elo) {
+        if (player == null) return;
+        
         // Agregar un pequeño delay para asegurar que el jugador esté completamente cargado
         new BukkitRunnable() {
             @Override
             public void run() {
-                Rank rank = Rank.getRankByElo(elo);
-                String displayName = MessageUtils.getColor(rank.getDisplayName() + " &r" + player.getName());
-                player.setPlayerListName(displayName);
-                player.setDisplayName(displayName);
+                try {
+                    Rank rank = Rank.getRankByElo(elo);
+                    if (rank != null && rank.getDisplayName() != null) {
+                        String displayName = MessageUtils.getColor(rank.getDisplayName() + " &r" + player.getName());
+                        player.setPlayerListName(displayName);
+                        player.setDisplayName(displayName);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }.runTaskLater(MysthicKnockBack.getInstance(), 2L);
     }
 
     public static String getRankPrefix(int elo) {
-        return MessageUtils.getColor(Rank.getRankByElo(elo).getDisplayName());
+        try {
+            return MessageUtils.getColor(Rank.getRankByElo(elo).getDisplayName());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "&7[Unknown]";
+        }
     }
 }

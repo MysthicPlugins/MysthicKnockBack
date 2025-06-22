@@ -76,8 +76,8 @@ public class MainConfig {
     private double maxKnockbackHorizontal;
     private double maxKnockbackHorizontalArrow;
     private double maxKnockbackVertical;
-    private String rankDivinoDisplay;
-    private Integer rankDivinoElo;
+    private String divineDisplay;
+    private Integer divineElo;
     private String grandMasterDisplay;
     private Integer grandMasterElo;
     private String godDisplay;
@@ -208,8 +208,8 @@ public class MainConfig {
         maxKnockbackHorizontal = config.getDouble("config.combat.knockback-limits.max-horizontal-knockback");
         maxKnockbackHorizontalArrow = config.getDouble("config.combat.knockback-limits.max-horizontal-knockback-arrow");
         maxKnockbackVertical = config.getDouble("config.combat.knockback-limits.max-vertical-knockback");
-        rankDivinoDisplay = config.getString("config.combat.ranks.divino.display");
-        rankDivinoElo = config.getInt("config.combat.ranks.divino.elo");
+        divineDisplay = config.getString("config.combat.ranks.divine.display");
+        divineElo = config.getInt("config.combat.ranks.divine.elo");
         grandMasterDisplay = config.getString("config.combat.ranks.grand-master.display");
         grandMasterElo = config.getInt("config.combat.ranks.grand-master.elo");
         godDisplay = config.getString("config.combat.ranks.god.display");
@@ -380,8 +380,8 @@ public class MainConfig {
     public double getMaxKnockbackHorizontal() { return maxKnockbackHorizontal; }
     public double getMaxKnockbackHorizontalArrow() { return maxKnockbackHorizontalArrow; }
     public double getMaxKnockbackVertical() { return maxKnockbackVertical; }
-    public String getRankDivinoDisplay() { return rankDivinoDisplay; }
-    public Integer getRankDivinoElo() { return rankDivinoElo; }
+    public String getDivineDisplay() { return divineDisplay; }
+    public Integer getDivineElo() {  return divineElo; }
     public String getGrandMasterDisplay() { return grandMasterDisplay; }
     public Integer getGrandMasterElo() { return grandMasterElo; }
     public String getGodDisplay() { return godDisplay; }

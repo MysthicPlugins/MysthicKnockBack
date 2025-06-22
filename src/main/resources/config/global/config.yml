@@ -86,7 +86,7 @@ config:
       max-horizontal-knockback-arrow: 2.4
       max-vertical-knockback: 0.6
     ranks:
-      divino:
+      divine:
         display: "&d&l[Divine]"
         elo: 30500
       grand_master:
@@ -104,7 +104,7 @@ config:
       supreme:
         display: "&c&l[Supreme]"
         elo: 14500
-      mysthic:
+      mythic:
         display: "&6&l[Mythic]"
         elo: 12500
       legend:
