@@ -39,17 +39,16 @@ public class ReportManager {
             
             long remainingTime = (reportCooldowns.get(reporterId) + COOLDOWN - currentTime) / 1000;
             
-            reporter.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou must wait " + remainingTime + " seconds to report this player."));
+            reporter.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMainConfig().getReportCooldownMessage()
+                .replace("%time%", String.valueOf(remainingTime))));
             return;
         }
 
         // Notificar al staff
-        String reportMessage = String.format(
-            "&c[Report] &f%s &7has reported &f%s &7for &f%s",
-            reporter.getName(),
-            targetName,
-            reason.getDisplayName()
-        );
+        String reportMessage =  MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMainConfig().getReportStaffMessage()
+            .replace("%reporter%", reporter.getName())
+            .replace("%target%", targetName)
+            .replace("%reason%", reason.getDisplayName()));
 
         for (Player staff : Bukkit.getOnlinePlayers()) {
             if (staff.hasPermission("mysthicknockback.reports.view")) {
@@ -58,7 +57,9 @@ public class ReportManager {
         }
 
         // Notificar al reportador
-        reporter.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aReport sent successfully."));
+        reporter.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() +  plugin.getMainConfig().getReportMessage()
+            .replace("%target%", targetName)
+            .replace("%reason%", reason.getDisplayName())));
 
         // Establecer cooldown
         reportCooldowns.put(reporterId, currentTime);

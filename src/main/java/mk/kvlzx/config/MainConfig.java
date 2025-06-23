@@ -64,6 +64,18 @@ public class MainConfig {
 
     private Integer defaultElo;
     private Long combatLog;
+    private Integer eloMinGained;
+    private Integer eloMaxGained;
+    private Boolean eloGainedMessageEnabled;
+    private String eloGainedMessage;
+    private Integer eloMinLost;
+    private Integer eloMaxLost;
+    private Boolean eloLostMessageEnabled;
+    private String eloLostMessage;
+    private Integer kgcoinsGainedMin;
+    private Integer kgcoinsGainedMax;
+    private Boolean kgcoinsGainedMessageEnabled;
+    private String kgcoinsGainedMessage;
     private double horizontalKnockback;
     private double verticalKnockback;
     private double knockbackReduction;
@@ -123,6 +135,33 @@ public class MainConfig {
     private String jukeboxError;
     private String moveTooFar;
     private Integer maxDistanceJukebox;
+
+    private Integer reportCooldownTime;
+    private String reportCooldownMessage;
+    private String reportMessage;
+    private String reportStaffMessage;
+
+    private String streakTag40;
+    private String streakTag60;
+    private String streakTag80;
+    private String streakTag100;
+    private String streakTag150;
+    private String streakTag200;
+    private String streakTag250;
+    private String streakTag300;
+    private String streakTag500;
+    private String streakArmorStandName;
+    private double streakArmorStandX;
+    private double streakArmorStandY;
+    private double streakArmorStandZ;
+    private String streakMessageReached;
+    private String streakMessageLost;
+    private Boolean streakTitleEnabled;
+    private String streakTitleTitle;
+    private String streakTitleSubtitle;
+    private Integer streakTitleFadeIn;
+    private Integer streakTitleStay;
+    private Integer streakTitleFadeOut;
 
     public MainConfig(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -196,6 +235,18 @@ public class MainConfig {
 
         defaultElo = config.getInt("config.combat.default-elo");
         combatLog = config.getLong("config.combat.combat-log");
+        eloMinGained = config.getInt("config.combat.elo.min");
+        eloMaxGained = config.getInt("config.combat.elo.max");
+        eloGainedMessageEnabled = config.getBoolean("config.combat.elo.message-enabled");
+        eloGainedMessage = config.getString("config.combat.elo.message");
+        eloMinLost = config.getInt("config.combat.elo.death-elo-lost.min");
+        eloMaxLost = config.getInt("config.combat.elo.death-elo-lost.max");
+        eloGainedMessageEnabled = config.getBoolean("config.combat.death-elo-lost.message-enabled");
+        eloLostMessage = config.getString("config.combat.elo.death-elo-lost.message");
+        kgcoinsGainedMin = config.getInt("config.kgcoins.min");
+        kgcoinsGainedMax = config.getInt("config.kgcoins.max");
+        kgcoinsGainedMessageEnabled = config.getBoolean("config.kgcoins.message-enabled");
+        kgcoinsGainedMessage = config.getString("config.kgcoins.message");
         horizontalKnockback = config.getDouble("config.combat.knockback-hit.horizontal-knockback");
         verticalKnockback = config.getDouble("config.combat.knockback-hit.vertical-knockback");
         knockbackReduction = config.getDouble("config.combat.knockback-hit.knockback-resistance-reduction");
@@ -210,8 +261,8 @@ public class MainConfig {
         maxKnockbackVertical = config.getDouble("config.combat.knockback-limits.max-vertical-knockback");
         divineDisplay = config.getString("config.combat.ranks.divine.display");
         divineElo = config.getInt("config.combat.ranks.divine.elo");
-        grandMasterDisplay = config.getString("config.combat.ranks.grand-master.display");
-        grandMasterElo = config.getInt("config.combat.ranks.grand-master.elo");
+        grandMasterDisplay = config.getString("config.combat.ranks.grand_master.display");
+        grandMasterElo = config.getInt("config.combat.ranks.grand_master.elo");
         godDisplay = config.getString("config.combat.ranks.god.display");
         godElo = config.getInt("config.combat.ranks.god.elo");
         titanDisplay = config.getString("config.combat.ranks.titan.display");
@@ -244,8 +295,8 @@ public class MainConfig {
         randomElo = config.getInt("config.combat.ranks.random.elo");
 
         joinTitleEnabled = config.getBoolean("config.titles.join-title.enabled");
-        joinTitleTitle = config.getString("config.titles.join-title.title", "&b&lBienvenido");
-        joinTitleSubtitle = config.getString("config.titles.join-title.subtitle", "&3&l¡Disfruta del juego!");
+        joinTitleTitle = config.getString("config.titles.join-title.title");
+        joinTitleSubtitle = config.getString("config.titles.join-title.subtitle");
         joinTitleFadeIn = config.getInt("config.titles.join-title.fade-in");
         joinTitleStay = config.getInt("config.titles.join-title.stay");
         joinTitleFadeOut = config.getInt("config.titles.join-title.fade-out");
@@ -255,6 +306,33 @@ public class MainConfig {
         jukeboxError = config.getString("config.music.messages.jukebox-error");
         moveTooFar = config.getString("config.music.messages.move-too-far");
         maxDistanceJukebox = config.getInt("config.music.max-distance-jukebox");
+
+        reportCooldownTime = config.getInt("config.report.cooldown");
+        reportCooldownMessage = config.getString("config.report.messages.cooldown");
+        reportMessage = config.getString("config.report.messages.report-message");
+        reportStaffMessage = config.getString("config.report.messages.report-message-staff");
+
+        streakTag40 = config.getString("config.streak.tags.kill-40.tag");
+        streakTag60 = config.getString("config.streak.tags.kill-60.tag");
+        streakTag80 = config.getString("config.streak.tags.kill-80.tag");
+        streakTag100 = config.getString("config.streak.tags.kill-100.tag");
+        streakTag150 = config.getString("config.streak.tags.kill-150.tag");
+        streakTag200 = config.getString("config.streak.tags.kill-200.tag");
+        streakTag250 = config.getString("config.streak.tags.kill-250.tag");
+        streakTag300 = config.getString("config.streak.tags.kill-300.tag");
+        streakTag500 = config.getString("config.streak.tags.kill-500.tag");
+        streakArmorStandName = config.getString("config.streak.armor-stand.name");
+        streakArmorStandX = config.getDouble("config.streak.armor-stand.location.location-x");
+        streakArmorStandY = config.getDouble("config.streak.armor-stand.location.location-y");
+        streakArmorStandZ = config.getDouble("config.streak.armor-stand.location.location-z");
+        streakMessageReached = config.getString("config.streak.messages.streak-reached");
+        streakMessageLost = config.getString("config.streak.messages.streak-lost");
+        streakTitleEnabled = config.getBoolean("config.streak.title.enabled");
+        streakTitleTitle = config.getString("config.streak.title.title");
+        streakTitleSubtitle = config.getString("config.streak.title.subtitle");
+        streakTitleFadeIn = config.getInt("config.streak.title.fade-in");
+        streakTitleStay = config.getInt("config.streak.title.stay");
+        streakTitleFadeOut = config.getInt("config.streak.title.fade-out");
     }
 
     private String validateAndGetMaterial(FileConfiguration config, String path, String defaultMaterial) {
@@ -368,6 +446,18 @@ public class MainConfig {
 
     public Integer getDefaultElo() { return defaultElo; }
     public Long getCombatLog() { return combatLog; }
+    public Integer getEloMinGained() { return eloMinGained; }
+    public Integer getEloMaxGained() { return eloMaxGained; }
+    public Boolean getEloGainedMessageEnabled() {return eloGainedMessageEnabled; }
+    public String getEloGainedMessage() { return eloGainedMessage; }
+    public Integer getEloMinLost() { return eloMinLost; }
+    public Integer getEloMaxLost() { return eloMaxLost; }
+    public Boolean getEloLostMessageEnabled() {return eloLostMessageEnabled; }
+    public String getEloLostMessage() { return eloLostMessage; }
+    public Integer getKgCoinsGainedMin() { return kgcoinsGainedMin; }
+    public Integer getKgCoinsGainedMax() { return kgcoinsGainedMax; }
+    public Boolean getKgCoinsGainedMessageEnabled() {return kgcoinsGainedMessageEnabled; }
+    public String getKgCoinsGainedMessage() { return kgcoinsGainedMessage; }
     public double getHorizontalKnockback() { return horizontalKnockback; }
     public double getVerticalKnockback() { return verticalKnockback; }
     public double getKnockbackReduction() { return knockbackReduction; }
@@ -427,4 +517,31 @@ public class MainConfig {
     public String getJukeboxError() { return jukeboxError; }
     public String getMoveTooFar() { return moveTooFar; }
     public Integer getMaxDistanceJukebox() { return maxDistanceJukebox; }
+
+    public Integer getReportCooldownTime() { return reportCooldownTime; }
+    public String getReportCooldownMessage() { return reportCooldownMessage; }
+    public String getReportMessage() { return reportMessage; }
+    public String getReportStaffMessage() { return reportStaffMessage; }
+
+    public String getStreakTag40() { return streakTag40; }
+    public String getStreakTag60() { return streakTag60; }
+    public String getStreakTag80() { return streakTag80; }
+    public String getStreakTag100() { return streakTag100; }
+    public String getStreakTag150() { return streakTag150; }
+    public String getStreakTag200() { return streakTag200; }
+    public String getStreakTag250() { return streakTag250; }
+    public String getStreakTag300() { return streakTag300; }
+    public String getStreakTag500() { return streakTag500; }
+    public String getStreakArmorStandName() { return streakArmorStandName; }
+    public double getStreakArmorStandX() { return streakArmorStandX; }
+    public double getStreakArmorStandY() { return streakArmorStandY; }
+    public double getStreakArmorStandZ() { return streakArmorStandZ; }
+    public String getStreakMessageReached() { return streakMessageReached; }
+    public String getStreakMessageLost() { return streakMessageLost; }
+    public Boolean getStreakTitleEnabled() { return streakTitleEnabled; }
+    public String getStreakTitleTitle() { return streakTitleTitle; }
+    public String getStreakTitleSubtitle() { return streakTitleSubtitle; }
+    public Integer getStreakTitleFadeIn() { return streakTitleFadeIn; }
+    public Integer getStreakTitleStay() { return streakTitleStay; }
+    public Integer getStreakTitleFadeOut() { return streakTitleFadeOut; }
 }

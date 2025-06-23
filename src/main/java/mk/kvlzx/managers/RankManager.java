@@ -43,13 +43,19 @@ public class RankManager {
         }
 
         public static Rank getRankByElo(int elo) {
-            // Ordenar los rangos por ELO de mayor a menor
-            Rank[] ranks = values();
+            // Crear una lista de rangos ordenada por ELO de mayor a menor
+            Rank[] ranks = {DIVINE, GRAND_MASTER, GOD, TITAN, IMMORTAL, SUPREME, 
+                            MYTHIC, LEGEND, HERO, CHAMPION, MASTER, ELITE, 
+                            VETERAN, COMPETITOR, APPRENTICE, NOVICE, RANDOM};
+            
+            // Buscar el rango apropiado
             for (Rank rank : ranks) {
                 if (elo >= rank.getMinElo()) {
                     return rank;
                 }
             }
+            
+            // Si no se encuentra ningún rango, devolver RANDOM como fallback
             return RANDOM;
         }
     }
@@ -63,12 +69,33 @@ public class RankManager {
             public void run() {
                 try {
                     Rank rank = Rank.getRankByElo(elo);
-                    if (rank != null && rank.getDisplayName() != null) {
-                        String displayName = MessageUtils.getColor(rank.getDisplayName() + " &r" + player.getName());
-                        player.setPlayerListName(displayName);
-                        player.setDisplayName(displayName);
+                    if (rank != null) {
+                        String displayName = rank.getDisplayName();
+                        // Validar que displayName no sea null
+                        if (displayName != null && !displayName.trim().isEmpty()) {
+                            String formattedDisplayName = MessageUtils.getColor(displayName + " &r" + player.getName());
+                            player.setPlayerListName(formattedDisplayName);
+                            player.setDisplayName(formattedDisplayName);
+                        } else {
+                            // Fallback si displayName es null o vacío
+                            String fallbackDisplayName = MessageUtils.getColor("&7[Unknown] &r" + player.getName());
+                            player.setPlayerListName(fallbackDisplayName);
+                            player.setDisplayName(fallbackDisplayName);
+                        }
                     }
                 } catch (Exception e) {
+                    // En caso de error, asignar un nombre por defecto
+                    try {
+                        String fallbackDisplayName = MessageUtils.getColor("&7[Error] &r" + player.getName());
+                        player.setPlayerListName(fallbackDisplayName);
+                        player.setDisplayName(fallbackDisplayName);
+                    } catch (Exception ignored) {
+                        // Si incluso el fallback falla, no hacer nada
+                    }
+                    
+                    MysthicKnockBack.getInstance().getLogger().severe(
+                        "Error updating player rank for " + player.getName() + " (ELO: " + elo + "): " + e.getMessage()
+                    );
                     e.printStackTrace();
                 }
             }
@@ -77,10 +104,21 @@ public class RankManager {
 
     public static String getRankPrefix(int elo) {
         try {
-            return MessageUtils.getColor(Rank.getRankByElo(elo).getDisplayName());
+            Rank rank = Rank.getRankByElo(elo);
+            if (rank != null) {
+                String displayName = rank.getDisplayName();
+                // Validar que displayName no sea null antes de procesarlo
+                if (displayName != null && !displayName.trim().isEmpty()) {
+                    return MessageUtils.getColor(displayName);
+                } else {
+                    return MessageUtils.getColor("&7[Unknown]");
+                }
+            } else {
+                return MessageUtils.getColor("&7[Unknown]");
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return "&7[Unknown]";
+            return "&7[Error]"; // Return sin procesar por MessageUtils en caso de error crítico
         }
     }
 }

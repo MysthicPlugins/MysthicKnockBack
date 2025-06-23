@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.MainConfig;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.utils.TitleUtils;
@@ -35,15 +36,20 @@ public class StreakManager {
     }
 
     public static void resetStreak(UUID uuid) {
-        if (getStreak(uuid) >= 5) {
+        int currentStreak = getStreak(uuid);
+        if (currentStreak >= 5) {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null) {
-                Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&c☠ &f" + player.getName() + 
-                    " &7lost their streak of &c" + getStreak(uuid) + " &7kills! &c☠"));
+                MainConfig config = MysthicKnockBack.getInstance().getMainConfig();
+                String streakLostMessage = config.getStreakMessageLost()
+                    .replace("%player%", player.getName())
+                    .replace("%streak%", String.valueOf(currentStreak));
+                
+                Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + streakLostMessage));
                 player.playSound(player.getLocation(), Sound.ENDERMAN_DEATH, 1.0f, 1.0f);
             }
             if (player != null) {
-                player.setLevel(getStreak(uuid));
+                player.setLevel(currentStreak);
                 player.setExp(1.0f);
             }
         }
@@ -74,22 +80,37 @@ public class StreakManager {
             
             String playerName = player.getName();
             int elo = PlayerStats.getStats(uuid).getElo();
+            MainConfig config = MysthicKnockBack.getInstance().getMainConfig();
             
-            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&e" + playerName + 
-                " &fhas reached a streak of &a" + streak + " &akills!"));
+            String streakReachedMessage = config.getStreakMessageReached()
+                .replace("%player%", playerName)
+                .replace("%streak%", String.valueOf(streak));
+            
+            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + streakReachedMessage));
             
             for (Player online : Bukkit.getOnlinePlayers()) {
                 online.playSound(online.getLocation(), Sound.ENDERDRAGON_GROWL, 1.0f, 1.0f);
             }
             
-            String rankPrefix = RankManager.getRankPrefix(elo);
-            for (Player online : Bukkit.getOnlinePlayers()) {
-                TitleUtils.sendTitle(
-                    online,
-                    MessageUtils.getColor(rankPrefix + " &f" + playerName),
-                    "&7Streak of &f" + streak + " &7kills!",
-                    10, 40, 10
-                );
+            // Usar configuración de título si está habilitada
+            if (config.getStreakTitleEnabled()) {
+                String rankPrefix = RankManager.getRankPrefix(elo);
+                String titleText = config.getStreakTitleTitle()
+                    .replace("%rank%", rankPrefix)
+                    .replace("%player%", playerName);
+                String subtitleText = config.getStreakTitleSubtitle()
+                    .replace("%streak%", String.valueOf(streak));
+                
+                for (Player online : Bukkit.getOnlinePlayers()) {
+                    TitleUtils.sendTitle(
+                        online,
+                        MessageUtils.getColor(titleText),
+                        MessageUtils.getColor(subtitleText),
+                        config.getStreakTitleFadeIn(),
+                        config.getStreakTitleStay(),
+                        config.getStreakTitleFadeOut()
+                    );
+                }
             }
         }
 
@@ -98,16 +119,20 @@ public class StreakManager {
 
     private static String getMvpTag(int streak) {
         if (streak < 40) return null;
-        if (streak >= 500) return "&5MVP+";
-        else if (streak >= 300) return "&cMVP";
-        else if (streak >= 250) return "&6MVP";
-        else if (streak >= 200) return "&eMVP";
-        else if (streak >= 150) return "&bMVP";
-        else if (streak >= 100) return "&aMVP";
-        else if (streak >= 80) return "&9MVP";
-        else if (streak >= 60) return "&dMVP";
-        else if (streak >= 40) return "&7MVP";
-        return "&8MVP"; // Esta línea nunca se ejecutará ahora
+        
+        MainConfig config = MysthicKnockBack.getInstance().getMainConfig();
+        
+        if (streak >= 500) return MessageUtils.getColor(config.getStreakTag500());
+        else if (streak >= 300) return MessageUtils.getColor(config.getStreakTag300());
+        else if (streak >= 250) return MessageUtils.getColor(config.getStreakTag250());
+        else if (streak >= 200) return MessageUtils.getColor(config.getStreakTag200());
+        else if (streak >= 150) return MessageUtils.getColor(config.getStreakTag150());
+        else if (streak >= 100) return MessageUtils.getColor(config.getStreakTag100());
+        else if (streak >= 80) return MessageUtils.getColor(config.getStreakTag80());
+        else if (streak >= 60) return MessageUtils.getColor(config.getStreakTag60());
+        else if (streak >= 40) return MessageUtils.getColor(config.getStreakTag40());
+        
+        return null;
     }
 
     private static void updateMvpTag(Player player) {
@@ -117,17 +142,30 @@ public class StreakManager {
         int streak = getStreak(uuid);
         String mvpTag = getMvpTag(streak);
 
-        if (streak >= 40) {
+        if (streak >= 40 && mvpTag != null) {
             removeTag(uuid);
             
-            Location loc = player.getLocation().add(0, 2.2, 0);
+            MainConfig config = MysthicKnockBack.getInstance().getMainConfig();
+            
+            // Usar offsets configurables para la posición del ArmorStand
+            Location loc = player.getLocation().add(
+                config.getStreakArmorStandX(),
+                config.getStreakArmorStandY(),
+                config.getStreakArmorStandZ()
+            );
+            
             ArmorStand armorStand = (ArmorStand) player.getWorld().spawnEntity(loc, EntityType.ARMOR_STAND);
             armorStand.setVisible(false);
             armorStand.setGravity(false);
             armorStand.setCustomNameVisible(true);
             armorStand.setSmall(true);
             armorStand.setMarker(true);
-            armorStand.setCustomName(MessageUtils.getColor(mvpTag + " &7- Kills: " + streak));
+            
+            // Usar nombre configurable para el ArmorStand
+            String armorStandName = config.getStreakArmorStandName()
+                .replace("%tag%", mvpTag)
+                .replace("%kills%", String.valueOf(streak));
+            armorStand.setCustomName(MessageUtils.getColor(armorStandName));
 
             playerMvpTags.put(uuid, armorStand);
 
@@ -143,15 +181,31 @@ public class StreakManager {
                         cancel();
                         return;
                     }
-                    armorStand.teleport(p.getLocation().add(0, 2.2, 0));
+                    
+                    MainConfig currentConfig = MysthicKnockBack.getInstance().getMainConfig();
+                    armorStand.teleport(p.getLocation().add(
+                        currentConfig.getStreakArmorStandX(),
+                        currentConfig.getStreakArmorStandY(),
+                        currentConfig.getStreakArmorStandZ()
+                    ));
+                    
                     int currentStreak = getStreak(uuid);
                     String currentMvpTag = getMvpTag(currentStreak);
-                    if (currentMvpTag != null && !armorStand.getCustomName().equals(MessageUtils.getColor(currentMvpTag + " &7- Kills: " + currentStreak))) {
-                        armorStand.setCustomName(MessageUtils.getColor(currentMvpTag + " &7- Kills: " + currentStreak));
+                    
+                    if (currentMvpTag != null) {
+                        String updatedName = currentConfig.getStreakArmorStandName()
+                            .replace("%tag%", currentMvpTag)
+                            .replace("%kills%", String.valueOf(currentStreak));
+                        String coloredName = MessageUtils.getColor(updatedName);
+                        
+                        if (!armorStand.getCustomName().equals(coloredName)) {
+                            armorStand.setCustomName(coloredName);
+                        }
                     }
-                    if (player != null) {
-                        player.setLevel(getStreak(uuid));
-                        player.setExp(1.0f);
+                    
+                    if (p != null) {
+                        p.setLevel(getStreak(uuid));
+                        p.setExp(1.0f);
                     }
                 }
             }.runTaskTimer(MysthicKnockBack.getInstance(), 0L, 1L);

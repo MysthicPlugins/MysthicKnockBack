@@ -10,6 +10,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.MainConfig;
 import mk.kvlzx.data.StatsData;
 import mk.kvlzx.managers.RankManager;
 import mk.kvlzx.managers.StreakManager;
@@ -92,26 +93,33 @@ public class PlayerStats {
         this.kills++;
         StreakManager.addStreak(uuid);
         
-        int eloGained = (int)(Math.random() * 10) + 6;
+        // Usar valores de configuración para ELO ganado
+        MainConfig config = MysthicKnockBack.getInstance().getMainConfig();
+        int eloGained = (int)(Math.random() * (config.getEloMaxGained() - config.getEloMinGained() + 1)) + config.getEloMinGained();
         this.elo += eloGained;
 
-        // Notificar al jugador
+        // Notificar al jugador con mensaje personalizado
         Player player = Bukkit.getPlayer(uuid);
-        if (player != null && player.isOnline()) {
-            player.sendMessage(MessageUtils.getColor("&a+" + eloGained + " ELO"));
+        if (config.getEloGainedMessageEnabled()) {
+            if (player != null && player.isOnline()) {
+                String eloMessage = config.getEloGainedMessage().replace("%elo%", String.valueOf(eloGained));
+                player.sendMessage(MessageUtils.getColor(eloMessage));
+            }
         }
 
-        // Añadir KGCoins por kill (entre 4-12)
-        int coinsGained = (int)(Math.random() * 9) + 4;
+        // Usar valores de configuración para KGCoins
+        int coinsGained = (int)(Math.random() * (config.getKgCoinsGainedMax() - config.getKgCoinsGainedMin() + 1)) + config.getKgCoinsGainedMin();
         this.kgCoins += coinsGained;
         
-        // Notificar al jugador
-        if (player != null && player.isOnline()) {
-            player.sendMessage(MessageUtils.getColor("&a+" + coinsGained + " KGCoins"));
+        // Notificar al jugador con mensaje personalizado
+        if (config.getKgCoinsGainedMessageEnabled()) {
+            if (player != null && player.isOnline()) {
+                String coinsMessage = config.getKgCoinsGainedMessage().replace("%coins%", String.valueOf(coinsGained));
+                player.sendMessage(MessageUtils.getColor(coinsMessage));
+            }
         }
 
         // Actualizar el rango del jugador
-        player = Bukkit.getPlayer(uuid);
         if (player != null && player.isOnline()) {
             RankManager.updatePlayerRank(player, this.elo);
         }
@@ -142,11 +150,22 @@ public class PlayerStats {
         lastDeathTime = currentTime;
         
         this.deaths++;
-        int eloLost = (int)(Math.random() * 10) + 6; // Random entre 6-15
-        this.elo = Math.max(0, this.elo - eloLost); // Evita que el ELO sea negativo
+        
+        // Usar valores de configuración para ELO perdido
+        MainConfig config = MysthicKnockBack.getInstance().getMainConfig();
+        int eloLost = (int)(Math.random() * (config.getEloMaxLost() - config.getEloMinLost() + 1)) + config.getEloMinLost();
+        this.elo = Math.max(0, this.elo - eloLost);
+        
+        // Notificar al jugador con mensaje personalizado
+        Player player = Bukkit.getPlayer(uuid);
+        if (config.getEloLostMessageEnabled()) {
+            if (player != null && player.isOnline()) {
+                String eloLostMessage = config.getEloLostMessage().replace("%elo%", String.valueOf(eloLost));
+                player.sendMessage(MessageUtils.getColor(eloLostMessage));
+            }
+        }
         
         // Actualizar rango si el jugador está online
-        Player player = Bukkit.getPlayer(uuid);
         if (player != null && player.isOnline()) {
             RankManager.updatePlayerRank(player, this.elo);
         }

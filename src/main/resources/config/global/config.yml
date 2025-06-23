@@ -69,6 +69,21 @@ config:
   combat:
     default-elo: 500
     combat-log: 10000 # Milliseconds (10 seconds)
+    elo:
+      min: 6
+      max: 15
+      message-enabled: true
+      message: "&a+%elo% ELO"
+      death-elo-lost:
+        min: 6
+        max: 15
+        message-enabled: true
+        message: "&c-%elo% ELO"
+    kgcoins:
+      min: 4
+      max: 12
+      message-enabled: true
+      message: "&a+%coins% KGCoins"
     knockback-hit:
       horizontal-knockback: 0.7
       vertical-knockback: 0.385
@@ -152,3 +167,45 @@ config:
       jukebox-error: "&cError placing the jukebox."
       move-too-far: "&cYou have moved too far from your jukebox."
       limit: 30 # Maximum blocks the player can move away from the jukebox
+  report:
+    cooldown: 120000 # Milliseconds (2 minutes)
+    messages:
+      cooldown: "&cYou must wait %time% seconds to report this player."
+      report-message: "&aReport %target% for %reason% send successfully!"
+      report-message-staff: "&c[Report] &f%reporter% &7has reported &f%target% &7for &f%reason%"
+  streak:
+    tags:
+      kill-40:
+        tag: "&7MVP"
+      kill-60:
+        tag: "&dMVP"
+      kill-80:
+        tag: "&9MVP"
+      kill-100:
+        tag: "&aMVP"
+      kill-150:
+        tag: "&bMVP"
+      kill-200:
+        tag: "&eMVP"
+      kill-250:
+        tag: "&6MVP"
+      kill-300:
+        tag: "&cMVP"
+      kill-500:
+        tag: "&5MVP+"
+    armor-stand:
+      name: "%tag% &7- Kills: %kills%"
+      location:
+        location-x: 0
+        location-y: 2.2
+        location-z: 0
+    messages:
+      streak-reached: "&e%player% &fhas reached a streak of &a%streak% &akills!"
+      streak-lost: "&c☠ &f%player% &7lost their streak of &c%streak% &7kills! &c☠"
+    title:
+      enabled: true
+      title: "%rank% &f%player%"
+      subtitle: "&7Streak of &f%streak% &7kills!"
+      fade-in: 10
+      stay: 40
+      fade-out: 10
