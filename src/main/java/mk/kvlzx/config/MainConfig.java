@@ -243,10 +243,10 @@ public class MainConfig {
         eloMaxLost = config.getInt("config.combat.elo.death-elo-lost.max");
         eloGainedMessageEnabled = config.getBoolean("config.combat.death-elo-lost.message-enabled");
         eloLostMessage = config.getString("config.combat.elo.death-elo-lost.message");
-        kgcoinsGainedMin = config.getInt("config.kgcoins.min");
-        kgcoinsGainedMax = config.getInt("config.kgcoins.max");
-        kgcoinsGainedMessageEnabled = config.getBoolean("config.kgcoins.message-enabled");
-        kgcoinsGainedMessage = config.getString("config.kgcoins.message");
+        kgcoinsGainedMin = config.getInt("config.combat.kgcoins.min");
+        kgcoinsGainedMax = config.getInt("config.combat.kgcoins.max");
+        kgcoinsGainedMessageEnabled = config.getBoolean("config.combat.kgcoins.message-enabled");
+        kgcoinsGainedMessage = config.getString("config.combat.kgcoins.message");
         horizontalKnockback = config.getDouble("config.combat.knockback-hit.horizontal-knockback");
         verticalKnockback = config.getDouble("config.combat.knockback-hit.vertical-knockback");
         knockbackReduction = config.getDouble("config.combat.knockback-hit.knockback-resistance-reduction");

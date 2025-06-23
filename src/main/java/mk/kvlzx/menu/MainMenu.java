@@ -11,52 +11,54 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.items.CustomItem;
+import mk.kvlzx.config.MainMenuConfig;
 import mk.kvlzx.utils.MessageUtils;
 
 public class MainMenu extends Menu {
+    private final MainMenuConfig menuConfig;
 
     public MainMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &b&lMain Menu &8•", 45);
+        super(plugin, plugin.getMainMenuConfig().getMenuTitle(), plugin.getMainMenuConfig().getMenuSize());
+        this.menuConfig = plugin.getMainMenuConfig();
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
-        // TOP ROW - Tops más importantes
-        inv.setItem(12, createItem(Material.DIAMOND_SWORD, "&a&lTop Kills",
-            "&7Click to view the top 10 kills"));
+        // Create items using the configuration
+        inv.setItem(menuConfig.getMenuTopKillsSlot(), 
+            menuConfig.createMenuItem(menuConfig.getMenuTopKillsId(), player, 
+                menuConfig.getMenuTopKillsName(), menuConfig.getMenuTopKillsLore()));
         
-        inv.setItem(13, createItem(Material.NETHER_STAR, "&6&lTop ELO",
-            "&7Click to view the top 10 ELO"));
+        inv.setItem(menuConfig.getMenuTopEloSlot(), 
+            menuConfig.createMenuItem(menuConfig.getMenuTopEloId(), player, 
+                menuConfig.getMenuTopEloName(), menuConfig.getMenuTopEloLore()));
         
-        inv.setItem(14, createItem(Material.DIAMOND, "&d&lTop Streaks",
-            "&7Click to view the top 10 streaks"));
+        inv.setItem(menuConfig.getMenuTopStreaksSlot(), 
+            menuConfig.createMenuItem(menuConfig.getMenuTopStreaksId(), player, 
+                menuConfig.getMenuTopStreaksName(), menuConfig.getMenuTopStreaksLore()));
 
-        // MIDDLE ROW - Tops secundarios
-        inv.setItem(21, createItem(Material.GOLDEN_APPLE, "&b&lTop KDR",
-            "&7Click to view the top 10 KDR"));
+        inv.setItem(menuConfig.getMenuTopKdrSlot(), 
+            menuConfig.createMenuItem(menuConfig.getMenuTopKdrId(), player, 
+                menuConfig.getMenuTopKdrName(), menuConfig.getMenuTopKdrLore()));
             
-        inv.setItem(23, createItem(Material.WATCH, "&e&lTop Time",
-            "&7Click to view the top 10 playtime"));
+        inv.setItem(menuConfig.getMenuTopTimeSlot(), 
+            menuConfig.createMenuItem(menuConfig.getMenuTopTimeId(), player, 
+                menuConfig.getMenuTopTimeName(), menuConfig.getMenuTopTimeLore()));
 
-        // BOTTOM ROW - Acciones personales
-        inv.setItem(37, createItem(Material.DIAMOND_SWORD, "&e&lEdit Hotbar",
-            "&7Click to customize your hotbar",
-            "",
-            "&8➥ Customize the position of your items"));
+        inv.setItem(menuConfig.getMenuEditHotbarSlot(), 
+            menuConfig.createMenuItem(menuConfig.getMenuEditHotbarId(), player, 
+                menuConfig.getMenuEditHotbarName(), menuConfig.getMenuEditHotbarLore()));
 
-        inv.setItem(39, CustomItem.createSkull(player, "&a&lMy Statistics",
-            "&7Click to view your statistics"));
+        // Special handling for player skull
+        inv.setItem(menuConfig.getMenuMyStatsSlot(), menuConfig.createMyStatsItem(player));
 
-        inv.setItem(41, createItem(Material.BOOK_AND_QUILL, "&c&lReport Player",
-            "&7Click to report a player",
-            "",
-            "&8➥ Report inappropriate behavior"));
+        inv.setItem(menuConfig.getMenuReportPlayerSlot(), 
+            menuConfig.createMenuItem(menuConfig.getMenuReportPlayerId(), player, 
+                menuConfig.getMenuReportPlayerName(), menuConfig.getMenuReportPlayerLore()));
 
-        inv.setItem(43, createItem(Material.EMERALD, "&a&lShop", 
-            "&7Click to open the shop",
-            "",
-            "&8➥ Buy cosmetics and more!"));
+        inv.setItem(menuConfig.getMenuShopSlot(), 
+            menuConfig.createMenuItem(menuConfig.getMenuShopId(), player, 
+                menuConfig.getMenuShopName(), menuConfig.getMenuShopLore()));
 
         // Relleno con diseño
         ItemStack darkGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
@@ -75,39 +77,27 @@ public class MainMenu extends Menu {
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
         
-        switch (event.getSlot()) {
-            case 12: // Top Kills
-                plugin.getMenuManager().openMenu(player, "top_kills");
-                break;
-            case 13: // Top Elo
-                plugin.getMenuManager().openMenu(player, "top_elo");
-                break;
-            case 14: // Top Rachas
-                plugin.getMenuManager().openMenu(player, "top_streak");
-                break;
-            case 21: // Top KDR
-                plugin.getMenuManager().openMenu(player, "top_kdr");
-                break;
-            case 23: // Top Tiempo
-                plugin.getMenuManager().openMenu(player, "top_time");
-                break;
-            case 37: // Editar Hotbar
-                plugin.getMenuManager().openMenu(player, "hotbar_edit");
-                break;
-            case 39: // Mis Estadísticas
-                plugin.getMenuManager().openMenu(player, "stats");
-                break;
-            case 41: // Reportar Jugador
-                plugin.getMenuManager().openMenu(player, "player_list");
-                break;
-            case 43: // Tienda
-                plugin.getMenuManager().openMenu(player, "shop");
-                break;
+        int slot = event.getSlot();
+        
+        if (slot == menuConfig.getMenuTopKillsSlot()) {
+            plugin.getMenuManager().openMenu(player, "top_kills");
+        } else if (slot == menuConfig.getMenuTopEloSlot()) {
+            plugin.getMenuManager().openMenu(player, "top_elo");
+        } else if (slot == menuConfig.getMenuTopStreaksSlot()) {
+            plugin.getMenuManager().openMenu(player, "top_streak");
+        } else if (slot == menuConfig.getMenuTopKdrSlot()) {
+            plugin.getMenuManager().openMenu(player, "top_kdr");
+        } else if (slot == menuConfig.getMenuTopTimeSlot()) {
+            plugin.getMenuManager().openMenu(player, "top_time");
+        } else if (slot == menuConfig.getMenuEditHotbarSlot()) {
+            plugin.getMenuManager().openMenu(player, "hotbar_edit");
+        } else if (slot == menuConfig.getMenuMyStatsSlot()) {
+            plugin.getMenuManager().openMenu(player, "stats");
+        } else if (slot == menuConfig.getMenuReportPlayerSlot()) {
+            plugin.getMenuManager().openMenu(player, "player_list");
+        } else if (slot == menuConfig.getMenuShopSlot()) {
+            plugin.getMenuManager().openMenu(player, "shop");
         }
-    }
-
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
     }
 
     private ItemStack createItem(Material material, String name, byte data, String... lore) {

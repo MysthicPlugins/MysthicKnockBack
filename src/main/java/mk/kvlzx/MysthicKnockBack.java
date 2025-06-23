@@ -21,6 +21,7 @@ import mk.kvlzx.commands.MainTabCompleter;
 import mk.kvlzx.commands.StatsCommand;
 import mk.kvlzx.commands.StatsTabCompleter;
 import mk.kvlzx.config.MainConfig;
+import mk.kvlzx.config.MainMenuConfig;
 import mk.kvlzx.config.MessagesConfig;
 import mk.kvlzx.config.TabConfig;
 import mk.kvlzx.commands.MusicCommand;
@@ -68,6 +69,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private MessagesConfig messagesConfig;
     private MainConfig mainConfig;
     private TabConfig tabConfig;
+    private MainMenuConfig mainMenuConfig;
     
     private BukkitTask autoSaveTask;
 
@@ -79,6 +81,7 @@ public class MysthicKnockBack extends JavaPlugin {
         mainConfig = new MainConfig(this);
         messagesConfig = new MessagesConfig(this);
         tabConfig = new TabConfig(this);
+        mainMenuConfig = new MainMenuConfig(this);
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
@@ -253,6 +256,7 @@ public class MysthicKnockBack extends JavaPlugin {
         mainConfig.reload();
         messagesConfig.reload();
         tabConfig.reload();
+        mainMenuConfig.reload();
         
         // Reiniciar auto-save con nueva configuración
         restartAutoSave();
@@ -382,5 +386,9 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public TabConfig getTabConfig() {
         return tabConfig;
+    }
+
+    public MainMenuConfig getMainMenuConfig () {
+        return mainMenuConfig;
     }
 }

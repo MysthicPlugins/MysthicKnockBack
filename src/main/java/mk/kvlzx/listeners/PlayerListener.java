@@ -438,8 +438,6 @@ public class PlayerListener implements Listener {
 
     private void respawnPlayerAtSpawn(Player player, Arena arena) {
         PlayerStats playerStats = PlayerStats.getStats(player.getUniqueId());
-        playerStats.addDeath();
-        playerStats.resetStreak();
         
         // Si la arena está cambiando, asegurarse de que el jugador no pueda moverse
         if (plugin.getScoreboardManager().isArenaChanging()) {
