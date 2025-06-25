@@ -79,7 +79,7 @@ public class TopsMenuConfig {
 
     public TopsMenuConfig(MysthicKnockBack plugin) {
         this.plugin = plugin;
-        configFile = new CustomConfig("main.yml", "config/menus", plugin);
+        configFile = new CustomConfig("top-menus.yml", "config/menus", plugin);
         configFile.registerConfig();
         loadConfig();
     }
