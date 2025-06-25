@@ -241,7 +241,7 @@ public class MainConfig {
         eloGainedMessage = config.getString("config.combat.elo.message");
         eloMinLost = config.getInt("config.combat.elo.death-elo-lost.min");
         eloMaxLost = config.getInt("config.combat.elo.death-elo-lost.max");
-        eloLostMessageEnabled = config.getBoolean("config.combat.death-elo-lost.message-enabled");
+        eloLostMessageEnabled = config.getBoolean("config.combat.elo.death-elo-lost.message-enabled");
         eloLostMessage = config.getString("config.combat.elo.death-elo-lost.message");
         kgcoinsGainedMin = config.getInt("config.combat.kgcoins.min");
         kgcoinsGainedMax = config.getInt("config.combat.kgcoins.max");

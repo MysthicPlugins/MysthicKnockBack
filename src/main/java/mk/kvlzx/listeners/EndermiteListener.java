@@ -66,7 +66,7 @@ public class EndermiteListener implements Listener {
                     } else {
                         // Si ya tiene el máximo, cancelar el spawn
                         event.setCancelled(true);
-                        owner.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() +  " " + plugin.getMainConfig().getEndermiteLimitMessage().replace("%limit%", String.valueOf(MAX_ENDERMITES_PER_PLAYER))));
+                        owner.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMainConfig().getEndermiteLimitMessage().replace("%limit%", String.valueOf(MAX_ENDERMITES_PER_PLAYER))));
                     }
                 }
             } else {
@@ -155,7 +155,7 @@ public class EndermiteListener implements Listener {
             
             // Actualizar nombre con tiempo restante
             String displayName = MessageUtils.getColor(plugin.getMainConfig().getEndermiteName())
-                    .replace("%time%", String.valueOf(timeLeft[0]))
+                    .replace("%seconds%", String.valueOf(timeLeft[0]))
                     .replace("%player%", owner.getName());
             endermite.setCustomName(displayName);
             endermite.setCustomNameVisible(true);
