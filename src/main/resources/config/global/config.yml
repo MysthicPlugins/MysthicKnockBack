@@ -161,12 +161,12 @@ config:
       stay: 60 # Ticks
       fade-out: 20 # Ticks
   music:
+    limit: 30 # Maximum blocks the player can move away from the jukebox
     messages:
       non-space-preview: "&cThere is no space for the music preview."
       non-space: "&cThere is not enough space to place the jukebox."
       jukebox-error: "&cError placing the jukebox."
       move-too-far: "&cYou have moved too far from your jukebox."
-      limit: 30 # Maximum blocks the player can move away from the jukebox
   report:
     cooldown: 120000 # Milliseconds (2 minutes)
     messages:

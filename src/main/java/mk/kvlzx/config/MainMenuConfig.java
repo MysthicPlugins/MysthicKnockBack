@@ -160,7 +160,7 @@ public class MainMenuConfig {
         for (String path : materialPaths) {
             String materialName = config.getString(path);
             if (materialName != null && !materialName.trim().isEmpty()) {
-                // Skip validation for PLAYER_SKULL as it's a custom material
+                // Skipear validacion para PLAYER_SKULL, es un material custom
                 if (materialName.equalsIgnoreCase("PLAYER_SKULL")) {
                     continue;
                 }
@@ -229,10 +229,6 @@ public class MainMenuConfig {
         }
         
         return item;
-    }
-
-    public ItemStack createMyStatsItem(Player player) {
-        return createMenuItem(menuMyStatsId, player, menuMyStatsName, menuMyStatsLore);
     }
 
     public void reload() {

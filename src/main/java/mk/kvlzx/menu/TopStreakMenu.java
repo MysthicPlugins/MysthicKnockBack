@@ -13,14 +13,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.TopsMenuConfig;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.items.CustomItem;
 
 public class TopStreakMenu extends Menu {
+    private final TopsMenuConfig menuConfig;
 
     public TopStreakMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &d&lTop Streaks &8•", 45);
+        super(plugin, plugin.getTopsMenuConfig().getTopStreaksTitle(), plugin.getTopsMenuConfig().getTopStreaksSize());
+        this.menuConfig = plugin.getTopsMenuConfig();
     }
 
     @Override
@@ -29,27 +32,30 @@ public class TopStreakMenu extends Menu {
         ItemStack darkPink = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 2); // Magenta
         ItemStack lightPink = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 6); // Rosa
 
-        // Colocar el borde exterior (magenta)
-        for (int i = 0; i < 9; i++) {
-            inv.setItem(i, darkPink);
-            inv.setItem(36 + i, darkPink);
-        }
-        for (int i = 0; i < 45; i += 9) {
-            inv.setItem(i, darkPink);
-            inv.setItem(i + 8, darkPink);
+        // Colocar el borde exterior y interior solo si es inventario de 45 slots
+        if (inv.getSize() == 45) {
+            // Colocar el borde exterior (magenta)
+            for (int i = 0; i < 9; i++) {
+                inv.setItem(i, darkPink);
+                inv.setItem(36 + i, darkPink);
+            }
+            for (int i = 0; i < 45; i += 9) {
+                inv.setItem(i, darkPink);
+                inv.setItem(i + 8, darkPink);
+            }
+
+            // Colocar el borde interior (rosa)
+            for (int i = 1; i < 8; i++) {
+                inv.setItem(9 + i, lightPink);
+                inv.setItem(27 + i, lightPink);
+            }
+            for (int i = 9; i < 36; i += 9) {
+                inv.setItem(i + 1, lightPink);
+                inv.setItem(i + 7, lightPink);
+            }
         }
 
-        // Colocar el borde interior (celeste)
-        for (int i = 1; i < 8; i++) {
-            inv.setItem(9 + i, lightPink);
-            inv.setItem(27 + i, lightPink);
-        }
-        for (int i = 9; i < 36; i += 9) {
-            inv.setItem(i + 1, lightPink);
-            inv.setItem(i + 7, lightPink);
-        }
-
-        // Colocar las cabezas de los jugadores
+        // Obtener y ordenar los top jugadores por Max Streak
         List<UUID> topPlayers = new ArrayList<>(PlayerStats.getAllStats());
         topPlayers.sort((uuid1, uuid2) -> {
             PlayerStats stats1 = PlayerStats.getStats(uuid1);
@@ -57,54 +63,82 @@ public class TopStreakMenu extends Menu {
             return Integer.compare(stats2.getMaxStreak(), stats1.getMaxStreak());
         });
 
-        int[] slots = {11, 12, 13, 14, 15, 20, 21, 22, 23, 24};
-        for (int i = 0; i < 10; i++) {
+        // Obtener los slots configurados para los tops
+        List<Integer> topSlots = menuConfig.getTopStreaksSlots();
+        
+        // Colocar las cabezas de los jugadores en los slots configurados
+        for (int i = 0; i < topSlots.size(); i++) {
+            int slot = topSlots.get(i);
             ItemStack skull;
+            
             if (i < topPlayers.size()) {
                 UUID uuid = topPlayers.get(i);
                 PlayerStats stats = PlayerStats.getStats(uuid);
                 String playerName = Bukkit.getOfflinePlayer(uuid).getName();
                 
-                List<String> lore = new ArrayList<>();
-                lore.add("&7Position: &f#" + (i + 1));
-                lore.add("&7Max Streak: &d" + stats.getMaxStreak());
-                lore.add("&7Current Streak: &5" + stats.getCurrentStreak());
+                // Usar la configuración para el nombre y lore
+                String configName = menuConfig.getTopStreaksPlayersName();
+                List<String> configLore = new ArrayList<>(menuConfig.getTopStreaksPlayersLore());
                 
-                skull = CustomItem.createSkullFromUUID(uuid, 
-                    "&d" + playerName,
-                    lore.toArray(new String[0]));
+                // Reemplazar placeholders en el nombre
+                String displayName = configName
+                    .replace("%player%", playerName)
+                    .replace("%position%", String.valueOf(i + 1))
+                    .replace("%max-streak%", String.valueOf(stats.getMaxStreak()))
+                    .replace("%current-streak%", String.valueOf(stats.getCurrentStreak()));
+                
+                // Reemplazar placeholders en el lore
+                List<String> finalLore = new ArrayList<>();
+                for (String loreLine : configLore) {
+                    String processedLine = loreLine
+                        .replace("%player%", playerName)
+                        .replace("%position%", String.valueOf(i + 1))
+                        .replace("%max-streak%", String.valueOf(stats.getMaxStreak()))
+                        .replace("%current-streak%", String.valueOf(stats.getCurrentStreak()));
+                    finalLore.add(processedLine);
+                }
+                
+                skull = CustomItem.createSkullFromUUID(uuid, displayName, finalLore.toArray(new String[0]));
             } else {
-                skull = CustomItem.createEmptyTopSkull(i + 1, "&7No data", 
-                    "&7Position: &f#" + (i + 1),
-                    "&7Streak: &d0");
+                // Usar la configuración para jugadores sin datos
+                String configName = menuConfig.getTopStreaksNonDataName();
+                List<String> configLore = new ArrayList<>(menuConfig.getTopStreaksNonDataLore());
+                
+                // Reemplazar placeholders en el nombre
+                String displayName = configName.replace("%position%", String.valueOf(i + 1));
+                
+                // Reemplazar placeholders en el lore
+                List<String> finalLore = new ArrayList<>();
+                for (String loreLine : configLore) {
+                    String processedLine = loreLine.replace("%position%", String.valueOf(i + 1));
+                    finalLore.add(processedLine);
+                }
+                
+                skull = CustomItem.createEmptyTopSkull(i + 1, displayName, finalLore.toArray(new String[0]));
             }
-            inv.setItem(slots[i], skull);
+            
+            inv.setItem(slot, skull);
         }
 
-        // Botón para volver
-        ItemStack backButton = createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to main menu");
-        inv.setItem(40, backButton);
+        // Botón de regreso usando la configuración
+        ItemStack backButton = menuConfig.createMenuItem(
+            menuConfig.getTopStreaksBackId(), 
+            player, 
+            menuConfig.getTopStreaksBackName(), 
+            menuConfig.getTopStreaksBackLore()
+        );
+        inv.setItem(menuConfig.getTopStreaksBackSlot(), backButton);
     }
 
     @Override
     public void handleClick(InventoryClickEvent event) {
         event.setCancelled(true);
         
-        ItemStack clicked = event.getCurrentItem();
-        if (clicked == null || clicked.getType() == Material.BANNER || 
-            clicked.getType() == Material.WOOL || clicked.getType() == Material.IRON_SWORD) {
-            return;
-        }
-
-        if (event.getSlot() == 40) { // Botón de volver
+        // Verificar si se hizo clic en el botón de regreso
+        if (event.getSlot() == menuConfig.getTopStreaksBackSlot()) {
             Player player = (Player) event.getWhoClicked();
             plugin.getMenuManager().openMenu(player, "main");
         }
-    }
-
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
     }
 
     private ItemStack createItem(Material material, String name, byte data, String... lore) {

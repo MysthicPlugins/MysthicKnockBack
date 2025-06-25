@@ -13,14 +13,42 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.TopsMenuConfig;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.items.CustomItem;
 
 public class TopKillsMenu extends Menu {
+    private final TopsMenuConfig menuConfig;
 
     public TopKillsMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &a&lTop Kills &8•", 45);
+        super(plugin, plugin.getTopsMenuConfig().getTopKillsTitle(), plugin.getTopsMenuConfig().getTopKillsSize());
+        this.menuConfig = plugin.getTopsMenuConfig();
+    }
+
+    private void applyFillPattern(Inventory inv, ItemStack outerMaterial, ItemStack innerMaterial) {
+        int size = inv.getSize();
+        int rows = size / 9;
+        
+        // Aplicar borde exterior
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < 9; col++) {
+                int slot = row * 9 + col;
+                
+                // Borde exterior: primera y última fila, primera y última columna
+                if (row == 0 || row == rows - 1 || col == 0 || col == 8) {
+                    if (inv.getItem(slot) == null) {
+                        inv.setItem(slot, outerMaterial);
+                    }
+                }
+                // Borde interior: segunda y penúltima fila, segunda y penúltima columna
+                else if ((row == 1 || row == rows - 2) || (col == 1 || col == 7)) {
+                    if (inv.getItem(slot) == null) {
+                        inv.setItem(slot, innerMaterial);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -29,25 +57,8 @@ public class TopKillsMenu extends Menu {
         ItemStack darkGreen = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 13); // Verde oscuro
         ItemStack lightGreen = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 5); // Verde claro
 
-        // Colocar el borde exterior (verde oscuro)
-        for (int i = 0; i < 9; i++) {
-            inv.setItem(i, darkGreen); // Primera fila
-            inv.setItem(36 + i, darkGreen); // Última fila
-        }
-        for (int i = 0; i < 45; i += 9) {
-            inv.setItem(i, darkGreen); // Primera columna
-            inv.setItem(i + 8, darkGreen); // Última columna
-        }
-
-        // Colocar el borde interior (verde claro)
-        for (int i = 1; i < 8; i++) {
-            inv.setItem(9 + i, lightGreen); // Segunda fila
-            inv.setItem(27 + i, lightGreen); // Penúltima fila
-        }
-        for (int i = 9; i < 36; i += 9) {
-            inv.setItem(i + 1, lightGreen); // Segunda columna
-            inv.setItem(i + 7, lightGreen); // Penúltima columna
-        }
+        // Aplicar patrón de relleno dinámico según el tamaño del inventario
+        applyFillPattern(inv, darkGreen, lightGreen);
 
         // Obtener y ordenar los top jugadores
         List<UUID> topPlayers = new ArrayList<>(PlayerStats.getAllStats());
@@ -57,49 +68,80 @@ public class TopKillsMenu extends Menu {
             return Integer.compare(stats2.getKills(), stats1.getKills());
         });
 
-        // Colocar las cabezas de los jugadores (10 slots centrales)
-        int[] slots = {11, 12, 13, 14, 15, 20, 21, 22, 23, 24};
-        for (int i = 0; i < 10; i++) {
+        // Obtener los slots configurados para los tops
+        List<Integer> topSlots = menuConfig.getTopKillsSlots();
+        
+        // Colocar las cabezas de los jugadores en los slots configurados
+        for (int i = 0; i < topSlots.size(); i++) {
+            int slot = topSlots.get(i);
             ItemStack skull;
+            
             if (i < topPlayers.size()) {
                 UUID uuid = topPlayers.get(i);
                 PlayerStats stats = PlayerStats.getStats(uuid);
                 String playerName = Bukkit.getOfflinePlayer(uuid).getName();
                 
-                List<String> lore = new ArrayList<>();
-                lore.add("&7Position: &f#" + (i + 1));
-                lore.add("&7Kills: &a" + stats.getKills());
+                // Usar la configuración para el nombre y lore
+                String configName = menuConfig.getTopKillsPlayersName();
+                List<String> configLore = new ArrayList<>(menuConfig.getTopKillsPlayersLore());
                 
-                skull = CustomItem.createSkullFromUUID(uuid, 
-                    "&a" + playerName,
-                    lore.toArray(new String[0]));
+                // Reemplazar placeholders en el nombre
+                String displayName = configName
+                    .replace("%player%", playerName)
+                    .replace("%position%", String.valueOf(i + 1))
+                    .replace("%kills%", String.valueOf(stats.getKills()));
+                
+                // Reemplazar placeholders en el lore
+                List<String> finalLore = new ArrayList<>();
+                for (String loreLine : configLore) {
+                    String processedLine = loreLine
+                        .replace("%player%", playerName)
+                        .replace("%position%", String.valueOf(i + 1))
+                        .replace("%kills%", String.valueOf(stats.getKills()));
+                    finalLore.add(processedLine);
+                }
+                
+                skull = CustomItem.createSkullFromUUID(uuid, displayName, finalLore.toArray(new String[0]));
             } else {
-                skull = CustomItem.createEmptyTopSkull(i + 1, "&7No data", 
-                    "&7Position: &f#" + (i + 1),
-                    "&7Kills: &b0");
+                // Usar la configuración para jugadores sin datos
+                String configName = menuConfig.getTopKillsNonDataName();
+                List<String> configLore = new ArrayList<>(menuConfig.getTopKillsNonDataLore());
+                
+                // Reemplazar placeholders en el nombre
+                String displayName = configName.replace("%position%", String.valueOf(i + 1));
+                
+                // Reemplazar placeholders en el lore
+                List<String> finalLore = new ArrayList<>();
+                for (String loreLine : configLore) {
+                    String processedLine = loreLine.replace("%position%", String.valueOf(i + 1));
+                    finalLore.add(processedLine);
+                }
+                
+                skull = CustomItem.createEmptyTopSkull(i + 1, displayName, finalLore.toArray(new String[0]));
             }
             
-            inv.setItem(slots[i], skull);
+            inv.setItem(slot, skull);
         }
 
-        // Botón para volver centrado en la última fila
-        ItemStack backButton = createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to main menu");
-        inv.setItem(40, backButton);
+        // Botón de regreso usando la configuración
+        ItemStack backButton = menuConfig.createMenuItem(
+            menuConfig.getTopKillsBackId(), 
+            player, 
+            menuConfig.getTopKillsBackName(), 
+            menuConfig.getTopKillsBackLore()
+        );
+        inv.setItem(menuConfig.getTopKillsBackSlot(), backButton);
     }
 
     @Override
     public void handleClick(InventoryClickEvent event) {
         event.setCancelled(true);
         
-        if (event.getSlot() == 40) { // Botón de volver
+        // Verificar si se hizo clic en el botón de regreso
+        if (event.getSlot() == menuConfig.getTopKillsBackSlot()) {
             Player player = (Player) event.getWhoClicked();
             plugin.getMenuManager().openMenu(player, "main");
         }
-    }
-
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
     }
 
     private ItemStack createItem(Material material, String name, byte data, String... lore) {

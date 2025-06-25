@@ -50,7 +50,9 @@ public class MainMenu extends Menu {
                 menuConfig.getMenuEditHotbarName(), menuConfig.getMenuEditHotbarLore()));
 
         // Special handling for player skull
-        inv.setItem(menuConfig.getMenuMyStatsSlot(), menuConfig.createMyStatsItem(player));
+        inv.setItem(menuConfig.getMenuMyStatsSlot(), 
+        menuConfig.createMenuItem(menuConfig.getMenuMyStatsId(), player, 
+            menuConfig.getMenuMyStatsName(), menuConfig.getMenuMyStatsLore()));
 
         inv.setItem(menuConfig.getMenuReportPlayerSlot(), 
             menuConfig.createMenuItem(menuConfig.getMenuReportPlayerId(), player, 

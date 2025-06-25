@@ -305,7 +305,7 @@ public class MainConfig {
         musicNonSpace = config.getString("config.music.messages.non-space");
         jukeboxError = config.getString("config.music.messages.jukebox-error");
         moveTooFar = config.getString("config.music.messages.move-too-far");
-        maxDistanceJukebox = config.getInt("config.music.max-distance-jukebox");
+        maxDistanceJukebox = config.getInt("config.music.limit");
 
         reportCooldownTime = config.getInt("config.report.cooldown");
         reportCooldownMessage = config.getString("config.report.messages.cooldown");

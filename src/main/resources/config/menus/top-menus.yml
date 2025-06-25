@@ -1,0 +1,159 @@
+top-menus:
+  top-kills:
+    title: "&8• &a&lTop Kills &8•"
+    size: 45
+    items:
+      tops:
+        name: "&a%player%"
+        lore:
+          - "&7Position: &f#%position%"
+          - "&7Kills: &a%kills%"
+        non-data:
+          name: "&7No data"
+          lore:
+            - "&7Position: &f#%position%"
+            - "&7Kills: &b0"
+        slots:
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+          - 20
+          - 21
+          - 22
+          - 23
+          - 24
+      back:
+        id: ARROW
+        name: "&c← Back"
+        lore: 
+          - "&7Click to return to main menu"
+        slot: 40
+  top-elo:
+    title: "&8• &6&lTop ELO &8•"
+    size: 45
+    items:
+      tops:
+        name: "%rank% &f%player%"
+        lore:
+          - "&7Position: &f#%position%"
+          - "&7ELO: &6%elo%"
+        non-data:
+          name: "&7No data"
+          lore:
+            - "&7Position: &f#%position%"
+            - "&7ELO: &6500"
+        slots:
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+          - 20
+          - 21
+          - 22
+          - 23
+          - 24
+      back:
+        id: ARROW
+        name: "&c← Back"
+        lore: 
+          - "&7Click to return to main menu"
+        slot: 40
+  top-kdr:
+    title: "&8• &b&lTop KDR &8•"
+    size: 45
+    items:
+      tops:
+        name: "%rank% &f%player%"
+        lore:
+          - "&7Position: &f#%position%"
+          - "&7KDR: &e%kdr%"
+          - "&7Kills: &a%kills%"
+          - "&7Deaths: &c%deaths%"
+        non-data:
+          name: "&7No data"
+          lore:
+            - "&7Position: &f#%position%"
+            - "&7KDR: &b0.00"
+        slots:
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+          - 20
+          - 21
+          - 22
+          - 23
+          - 24
+      back:
+        id: ARROW
+        name: "&c← Back"
+        lore: 
+          - "&7Click to return to main menu"
+        slot: 40
+  top-streaks:
+    title: "&8• &d&lTop Streaks &8•"
+    size: 45
+    items:
+      tops:
+        name: "&d%player%"
+        lore:
+          - "&7Position: &f#%position%"
+          - "&7Max Streak: &d%max-streak%"
+          - "&7Current Streak: &5%current-streak%"
+        non-data:
+          name: "&7No data"
+          lore:
+            - "&7Position: &f#%position%"
+            - "&7Streak: &d0"
+        slots:
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+          - 20
+          - 21
+          - 22
+          - 23
+          - 24
+      back:
+        id: ARROW
+        name: "&c← Back"
+        lore: 
+          - "&7Click to return to main menu"
+        slot: 40
+  top-time:
+    title: "&8• &7&lTop Tiempo &8•"
+    size: 45
+    items:
+      tops:
+        name: "&d%player%"
+        lore:
+          - "&7Position: &f#%position%"
+          - "&7Time: &b%formatted-time%"
+        non-data:
+          name: "&7No data"
+          lore:
+            - "&7Position: &f#%position%"
+            - "&7Time: &e0h 00m"
+        slots:
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+          - 20
+          - 21
+          - 22
+          - 23
+          - 24
+      back:
+        id: ARROW
+        name: "&c← Back"
+        lore: 
+          - "&7Click to return to main menu"
+        slot: 40

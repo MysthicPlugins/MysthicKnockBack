@@ -13,14 +13,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.TopsMenuConfig;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.items.CustomItem;
 
 public class TopTimeMenu extends Menu {
+    private final TopsMenuConfig menuConfig;
 
     public TopTimeMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &7&lTop Tiempo &8•", 45);
+        super(plugin, plugin.getTopsMenuConfig().getTopTimeTitle(), plugin.getTopsMenuConfig().getTopTimeSize());
+        this.menuConfig = plugin.getTopsMenuConfig();
     }
 
     @Override
@@ -29,27 +32,30 @@ public class TopTimeMenu extends Menu {
         ItemStack darkGray = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7); // Gris oscuro
         ItemStack lightGray = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 8); // Gris claro
 
-        // Colocar el borde exterior (magenta)
-        for (int i = 0; i < 9; i++) {
-            inv.setItem(i, darkGray);
-            inv.setItem(36 + i, darkGray);
-        }
-        for (int i = 0; i < 45; i += 9) {
-            inv.setItem(i, darkGray);
-            inv.setItem(i + 8, darkGray);
+        // Colocar el borde exterior y interior solo si es inventario de 45 slots
+        if (inv.getSize() == 45) {
+            // Colocar el borde exterior (gris oscuro)
+            for (int i = 0; i < 9; i++) {
+                inv.setItem(i, darkGray);
+                inv.setItem(36 + i, darkGray);
+            }
+            for (int i = 0; i < 45; i += 9) {
+                inv.setItem(i, darkGray);
+                inv.setItem(i + 8, darkGray);
+            }
+
+            // Colocar el borde interior (gris claro)
+            for (int i = 1; i < 8; i++) {
+                inv.setItem(9 + i, lightGray);
+                inv.setItem(27 + i, lightGray);
+            }
+            for (int i = 9; i < 36; i += 9) {
+                inv.setItem(i + 1, lightGray);
+                inv.setItem(i + 7, lightGray);
+            }
         }
 
-        // Colocar el borde interior (celeste)
-        for (int i = 1; i < 8; i++) {
-            inv.setItem(9 + i, lightGray);
-            inv.setItem(27 + i, lightGray);
-        }
-        for (int i = 9; i < 36; i += 9) {
-            inv.setItem(i + 1, lightGray);
-            inv.setItem(i + 7, lightGray);
-        }
-
-        // Colocar las cabezas de los jugadores
+        // Obtener y ordenar los top jugadores por Tiempo de Juego
         List<UUID> topPlayers = new ArrayList<>(PlayerStats.getAllStats());
         topPlayers.sort((uuid1, uuid2) -> {
             PlayerStats stats1 = PlayerStats.getStats(uuid1);
@@ -57,59 +63,87 @@ public class TopTimeMenu extends Menu {
             return Long.compare(stats2.getPlayTime(), stats1.getPlayTime());
         });
 
-        int[] slots = {11, 12, 13, 14, 15, 20, 21, 22, 23, 24};
-        for (int i = 0; i < 10; i++) {
+        // Obtener los slots configurados para los tops
+        List<Integer> topSlots = menuConfig.getTopTimeSlots();
+        
+        // Colocar las cabezas de los jugadores en los slots configurados
+        for (int i = 0; i < topSlots.size(); i++) {
+            int slot = topSlots.get(i);
             ItemStack skull;
+            
             if (i < topPlayers.size()) {
                 UUID uuid = topPlayers.get(i);
                 PlayerStats stats = PlayerStats.getStats(uuid);
                 String playerName = Bukkit.getOfflinePlayer(uuid).getName();
                 
-                List<String> lore = new ArrayList<>();
-                lore.add("&7Position: &f#" + (i + 1));
-                lore.add("&7Time: &b" + stats.getFormattedPlayTime());
+                // Usar la configuración para el nombre y lore
+                String configName = menuConfig.getTopTimePlayersName();
+                List<String> configLore = new ArrayList<>(menuConfig.getTopTimePlayersLore());
                 
-                skull = CustomItem.createSkullFromUUID(uuid, 
-                    "&b" + playerName,
-                    lore.toArray(new String[0]));
+                // Reemplazar placeholders en el nombre
+                String displayName = configName
+                    .replace("%player%", playerName)
+                    .replace("%position%", String.valueOf(i + 1))
+                    .replace("%formatted-time%", stats.getFormattedPlayTime());
+                
+                // Reemplazar placeholders en el lore
+                List<String> finalLore = new ArrayList<>();
+                for (String loreLine : configLore) {
+                    String processedLine = loreLine
+                        .replace("%player%", playerName)
+                        .replace("%position%", String.valueOf(i + 1))
+                        .replace("%formatted-time%", stats.getFormattedPlayTime());
+                    finalLore.add(processedLine);
+                }
+                
+                skull = CustomItem.createSkullFromUUID(uuid, displayName, finalLore.toArray(new String[0]));
             } else {
-                skull = CustomItem.createEmptyTopSkull(i + 1, "&7No data", 
-                    "&7Position: &f#" + (i + 1),
-                    "&7Time: &e0h 00m");
+                // Usar la configuración para jugadores sin datos
+                String configName = menuConfig.getTopTimeNonDataName();
+                List<String> configLore = new ArrayList<>(menuConfig.getTopTimeNonDataLore());
+                
+                // Reemplazar placeholders en el nombre
+                String displayName = configName.replace("%position%", String.valueOf(i + 1));
+                
+                // Reemplazar placeholders en el lore
+                List<String> finalLore = new ArrayList<>();
+                for (String loreLine : configLore) {
+                    String processedLine = loreLine.replace("%position%", String.valueOf(i + 1));
+                    finalLore.add(processedLine);
+                }
+                
+                skull = CustomItem.createEmptyTopSkull(i + 1, displayName, finalLore.toArray(new String[0]));
             }
-            inv.setItem(slots[i], skull);
+            
+            inv.setItem(slot, skull);
         }
 
-        // Botón para volver
-        ItemStack backButton = createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to main menu");
-        inv.setItem(40, backButton);
+        // Botón de regreso usando la configuración
+        ItemStack backButton = menuConfig.createMenuItem(
+            menuConfig.getTopTimeBackId(), 
+            player, 
+            menuConfig.getTopTimeBackName(), 
+            menuConfig.getTopTimeBackLore()
+        );
+        inv.setItem(menuConfig.getTopTimeBackSlot(), backButton);
     }
 
     @Override
     public void handleClick(InventoryClickEvent event) {
         event.setCancelled(true);
         
-        ItemStack clicked = event.getCurrentItem();
-        if (clicked == null || clicked.getType() == Material.BANNER || 
-            clicked.getType() == Material.WOOL || clicked.getType() == Material.WATCH) {
-            return;
-        }
-
-        if (event.getSlot() == 40) { // Botón de volver
+        // Verificar si se hizo clic en el botón de regreso
+        if (event.getSlot() == menuConfig.getTopTimeBackSlot()) {
             Player player = (Player) event.getWhoClicked();
             plugin.getMenuManager().openMenu(player, "main");
         }
-    }
-
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
     }
 
     private ItemStack createItem(Material material, String name, byte data, String... lore) {
         ItemStack item = new ItemStack(material, 1, data);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(MessageUtils.getColor(name));
+        
         if (lore.length > 0) {
             List<String> coloredLore = new ArrayList<>();
             for (String line : lore) {
@@ -117,6 +151,7 @@ public class TopTimeMenu extends Menu {
             }
             meta.setLore(coloredLore);
         }
+        
         item.setItemMeta(meta);
         return item;
     }
