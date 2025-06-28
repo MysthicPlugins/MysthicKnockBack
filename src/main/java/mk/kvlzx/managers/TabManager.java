@@ -53,15 +53,40 @@ public class TabManager {
                 updateHeaderFooter();
                 updatePlayerList();
                 
-                // Solo avanzar frame si la animación está habilitada
-                if (tabConfig.isTabAnimationEnabled()) {
-                    List<String> animations = tabConfig.getTabHeaderAnimation();
-                    if (animations != null && !animations.isEmpty()) {
-                        animationFrame = (animationFrame + 1) % animations.size();
+                // Solo avanzar frame si hay animaciones habilitadas
+                if (hasAnimations()) {
+                    animationFrame++;
+                    // Prevenir overflow después de mucho tiempo
+                    if (animationFrame > 100000) {
+                        animationFrame = 0;
                     }
                 }
             }
         }.runTaskTimer(plugin, 0L, tabConfig.getTabAnimationInterval());
+    }
+
+    private boolean hasAnimations() {
+        if (!tabConfig.isTabAnimationEnabled()) {
+            return false;
+        }
+        
+        // Verificar si hay líneas animadas en header
+        List<TabConfig.TabLine> headerLines = tabConfig.getTabHeaderLines();
+        for (TabConfig.TabLine line : headerLines) {
+            if (line.isAnimated()) {
+                return true;
+            }
+        }
+        
+        // Verificar si hay líneas animadas en footer
+        List<TabConfig.TabLine> footerLines = tabConfig.getTabFooterLines();
+        for (TabConfig.TabLine line : footerLines) {
+            if (line.isAnimated()) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     private void updateHeaderFooter() {
@@ -94,32 +119,26 @@ public class TabManager {
     private String buildHeader() {
         StringBuilder headerBuilder = new StringBuilder("\n");
         
-        if (tabConfig.isTabAnimationEnabled()) {
-            // Usar líneas con animación
-            List<String> animationLines = tabConfig.getTabHeaderAnimation();
-            if (animationLines != null && !animationLines.isEmpty()) {
-                // Mostrar la línea actual del frame de animación
-                String line;
-                if (animationFrame < animationLines.size()) {
-                    line = animationLines.get(animationFrame);
+        List<TabConfig.TabLine> headerLines = tabConfig.getTabHeaderLines();
+        if (headerLines != null && !headerLines.isEmpty()) {
+            for (int i = 0; i < headerLines.size(); i++) {
+                TabConfig.TabLine line = headerLines.get(i);
+                String content;
+                
+                if (line.isAnimated() && tabConfig.isTabAnimationEnabled()) {
+                    // Usar frame de animación si está habilitada
+                    content = line.getContentAt(animationFrame);
                 } else {
-                    line = animationLines.get(0);
+                    // Usar contenido estático
+                    content = line.getContentAt(0);
                 }
                 
                 // Procesar placeholders para el header (sin jugador específico)
-                line = processPlaceholders(line, null);
-                headerBuilder.append(line);
-            }
-        } else {
-            // Usar líneas sin animación
-            List<String> staticLines = tabConfig.getTabHeaderWithoutAnimation();
-            if (staticLines != null && !staticLines.isEmpty()) {
-                for (int i = 0; i < staticLines.size(); i++) {
-                    String line = processPlaceholders(staticLines.get(i), null);
-                    headerBuilder.append(line);
-                    if (i < staticLines.size() - 1) {
-                        headerBuilder.append("\n");
-                    }
+                content = processPlaceholders(content, null);
+                headerBuilder.append(content);
+                
+                if (i < headerLines.size() - 1) {
+                    headerBuilder.append("\n");
                 }
             }
         }
@@ -131,15 +150,24 @@ public class TabManager {
     private String buildFooter() {
         StringBuilder footerBuilder = new StringBuilder("\n");
         
-        List<String> footerLines = tabConfig.getTabFooter();
+        List<TabConfig.TabLine> footerLines = tabConfig.getTabFooterLines();
         if (footerLines != null && !footerLines.isEmpty()) {
             for (int i = 0; i < footerLines.size(); i++) {
-                String line = footerLines.get(i);
+                TabConfig.TabLine line = footerLines.get(i);
+                String content;
+                
+                if (line.isAnimated() && tabConfig.isTabAnimationEnabled()) {
+                    // Usar frame de animación si está habilitada
+                    content = line.getContentAt(animationFrame);
+                } else {
+                    // Usar contenido estático
+                    content = line.getContentAt(0);
+                }
                 
                 // Procesar placeholders para el footer (sin jugador específico)
-                line = processPlaceholders(line, null);
+                content = processPlaceholders(content, null);
+                footerBuilder.append(content);
                 
-                footerBuilder.append(line);
                 if (i < footerLines.size() - 1) {
                     footerBuilder.append("\n");
                 }

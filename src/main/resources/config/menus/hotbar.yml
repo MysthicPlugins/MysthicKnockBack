@@ -1,0 +1,53 @@
+menu:
+  title: "&8• &e&lEdit Hotbar &8•"
+  size: 54
+  items:
+    knocker:
+      slot: 9
+    blocks:
+      slot: 10
+    bow:
+      slot: 11
+    plate:
+      slot: 15
+    feather:
+      slot: 16
+    pearl:
+      slot: 17
+    separator:
+      id: STAINED_GLASS_PANE
+      name: "&7• Your Hotbar •"
+      lore:
+        - "&7Your current hotbar layout"
+      data: 15
+      slots:
+        - 27
+        - 28
+        - 29
+        - 30
+        - 31
+        - 32
+        - 33
+        - 34
+        - 35
+    save:
+      id: EMERALD_BLOCK
+      name: "&a&lSave"
+      lore:
+        - "&7Click to save your hotbar"
+      slot: 45
+    reset:
+      id: REDSTONE_BLOCK
+      name: "&c&lReset"
+      lore:
+        - "&7Click to reset to default"
+      slot: 46
+    back:
+      id: ARROW
+      name: "&c← Back"
+      lore:
+        - "&7Click to return to main menu"
+      slot: 49
+  messages:
+    hotbar-saved: "&aHotbar saved successfully"
+    hotbar-reset: "&aHotbar reset to default"

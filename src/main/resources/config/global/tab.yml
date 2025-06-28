@@ -1,23 +1,47 @@
 # Support for PlaceholderAPI
+
 tab:
   display:
     enabled: true
     header:
       animation: true
       animation-delay: 20 # Delay in ticks (20 ticks = 1 second)
-      lines-with-animation:
-        - "&b&l≽^•⩊•^≼ &6&lKnockbackFFA &b&l≽^•⩊•^≼"
-        - "&3&l≽^•⩊•^≼ &e&lKnockbackFFA &3&l≽^•⩊•^≼"
-        - "&9&l≽^•⩊•^≼ &f&lKnockbackFFA &9&l≽^•⩊•^≼"
-        - "&7Show your KnockBack skills!"
-      lines-without-animation: 
-        - "&b&l≽^•⩊•^≼ &6&lKnockbackFFA &b&l≽^•⩊•^≼"
-        - "&7Show your KnockBack skills!"
+      # Lines configuration
+      lines:
+        line1:
+          animated: true
+          frames:
+            - "&b&l≽^•⩊•^≼ &6&lKnockbackFFA &b&l≽^•⩊•^≼"
+            - "&3&l≽^•⩊•^≼ &e&lKnockbackFFA &3&l≽^•⩊•^≼"
+            - "&9&l≽^•⩊•^≼ &f&lKnockbackFFA &9&l≽^•⩊•^≼"
+        line2:
+          animated: false
+          content: "&7Show your KnockBack skills!"
+        line3:
+          animated: true
+          frames:
+            - "&8▌ &7Network Status: &aOnline &8▌"
+            - "&7▌ &8Network Status: &aOnline &7▌"
     footer:
-      - "&eStore: &fstore.server.com"
-      - "&eDiscord: &fdiscord.server.com"
-      - "&aOnline Players: &f%server_online%"
+      # Lines configuration
+      lines:
+        line1:
+          animated: false
+          content: "&eStore: &fstore.server.com"
+        line2:
+          animated: false
+          content: "&eDiscord: &fdiscord.server.com"
+        line3:
+          animated: true
+          frames:
+            - "&aOnline Players: &f%server_online%"
+            - "&bOnline Players: &f%server_online%"
+            - "&6Online Players: &f%server_online%"
+        line4:
+          animated: false
+          content: "&7Thanks for playing!"
     player-display: "%kbffa_rank% &f%player_name% &8[&f%player_ping%ms&8]"
+
 scoreboard:
   enabled: true
   update-interval: 2 # Update interval in ticks (20 ticks = 1 second)

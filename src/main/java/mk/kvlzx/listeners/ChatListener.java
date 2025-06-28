@@ -38,20 +38,45 @@ public class ChatListener implements Listener {
 
         String playerName = player.getName();
         String message = event.getMessage();
+        
+        // IMPORTANTE: Escapar los % en el mensaje del jugador antes de procesar placeholders
+        String escapedMessage = escapePlayerMessage(message);
 
-        // Aplicar formato del chat
+        // Aplicar formato del chat - usar el mensaje escapado
         String formattedMessage = MessageUtils.getColor(mainConfig.getChatFormat()
             .replace("%kbffa_rank%", rankPrefix)
             .replace("%player_name%", playerName)
-            .replace("%message%", message));
+            .replace("%message%", escapedMessage));
 
         // Aplicar placeholders si PlaceholderAPI está disponible
         if (placeholderAPIEnabled) {
-            formattedMessage = PlaceholderAPI.setPlaceholders(player, formattedMessage);
+            try {
+                formattedMessage = PlaceholderAPI.setPlaceholders(player, formattedMessage);
+            } catch (Exception e) {
+                // Si hay error con placeholders, usar el mensaje sin procesar placeholders adicionales
+                plugin.getLogger().warning("Error processing placeholders for player " + playerName + ": " + e.getMessage());
+                formattedMessage = MessageUtils.getColor(mainConfig.getChatFormat()
+                    .replace("%kbffa_rank%", rankPrefix)
+                    .replace("%player_name%", playerName)
+                    .replace("%message%", escapedMessage));
+            }
         }
+
+        // Restaurar los % originales en el mensaje final
+        formattedMessage = unescapePlayerMessage(formattedMessage);
 
         // Establecer el formato final
         event.setFormat(formattedMessage);
+    }
+
+    private String escapePlayerMessage(String message) {
+        // Reemplazar % con un marcador temporal único que no cause conflictos
+        return message.replace("%", "§PERCENT§");
+    }
+
+    private String unescapePlayerMessage(String message) {
+        // Restaurar el % original
+        return message.replace("§PERCENT§", "%");
     }
 }
 

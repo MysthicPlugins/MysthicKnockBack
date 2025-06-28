@@ -3,7 +3,7 @@ config:
   auto-save-interval: 5 # Minutes
   chat:
     enabled: true
-    format: "%kbffa_rank% &r%player_name%&7:&f%message%"
+    format: "%kbffa_rank% &r%player_name%&7: &f%message%"
   endermite:
     enabled: true
     limit: 3 # Maximum number of endermites per player

@@ -1,8 +1,6 @@
 package mk.kvlzx.menu;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -11,9 +9,9 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.HotbarMenuConfig;
 import mk.kvlzx.cosmetics.KnockerShopItem;
 import mk.kvlzx.hotbar.PlayerHotbar;
 import mk.kvlzx.items.CustomItem;
@@ -22,25 +20,33 @@ import mk.kvlzx.utils.BlockUtils;
 import mk.kvlzx.utils.MessageUtils;
 
 public class HotbarEditMenu extends Menu {
+    private final HotbarMenuConfig menuConfig;
 
     public HotbarEditMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lEdit Hotbar &8•", 54);
+        super(plugin, plugin.getHotbarMenuConfig().getMenuTitle(), plugin.getHotbarMenuConfig().getMenuSize());
+        this.menuConfig = plugin.getHotbarMenuConfig();
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
-        // Items visuales
-        inv.setItem(9, CustomItem.create(ItemType.KNOCKER));
-        inv.setItem(10, CustomItem.create(ItemType.BLOCKS));
-        inv.setItem(11, CustomItem.create(ItemType.BOW));
-        inv.setItem(15, CustomItem.create(ItemType.PLATE));
-        inv.setItem(16, CustomItem.create(ItemType.FEATHER));
-        inv.setItem(17, CustomItem.create(ItemType.PEARL));
+        // Items visuales usando configuración
+        inv.setItem(menuConfig.getKnockerSlot(), CustomItem.create(ItemType.KNOCKER));
+        inv.setItem(menuConfig.getBlocksSlot(), CustomItem.create(ItemType.BLOCKS));
+        inv.setItem(menuConfig.getBowSlot(), CustomItem.create(ItemType.BOW));
+        inv.setItem(menuConfig.getPlateSlot(), CustomItem.create(ItemType.PLATE));
+        inv.setItem(menuConfig.getFeatherSlot(), CustomItem.create(ItemType.FEATHER));
+        inv.setItem(menuConfig.getPearlSlot(), CustomItem.create(ItemType.PEARL));
 
-        // Separador
-        ItemStack separator = createItem(Material.STAINED_GLASS_PANE, "&7• Your Hotbar •", (byte) 15);
-        for (int i = 27; i < 36; i++) {
-            inv.setItem(i, separator);
+        // Separador usando configuración
+        ItemStack separator = menuConfig.createMenuItem(
+            menuConfig.getSeparatorMaterial(),
+            player,
+            menuConfig.getSeparatorName(),
+            menuConfig.getSeparatorLore()
+        );
+        
+        for (int slot : menuConfig.getSeparatorSlots()) {
+            inv.setItem(slot, separator);
         }
 
         // Hotbar actual del jugador
@@ -49,10 +55,27 @@ public class HotbarEditMenu extends Menu {
             inv.setItem(36 + i, currentLayout[i]);
         }
 
-        // Botones
-        inv.setItem(45, createItem(Material.EMERALD_BLOCK, "&a&lSave", "&7Click to save your hotbar"));
-        inv.setItem(46, createItem(Material.REDSTONE_BLOCK, "&c&lReset", "&7Click to reset to default"));
-        inv.setItem(49, createItem(Material.ARROW, "&c← Back", "&7Click to return to the menu"));
+        // Botones usando configuración
+        inv.setItem(menuConfig.getSaveSlot(), menuConfig.createMenuItem(
+            menuConfig.getSaveMaterial(),
+            player,
+            menuConfig.getSaveName(),
+            menuConfig.getSaveLore()
+        ));
+
+        inv.setItem(menuConfig.getResetSlot(), menuConfig.createMenuItem(
+            menuConfig.getResetMaterial(),
+            player,
+            menuConfig.getResetName(),
+            menuConfig.getResetLore()
+        ));
+
+        inv.setItem(menuConfig.getBackSlot(), menuConfig.createMenuItem(
+            menuConfig.getBackMaterial(),
+            player,
+            menuConfig.getBackName(),
+            menuConfig.getBackLore()
+        ));
     }
 
     @Override
@@ -78,8 +101,8 @@ public class HotbarEditMenu extends Menu {
             return;
         }
 
-        // Prevenir mover items desde el área de muestra (slots 9-17)
-        if (slot >= 9 && slot <= 17) {
+        // Prevenir mover items desde el área de muestra
+        if (isDisplaySlot(slot)) {
             event.setCancelled(true);
             return;
         }
@@ -91,35 +114,52 @@ public class HotbarEditMenu extends Menu {
             }
         }
 
-        // Manejar botones
-        switch (slot) {
-            case 45: // Guardar
-                if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
-                    event.setCancelled(true);
-                    return;
-                }
-                saveHotbar(player);
-                player.closeInventory();
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aHotbar saved successfully"));
-                break;
-            case 46: // Restablecer
-                if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
-                    event.setCancelled(true);
-                    return;
-                }
-                PlayerHotbar.resetLayout(player.getUniqueId());
-                player.closeInventory();
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aHotbar reset to default"));
-                break;
-            case 49: // Volver
-                // Si tiene un item en el cursor, no permitir salir
-                if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
-                    event.setCancelled(true);
-                    return;
-                }
-                plugin.getMenuManager().openMenu(player, "main");
-                break;
+        // Manejar botones usando configuración
+        if (slot == menuConfig.getSaveSlot()) {
+            handleSaveButton(event, player);
+        } else if (slot == menuConfig.getResetSlot()) {
+            handleResetButton(event, player);
+        } else if (slot == menuConfig.getBackSlot()) {
+            handleBackButton(event, player);
         }
+    }
+
+    private boolean isDisplaySlot(int slot) {
+        return slot == menuConfig.getKnockerSlot() ||
+                slot == menuConfig.getBlocksSlot() ||
+                slot == menuConfig.getBowSlot() ||
+                slot == menuConfig.getPlateSlot() ||
+                slot == menuConfig.getFeatherSlot() ||
+                slot == menuConfig.getPearlSlot() ||
+                menuConfig.getSeparatorSlots().contains(slot);
+    }
+
+    private void handleSaveButton(InventoryClickEvent event, Player player) {
+        if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
+            event.setCancelled(true);
+            return;
+        }
+        saveHotbar(player);
+        player.closeInventory();
+        player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + menuConfig.getHotbarSavedMessage()));
+    }
+
+    private void handleResetButton(InventoryClickEvent event, Player player) {
+        if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
+            event.setCancelled(true);
+            return;
+        }
+        PlayerHotbar.resetLayout(player.getUniqueId());
+        player.closeInventory();
+        player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + menuConfig.getHotbarResetMessage()));
+    }
+
+    private void handleBackButton(InventoryClickEvent event, Player player) {
+        if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
+            event.setCancelled(true);
+            return;
+        }
+        plugin.getMenuManager().openMenu(player, "main");
     }
 
     private void saveHotbar(Player player) {
@@ -158,26 +198,5 @@ public class HotbarEditMenu extends Menu {
                         return validItem.getType() == item.getType() &&
                             validItem.getDurability() == item.getDurability();
                     });
-    }
-
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
-    }
-
-    private ItemStack createItem(Material material, String name, byte data, String... lore) {
-        ItemStack item = new ItemStack(material, 1, data);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(MessageUtils.getColor(name));
-        
-        if (lore.length > 0) {
-            List<String> coloredLore = new ArrayList<>();
-            for (String line : lore) {
-                coloredLore.add(MessageUtils.getColor(line));
-            }
-            meta.setLore(coloredLore);
-        }
-        
-        item.setItemMeta(meta);
-        return item;
     }
 }

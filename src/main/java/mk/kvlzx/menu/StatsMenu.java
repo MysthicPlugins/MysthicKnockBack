@@ -3,100 +3,175 @@ package mk.kvlzx.menu;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.StatsMenuConfig;
 import mk.kvlzx.managers.RankManager;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 
 public class StatsMenu extends Menu {
+    private final StatsMenuConfig menuConfig;
 
     public StatsMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &b&lMy Statistics &8•", 36);
+        super(plugin, plugin.getStatsMenuConfig().getMenuTitle(), plugin.getStatsMenuConfig().getMenuSize());
+        this.menuConfig = plugin.getStatsMenuConfig();
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Crear los items de relleno
-        ItemStack darkGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 11); // Azul oscuro
-        ItemStack lightGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 3);  // Celeste
+        // Configurar elementos del menú
+        setupMenuItems(player, inv, stats);
+        
+        // Llenar espacios vacíos con vidrio decorativo
+        fillEmptySlots(inv);
+    }
 
-        // Cabeza del jugador (centrada)
-        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
-        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
-        skullMeta.setOwner(player.getName());
-        skullMeta.setDisplayName(MessageUtils.getColor("&b" + player.getName()));
-        List<String> skullLore = new ArrayList<>();
-        skullLore.add(MessageUtils.getColor("&7These are your statistics"));
-        skullLore.add(MessageUtils.getColor("&7Keep improving!"));
-        skullMeta.setLore(skullLore);
-        skull.setItemMeta(skullMeta);
-        inv.setItem(13, skull);
+    private void setupMenuItems(Player player, Inventory inv, PlayerStats stats) {
+        inv.setItem(menuConfig.getSkullSlot(),
+            createConfiguredMenuItem(menuConfig.getSkullMaterial(), player, stats,
+                menuConfig.getSkullName(), menuConfig.getSkullLore()));
 
-        // Stats alrededor de la cabeza
-        inv.setItem(10, createItem(Material.DIAMOND_SWORD, "&a&lKills",
-            "&8▪ &7Total kills: &a" + stats.getKills(),
-            "&8▪ &7Current streak: &a" + stats.getCurrentStreak(),
-            "&8▪ &7Best streak: &a" + stats.getMaxStreak()));
+        inv.setItem(menuConfig.getKillsSlot(),
+            createConfiguredMenuItem(menuConfig.getKillsMaterial(), player, stats,
+                menuConfig.getKillsName(), menuConfig.getKillsLore()));
 
-        inv.setItem(12, createItem(Material.SKULL_ITEM, "&c&lDeaths", (byte) 0,
-            "&8▪ &7Total deaths: &c" + stats.getDeaths(),
-            "&8▪ &7KDR: &b" + String.format("%.2f", stats.getKDR())));
+        inv.setItem(menuConfig.getDeathsSlot(),
+            createConfiguredMenuItem(menuConfig.getDeathsMaterial(), player, stats,
+                menuConfig.getDeathsName(), menuConfig.getDeathsLore()));
 
-        inv.setItem(14, createItem(Material.NETHER_STAR, "&6&lELO",
-            "&8▪ &7Current ELO: &6" + stats.getElo(),
-            "&8▪ &7Rank: " + getRankLine(stats.getElo())));
+        inv.setItem(menuConfig.getEloSlot(),
+            createConfiguredMenuItem(menuConfig.getEloMaterial(), player, stats,
+                menuConfig.getEloName(), menuConfig.getEloLore()));
 
-        inv.setItem(16, createItem(Material.GOLD_INGOT, "&e&lKGCoins",
-            "&8▪ &7Current balance: &e" + stats.getKGCoins(),
-            "&8▪ &7Server currency"));
+        inv.setItem(menuConfig.getKgcoinsSlot(),
+            createConfiguredMenuItem(menuConfig.getKgcoinsMaterial(), player, stats,
+                menuConfig.getKgcoinsName(), menuConfig.getKgcoinsLore()));
 
-        inv.setItem(22, createItem(Material.WATCH, "&e&lPlay Time",
-            "&8▪ &7Total time: &e" + stats.getFormattedPlayTime()));
+        inv.setItem(menuConfig.getPlaytimeSlot(),
+            createConfiguredMenuItem(menuConfig.getPlaytimeMaterial(), player, stats,
+                menuConfig.getPlaytimeName(), menuConfig.getPlaytimeLore()));
 
-        // Botón de volver al menú principal
-        inv.setItem(31, createItem(Material.ARROW, "&c← Back", 
-            "&8▪ &7Click to return to main menu"));
+        // Elemento de regreso
+        inv.setItem(menuConfig.getBackSlot(),
+            createConfiguredMenuItem(menuConfig.getBackMaterial(), player, stats,
+                menuConfig.getBackName(), menuConfig.getBackLore()));
+    }
 
-        // Patrón de relleno alternado
+    private ItemStack createConfiguredMenuItem(String material, Player player, PlayerStats stats,
+                                                String name, List<String> lore) {
+        String processedName = processText(player, stats, name);
+        List<String> processedLore = processTextList(player, stats, lore);
+        
+        return menuConfig.createMenuItem(material, player, processedName, processedLore);
+    }
+
+    private void fillEmptySlots(Inventory inv) {
+        // Crear elementos de relleno
+        ItemStack darkGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 11);  // Azul oscuro
+        ItemStack lightGlass = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 3);  // Azul claro
+
+        // Patrón alternado de relleno
         for (int i = 0; i < inv.getSize(); i++) {
             if (inv.getItem(i) == null) {
-                // Alternar entre vidrio oscuro y claro basado en posición
                 boolean isDark = ((i / 9) + (i % 9)) % 2 == 0;
                 inv.setItem(i, isDark ? darkGlass : lightGlass);
             }
         }
     }
 
-    private String getRankLine(int elo) {
-        String rankPrefix = RankManager.getRankPrefix(elo);
-        return rankPrefix + " &7(" + elo + " ELO)";
+    // ==================== MÉTODOS DE PROCESAMIENTO DE TEXTO ====================
+
+    private String processText(Player player, PlayerStats stats, String text) {
+        if (text == null) return null;
+        
+        String processedText = replaceNativePlaceholders(player, stats, text);
+        return applyPlaceholderAPI(player, processedText);
     }
+
+    private List<String> processTextList(Player player, PlayerStats stats, List<String> textList) {
+        if (textList == null) return null;
+        
+        List<String> processedList = replaceNativePlaceholders(player, stats, textList);
+        return applyPlaceholderAPI(player, processedList);
+    }
+
+    private String replaceNativePlaceholders(Player player, PlayerStats stats, String text) {
+        if (text == null) return null;
+        
+        return text.replace("%player%", player.getName())
+                    .replace("%kills%", String.valueOf(stats.getKills()))
+                    .replace("%current_streak%", String.valueOf(stats.getCurrentStreak()))
+                    .replace("%best_streak%", String.valueOf(stats.getMaxStreak()))
+                    .replace("%deaths%", String.valueOf(stats.getDeaths()))
+                    .replace("%kdr%", String.format("%.2f", stats.getKDR()))
+                    .replace("%elo%", String.valueOf(stats.getElo()))
+                    .replace("%rank%", RankManager.getRankPrefix(stats.getElo()))
+                    .replace("%kgcoins%", String.valueOf(stats.getKGCoins()))
+                    .replace("%playtime%", stats.getFormattedPlayTime());
+    }
+
+    private List<String> replaceNativePlaceholders(Player player, PlayerStats stats, List<String> lore) {
+        if (lore == null) return null;
+        
+        List<String> processedLore = new ArrayList<>();
+        for (String line : lore) {
+            processedLore.add(replaceNativePlaceholders(player, stats, line));
+        }
+        return processedLore;
+    }
+
+    private String applyPlaceholderAPI(Player player, String text) {
+        if (text == null) return null;
+        
+        // Verificar si PlaceholderAPI está habilitado
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            return PlaceholderAPI.setPlaceholders(player, text);
+        }
+        return text;
+    }
+
+    private List<String> applyPlaceholderAPI(Player player, List<String> lore) {
+        if (lore == null) return null;
+        
+        List<String> processedLore = new ArrayList<>();
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            for (String line : lore) {
+                processedLore.add(PlaceholderAPI.setPlaceholders(player, line));
+            }
+        } else {
+            processedLore.addAll(lore);
+        }
+        return processedLore;
+    }
+
+    // ==================== MANEJO DE EVENTOS ====================
 
     @Override
     public void handleClick(InventoryClickEvent event) {
         event.setCancelled(true);
-        if (event.getSlot() == 31) {
+        
+        if (event.getSlot() == menuConfig.getBackSlot()) {
             Player player = (Player) event.getWhoClicked();
             plugin.getMenuManager().openMenu(player, "main");
         }
     }
 
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
-    }
+    // ==================== MÉTODOS AUXILIARES ====================
 
     private ItemStack createItem(Material material, String name, byte data, String... lore) {
         ItemStack item = new ItemStack(material, 1, data);
         org.bukkit.inventory.meta.ItemMeta meta = item.getItemMeta();
+        
         meta.setDisplayName(MessageUtils.getColor(name));
         
         if (lore.length > 0) {

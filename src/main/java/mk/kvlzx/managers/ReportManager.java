@@ -45,7 +45,7 @@ public class ReportManager {
         }
 
         // Notificar al staff
-        String reportMessage =  MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMainConfig().getReportStaffMessage()
+        String reportMessage =  MessageUtils.getColor(plugin.getMainConfig().getReportStaffMessage()
             .replace("%reporter%", reporter.getName())
             .replace("%target%", targetName)
             .replace("%reason%", reason.getDisplayName()));

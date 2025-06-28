@@ -20,9 +20,11 @@ import mk.kvlzx.commands.MainCommand;
 import mk.kvlzx.commands.MainTabCompleter;
 import mk.kvlzx.commands.StatsCommand;
 import mk.kvlzx.commands.StatsTabCompleter;
+import mk.kvlzx.config.HotbarMenuConfig;
 import mk.kvlzx.config.MainConfig;
 import mk.kvlzx.config.MainMenuConfig;
 import mk.kvlzx.config.MessagesConfig;
+import mk.kvlzx.config.StatsMenuConfig;
 import mk.kvlzx.config.TabConfig;
 import mk.kvlzx.config.TopsMenuConfig;
 import mk.kvlzx.commands.MusicCommand;
@@ -72,6 +74,8 @@ public class MysthicKnockBack extends JavaPlugin {
     private TabConfig tabConfig;
     private MainMenuConfig mainMenuConfig;
     private TopsMenuConfig topsMenuConfig;
+    private StatsMenuConfig statsMenuConfig;
+    private HotbarMenuConfig hotbarMenuConfig;
     
     private BukkitTask autoSaveTask;
 
@@ -85,6 +89,8 @@ public class MysthicKnockBack extends JavaPlugin {
         tabConfig = new TabConfig(this);
         mainMenuConfig = new MainMenuConfig(this);
         topsMenuConfig = new TopsMenuConfig(this);
+        statsMenuConfig = new StatsMenuConfig(this);
+        hotbarMenuConfig = new HotbarMenuConfig(this);
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
@@ -258,9 +264,11 @@ public class MysthicKnockBack extends JavaPlugin {
         // Recargar configuraciones
         mainConfig.reload();
         messagesConfig.reload();
-        tabConfig.reload();
+        tabManager.reload();
         mainMenuConfig.reload();
         topsMenuConfig.reload();
+        statsMenuConfig.reload();
+        hotbarMenuConfig.reload();
         
         // Reiniciar auto-save con nueva configuración
         restartAutoSave();
@@ -398,5 +406,13 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public TopsMenuConfig getTopsMenuConfig() {
         return topsMenuConfig;
+    }
+
+    public StatsMenuConfig getStatsMenuConfig() {
+        return statsMenuConfig;
+    }
+
+    public HotbarMenuConfig getHotbarMenuConfig() {
+        return hotbarMenuConfig;
     }
 }

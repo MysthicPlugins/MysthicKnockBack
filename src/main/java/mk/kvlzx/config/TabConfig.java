@@ -1,7 +1,10 @@
 package mk.kvlzx.config;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import mk.kvlzx.MysthicKnockBack;
@@ -9,13 +12,13 @@ import mk.kvlzx.utils.config.CustomConfig;
 
 public class TabConfig {
     private final CustomConfig configFile;
+    private final MysthicKnockBack plugin;
 
     private Boolean tabEnabled;
-    private Boolean tabaAnimationEnabled;
+    private Boolean tabAnimationEnabled;
     private Integer tabAnimationInterval;
-    private List<String> tabHeaderAnimation;
-    private List<String> tabHeadherWithoutAnimation;
-    private List<String> tabFooter;
+    private List<TabLine> tabHeaderLines; // Estructura para líneas del header con configuración individual
+    private List<TabLine> tabFooterLines; // Nueva estructura para líneas del footer con configuración individual
     private String tabPlayerDisplay;
 
     private Boolean scoreEnabled;
@@ -41,6 +44,7 @@ public class TabConfig {
     private List<String> scoreArenaChangeFrames;
 
     public TabConfig(MysthicKnockBack plugin) {
+        this.plugin = plugin;
         configFile = new CustomConfig("tab.yml", "config/global", plugin);
         configFile.registerConfig();
         loadConfig();
@@ -50,11 +54,15 @@ public class TabConfig {
         FileConfiguration config = configFile.getConfig();
 
         tabEnabled = config.getBoolean("tab.display.enabled");
-        tabaAnimationEnabled = config.getBoolean("tab.display.header.animation");
+        tabAnimationEnabled = config.getBoolean("tab.display.header.animation");
         tabAnimationInterval = config.getInt("tab.display.header.animation-delay");
-        tabHeaderAnimation = config.getStringList("tab.display.header.lines-with-animation");
-        tabHeadherWithoutAnimation = config.getStringList("tab.display.header.lines-without-animation");
-        tabFooter = config.getStringList("tab.display.footer");
+        
+        // Cargar líneas del header con configuración individual
+        loadHeaderLines(config);
+        
+        // Cargar líneas del footer con configuración individual
+        loadFooterLines(config);
+        
         tabPlayerDisplay = config.getString("tab.display.player-display");
 
         scoreEnabled = config.getBoolean("scoreboard.enabled");
@@ -80,19 +88,99 @@ public class TabConfig {
         scoreArenaChangeFrames = config.getStringList("scoreboard.title-animation.frames");
     }
 
+    private void loadHeaderLines(FileConfiguration config) {
+        tabHeaderLines = new ArrayList<>();
+        
+        ConfigurationSection linesSection = config.getConfigurationSection("tab.display.header.lines");
+        if (linesSection != null) {
+            // Obtener todas las keys y ordenarlas para mantener el orden
+            List<String> sortedKeys = new ArrayList<>(linesSection.getKeys(false));
+            sortedKeys.sort(String::compareToIgnoreCase);
+            
+            for (String key : sortedKeys) {
+                ConfigurationSection lineSection = linesSection.getConfigurationSection(key);
+                if (lineSection != null) {
+                    boolean animated = lineSection.getBoolean("animated", false);
+                    List<String> content;
+                    
+                    if (animated) {
+                        content = lineSection.getStringList("frames");
+                        if (content.isEmpty()) {
+                            plugin.getLogger().warning("Animated header line '" + key + "' has no frames defined!");
+                            continue;
+                        }
+                    } else {
+                        String singleLine = lineSection.getString("content");
+                        if (singleLine == null || singleLine.isEmpty()) {
+                            plugin.getLogger().warning("Static header line '" + key + "' has no content defined!");
+                            continue;
+                        }
+                        content = Arrays.asList(singleLine);
+                    }
+                    
+                    tabHeaderLines.add(new TabLine(animated, content));
+                }
+            }
+        } else {
+            plugin.getLogger().warning("No header lines configuration found at tab.display.header.lines");
+        }
+    }
+
+    private void loadFooterLines(FileConfiguration config) {
+        tabFooterLines = new ArrayList<>();
+        
+        // Primero intentar cargar la nueva configuración con líneas individuales
+        ConfigurationSection footerLinesSection = config.getConfigurationSection("tab.display.footer.lines");
+        if (footerLinesSection != null) {
+            // Nueva configuración con líneas individuales
+            List<String> sortedKeys = new ArrayList<>(footerLinesSection.getKeys(false));
+            sortedKeys.sort(String::compareToIgnoreCase);
+            
+            for (String key : sortedKeys) {
+                ConfigurationSection lineSection = footerLinesSection.getConfigurationSection(key);
+                if (lineSection != null) {
+                    boolean animated = lineSection.getBoolean("animated", false);
+                    List<String> content;
+                    
+                    if (animated) {
+                        content = lineSection.getStringList("frames");
+                        if (content.isEmpty()) {
+                            plugin.getLogger().warning("Animated footer line '" + key + "' has no frames defined!");
+                            continue;
+                        }
+                    } else {
+                        String singleLine = lineSection.getString("content");
+                        if (singleLine == null || singleLine.isEmpty()) {
+                            plugin.getLogger().warning("Static footer line '" + key + "' has no content defined!");
+                            continue;
+                        }
+                        content = Arrays.asList(singleLine);
+                    }
+                    
+                    tabFooterLines.add(new TabLine(animated, content));
+                }
+            }
+        } else {
+            plugin.getLogger().warning("No footer lines configuration found. Please configure either 'tab.display.footer.lines'");
+        }
+    }
+
     public void reload() {
         configFile.reloadConfig();
         loadConfig();
     }
 
+    // Getters existentes
     public Boolean isTabEnabled() { return tabEnabled; }
-    public Boolean isTabAnimationEnabled() { return tabaAnimationEnabled; }
+    public Boolean isTabAnimationEnabled() { return tabAnimationEnabled; }
     public Integer getTabAnimationInterval() { return tabAnimationInterval; }
-    public List<String> getTabHeaderAnimation() { return tabHeaderAnimation;  }
-    public List<String> getTabHeaderWithoutAnimation() { return tabHeadherWithoutAnimation; }
-    public List<String> getTabFooter() { return tabFooter; }
     public String getTabPlayerDisplay() { return tabPlayerDisplay; }
 
+    // Nuevos getters para la funcionalidad mejorada
+    public List<TabLine> getTabHeaderLines() { return tabHeaderLines; }
+    public List<TabLine> getTabFooterLines() { return tabFooterLines; }
+
+    // Getters del scoreboard (sin cambios)
     public Boolean isScoreEnabled() { return scoreEnabled; }
     public Integer getScoreUpdateInterval() { return scoreUpdateInterval; }
     public String getScoreNullArena() { return scoreNullArena; }
@@ -114,4 +202,34 @@ public class TabConfig {
     public String getScoreMessageArenaChange() { return scoreMessageArenaChange; }
     public List<String> getScoreArenaChangeColors() { return scoreArenaChangeColors; }
     public List<String> getScoreArenaChangeFrames() { return scoreArenaChangeFrames; }
+
+    // Clase interna para representar una línea del tab
+    public static class TabLine {
+        private final boolean animated;
+        private final List<String> content;
+
+        public TabLine(boolean animated, List<String> content) {
+            this.animated = animated;
+            this.content = content != null ? content : new ArrayList<>();
+        }
+
+        public boolean isAnimated() {
+            return animated;
+        }
+
+        public List<String> getContent() {
+            return content;
+        }
+
+        public String getContentAt(int frame) {
+            if (content.isEmpty()) {
+                return "";
+            }
+            if (animated && content.size() > 1) {
+                return content.get(frame % content.size());
+            } else {
+                return content.get(0);
+            }
+        }
+    }
 }

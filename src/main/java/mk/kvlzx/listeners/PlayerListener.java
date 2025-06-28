@@ -189,6 +189,7 @@ public class PlayerListener implements Listener {
         }
 
         plugin.getItemVerificationManager().removePlayer(player);
+        event.setQuitMessage(null);
     }
 
     @EventHandler

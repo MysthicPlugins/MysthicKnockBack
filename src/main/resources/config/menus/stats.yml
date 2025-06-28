@@ -1,0 +1,55 @@
+# Support for PlaceholderAPI
+
+menu:
+  title: "&8• &b&lMy Statistics &8•"
+  size: 36
+  items:
+    skull:
+      id: PLAYER_SKULL # Material custom
+      name: "&b%player%"
+      lore:
+        - "&7These are your statistics"
+        - "&7Keep improving!"
+      slot: 13
+    kills:
+      id: DIAMOND_SWORD
+      name: "&a&lKills"
+      lore:
+        - "&8▪ &7Total kills: &a%kills%"
+        - "&8▪ &7Current streak: &a%current_streak%"
+        - "&8▪ &7Best streak: &a%best_streak%"
+      slot: 10
+    deaths:
+      id: PLAYER_SKULL # Material custom
+      data: 0
+      name: "&c&lDeaths"
+      lore:
+        - "&8▪ &7Total deaths: &c%deaths%"
+        - "&8▪ &7KDR: &b%kdr%"
+      slot: 12
+    elo:
+      id: NETHER_STAR
+      name: "&6&lELO"
+      lore:
+        - "&8▪ &7Current ELO: &6%elo%"
+        - "&8▪ &7Rank: %rank%"
+      slot: 14
+    kgcoins:
+      id: GOLD_INGOT
+      name: "&e&lKGCoins"
+      lore:
+        - "&8▪ &7Current balance: &e%kgcoins%"
+        - "&8▪ &7Server currency"
+      slot: 16
+    playtime:
+      id: WATCH
+      name: "&e&lPlay Time"
+      lore:
+        - "&8▪ &7Total time: &e%playtime%"
+      slot: 22
+    back:
+      id: ARROW
+      name: "&c← Back"
+      lore:
+        - "&8▪ &7Click to return to main menu"
+      slot: 31
