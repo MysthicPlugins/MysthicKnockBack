@@ -18,24 +18,47 @@ public class CombatManager {
     private final Map<UUID, Long> lastHitTime = new HashMap<>();
     private final Map<UUID, Vector> pendingKnockback = new HashMap<>();
     
-    private double horizontalKnockback = MysthicKnockBack.getInstance().getMainConfig().getHorizontalKnockback();
-    private double verticalKnockback = MysthicKnockBack.getInstance().getMainConfig().getVerticalKnockback();
-    private double knockbackResistanceReduction = MysthicKnockBack.getInstance().getMainConfig().getKnockbackReduction();
-    private double sprintMultiplier = MysthicKnockBack.getInstance().getMainConfig().getKnockbackSprintMultiplier();
-    
-    // Nuevos valores específicos para flechas
-    private double arrowHorizontalKnockback = MysthicKnockBack.getInstance().getMainConfig().getHorizontalKnockbackArrow();
-    private double arrowSprintMultiplier =  MysthicKnockBack.getInstance().getMainConfig().getSprintKnockbackArrow();
-    
-    // NUEVO: Valores específicos para endermites
-    private double endermiteHorizontalKnockback = MysthicKnockBack.getInstance().getMainConfig().getKnockbackHorizontalEndermite();
-    private double endermiteVerticalKnockback = MysthicKnockBack.getInstance().getMainConfig().getKnockbackVerticalEndermite();
-    private int endermiteKnockbackLevel = MysthicKnockBack.getInstance().getMainConfig().getKnockbackLevelEndermite();
-
     private int hitDelay = 500; // millisegundos
     
     public CombatManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
+    }
+    
+    // Métodos helper para obtener valores de configuración dinámicamente
+    private double getHorizontalKnockback() {
+        return plugin.getMainConfig().getHorizontalKnockback();
+    }
+    
+    private double getVerticalKnockback() {
+        return plugin.getMainConfig().getVerticalKnockback();
+    }
+    
+    private double getKnockbackResistanceReduction() {
+        return plugin.getMainConfig().getKnockbackReduction();
+    }
+    
+    private double getSprintMultiplier() {
+        return plugin.getMainConfig().getKnockbackSprintMultiplier();
+    }
+    
+    private double getArrowHorizontalKnockback() {
+        return plugin.getMainConfig().getHorizontalKnockbackArrow();
+    }
+    
+    private double getArrowSprintMultiplier() {
+        return plugin.getMainConfig().getSprintKnockbackArrow();
+    }
+    
+    private double getEndermiteHorizontalKnockback() {
+        return plugin.getMainConfig().getKnockbackHorizontalEndermite();
+    }
+    
+    private double getEndermiteVerticalKnockback() {
+        return plugin.getMainConfig().getKnockbackVerticalEndermite();
+    }
+    
+    private int getEndermiteKnockbackLevel() {
+        return plugin.getMainConfig().getKnockbackLevelEndermite();
     }
     
     public boolean canHit(Player attacker) {
@@ -65,13 +88,10 @@ public class CombatManager {
             UUID victimUUID = victim.getUniqueId();
             pendingKnockback.put(victimUUID, knockback);
             
-            // Aplicar knockback en el siguiente tick
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                if (victim.isOnline() && pendingKnockback.containsKey(victimUUID)) {
-                    victim.setVelocity(pendingKnockback.get(victimUUID));
-                    pendingKnockback.remove(victimUUID);
-                }
-            }, 1L);
+            if (victim.isOnline() && pendingKnockback.containsKey(victimUUID)) {
+                victim.setVelocity(pendingKnockback.get(victimUUID));
+                pendingKnockback.remove(victimUUID);
+            }
         }
     }
     
@@ -83,13 +103,10 @@ public class CombatManager {
             UUID victimUUID = victim.getUniqueId();
             pendingKnockback.put(victimUUID, knockback);
             
-            // Aplicar knockback en el siguiente tick
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                if (victim.isOnline() && pendingKnockback.containsKey(victimUUID)) {
-                    victim.setVelocity(pendingKnockback.get(victimUUID));
-                    pendingKnockback.remove(victimUUID);
-                }
-            }, 1L);
+            if (victim.isOnline() && pendingKnockback.containsKey(victimUUID)) {
+                victim.setVelocity(pendingKnockback.get(victimUUID));
+                pendingKnockback.remove(victimUUID);
+            }
         }
     }
     
@@ -112,10 +129,10 @@ public class CombatManager {
             }
         }
         
-        // Calcular knockback base - usar valores específicos para flechas
-        double horizontal = isArrow ? arrowHorizontalKnockback : horizontalKnockback;
-        double vertical = verticalKnockback;
-        double currentSprintMultiplier = isArrow ? arrowSprintMultiplier : sprintMultiplier;
+        // Calcular knockback base - usar valores específicos para flechas (valores dinámicos)
+        double horizontal = isArrow ? getArrowHorizontalKnockback() : getHorizontalKnockback();
+        double vertical = getVerticalKnockback();
+        double currentSprintMultiplier = isArrow ? getArrowSprintMultiplier() : getSprintMultiplier();
         
         // Verificar si el atacante está corriendo (sprint)
         if (attacker.isSprinting()) {
@@ -139,10 +156,10 @@ public class CombatManager {
             }
         }
         
-        // Reducir por resistencia al knockback
+        // Reducir por resistencia al knockback (valor dinámico)
         double resistance = getKnockbackResistance(victim);
-        horizontal *= (1.0 - (resistance * knockbackResistanceReduction));
-        vertical *= (1.0 - (resistance * knockbackResistanceReduction));
+        horizontal *= (1.0 - (resistance * getKnockbackResistanceReduction()));
+        vertical *= (1.0 - (resistance * getKnockbackResistanceReduction()));
         
         // Crear vector final
         Vector knockback = new Vector(
@@ -170,16 +187,16 @@ public class CombatManager {
             direction = new Vector(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
         }
         
-        // Usar valores base específicos para endermites
-        double horizontal = endermiteHorizontalKnockback;
-        double vertical = endermiteVerticalKnockback;
+        // Usar valores base específicos para endermites (valores dinámicos)
+        double horizontal = getEndermiteHorizontalKnockback();
+        double vertical = getEndermiteVerticalKnockback();
         
         // Aplicar el nivel de knockback del endermite (simula Knockback II)
-        horizontal += endermiteKnockbackLevel * 1.2;
+        horizontal += getEndermiteKnockbackLevel() * 1.2;
         
         // Si el dueño está corriendo, aplicar multiplicador (el endermite "hereda" el sprint)
         if (owner.isSprinting()) {
-            horizontal *= sprintMultiplier;
+            horizontal *= getSprintMultiplier();
         }
         
         // Verificar si el dueño tiene items con knockback adicional
@@ -189,10 +206,10 @@ public class CombatManager {
             horizontal += knockbackLevel * 0.8; // Multiplicador reducido para endermites
         }
         
-        // Reducir por resistencia al knockback
+        // Reducir por resistencia al knockback (valor dinámico)
         double resistance = getKnockbackResistance(victim);
-        horizontal *= (1.0 - (resistance * knockbackResistanceReduction));
-        vertical *= (1.0 - (resistance * knockbackResistanceReduction));
+        horizontal *= (1.0 - (resistance * getKnockbackResistanceReduction()));
+        vertical *= (1.0 - (resistance * getKnockbackResistanceReduction()));
         
         // Crear vector final
         Vector knockback = new Vector(
@@ -215,7 +232,7 @@ public class CombatManager {
     }
     
     private Vector applyVelocityLimits(Vector velocity, boolean isArrow) {
-        // Límites más altos para flechas
+        // Límites más altos para flechas (valores dinámicos)
         double maxHorizontal = isArrow ? plugin.getMainConfig().getMaxKnockbackHorizontalArrow() : plugin.getMainConfig().getMaxKnockbackHorizontal();
         double maxVertical = plugin.getMainConfig().getMaxKnockbackVertical();
         

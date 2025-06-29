@@ -30,6 +30,18 @@ public abstract class Menu {
     
     public abstract void handleClick(InventoryClickEvent event);
 
+    // Método helper para validar si el click es en este menú
+    protected boolean isValidClick(InventoryClickEvent event) {
+        // Verificar que se haya clickeado en un inventario
+        if (event.getClickedInventory() == null) {
+            return false;
+        }
+        
+        // Verificar que el click sea en el inventario superior (el menú)
+        // y no en el inventario del jugador
+        return event.getClickedInventory().equals(event.getView().getTopInventory());
+    }
+
     protected void fillEmptySlots(Inventory inv, ItemStack item) {
         for (int i = 0; i < inv.getSize(); i++) {
             if (inv.getItem(i) == null) {

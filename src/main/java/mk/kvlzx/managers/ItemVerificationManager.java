@@ -88,9 +88,23 @@ public class ItemVerificationManager {
         // Verificar cada slot del inventario
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack item = player.getInventory().getItem(i);
-            if (item != null && !isAllowedInSpawn(item.getType())) {
-                player.getInventory().setItem(i, null);
-                itemsRemoved = true;
+            if (item != null) {
+                boolean shouldRemove = false;
+                
+                // Verificar si el material no está permitido
+                if (!isAllowedInSpawn(item.getType())) {
+                    shouldRemove = true;
+                }
+                
+                // NUEVA LÓGICA: Verificar si el item está en cooldown
+                if (isItemInCooldown(player, item)) {
+                    shouldRemove = true;
+                }
+                
+                if (shouldRemove) {
+                    player.getInventory().setItem(i, null);
+                    itemsRemoved = true;
+                }
             }
         }
         
@@ -101,6 +115,30 @@ public class ItemVerificationManager {
         // Resetear el estado cuando el jugador no tenga items ilegales
         if (!itemsRemoved && playerVerificationStatus.getOrDefault(player.getUniqueId(), false)) {
             playerVerificationStatus.put(player.getUniqueId(), false);
+        }
+    }
+
+    /**
+     * Verifica si un item específico está en cooldown
+     * @param player El jugador propietario del item
+     * @param item El item a verificar
+     * @return true si está en cooldown, false si no
+     */
+    private boolean isItemInCooldown(Player player, ItemStack item) {
+        if (item == null) return false;
+        
+        Material material = item.getType();
+        
+        // Verificar cooldowns según el tipo de item
+        switch (material) {
+            case BOW:
+                return plugin.getCooldownManager().isOnCooldown(player, "BOW");
+            case FEATHER:
+                return plugin.getCooldownManager().isOnCooldown(player, "FEATHER");
+            case GOLD_PLATE:
+                return plugin.getCooldownManager().isOnCooldown(player, "PLATE");
+            default:
+                return false;
         }
     }
     

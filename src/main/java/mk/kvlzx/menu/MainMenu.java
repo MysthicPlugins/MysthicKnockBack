@@ -24,7 +24,7 @@ public class MainMenu extends Menu {
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
-        // Create items using the configuration
+        // Crear los items usando la configuracion
         inv.setItem(menuConfig.getMenuTopKillsSlot(), 
             menuConfig.createMenuItem(menuConfig.getMenuTopKillsId(), player, 
                 menuConfig.getMenuTopKillsName(), menuConfig.getMenuTopKillsLore()));
@@ -49,7 +49,7 @@ public class MainMenu extends Menu {
             menuConfig.createMenuItem(menuConfig.getMenuEditHotbarId(), player, 
                 menuConfig.getMenuEditHotbarName(), menuConfig.getMenuEditHotbarLore()));
 
-        // Special handling for player skull
+        // Manejo especial para la cabeza del jugador
         inv.setItem(menuConfig.getMenuMyStatsSlot(), 
         menuConfig.createMenuItem(menuConfig.getMenuMyStatsId(), player, 
             menuConfig.getMenuMyStatsName(), menuConfig.getMenuMyStatsLore()));
@@ -76,6 +76,11 @@ public class MainMenu extends Menu {
 
     @Override
     public void handleClick(InventoryClickEvent event) {
+        if (!isValidClick(event)) {
+            event.setCancelled(true);
+            return;
+        }
+        
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
         

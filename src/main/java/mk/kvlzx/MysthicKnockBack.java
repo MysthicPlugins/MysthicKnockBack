@@ -78,6 +78,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private HotbarMenuConfig hotbarMenuConfig;
     
     private BukkitTask autoSaveTask;
+    private BukkitTask weatherTimeTask; // Nueva tarea para controlar clima y tiempo
 
     @Override
     public void onEnable() {
@@ -144,11 +145,13 @@ public class MysthicKnockBack extends JavaPlugin {
         startPlaytimeUpdater();
         startItemCleanup();
         startAutoSave(); // Iniciar auto-guardado con tiempo configurado
+        startWeatherTimeControl(); // Nueva función para controlar clima y tiempo
         itemVerificationManager.startVerification();
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&a✔&8] &aPlugin started successfully");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Auto-save enabled every " + mainConfig.getAutoSaveInterval() + " minutes");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Weather and time control enabled (Always day via gamerule, weather checks every 30s)");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Developed by: &bKvlzx &8& &bGabo");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
@@ -185,9 +188,12 @@ public class MysthicKnockBack extends JavaPlugin {
             e.printStackTrace();
         }
 
-        // Cancelar el auto-save task si existe
+        // Cancelar todas las tareas
         if (autoSaveTask != null) {
             autoSaveTask.cancel();
+        }
+        if (weatherTimeTask != null) {
+            weatherTimeTask.cancel();
         }
 
         if (musicManager != null) {
@@ -226,6 +232,55 @@ public class MysthicKnockBack extends JavaPlugin {
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             cleanupAllDroppedItems();
         }, 600L, 600L);
+    }
+
+    // Nueva función para controlar el clima y el tiempo
+    private void startWeatherTimeControl() {
+        // Configurar gamerules iniciales
+        setupWorldGamerules();
+        
+        // Solo verificar clima cada 30 segundos (600 ticks) y tiempo cada 5 minutos por seguridad
+        weatherTimeTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
+            for (World world : Bukkit.getWorlds()) {
+                // Verificar clima (cada ejecución - 30 segundos)
+                if (world.hasStorm() || world.isThundering()) {
+                    world.setStorm(false);
+                    world.setThundering(false);
+                    world.setWeatherDuration(0);
+                    world.setThunderDuration(0);
+                }
+                
+                // Establecer un tiempo despejado por mucho tiempo
+                if (world.getWeatherDuration() < 12000) {
+                    world.setWeatherDuration(999999);
+                }
+                
+                // Verificar tiempo solo ocasionalmente por seguridad (por si el gamerule falla)
+                // Esto se ejecuta cada 10 veces = cada 5 minutos
+                if (System.currentTimeMillis() % 10 == 0) {
+                    if (world.getTime() > 12000 || world.getTime() < 0) {
+                        world.setTime(6000);
+                    }
+                }
+            }
+        }, 600L, 600L); // Cada 30 segundos (600 ticks)
+    }
+    
+    // Método para configurar los gamerules de los mundos
+    private void setupWorldGamerules() {
+        for (World world : Bukkit.getWorlds()) {
+            // Desactivar el ciclo día/noche
+            world.setGameRuleValue("DO_DAYLIGHT_CYCLE", "false");
+            
+            // Establecer tiempo de día
+            world.setTime(6000); // Mediodía
+            
+            // Configurar clima inicial
+            world.setStorm(false);
+            world.setThundering(false);
+            world.setWeatherDuration(999999);
+            world.setThunderDuration(0);
+        }
     }
 
     // Método de auto-guardado usando el tiempo configurado

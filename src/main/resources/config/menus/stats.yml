@@ -20,7 +20,7 @@ menu:
         - "&8▪ &7Best streak: &a%best_streak%"
       slot: 10
     deaths:
-      id: PLAYER_SKULL # Material custom
+      id: REDSTONE
       data: 0
       name: "&c&lDeaths"
       lore:

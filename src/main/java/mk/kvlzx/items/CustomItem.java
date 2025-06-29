@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.config.MainConfig;
 import mk.kvlzx.utils.MessageUtils;
+import net.minecraft.server.v1_8_R3.NBTTagCompound;
 
 public class CustomItem {
     
@@ -63,6 +65,8 @@ public class CustomItem {
                     }
                     item.setItemMeta(meta);
                 }
+                // Hacer el arco irrompible usando NMS
+                item = makeUnbreakable(item);
                 break;
                 
             case ARROW:
@@ -147,6 +151,34 @@ public class CustomItem {
         }
 
         return item;
+    }
+
+    private static ItemStack makeUnbreakable(ItemStack item) {
+        try {
+            // Convertir el ItemStack de Bukkit a NMS
+            net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+            
+            // Obtener o crear el NBTTagCompound
+            NBTTagCompound compound = nmsItem.hasTag() ? nmsItem.getTag() : new NBTTagCompound();
+            
+            // Añadir la propiedad Unbreakable
+            compound.setBoolean("Unbreakable", true);
+            
+            // Ocultar el texto "Unbreakable" del lore usando HideFlags
+            // HideFlags con valor 4 oculta la información de "Unbreakable"
+            compound.setInt("HideFlags", 4);
+            
+            // Aplicar el NBT al item
+            nmsItem.setTag(compound);
+            
+            // Convertir de vuelta a ItemStack de Bukkit
+            return CraftItemStack.asBukkitCopy(nmsItem);
+            
+        } catch (Exception e) {
+            MysthicKnockBack.getInstance().getLogger().warning("Error making the item unbreakable: " + e.getMessage());
+            e.printStackTrace();
+            return item; // Retornar el item original si hay error
+        }
     }
 
     public static ItemStack createSkull(Player player, String displayName, String lore) {

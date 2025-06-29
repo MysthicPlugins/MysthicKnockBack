@@ -80,7 +80,14 @@ public class HotbarEditMenu extends Menu {
 
     @Override
     public void handleClick(InventoryClickEvent event) {
+        // Validar que el click sea en el menú y no en el inventario del jugador
+        if (!isValidClick(event)) {
+            event.setCancelled(true);
+            return;
+        }
+        
         Player player = (Player) event.getWhoClicked();
+        
         int slot = event.getSlot();
 
         // Prevenir shift-clicks

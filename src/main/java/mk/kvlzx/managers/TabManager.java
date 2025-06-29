@@ -214,11 +214,12 @@ public class TabManager {
         if (tabConfig.isTabEnabled()) {
             startAnimation();
         } else {
-            // Detener animación si está deshabilitada
+            // Detener animación y limpiar tab si está deshabilitada
             if (animationTask != null) {
                 animationTask.cancel();
                 animationTask = null;
             }
+            clearTabDisplay();
         }
     }
 
@@ -226,6 +227,55 @@ public class TabManager {
         if (animationTask != null) {
             animationTask.cancel();
             animationTask = null;
+        }
+        clearTabDisplay();
+    }
+
+    private void clearTabDisplay() {
+        // Limpiar header y footer (enviar componentes vacíos)
+        clearHeaderFooter();
+        
+        // Restaurar nombres originales de los jugadores
+        restorePlayerNames();
+    }
+
+    private void clearHeaderFooter() {
+        // Crear componentes vacíos para header y footer
+        IChatBaseComponent emptyComponent = ChatSerializer.a("{\"text\": \"\"}");
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            CraftPlayer craftPlayer = (CraftPlayer) player;
+            PacketPlayOutPlayerListHeaderFooter packet = new PacketPlayOutPlayerListHeaderFooter();
+            try {
+                Field a = packet.getClass().getDeclaredField("a");
+                a.setAccessible(true);
+                a.set(packet, emptyComponent);
+                Field b = packet.getClass().getDeclaredField("b");
+                b.setAccessible(true);
+                b.set(packet, emptyComponent);
+                craftPlayer.getHandle().playerConnection.sendPacket(packet);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void restorePlayerNames() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            CraftPlayer craftPlayer = (CraftPlayer) player;
+            
+            // Restaurar el nombre original del jugador en la lista
+            craftPlayer.setPlayerListName(player.getName());
+            
+            // Enviar paquete de actualización para restaurar el nombre original
+            PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(
+                EnumPlayerInfoAction.UPDATE_DISPLAY_NAME, 
+                craftPlayer.getHandle()
+            );
+
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                ((CraftPlayer) online).getHandle().playerConnection.sendPacket(packet);
+            }
         }
     }
 
