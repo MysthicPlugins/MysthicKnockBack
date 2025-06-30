@@ -1,6 +1,7 @@
 {
     "yaml.schemas": {
-        "https://json.schemastore.org/bukkit-plugin.json": "file:///e%3A/Plugins/KvKnockback/src/main/resources/plugin.yml"
+        "https://json.schemastore.org/bukkit-plugin.json": "file:///e%3A/Plugins/KvKnockback/src/main/resources/plugin.yml",
+        "https://www.schemastore.org/bukkit-plugin.json": "file:///c%3A/plugins/plugins/MysthicKnockBack/src/main/resources/plugin.yml"
     },
     "java.compile.nullAnalysis.mode": "automatic",
     "java.configuration.updateBuildConfiguration": "interactive"

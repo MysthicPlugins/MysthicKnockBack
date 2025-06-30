@@ -44,6 +44,7 @@ import mk.kvlzx.cosmetics.DeathMessageItem;
 import mk.kvlzx.cosmetics.DeathSoundItem;
 import mk.kvlzx.cosmetics.KillMessageItem;
 import mk.kvlzx.cosmetics.KillSoundItem;
+import mk.kvlzx.hotbar.PlayerHotbar;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.menu.Menu;
 
@@ -261,7 +262,7 @@ public class PlayerListener implements Listener {
                         );
                         
                     }
-                }.runTaskLater(plugin, 1L);
+                }.runTaskLater(plugin, 2L);
             }
         }
 
@@ -417,8 +418,8 @@ public class PlayerListener implements Listener {
             return; // No dar perla si no está en zona pvp
         }
 
-        // Encontrar el slot donde debería ir la perla según el layout del jugador
-        int pearlSlot = findSlotByType(killer, Material.ENDER_PEARL);
+        // Encontrar el slot configurado para la perla en el layout del jugador
+        int pearlSlot = findConfiguredSlotByType(killer, Material.ENDER_PEARL);
         if (pearlSlot == -1) return; // Si no tiene configurada la perla, no dar nada
 
         ItemStack currentItem = killer.getInventory().getItem(pearlSlot);
@@ -436,15 +437,25 @@ public class PlayerListener implements Listener {
         }
     }
 
-    // Método para encontrar el slot de un item por tipo
-    private int findSlotByType(Player player, Material type) {
+    // Método para encontrar el slot configurado de un item por tipo en el layout del jugador
+    private int findConfiguredSlotByType(Player player, Material type) {
+        ItemStack[] playerLayout = PlayerHotbar.getPlayerLayout(player.getUniqueId());
+        
+        for (int i = 0; i < Math.min(playerLayout.length, 9); i++) { // Solo buscar en la hotbar
+            if (playerLayout[i] != null && playerLayout[i].getType() == type) {
+                return i;
+            }
+        }
+        
+        // Si no encuentra el tipo específico en el layout, buscar en el inventario actual como fallback
         ItemStack[] contents = player.getInventory().getContents();
-        for (int i = 0; i < 9; i++) { // Solo buscar en la hotbar
+        for (int i = 0; i < 9; i++) {
             if (contents[i] != null && contents[i].getType() == type) {
                 return i;
             }
         }
-        return 8; // Si no encuentra el slot configurado, usar el último slot como fallback
+        
+        return -1; // No se encontró el item configurado
     }
 
     private void respawnPlayerAtSpawn(Player player, Arena arena) {

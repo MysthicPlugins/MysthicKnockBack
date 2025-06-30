@@ -16,6 +16,7 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import mk.kvlzx.arena.ArenaManager;
 import mk.kvlzx.commands.ArenaCommand;
 import mk.kvlzx.commands.ArenaTabCompleter;
+import mk.kvlzx.commands.GivePearlsCommand;
 import mk.kvlzx.commands.MainCommand;
 import mk.kvlzx.commands.MainTabCompleter;
 import mk.kvlzx.commands.StatsCommand;
@@ -368,6 +369,7 @@ public class MysthicKnockBack extends JavaPlugin {
         getCommand("stats").setTabCompleter(new StatsTabCompleter());
         getCommand("music").setExecutor(new MusicCommand(this));
         getCommand("report").setExecutor(new ReportCommand(this));
+        getCommand("givepearls").setExecutor(new GivePearlsCommand(this));
     }
 
     public void registerEvents() {

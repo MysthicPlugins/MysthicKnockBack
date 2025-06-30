@@ -17,6 +17,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
@@ -46,13 +47,18 @@ public class EndermiteListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler
-    public void onEndermiteSpawn(CreatureSpawnEvent event) {
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onCreatureSpawn(CreatureSpawnEvent event) {
         EntityType entityType = event.getEntityType();
         SpawnReason spawnReason = event.getSpawnReason();
         
-        // Comprobar si el Endermite es generado por ender pearl
+        // Permitir que los endermites spawnen aunque doMobSpawning esté desactivado
         if (entityType == EntityType.ENDERMITE && spawnReason == SpawnReason.DEFAULT) {
+            // Forzar que el evento no sea cancelado para endermites de ender pearl
+            if (event.isCancelled()) {
+                event.setCancelled(false);
+            }
+            
             Endermite endermite = (Endermite) event.getEntity();
             
             // Buscar al jugador más cercano (quien lanzó la ender pearl)
@@ -73,6 +79,8 @@ public class EndermiteListener implements Listener {
                 // Si los endermites están deshabilitados, cancelar el spawn
                 event.setCancelled(true);
             }
+        } else {
+            event.setCancelled(true);
         }
     }
     
