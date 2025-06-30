@@ -320,6 +320,7 @@ public class MysthicKnockBack extends JavaPlugin {
         mainConfig.reload();
         messagesConfig.reload();
         tabManager.reload();
+        scoreboardManager.reload();
         mainMenuConfig.reload();
         topsMenuConfig.reload();
         statsMenuConfig.reload();

@@ -305,6 +305,8 @@ public class MainScoreboardManager {
         // Congelar y preparar a todos los jugadores
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.setWalkSpeed(0.0f);
+            player.setFoodLevel(0);
+            player.setSaturation(0.0f);
             player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 128, false, false));
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 1, false, false));
             player.playSound(player.getLocation(), Sound.PORTAL_TRIGGER, 1.0f, 1.0f);
@@ -377,6 +379,8 @@ public class MainScoreboardManager {
                     
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
                         player.setWalkSpeed(0.2f);
+                        player.setFoodLevel(20);
+                        player.setSaturation(20.0f);
                         arenaChanging = false;
                         
                         String title = config.getScoreTitleAfterChangeTitle();

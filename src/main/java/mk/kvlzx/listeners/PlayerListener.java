@@ -93,6 +93,8 @@ public class PlayerListener implements Listener {
         if (plugin.getScoreboardManager().isArenaChanging()) {
             // Si la arena está cambiando, congelar al jugador temporalmente
             player.setWalkSpeed(0.0f);
+            player.setFoodLevel(0);
+            player.setSaturation(0.0f);
             player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 128, false, false));
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 1, false, false));
             player.setNoDamageTicks(100);
@@ -105,6 +107,8 @@ public class PlayerListener implements Listener {
                     if (!plugin.getScoreboardManager().isArenaChanging()) {
                         // Restaurar movimiento normal
                         player.setWalkSpeed(0.2f);
+                        player.setFoodLevel(20);
+                        player.setSaturation(20.0f);
                         player.removePotionEffect(PotionEffectType.JUMP);
                         player.removePotionEffect(PotionEffectType.BLINDNESS);
                         
@@ -257,7 +261,7 @@ public class PlayerListener implements Listener {
                         );
                         
                     }
-                }.runTaskLater(plugin, 2L);
+                }.runTaskLater(plugin, 1L);
             }
         }
 
@@ -333,6 +337,7 @@ public class PlayerListener implements Listener {
                                     .replace("%victim%", player.getName())
                     ));
                     handlePlayerKill(killer);
+                    handlePlayerDeath(player);
 
                     // Resetear el combate después de una muerte
                     plugin.getCombatListener().resetCombat(player);
