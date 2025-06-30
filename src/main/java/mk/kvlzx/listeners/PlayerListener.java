@@ -246,12 +246,18 @@ public class PlayerListener implements Listener {
         if (!soundName.equals("none")) {
             DeathSoundItem soundItem = DeathSoundItem.getByName(soundName);
             if (soundItem != null) {
-                player.playSound(
-                    player.getLocation(),
-                    soundItem.getSound(),
-                    soundItem.getVolume(),
-                    soundItem.getPitch()
-                );
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        player.playSound(
+                            player.getLocation(), 
+                            soundItem.getSound(), 
+                            soundItem.getVolume(), 
+                            soundItem.getPitch()
+                        );
+                        
+                    }
+                }.runTaskLater(plugin, 2L);
             }
         }
 
@@ -352,7 +358,6 @@ public class PlayerListener implements Listener {
                 }
 
                 respawnPlayerAtSpawn(player, arena);
-                plugin.getScoreboardManager().updatePlayerZone(player, currentArena);
                 return;
             }
 
@@ -462,6 +467,9 @@ public class PlayerListener implements Listener {
                     
                     // Mostrar el borde de la arena al respawn
                     plugin.getArenaManager().showArenaBorder(arena);
+                    
+                    // Actualizar la zona del jugador al respawn
+                    plugin.getScoreboardManager().updatePlayerZone(player, arena.getName());
                     
                 }
             }.runTaskLater(plugin, 1L);

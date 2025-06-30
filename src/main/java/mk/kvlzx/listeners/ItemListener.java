@@ -28,8 +28,6 @@ import java.util.*;
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.arena.Arena;
 import mk.kvlzx.arena.Zone;
-import mk.kvlzx.items.CustomItem;
-import mk.kvlzx.items.CustomItem.ItemType;
 import mk.kvlzx.managers.RankManager;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.BlockUtils;
@@ -264,10 +262,6 @@ public class ItemListener implements Listener {
                         player.getInventory().setItem(arrowSlot, arrow);
                     }
                 }
-
-                ItemStack restoredBow = CustomItem.create(ItemType.BOW);
-                restoredBow.setDurability((short)384);
-                player.getInventory().setItem(bowSlot, restoredBow);
             }
         }.runTaskLater(plugin, COOLDOWN_SECONDS * 20L);
     }
@@ -375,23 +369,22 @@ public class ItemListener implements Listener {
         // Solo procesar teleports por plugin (que es como se maneja la "muerte")
         if (cause != TeleportCause.PLUGIN) return;
         
-        // Verificar si el teleport es desde zona void/pvp a spawn (indicando una "muerte")
+        // Verificar si el teleport es desde zona void a spawn (indicando una "muerte")
         boolean wasInDangerZone = false;
         boolean teleportingToSpawn = false;
         
         for (Arena arena : plugin.getArenaManager().getArenas()) {
             Zone voidZone = arena.getZone("void");
-            Zone pvpZone = arena.getZone("pvp");
             Zone spawnZone = arena.getZone("spawn");
             
-            // Verificar si estaba en zona peligrosa (void o pvp)
-            if ((voidZone != null && voidZone.isInside(from)) || 
-                (pvpZone != null && pvpZone.isInside(from))) {
+            // Verificar si estaba en zona peligrosa (void)
+            if ((voidZone != null && voidZone.isInside(from))) {
                 wasInDangerZone = true;
             }
             
             // Verificar si se teleporta a spawn
             if (spawnZone != null && spawnZone.isInside(to)) {
+                plugin.getScoreboardManager().updatePlayerZone(player, arena.getName());
                 teleportingToSpawn = true;
             }
         }

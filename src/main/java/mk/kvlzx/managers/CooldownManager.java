@@ -46,9 +46,13 @@ public class CooldownManager {
                 String zone = plugin.getArenaManager().getPlayerZone(player);
                 if (zone == null || !zone.equals(ZoneType.PVP.getId())) {
                     clearCooldown(player, cooldownType);
-                    ItemStack restoredItem = original.clone();
-                    restoredItem.setAmount(1);
-                    player.getInventory().setItem(slot, restoredItem);
+                    player.getInventory().setItem(slot, null);
+                    cancel();
+                    return;
+                }
+
+                if (plugin.getScoreboardManager().isArenaChanging()) {
+                    clearAllCooldowns(player);
                     cancel();
                     return;
                 }
@@ -57,7 +61,6 @@ public class CooldownManager {
                     ItemStack restoredItem = original.clone();
                     restoredItem.setAmount(1);
                     player.getInventory().setItem(slot, restoredItem);
-                    cancel();
                     return;
                 }
                 

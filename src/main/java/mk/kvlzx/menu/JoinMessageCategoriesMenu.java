@@ -56,19 +56,25 @@ public class JoinMessageCategoriesMenu extends Menu {
 
     @Override
     public void handleClick(InventoryClickEvent event) {
-        event.setCancelled(true);
+        // Validar que el click sea en el menú y no en el inventario del jugador
+        if (!isValidClick(event)) {
+            event.setCancelled(true);
+            return;
+        }
+        
         Player player = (Player) event.getWhoClicked();
+
         switch(event.getSlot()) {
             case 11:
-                mk.kvlzx.menu.JoinMessageShopMenu.setCurrentCategory("COMMON");
+                JoinMessageShopMenu.setCurrentCategory("COMMON");
                 plugin.getMenuManager().openMenu(player, "join_message_shop");
                 break;
             case 13:
-                mk.kvlzx.menu.JoinMessageShopMenu.setCurrentCategory("EPIC");
+                JoinMessageShopMenu.setCurrentCategory("EPIC");
                 plugin.getMenuManager().openMenu(player, "join_message_shop");
                 break;
             case 15:
-                mk.kvlzx.menu.JoinMessageShopMenu.setCurrentCategory("LEGENDARY");
+                JoinMessageShopMenu.setCurrentCategory("LEGENDARY");
                 plugin.getMenuManager().openMenu(player, "join_message_shop");
                 break;
             case 40:
