@@ -61,6 +61,11 @@ public class MainConfig {
     private String arrowLore;
     private Boolean arrowKnockback;
     private Integer arrowKnockbackLevel;
+    private String slimeBallId;
+    private String slimeBallName;
+    private String slimeBallLore;
+    private Boolean slimeBallKnockback;
+    private Integer slimeBallKnockbackLevel;
 
     private Integer defaultElo;
     private Long combatLog;
@@ -232,6 +237,11 @@ public class MainConfig {
         arrowLore = config.getString("config.hotbar.default.items.arrow.lore");
         arrowKnockback = config.getBoolean("config.hotbar.default.items.arrow.knockback.enabled");
         arrowKnockbackLevel = config.getInt("config.hotbar.default.items.arrow.knockback.level");
+        slimeBallId = validateAndGetMaterial(config, "config.hotbar.default.items.slimeball.id", "SLIME_BALL");
+        slimeBallName = config.getString("config.hotbar.default.items.slimeball.name");
+        slimeBallLore = config.getString("config.hotbar.default.items.slimeball.lore");
+        slimeBallKnockback = config.getBoolean("config.hotbar.default.items.slimeball.knockback.enabled");
+        slimeBallKnockbackLevel = config.getInt("config.hotbar.default.items.slimeball.knockback.level");
 
         defaultElo = config.getInt("config.combat.default-elo");
         combatLog = config.getLong("config.combat.combat-log");
@@ -443,6 +453,11 @@ public class MainConfig {
     public String getArrowLore() { return arrowLore; }
     public Boolean getArrowKnockback() { return arrowKnockback; }
     public Integer getArrowKnockbackLevel() { return arrowKnockbackLevel; }
+    public String getSlimeBallId() { return slimeBallId; }
+    public String getSlimeBallName() { return slimeBallName; }
+    public String getSlimeBallLore() { return slimeBallLore; }
+    public Boolean getSlimeBallKnoback() { return slimeBallKnockback; }
+    public Integer getSlimeBallKnockbackLevel() { return slimeBallKnockbackLevel; }
 
     public Integer getDefaultElo() { return defaultElo; }
     public Long getCombatLog() { return combatLog; }

@@ -46,6 +46,7 @@ import mk.kvlzx.managers.CooldownManager;
 import mk.kvlzx.managers.ItemVerificationManager;
 import mk.kvlzx.managers.MainScoreboardManager;
 import mk.kvlzx.managers.TabManager;
+import mk.kvlzx.managers.WeaponManager;
 import mk.kvlzx.managers.MenuManager;
 import mk.kvlzx.managers.MusicManager;
 import mk.kvlzx.managers.ReportManager;
@@ -69,6 +70,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private CombatManager combatManager;
     private MusicManager musicManager;
     private ItemVerificationManager itemVerificationManager;
+    private WeaponManager weaponManager;
     private EndermiteListener endermiteListener;
     private MessagesConfig messagesConfig;
     private MainConfig mainConfig;
@@ -218,6 +220,7 @@ public class MysthicKnockBack extends JavaPlugin {
         combatManager = new CombatManager(this);
         musicManager = new MusicManager(this);
         itemVerificationManager = new ItemVerificationManager(this);
+        weaponManager = new WeaponManager();
     }
 
     private void startPlaytimeUpdater() {
@@ -440,6 +443,10 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public ItemVerificationManager getItemVerificationManager() {
         return itemVerificationManager;
+    }
+
+    public WeaponManager getWeaponManager() {
+        return weaponManager;
     }
 
     public EndermiteListener getEndermiteListener() {

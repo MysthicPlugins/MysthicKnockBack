@@ -6,7 +6,7 @@ menu:
       slot: 9
     blocks:
       slot: 10
-    bow:
+    weapon:
       slot: 11
     plate:
       slot: 15
@@ -14,6 +14,13 @@ menu:
       slot: 16
     pearl:
       slot: 17
+    weapon-toggle:
+      name: "&6&lWeapon Selector"
+      lore:
+        - "&7Click to switch weapon"
+        - "&7Current: &e%weapon%"
+        - ""
+      slot: 8
     separator:
       id: STAINED_GLASS_PANE
       name: "&7• Your Hotbar •"
@@ -48,6 +55,10 @@ menu:
       lore:
         - "&7Click to return to main menu"
       slot: 49
+  weapon-names:
+    bow: "&bBow"
+    slime: "&aSlime Ball"
   messages:
     hotbar-saved: "&aHotbar saved successfully"
     hotbar-reset: "&aHotbar reset to default"
+    weapon-changed: "&aWeapon changed to &e%weapon%&a!"

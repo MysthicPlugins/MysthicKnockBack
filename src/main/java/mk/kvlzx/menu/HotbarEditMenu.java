@@ -1,6 +1,8 @@
 package mk.kvlzx.menu;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -9,6 +11,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.config.HotbarMenuConfig;
@@ -32,7 +35,11 @@ public class HotbarEditMenu extends Menu {
         // Items visuales usando configuración
         inv.setItem(menuConfig.getKnockerSlot(), CustomItem.create(ItemType.KNOCKER));
         inv.setItem(menuConfig.getBlocksSlot(), CustomItem.create(ItemType.BLOCKS));
-        inv.setItem(menuConfig.getBowSlot(), CustomItem.create(ItemType.BOW));
+        
+        // Mostrar el arma seleccionada actualmente
+        ItemType selectedWeapon = plugin.getWeaponManager().getSelectedWeapon(player.getUniqueId());
+        inv.setItem(menuConfig.getWeaponSlot(), CustomItem.create(selectedWeapon));
+        
         inv.setItem(menuConfig.getPlateSlot(), CustomItem.create(ItemType.PLATE));
         inv.setItem(menuConfig.getFeatherSlot(), CustomItem.create(ItemType.FEATHER));
         inv.setItem(menuConfig.getPearlSlot(), CustomItem.create(ItemType.PEARL));
@@ -76,6 +83,16 @@ public class HotbarEditMenu extends Menu {
             menuConfig.getBackName(),
             menuConfig.getBackLore()
         ));
+
+        // Botón para cambiar arma - mostrar el arma seleccionada con lore personalizado
+        ItemStack weaponToggle = CustomItem.create(selectedWeapon);
+        ItemMeta toggleMeta = weaponToggle.getItemMeta();
+        if (toggleMeta != null) {
+            toggleMeta.setDisplayName(MessageUtils.getColor(menuConfig.getWeaponToggleName()));
+            toggleMeta.setLore(getWeaponToggleLore(selectedWeapon));
+            weaponToggle.setItemMeta(toggleMeta);
+        }
+        inv.setItem(menuConfig.getWeaponToggleSlot(), weaponToggle);
     }
 
     @Override
@@ -87,7 +104,6 @@ public class HotbarEditMenu extends Menu {
         }
         
         Player player = (Player) event.getWhoClicked();
-        
         int slot = event.getSlot();
 
         // Prevenir shift-clicks
@@ -108,6 +124,21 @@ public class HotbarEditMenu extends Menu {
             return;
         }
 
+        // Manejar botones usando configuración
+        if (slot == menuConfig.getSaveSlot()) {
+            handleSaveButton(event, player);
+            return;
+        } else if (slot == menuConfig.getResetSlot()) {
+            handleResetButton(event, player);
+            return;
+        } else if (slot == menuConfig.getBackSlot()) {
+            handleBackButton(event, player);
+            return;
+        } else if (slot == menuConfig.getWeaponToggleSlot()) {
+            handleWeaponToggleButton(event, player);
+            return;
+        }
+
         // Prevenir mover items desde el área de muestra
         if (isDisplaySlot(slot)) {
             event.setCancelled(true);
@@ -115,29 +146,19 @@ public class HotbarEditMenu extends Menu {
         }
 
         // Permitir mover items solo en la zona de hotbar (slots 36-44)
-        if (event.getClickedInventory() == event.getView().getTopInventory()) {
-            if (slot < 36 || slot >= 45) {
-                event.setCancelled(true);
-            }
-        }
-
-        // Manejar botones usando configuración
-        if (slot == menuConfig.getSaveSlot()) {
-            handleSaveButton(event, player);
-        } else if (slot == menuConfig.getResetSlot()) {
-            handleResetButton(event, player);
-        } else if (slot == menuConfig.getBackSlot()) {
-            handleBackButton(event, player);
+        if (slot < 36 || slot >= 45) {
+            event.setCancelled(true);
         }
     }
 
     private boolean isDisplaySlot(int slot) {
         return slot == menuConfig.getKnockerSlot() ||
                 slot == menuConfig.getBlocksSlot() ||
-                slot == menuConfig.getBowSlot() ||
+                slot == menuConfig.getWeaponSlot() ||
                 slot == menuConfig.getPlateSlot() ||
                 slot == menuConfig.getFeatherSlot() ||
                 slot == menuConfig.getPearlSlot() ||
+                slot == menuConfig.getWeaponToggleSlot() ||
                 menuConfig.getSeparatorSlots().contains(slot);
     }
 
@@ -146,6 +167,7 @@ public class HotbarEditMenu extends Menu {
             event.setCancelled(true);
             return;
         }
+        event.setCancelled(true);
         saveHotbar(player);
         player.closeInventory();
         player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + menuConfig.getHotbarSavedMessage()));
@@ -156,6 +178,7 @@ public class HotbarEditMenu extends Menu {
             event.setCancelled(true);
             return;
         }
+        event.setCancelled(true);
         PlayerHotbar.resetLayout(player.getUniqueId());
         player.closeInventory();
         player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + menuConfig.getHotbarResetMessage()));
@@ -166,7 +189,39 @@ public class HotbarEditMenu extends Menu {
             event.setCancelled(true);
             return;
         }
+        event.setCancelled(true);
         plugin.getMenuManager().openMenu(player, "main");
+    }
+
+    private void handleWeaponToggleButton(InventoryClickEvent event, Player player) {
+        if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
+            event.setCancelled(true);
+            return;
+        }
+        event.setCancelled(true);
+        
+        // Cambiar el arma seleccionada
+        plugin.getWeaponManager().toggleWeapon(player.getUniqueId());
+        
+        // Actualizar ambos items: el display del arma y el botón de cambio
+        ItemType selectedWeapon = plugin.getWeaponManager().getSelectedWeapon(player.getUniqueId());
+        event.getInventory().setItem(menuConfig.getWeaponSlot(), CustomItem.create(selectedWeapon));
+        
+        // Actualizar el botón de cambio para mostrar el arma seleccionada
+        ItemStack toggleButton = CustomItem.create(selectedWeapon);
+        ItemMeta meta = toggleButton.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(MessageUtils.getColor(menuConfig.getWeaponToggleName()));
+            meta.setLore(getWeaponToggleLore(selectedWeapon));
+            toggleButton.setItemMeta(meta);
+        }
+        event.getInventory().setItem(menuConfig.getWeaponToggleSlot(), toggleButton);
+
+        player.closeInventory();
+        // Mensaje de confirmación
+        String weaponName = getWeaponDisplayName(selectedWeapon);
+        player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
+            menuConfig.getWeaponChangedMessage().replace("%weapon%", weaponName)));
     }
 
     private void saveHotbar(Player player) {
@@ -205,5 +260,22 @@ public class HotbarEditMenu extends Menu {
                         return validItem.getType() == item.getType() &&
                             validItem.getDurability() == item.getDurability();
                     });
+    }
+
+    // Método que faltaba para obtener el lore del weapon toggle
+    private List<String> getWeaponToggleLore(ItemType selectedWeapon) {
+        List<String> lore = new ArrayList<>();
+        for (String line : menuConfig.getWeaponToggleLore()) {
+            String weaponName = getWeaponDisplayName(selectedWeapon);
+            lore.add(MessageUtils.getColor(line.replace("%weapon%", weaponName)));
+        }
+        return lore;
+    }
+
+    // Método para obtener el nombre configurable del arma
+    private String getWeaponDisplayName(ItemType weaponType) {
+        return weaponType == ItemType.BOW ? 
+            menuConfig.getBowDisplayName() : 
+            menuConfig.getSlimeDisplayName();
     }
 }

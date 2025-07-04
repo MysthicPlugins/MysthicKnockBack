@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowball;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -39,6 +40,7 @@ public class ItemListener implements Listener {
     private static final String COOLDOWN_BOW = "BOW";
     private static final String COOLDOWN_FEATHER = "FEATHER";
     private static final String COOLDOWN_PLATE = "PLATE";
+    private static final String COOLDOWN_SLIME_BALL = "SLIME_BALL";
 
     private final MysthicKnockBack plugin;
     private final Map<UUID, ItemStack> savedArrows = new HashMap<>();
@@ -145,6 +147,43 @@ public class ItemListener implements Listener {
                 };
                 speedTask.runTaskLater(plugin, COOLDOWN_SECONDS * 20L);
                 speedTasks.put(player.getUniqueId(), speedTask);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onSlimeBallUse(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+
+        if (plugin.getScoreboardManager().isArenaChanging()) {
+            event.setCancelled(true);
+            return;
+        }
+
+        ItemStack slimeBall = findItemByType(player, Material.SLIME_BALL);
+        int slimeBallSlot = findSlotByType(player, Material.SLIME_BALL);
+
+        if (event.getItem() != null && event.getItem().getType() == Material.SLIME_BALL &&
+                (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+
+            if (plugin.getCooldownManager().isOnCooldown(player, COOLDOWN_SLIME_BALL)) return;
+
+            if (slimeBall != null) {
+                plugin.getCooldownManager().setCooldown(player, COOLDOWN_SLIME_BALL, COOLDOWN_SECONDS);
+                plugin.getCooldownManager().startCooldownVisual(player, slimeBall, slimeBallSlot, COOLDOWN_SECONDS, COOLDOWN_SLIME_BALL);
+
+                new BukkitRunnable() {
+                    int count = 0;
+                    @Override
+                    public void run() {
+                        if (count >= 15) {
+                            this.cancel();
+                            return;
+                        }
+                        player.launchProjectile(Snowball.class);
+                        count++;
+                    }
+                }.runTaskTimer(plugin, 0L, 2L);
             }
         }
     }

@@ -27,7 +27,8 @@ public class CustomItem {
         PEARL,
         FEATHER,
         PLATE,
-        BLOCKS;
+        BLOCKS,
+        SLIME_BALL
     }
 
     public static ItemStack create(ItemType type) {
@@ -145,6 +146,20 @@ public class CustomItem {
                 // Los bloques siempre vienen en cantidad de 64
                 item.setAmount(64);
                 break;
+            case SLIME_BALL:
+                item = new ItemStack(Material.valueOf(config.getSlimeBallId()));
+                meta = item.getItemMeta();
+                if (meta != null) {
+                    meta.setDisplayName(MessageUtils.getColor(config.getSlimeBallName()));
+                    if (config.getSlimeBallLore() != null) {
+                        meta.setLore(Arrays.asList(MessageUtils.getColor(config.getSlimeBallLore())));
+                    }
+                    if (config.getSlimeBallKnoback()) {
+                        meta.addEnchant(Enchantment.KNOCKBACK, config.getSlimeBallKnockbackLevel(), true);
+                    }
+                    item.setItemMeta(meta);
+                }
+                break;
                 
             default:
                 throw new IllegalArgumentException("Unknown item type: " + type);
@@ -217,3 +232,4 @@ public class CustomItem {
         return skull;
     }
 }
+

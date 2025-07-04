@@ -22,7 +22,7 @@ public class HotbarMenuConfig {
 
     private int knockerSlot;
     private int blocksSlot;
-    private int bowSlot;
+    private int weaponSlot; // Cambio: ahora es weaponSlot en lugar de bowSlot
     private int plateSlot;
     private int featherSlot;
     private int pearlSlot;
@@ -48,8 +48,18 @@ public class HotbarMenuConfig {
     private List<String> backLore;
     private int backSlot;
 
+    // Campos para el botón de cambio de arma
+    private String weaponToggleName;
+    private List<String> weaponToggleLore;
+    private int weaponToggleSlot;
+
+    // Nombres configurables para las armas
+    private String bowDisplayName;
+    private String slimeDisplayName;
+
     private String hotbarSavedMessage;
     private String hotbarResetMessage;
+    private String weaponChangedMessage;
 
     public HotbarMenuConfig(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -66,7 +76,7 @@ public class HotbarMenuConfig {
 
         knockerSlot = config.getInt("menu.items.knocker.slot");
         blocksSlot = config.getInt("menu.items.blocks.slot");
-        bowSlot = config.getInt("menu.items.bow.slot");
+        weaponSlot = config.getInt("menu.items.weapon.slot"); // Cambio: ahora es weapon
         plateSlot = config.getInt("menu.items.plate.slot");
         featherSlot = config.getInt("menu.items.feather.slot");
         pearlSlot = config.getInt("menu.items.pearl.slot");
@@ -102,9 +112,19 @@ public class HotbarMenuConfig {
         backLore = config.getStringList("menu.items.back.lore");
         backSlot = config.getInt("menu.items.back.slot");
 
+        // Weapon toggle button
+        weaponToggleName = config.getString("menu.items.weapon-toggle.name");
+        weaponToggleLore = config.getStringList("menu.items.weapon-toggle.lore");
+        weaponToggleSlot = config.getInt("menu.items.weapon-toggle.slot");
+
+        // Weapon display names
+        bowDisplayName = config.getString("menu.weapon-names.bow");
+        slimeDisplayName = config.getString("menu.weapon-names.slime");
+
         // Messages
         hotbarSavedMessage = config.getString("menu.messages.hotbar-saved");
         hotbarResetMessage = config.getString("menu.messages.hotbar-reset");
+        weaponChangedMessage = config.getString("menu.messages.weapon-changed");
     }
 
     private String validateAndGetMaterial(FileConfiguration config, String path, String defaultMaterial) {
@@ -188,33 +208,48 @@ public class HotbarMenuConfig {
         loadConfig();
     }
 
+    // Getters
     public String getMenuTitle() { return menuTitle; }
     public int getMenuSize() { return menuSize; }
     
     public int getKnockerSlot() { return knockerSlot; }
     public int getBlocksSlot() { return blocksSlot; }
-    public int getBowSlot() { return bowSlot; }
+    public int getWeaponSlot() { return weaponSlot; }
     public int getPlateSlot() { return plateSlot; }
     public int getFeatherSlot() { return featherSlot; }
     public int getPearlSlot() { return pearlSlot; }
+    
     public String getSeparatorMaterial() { return separatorMaterial; }
     public String getSeparatorName() { return separatorName; }
     public List<String> getSeparatorLore() { return separatorLore; }
     public int getSeparatorData() { return separatorData; }
     public List<Integer> getSeparatorSlots() { return separatorSlots; }
+    
     public String getSaveMaterial() { return saveMaterial; }
     public String getSaveName() { return saveName; }
     public List<String> getSaveLore() { return saveLore; }
     public int getSaveSlot() { return saveSlot; }
+    
     public String getResetMaterial() { return resetMaterial; }
     public String getResetName() { return resetName; }
     public List<String> getResetLore() { return resetLore; }
     public int getResetSlot() { return resetSlot; }
+    
     public String getBackMaterial() { return backMaterial; }
     public String getBackName() { return backName; }
     public List<String> getBackLore() { return backLore; }
     public int getBackSlot() { return backSlot; }
 
+    // Getters para el botón de cambio de arma
+    public String getWeaponToggleName() { return weaponToggleName; }
+    public List<String> getWeaponToggleLore() { return weaponToggleLore; }
+    public int getWeaponToggleSlot() { return weaponToggleSlot; }
+
+    // Getters para los nombres de las armas
+    public String getBowDisplayName() { return bowDisplayName; }
+    public String getSlimeDisplayName() { return slimeDisplayName; }
+
     public String getHotbarSavedMessage() { return hotbarSavedMessage; }
     public String getHotbarResetMessage() { return hotbarResetMessage; }
+    public String getWeaponChangedMessage() { return weaponChangedMessage; }
 }

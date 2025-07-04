@@ -41,12 +41,6 @@ config:
           knockback:
             enabled: true # Item has knockback
             level: 2
-        plate:
-          id: GOLD_PLATE
-          name: "&6Plate"
-          lore: "&8 Ready to fly? Step on it and see."
-          knockback:
-            enabled: false # Item does not have knockback
         feather:
           id: FEATHER
           name: "&eFeather"
@@ -63,6 +57,12 @@ config:
           id: ARROW
           name: "&5Arrow"
           lore: null # No lore for the arrow
+          knockback:
+            enabled: false # Item does not have knockback
+        slime_ball:
+          id: "SLIME_BALL"
+          name: "&aSlime Ball"
+          lore: "&7Launch a snow balls"
           knockback:
             enabled: false # Item does not have knockback
         
