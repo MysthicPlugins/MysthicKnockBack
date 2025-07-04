@@ -22,12 +22,12 @@ public class CustomItem {
     
     public enum ItemType {
         KNOCKER,
-        BOW,
-        ARROW,
-        PEARL,
-        FEATHER,
-        PLATE,
         BLOCKS,
+        BOW,
+        PLATE,
+        FEATHER,
+        PEARL,
+        ARROW,
         SLIME_BALL
     }
 
@@ -52,7 +52,22 @@ public class CustomItem {
                     item.setItemMeta(meta);
                 }
                 break;
-                
+            case BLOCKS:
+                item = new ItemStack(Material.valueOf(config.getBlocksId()));
+                meta = item.getItemMeta();
+                if (meta != null) {
+                    meta.setDisplayName(MessageUtils.getColor(config.getBlocksName()));
+                    if (config.getBlocksLore() != null) {
+                        meta.setLore(Arrays.asList(MessageUtils.getColor(config.getBlocksLore())));
+                    }
+                    if (config.getBlocksKnockback()) {
+                        meta.addEnchant(Enchantment.KNOCKBACK, config.getBlocksKnockbackLevel(), true);
+                    }
+                    item.setItemMeta(meta);
+                }
+                // Los bloques siempre vienen en cantidad de 64
+                item.setAmount(64);
+                break;
             case BOW:
                 item = new ItemStack(Material.valueOf(config.getBowId()));
                 meta = item.getItemMeta();
@@ -69,52 +84,6 @@ public class CustomItem {
                 // Hacer el arco irrompible usando NMS
                 item = makeUnbreakable(item);
                 break;
-                
-            case ARROW:
-                item = new ItemStack(Material.valueOf(config.getArrowId()));
-                meta = item.getItemMeta();
-                if (meta != null) {
-                    meta.setDisplayName(MessageUtils.getColor(config.getArrowName()));
-                    if (config.getArrowLore() != null) {
-                        meta.setLore(Arrays.asList(MessageUtils.getColor(config.getArrowLore())));
-                    }
-                    if (config.getArrowKnockback()) {
-                        meta.addEnchant(Enchantment.KNOCKBACK, config.getArrowKnockbackLevel(), true);
-                    }
-                    item.setItemMeta(meta);
-                }
-                break;
-                
-            case PEARL:
-                item = new ItemStack(Material.valueOf(config.getPearlId()));
-                meta = item.getItemMeta();
-                if (meta != null) {
-                    meta.setDisplayName(MessageUtils.getColor(config.getPearlName()));
-                    if (config.getPearlLore() != null) {
-                        meta.setLore(Arrays.asList(MessageUtils.getColor(config.getPearlLore())));
-                    }
-                    if (config.getPearlKnockback()) {
-                        meta.addEnchant(Enchantment.KNOCKBACK, config.getPearlKnockbackLevel(), true);
-                    }
-                    item.setItemMeta(meta);
-                }
-                break;
-                
-            case FEATHER:
-                item = new ItemStack(Material.valueOf(config.getFeatherId()));
-                meta = item.getItemMeta();
-                if (meta != null) {
-                    meta.setDisplayName(MessageUtils.getColor(config.getFeatherName()));
-                    if (config.getFeatherLore() != null) {
-                        meta.setLore(Arrays.asList(MessageUtils.getColor(config.getFeatherLore())));
-                    }
-                    if (config.getFeatherKnockback()) {
-                        meta.addEnchant(Enchantment.KNOCKBACK, config.getFeatherKnockbackLevel(), true);
-                    }
-                    item.setItemMeta(meta);
-                }
-                break;
-                
             case PLATE:
                 item = new ItemStack(Material.valueOf(config.getPlateId()));
                 meta = item.getItemMeta();
@@ -129,22 +98,47 @@ public class CustomItem {
                     item.setItemMeta(meta);
                 }
                 break;
-                
-            case BLOCKS:
-                item = new ItemStack(Material.valueOf(config.getBlocksId()));
+            case FEATHER:
+                item = new ItemStack(Material.valueOf(config.getFeatherId()));
                 meta = item.getItemMeta();
                 if (meta != null) {
-                    meta.setDisplayName(MessageUtils.getColor(config.getBlocksName()));
-                    if (config.getBlocksLore() != null) {
-                        meta.setLore(Arrays.asList(MessageUtils.getColor(config.getBlocksLore())));
+                    meta.setDisplayName(MessageUtils.getColor(config.getFeatherName()));
+                    if (config.getFeatherLore() != null) {
+                        meta.setLore(Arrays.asList(MessageUtils.getColor(config.getFeatherLore())));
                     }
-                    if (config.getBlocksKnockback()) {
-                        meta.addEnchant(Enchantment.KNOCKBACK, config.getBlocksKnockbackLevel(), true);
+                    if (config.getFeatherKnockback()) {
+                        meta.addEnchant(Enchantment.KNOCKBACK, config.getFeatherKnockbackLevel(), true);
                     }
                     item.setItemMeta(meta);
                 }
-                // Los bloques siempre vienen en cantidad de 64
-                item.setAmount(64);
+                break;
+            case PEARL:
+                item = new ItemStack(Material.valueOf(config.getPearlId()));
+                meta = item.getItemMeta();
+                if (meta != null) {
+                    meta.setDisplayName(MessageUtils.getColor(config.getPearlName()));
+                    if (config.getPearlLore() != null) {
+                        meta.setLore(Arrays.asList(MessageUtils.getColor(config.getPearlLore())));
+                    }
+                    if (config.getPearlKnockback()) {
+                        meta.addEnchant(Enchantment.KNOCKBACK, config.getPearlKnockbackLevel(), true);
+                    }
+                    item.setItemMeta(meta);
+                }
+                break;
+            case ARROW:
+                item = new ItemStack(Material.valueOf(config.getArrowId()));
+                meta = item.getItemMeta();
+                if (meta != null) {
+                    meta.setDisplayName(MessageUtils.getColor(config.getArrowName()));
+                    if (config.getArrowLore() != null) {
+                        meta.setLore(Arrays.asList(MessageUtils.getColor(config.getArrowLore())));
+                    }
+                    if (config.getArrowKnockback()) {
+                        meta.addEnchant(Enchantment.KNOCKBACK, config.getArrowKnockbackLevel(), true);
+                    }
+                    item.setItemMeta(meta);
+                }
                 break;
             case SLIME_BALL:
                 item = new ItemStack(Material.valueOf(config.getSlimeBallId()));
