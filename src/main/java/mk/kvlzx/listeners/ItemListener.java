@@ -48,6 +48,7 @@ public class ItemListener implements Listener {
     private final Map<UUID, BukkitRunnable> speedTasks = new HashMap<>(); // Nuevo mapa para las tasks de speed
     private static final Set<Location> placedBlocks = new HashSet<>(); // Set para almacenar bloques colocados
     private final Map<Location, List<BukkitRunnable>> blockAnimationTasks = new HashMap<>();
+    private final Map<UUID, Integer> snowballCounts = new HashMap<>();
 
     public ItemListener(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -169,21 +170,32 @@ public class ItemListener implements Listener {
             if (plugin.getCooldownManager().isOnCooldown(player, COOLDOWN_SLIME_BALL)) return;
 
             if (slimeBall != null) {
-                plugin.getCooldownManager().setCooldown(player, COOLDOWN_SLIME_BALL, COOLDOWN_SECONDS);
-                plugin.getCooldownManager().startCooldownVisual(player, slimeBall, slimeBallSlot, COOLDOWN_SECONDS, COOLDOWN_SLIME_BALL);
-
-                new BukkitRunnable() {
-                    int count = 0;
-                    @Override
-                    public void run() {
-                        if (count >= 15) {
-                            this.cancel();
-                            return;
-                        }
-                        player.launchProjectile(Snowball.class);
-                        count++;
-                    }
-                }.runTaskTimer(plugin, 0L, 2L);
+                UUID playerId = player.getUniqueId();
+                
+                // Obtener el contador actual de bolas de nieve para este jugador
+                int currentCount = snowballCounts.getOrDefault(playerId, 0);
+                
+                // Disparar una bola de nieve
+                player.launchProjectile(Snowball.class);
+                
+                // Reproducir sonido de disparo de bola de nieve
+                player.playSound(player.getLocation(), Sound.ARROW_HIT, 1.0f, 1.2f);
+                
+                // Incrementar el contador
+                currentCount++;
+                snowballCounts.put(playerId, currentCount);
+                
+                // Si ha disparado 15 bolas de nieve, iniciar el cooldown y resetear el contador
+                if (currentCount >= 15) {
+                    plugin.getCooldownManager().setCooldown(player, COOLDOWN_SLIME_BALL, COOLDOWN_SECONDS);
+                    plugin.getCooldownManager().startCooldownVisual(player, slimeBall, slimeBallSlot, COOLDOWN_SECONDS, COOLDOWN_SLIME_BALL);
+                    
+                    // Resetear el contador
+                    snowballCounts.remove(playerId);
+                    
+                    // Reproducir sonido de cooldown
+                    player.playSound(player.getLocation(), Sound.ITEM_BREAK, 1.0f, 0.8f);
+                }
             }
         }
     }
@@ -205,7 +217,7 @@ public class ItemListener implements Listener {
             Vector direction = player.getLocation().getDirection().setY(0).normalize().multiply(0.6);
             Vector velocity = new Vector(direction.getX(), 1.2, direction.getZ());
             player.setVelocity(velocity);
-            player.playSound(player.getLocation(), Sound.FIREWORK_TWINKLE2, 1.0f, 1.0f);
+            player.playSound(player.getLocation(), Sound.SLIME_ATTACK, 1.0f, 1.0f);
         }, 1L);
     }
 
@@ -437,11 +449,16 @@ public class ItemListener implements Listener {
 
     // Método privado para manejar la limpieza
     private void handlePlayerDeath(Player player) {
+        UUID playerId = player.getUniqueId();
+        
         // Resetear velocidad si tenía speed activo
-        if (speedTasks.containsKey(player.getUniqueId())) {
-            speedTasks.get(player.getUniqueId()).cancel();
-            speedTasks.remove(player.getUniqueId());
-            resetPlayerSpeed(player.getUniqueId());
+        if (speedTasks.containsKey(playerId)) {
+            speedTasks.get(playerId).cancel();
+            speedTasks.remove(playerId);
+            resetPlayerSpeed(playerId);
         }
+        
+        // Resetear contador de bolas de nieve
+        snowballCounts.remove(playerId);
     }
 }

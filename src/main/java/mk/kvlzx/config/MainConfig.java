@@ -201,47 +201,41 @@ public class MainConfig {
         knockerLore = config.getString("config.hotbar.default.items.knocker.lore");
         knockerKnockback = config.getBoolean("config.hotbar.default.items.knocker.knockback.enabled");
         knockerKnockbackLevel = config.getInt("config.hotbar.default.items.knocker.knockback.level");
-        
         blocksId = validateAndGetMaterial(config, "config.hotbar.default.items.blocks.id", "SANDSTONE");
         blocksName = config.getString("config.hotbar.default.items.blocks.name");
         blocksLore = config.getString("config.hotbar.default.items.blocks.lore");
         blocksKnockback = config.getBoolean("config.hotbar.default.items.blocks.knockback.enabled");
         blocksKnockbackLevel = config.getInt("config.hotbar.default.items.blocks.knockback.level");
-        
         bowId = validateAndGetMaterial(config, "config.hotbar.default.items.bow.id", "BOW");
         bowName = config.getString("config.hotbar.default.items.bow.name");
         bowLore = config.getString("config.hotbar.default.items.bow.lore");
         bowKnockback = config.getBoolean("config.hotbar.default.items.bow.knockback.enabled");
         bowKnockbackLevel = config.getInt("config.hotbar.default.items.bow.knockback.level");
-        
         plateId = validateAndGetMaterial(config, "config.hotbar.default.items.plate.id", "GOLD_PLATE");
         plateName = config.getString("config.hotbar.default.items.plate.name");
         plateLore = config.getString("config.hotbar.default.items.plate.lore");
         plateKnockback = config.getBoolean("config.hotbar.default.items.plate.knockback.enabled");
         plateKnockbackLevel = config.getInt("config.hotbar.default.items.plate.knockback.level");
-        
         featherId = validateAndGetMaterial(config, "config.hotbar.default.items.feather.id", "FEATHER");
         featherName = config.getString("config.hotbar.default.items.feather.name");
         featherLore = config.getString("config.hotbar.default.items.feather.lore");
         featherKnockback = config.getBoolean("config.hotbar.default.items.feather.knockback.enabled");
         featherKnockbackLevel = config.getInt("config.hotbar.default.items.feather.knockback.level");
-        
         pearlId = validateAndGetMaterial(config, "config.hotbar.default.items.pearl.id", "ENDER_PEARL");
         pearlName = config.getString("config.hotbar.default.items.pearl.name");
         pearlLore = config.getString("config.hotbar.default.items.pearl.lore");
         pearlKnockback = config.getBoolean("config.hotbar.default.items.pearl.knockback.enabled");
         pearlKnockbackLevel = config.getInt("config.hotbar.default.items.pearl.knockback.level");
-        
         arrowId = validateAndGetMaterial(config, "config.hotbar.default.items.arrow.id", "ARROW");
         arrowName = config.getString("config.hotbar.default.items.arrow.name");
         arrowLore = config.getString("config.hotbar.default.items.arrow.lore");
         arrowKnockback = config.getBoolean("config.hotbar.default.items.arrow.knockback.enabled");
         arrowKnockbackLevel = config.getInt("config.hotbar.default.items.arrow.knockback.level");
         slimeBallId = validateAndGetMaterial(config, "config.hotbar.default.items.slimeball.id", "SLIME_BALL");
-        slimeBallName = config.getString("config.hotbar.default.items.slimeball.name");
-        slimeBallLore = config.getString("config.hotbar.default.items.slimeball.lore");
-        slimeBallKnockback = config.getBoolean("config.hotbar.default.items.slimeball.knockback.enabled");
-        slimeBallKnockbackLevel = config.getInt("config.hotbar.default.items.slimeball.knockback.level");
+        slimeBallName = config.getString("config.hotbar.default.items.slime_ball.name");
+        slimeBallLore = config.getString("config.hotbar.default.items.slime_ball.lore");
+        slimeBallKnockback = config.getBoolean("config.hotbar.default.items.slime_ball.knockback.enabled");
+        slimeBallKnockbackLevel = config.getInt("config.hotbar.default.items.slime_ball.knockback.level");
 
         defaultElo = config.getInt("config.combat.default-elo");
         combatLog = config.getLong("config.combat.combat-log");
