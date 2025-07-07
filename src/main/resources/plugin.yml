@@ -22,5 +22,3 @@ commands:
     aliases: [statistics]
   music:
     description: Open the music menu
-  givepearls:
-    description: Give 128 pearls

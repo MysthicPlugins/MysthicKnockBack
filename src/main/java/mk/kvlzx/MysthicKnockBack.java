@@ -16,7 +16,6 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import mk.kvlzx.arena.ArenaManager;
 import mk.kvlzx.commands.ArenaCommand;
 import mk.kvlzx.commands.ArenaTabCompleter;
-import mk.kvlzx.commands.GivePearlsCommand;
 import mk.kvlzx.commands.MainCommand;
 import mk.kvlzx.commands.MainTabCompleter;
 import mk.kvlzx.commands.StatsCommand;
@@ -176,6 +175,7 @@ public class MysthicKnockBack extends JavaPlugin {
             saveAllData(); // Usar el método centralizado
 
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Saving arenas...");
+            arenaManager.shutdown();
             arenaManager.saveArenas();
 
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Cleaning blocks and items...");
@@ -220,7 +220,7 @@ public class MysthicKnockBack extends JavaPlugin {
         combatManager = new CombatManager(this);
         musicManager = new MusicManager(this);
         itemVerificationManager = new ItemVerificationManager(this);
-        weaponManager = new WeaponManager();
+        weaponManager = new WeaponManager(this);
     }
 
     private void startPlaytimeUpdater() {
@@ -342,6 +342,7 @@ public class MysthicKnockBack extends JavaPlugin {
         cosmeticManager.saveAll();
         combatManager.cleanup();
         itemVerificationManager.stopVerification();
+        weaponManager.saveAllWeapons();
     }
 
     private void cleanupAllDroppedItems() {
@@ -372,7 +373,6 @@ public class MysthicKnockBack extends JavaPlugin {
         getCommand("stats").setTabCompleter(new StatsTabCompleter());
         getCommand("music").setExecutor(new MusicCommand(this));
         getCommand("report").setExecutor(new ReportCommand(this));
-        getCommand("givepearls").setExecutor(new GivePearlsCommand(this));
     }
 
     public void registerEvents() {

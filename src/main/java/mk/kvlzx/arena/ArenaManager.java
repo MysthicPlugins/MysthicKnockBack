@@ -20,6 +20,8 @@ import com.sk89q.worldedit.bukkit.selections.Selection;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.data.ArenaData;
+import mk.kvlzx.powerup.PowerUp;
+import mk.kvlzx.powerup.PowerUpManager;
 
 public class ArenaManager {
     private final MysthicKnockBack plugin;
@@ -28,6 +30,7 @@ public class ArenaManager {
     private final Map<String, Set<UUID>> arenaPlayers = new HashMap<>();
     private String currentArena = null;
     private final ArenaData arenaData;
+    private PowerUpManager powerUpManager; // Nuevo campo
 
     public ArenaManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -35,6 +38,8 @@ public class ArenaManager {
         this.playerZones = new HashMap<>();
         this.arenaData = new ArenaData(plugin);
         loadArenas();
+        // Inicializar el sistema de powerups después de cargar las arenas
+        this.powerUpManager = new PowerUpManager(plugin, this);
     }
 
     public boolean createArena(String name) {
@@ -45,6 +50,12 @@ public class ArenaManager {
         arenas.put(name, arena);
         arenaPlayers.put(name, new HashSet<>());
         if (currentArena == null) currentArena = name;
+        
+        // Agregar la arena al sistema de powerups
+        if (powerUpManager != null) {
+            powerUpManager.addArena(name);
+        }
+        
         return true;
     }
 
@@ -206,6 +217,11 @@ public class ArenaManager {
             return false;
         }
 
+        // Limpiar powerups de la arena antes de eliminarla
+        if (powerUpManager != null) {
+            powerUpManager.removeArena(name);
+        }
+
         // Si es la arena actual, cambiar a la siguiente
         if (name.equals(currentArena)) {
             String nextArena = getNextArena();
@@ -250,7 +266,6 @@ public class ArenaManager {
         String activeArena = arenaData.loadActiveArena();
         if (activeArena != null && arenas.containsKey(activeArena)) {
             setCurrentArena(activeArena);
-            // Mostrar el borde después de cargar la arena
             Arena arena = getArena(activeArena);
             if (arena != null) {
                 showArenaBorder(arena);
@@ -266,6 +281,31 @@ public class ArenaManager {
         }
         if (currentArena != null) {
             arenaData.saveActiveArena(currentArena);
+        }
+    }
+
+    // Nuevos métodos para el sistema de powerups
+    public PowerUpManager getPowerUpManager() {
+        return powerUpManager;
+    }
+
+    public void forcePowerUpSpawn(String arenaName) {
+        if (powerUpManager != null) {
+            powerUpManager.forcePowerUpSpawn(arenaName);
+        }
+    }
+
+    public List<PowerUp> getPowerUpsInArena(String arenaName) {
+        if (powerUpManager != null) {
+            return powerUpManager.getPowerUpsInArena(arenaName);
+        }
+        return new ArrayList<>();
+    }
+
+    // Método para limpiar recursos cuando se cierra el plugin
+    public void shutdown() {
+        if (powerUpManager != null) {
+            powerUpManager.shutdown();
         }
     }
 }

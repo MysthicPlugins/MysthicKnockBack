@@ -214,6 +214,21 @@ public class CustomItem {
         return skull;
     }
 
+    public static ItemStack createPearl(int amount) {
+        ItemStack item = create(ItemType.PEARL);
+        try {
+            net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+            NBTTagCompound compound = nmsItem.hasTag() ? nmsItem.getTag() : new NBTTagCompound();
+            nmsItem.count = amount;
+            nmsItem.setTag(compound);
+            return CraftItemStack.asBukkitCopy(nmsItem);
+        } catch (Exception e) {
+            MysthicKnockBack.getInstance().getLogger().warning("Error modifying item stack: " + e.getMessage());
+            e.printStackTrace();
+            return item;
+        }
+    }
+
     public static ItemStack createEmptyTopSkull(int position, String name, String... lore) {
         ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
         SkullMeta meta = (SkullMeta) skull.getItemMeta();

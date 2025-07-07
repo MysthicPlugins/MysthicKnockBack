@@ -7,6 +7,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Endermite;
@@ -68,6 +69,25 @@ public class CombatListener implements Listener {
                 event.setDamage(0.0D);
                 return;
             }
+        } else if (event.getDamager() instanceof Snowball) {
+            // NUEVO: Manejar ataques de bolas de nieve
+            Snowball snowball = (Snowball) event.getDamager();
+            
+            if (snowball.getShooter() instanceof Player) {
+                Player shooter = (Player) snowball.getShooter();
+                
+                // Solo registrar como atacante si NO es self-damage
+                if (!shooter.equals(victim)) {
+                    lastAttacker.put(victim.getUniqueId(), shooter.getUniqueId());
+                    lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
+                    
+                    // Aplicar knockback personalizado para bolas de nieve
+                    plugin.getCombatManager().applyCustomKnockback(victim, shooter);
+                }
+                
+                event.setDamage(0.0D);
+                return;
+            }
         } else if (event.getDamager() instanceof EnderPearl) {
             // Las perlas de ender solo deben dar knockback a otros jugadores, NO al que la lanzó
             EnderPearl pearl = (EnderPearl) event.getDamager();
@@ -82,7 +102,7 @@ public class CombatListener implements Listener {
             event.setDamage(0.0D);
             return;
         } else if (event.getDamager() instanceof Endermite) {
-            // NUEVO: Manejar ataques de endermites
+            // Manejar ataques de endermites
             Endermite endermite = (Endermite) event.getDamager();
             
             // Verificar si el endermite tiene un dueño registrado

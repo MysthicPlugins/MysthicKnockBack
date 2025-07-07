@@ -5,7 +5,6 @@ C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\arena\Zone.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\arena\ZoneType.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\ArenaCommand.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\ArenaTabCompleter.java
-C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\GivePearlsCommand.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\MainCommand.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\MainTabCompleter.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\commands\MusicCommand.java
@@ -85,6 +84,9 @@ C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\TopKillsMenu.jav
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\TopStreakMenu.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\menu\TopTimeMenu.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\MysthicKnockBack.java
+C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\powerup\PowerUp.java
+C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\powerup\PowerUpManager.java
+C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\powerup\PowerUpType.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\reports\ReportReason.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\stats\PlayerStats.java
 C:\plugins\plugins\MysthicKnockBack\src\main\java\mk\kvlzx\utils\BlockUtils.java

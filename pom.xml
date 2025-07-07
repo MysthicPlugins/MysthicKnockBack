@@ -68,6 +68,7 @@
                     <include>data/stats.yml</include>
                     <include>data/inventories.yml</include>
                     <include>data/cosmetics.yml</include>
+                    <include>data/weapons.yml</include>
                     <include>config/global/config.yml</include>
                     <include>config/global/messages.yml</include>
                     <include>config/global/tab.yml</include>

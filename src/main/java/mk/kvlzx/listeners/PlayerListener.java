@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import mk.kvlzx.items.CustomItem.ItemType;
 import mk.kvlzx.managers.RankManager;
 
 import org.bukkit.Material;
@@ -122,6 +121,8 @@ public class PlayerListener implements Listener {
         } else {
             // Si no hay cambio de arena, asegurar velocidad normal
             player.setWalkSpeed(0.2f);
+            player.setFoodLevel(20);
+            player.setSaturation(20.0f);
         }
         
         plugin.getScoreboardManager().updatePlayerZone(player, currentArena);
@@ -423,16 +424,13 @@ public class PlayerListener implements Listener {
         if (pearlSlot == -1) return; // Si no tiene configurada la perla, no dar nada
 
         ItemStack currentItem = killer.getInventory().getItem(pearlSlot);
-        ItemStack pearlItem = CustomItem.create(ItemType.PEARL);
-        pearlItem.setAmount(1);
 
         if (currentItem == null || currentItem.getType() == Material.AIR) {
-            killer.getInventory().setItem(pearlSlot, pearlItem);
+            killer.getInventory().setItem(pearlSlot, CustomItem.createPearl(1));
         } else if (currentItem.getType() == Material.ENDER_PEARL) {
             int currentAmount = currentItem.getAmount();
-            if (currentAmount < 128) {
-                currentItem.setAmount(currentAmount + 1);
-                killer.getInventory().setItem(pearlSlot, currentItem);
+            if (currentAmount < 64) {
+                killer.getInventory().setItem(pearlSlot, CustomItem.createPearl(currentAmount + 1));
             }
         }
     }

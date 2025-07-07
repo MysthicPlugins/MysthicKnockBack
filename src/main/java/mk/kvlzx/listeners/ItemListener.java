@@ -179,7 +179,7 @@ public class ItemListener implements Listener {
                 player.launchProjectile(Snowball.class);
                 
                 // Reproducir sonido de disparo de bola de nieve
-                player.playSound(player.getLocation(), Sound.ARROW_HIT, 1.0f, 1.2f);
+                player.playSound(player.getLocation(), Sound.SHOOT_ARROW, 1.0f, 1.2f);
                 
                 // Incrementar el contador
                 currentCount++;
