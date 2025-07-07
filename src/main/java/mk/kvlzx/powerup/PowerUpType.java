@@ -5,13 +5,27 @@ import java.util.List;
 
 import org.bukkit.Material;
 
+import mk.kvlzx.utils.MessageUtils;
+
 public enum PowerUpType {
-    SPEED("§bSpeed", Material.SUGAR, Arrays.asList("§7Increases your speed", "§7for 30 seconds")),
-    JUMP("§aJump", Material.RABBIT_FOOT, Arrays.asList("§7Increases your jump", "§7for 30 seconds")),
-    STRENGTH("§cStrength", Material.BLAZE_POWDER, Arrays.asList("§7Increases your damage", "§7for 20 seconds")),
-    HEALTH("§dRegenerate", Material.GOLDEN_APPLE, Arrays.asList("§7Regenerates your health", "§7for 10 seconds")),
-    INVISIBILITY("§8Invisibility", Material.FERMENTED_SPIDER_EYE, Arrays.asList("§7Makes you invisible", "§7for 15 seconds")),
-    KNOCKBACK("§6Knockback", Material.STICK, Arrays.asList("§7Increases your knockback", "§7for 15 seconds"));
+    SPEED("§bSpeed", Material.SUGAR, Arrays.asList(
+            MessageUtils.getColor("&7Increases your speed"),
+            MessageUtils.getColor("&7for 30 seconds"))),
+    JUMP("§aJump", Material.RABBIT_FOOT, Arrays.asList(
+            MessageUtils.getColor("&7Increases your jump"),
+            MessageUtils.getColor("&7for 30 seconds"))),
+    STRENGTH("§cStrength", Material.BLAZE_POWDER, Arrays.asList(
+            MessageUtils.getColor("&7Increases your damage"),
+            MessageUtils.getColor("&7for 20 seconds"))),
+    HEALTH("§dRegenerate", Material.GOLDEN_APPLE, Arrays.asList(
+            MessageUtils.getColor("&7Regenerates your health"),
+            MessageUtils.getColor("&7for 10 seconds"))),
+    INVISIBILITY("§8Invisibility", Material.FERMENTED_SPIDER_EYE, Arrays.asList(
+            MessageUtils.getColor("&7Makes you invisible"),
+            MessageUtils.getColor("&7for 15 seconds"))),
+    KNOCKBACK("§6Knockback", Material.STICK, Arrays.asList(
+            MessageUtils.getColor("&7Increases your knockback"),
+            MessageUtils.getColor("&7for 15 seconds")));
 
     private final String displayName;
     private final Material material;

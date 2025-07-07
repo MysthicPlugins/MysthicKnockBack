@@ -219,7 +219,6 @@ public class PlayerStats {
             this.deaths = section.getInt("deaths", 0);
             this.elo = section.getInt("elo", 500);
             StreakManager.setMaxStreak(uuid, section.getInt("maxStreak", 0));
-            StreakManager.setStreak(uuid, section.getInt("currentStreak", 0));
             this.playTime = section.getLong("playTime", 0);
             this.kgCoins = section.getInt("kgcoins", 0);
         }

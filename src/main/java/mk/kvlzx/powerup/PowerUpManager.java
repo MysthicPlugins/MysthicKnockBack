@@ -1,6 +1,7 @@
 package mk.kvlzx.powerup;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -8,13 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -27,23 +29,22 @@ import mk.kvlzx.utils.MessageUtils;
 public class PowerUpManager {
     private final MysthicKnockBack plugin;
     private final ArenaManager arenaManager;
-    private final Map<String, List<PowerUp>> arenaPowerUps; // Arena -> Lista de PowerUps
-    private final Map<String, BukkitTask> arenaSpawnTasks; // Arena -> Task de spawn
-    private final Map<String, BukkitTask> arenaCheckTasks; // Arena -> Task de verificación
+    private final Map<String, List<PowerUp>> arenaPowerUps;
+    private final Map<String, BukkitTask> arenaSpawnTasks;
     private final Random random;
 
     // Configuración
-    private final int SPAWN_INTERVAL = 30; // Segundos entre spawns
-    private final int MAX_POWERUPS_PER_ARENA = 3; // Máximo de powerups por arena
-    private final int CHECK_INTERVAL = 10; // Ticks entre verificaciones de jugadores cerca
-    private final int MAX_SPAWN_ATTEMPTS = 20; // Máximo de intentos para encontrar una ubicación válida
+    private final int SPAWN_INTERVAL = 25; // Segundos entre spawns
+    private final int MAX_POWERUPS_PER_ARENA = 4; // Máximo de powerups por arena
+    private final int CHECK_INTERVAL = 5; // Ticks entre verificaciones
+    private final int MAX_SPAWN_ATTEMPTS = 30; // Máximo de intentos para encontrar una ubicación válida
+    private final double MIN_DISTANCE_BETWEEN_POWERUPS = 4.0; // Distancia mínima entre powerups
 
     public PowerUpManager(MysthicKnockBack plugin, ArenaManager arenaManager) {
         this.plugin = plugin;
         this.arenaManager = arenaManager;
-        this.arenaPowerUps = new HashMap<>();
+        this.arenaPowerUps = new ConcurrentHashMap<>();
         this.arenaSpawnTasks = new HashMap<>();
-        this.arenaCheckTasks = new HashMap<>();
         this.random = new Random();
         
         startPowerUpSystem();
@@ -55,18 +56,18 @@ public class PowerUpManager {
             initializeArena(arena.getName());
         }
 
-        // Task principal para verificar jugadores cerca de powerups
+        // Task principal para cleanup y verificación
         new BukkitRunnable() {
             @Override
             public void run() {
-                checkPlayersNearPowerUps();
+                cleanupExpiredPowerUps();
             }
-        }.runTaskTimer(plugin, 0L, CHECK_INTERVAL);
+        }.runTaskTimer(plugin, 0L, CHECK_INTERVAL * 4);
     }
 
     public void initializeArena(String arenaName) {
         if (!arenaPowerUps.containsKey(arenaName)) {
-            arenaPowerUps.put(arenaName, new ArrayList<>());
+            arenaPowerUps.put(arenaName, Collections.synchronizedList(new ArrayList<>()));
         }
 
         // Crear task de spawn para esta arena
@@ -90,6 +91,11 @@ public class PowerUpManager {
 
         // Verificar si ya hay suficientes powerups
         List<PowerUp> powerUps = arenaPowerUps.get(arenaName);
+        if (powerUps == null) return;
+        
+        // Limpiar powerups removidos de la lista
+        powerUps.removeIf(PowerUp::isRemoved);
+        
         if (powerUps.size() >= MAX_POWERUPS_PER_ARENA) return;
 
         // Obtener zona PVP
@@ -97,66 +103,131 @@ public class PowerUpManager {
         if (pvpZone == null) return;
 
         // Generar ubicación válida en el suelo dentro de la zona PVP
-        Location spawnLocation = getValidGroundLocationInZone(pvpZone);
+        Location spawnLocation = getValidGroundLocationInZone(pvpZone, arenaName);
         if (spawnLocation == null) return;
 
         // Crear powerup aleatorio
         PowerUpType randomType = PowerUpType.getRandom();
-        PowerUp powerUp = new PowerUp(randomType, spawnLocation);
+        PowerUp powerUp = new PowerUp(randomType, spawnLocation, plugin);
         powerUps.add(powerUp);
 
         // Notificar a los jugadores
         for (Player player : playersInArena) {
-            player.sendMessage(MessageUtils.getColor("&e¡Ha aparecido un powerup en la arena!"));
+            player.sendMessage(MessageUtils.getColor("&eA " + randomType.getDisplayName() + " &epowerup has appeared in the arena!"));
+            player.playSound(player.getLocation(), Sound.NOTE_PLING, 0.8f, 1.2f);
         }
     }
 
-    private Location getValidGroundLocationInZone(Zone zone) {
+    private Location getValidGroundLocationInZone(Zone zone, String arenaName) {
         Location min = zone.getMin();
         Location max = zone.getMax();
         
-        // Intentar múltiples ubicaciones aleatorias dentro de la zona
+        // Generar múltiples candidatos y elegir el mejor
+        List<Location> candidates = new ArrayList<>();
+        
         for (int attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++) {
             double x = min.getX() + random.nextDouble() * (max.getX() - min.getX());
             double z = min.getZ() + random.nextDouble() * (max.getZ() - min.getZ());
             
-            // Empezar desde la parte superior de la zona
-            Location startLocation = new Location(min.getWorld(), x, max.getY(), z);
+            // Buscar desde arriba hacia abajo
+            Location groundLocation = findBestGroundLocation(min.getWorld(), x, z, max.getY(), min.getY());
+            if (groundLocation != null && canPlacePowerUp(groundLocation, arenaName)) {
+                candidates.add(groundLocation);
+            }
+        }
+        
+        // Si no hay candidatos, intentar con criterios más relajados
+        if (candidates.isEmpty()) {
+            return findFallbackLocation(zone, arenaName);
+        }
+        
+        // Elegir el mejor candidato (más alejado de otros powerups)
+        return getBestCandidateLocation(candidates, arenaName);
+    }
+
+    private Location findBestGroundLocation(org.bukkit.World world, double x, double z, double maxY, double minY) {
+        Location checkLocation = new Location(world, x, minY, z);
+        
+        // Buscar desde abajo hacia arriba para encontrar el primer espacio válido
+        for (double y = minY; y <= maxY - 2; y++) {
+            checkLocation.setY(y);
             
-            // Buscar el suelo válido
-            Location groundLocation = findGroundLocationInZone(startLocation, min.getY());
-            if (groundLocation != null && canPlacePowerUp(groundLocation)) {
-                return groundLocation;
+            Block currentBlock = checkLocation.getBlock();
+            Block aboveBlock = currentBlock.getRelative(BlockFace.UP);
+            Block above2Block = aboveBlock.getRelative(BlockFace.UP);
+            
+            // Verificar si tenemos un bloque sólido como base
+            if (currentBlock.getType().isSolid() && 
+                !isUnsafeBlock(currentBlock.getType()) &&
+                aboveBlock.getType() == Material.AIR && 
+                above2Block.getType() == Material.AIR) {
+                
+                // Retornar la posición encima del bloque sólido
+                return checkLocation.clone().add(0, 1, 0);
             }
         }
         
         return null;
     }
 
-    private Location findGroundLocationInZone(Location startLocation, double minY) {
-        Location searchLocation = startLocation.clone();
+    private Location findFallbackLocation(Zone zone, String arenaName) {
+        Location min = zone.getMin();
+        Location max = zone.getMax();
         
-        // Primero, subir hasta encontrar aire si estamos dentro de un bloque
-        while (searchLocation.getBlock().getType() != Material.AIR && searchLocation.getY() < 256) {
-            searchLocation.add(0, 1, 0);
-        }
+        // Buscar en una grilla más sistemática
+        double stepX = (max.getX() - min.getX()) / 5;
+        double stepZ = (max.getZ() - min.getZ()) / 5;
         
-        // Luego, buscar hacia abajo hasta encontrar un bloque sólido
-        for (double y = searchLocation.getY(); y >= minY; y--) {
-            searchLocation.setY(y);
-            Block currentBlock = searchLocation.getBlock();
-            Block belowBlock = searchLocation.clone().add(0, -1, 0).getBlock();
-            
-            // Si el bloque actual es aire y el de abajo es sólido, esta es una buena ubicación
-            if (currentBlock.getType() == Material.AIR && belowBlock.getType().isSolid()) {
-                return searchLocation.clone();
+        for (double x = min.getX() + stepX; x < max.getX(); x += stepX) {
+            for (double z = min.getZ() + stepZ; z < max.getZ(); z += stepZ) {
+                Location groundLocation = findBestGroundLocation(min.getWorld(), x, z, max.getY(), min.getY());
+                if (groundLocation != null && canPlacePowerUpRelaxed(groundLocation, arenaName)) {
+                    return groundLocation;
+                }
             }
         }
         
         return null;
     }
 
-    private boolean canPlacePowerUp(Location location) {
+    private Location getBestCandidateLocation(List<Location> candidates, String arenaName) {
+        if (candidates.isEmpty()) return null;
+        if (candidates.size() == 1) return candidates.get(0);
+        
+        List<PowerUp> existingPowerUps = arenaPowerUps.get(arenaName);
+        if (existingPowerUps == null || existingPowerUps.isEmpty()) {
+            return candidates.get(random.nextInt(candidates.size()));
+        }
+        
+        Location bestLocation = null;
+        double bestMinDistance = 0;
+        
+        for (Location candidate : candidates) {
+            double minDistance = Double.MAX_VALUE;
+            
+            for (PowerUp powerUp : existingPowerUps) {
+                if (powerUp.isRemoved()) continue;
+                double distance = candidate.distance(powerUp.getLocation());
+                if (distance < minDistance) {
+                    minDistance = distance;
+                }
+            }
+            
+            if (minDistance > bestMinDistance) {
+                bestMinDistance = minDistance;
+                bestLocation = candidate;
+            }
+        }
+        
+        return bestLocation != null ? bestLocation : candidates.get(0);
+    }
+
+    private boolean canPlacePowerUp(Location location, String arenaName) {
+        return canPlacePowerUpRelaxed(location, arenaName) && 
+                getAllPowerUpsNearLocation(location, MIN_DISTANCE_BETWEEN_POWERUPS, arenaName).isEmpty();
+    }
+
+    private boolean canPlacePowerUpRelaxed(Location location, String arenaName) {
         Block block = location.getBlock();
         Block below = block.getRelative(BlockFace.DOWN);
         
@@ -165,31 +236,42 @@ public class PowerUpManager {
             return false;
         }
         
-        // Verificar que haya un bloque sólido debajo
-        if (!below.getType().isSolid()) {
+        // Verificar que haya un bloque sólido debajo y que no sea peligroso
+        if (!below.getType().isSolid() || isUnsafeBlock(below.getType())) {
             return false;
         }
 
-        // Verificar que no haya otros powerups muy cerca (opcional)
-        List<PowerUp> nearbyPowerUps = getAllPowerUpsNearLocation(location, 3.0);
-        if (!nearbyPowerUps.isEmpty()) {
-            return false;
-        }
-
-        // Verificar que haya suficiente espacio arriba (2 bloques de altura)
+        // Verificar que haya suficiente espacio arriba
         Block above = block.getRelative(BlockFace.UP);
         if (above.getType() != Material.AIR) {
+            return false;
+        }
+
+        // Verificar que no esté muy cerca de otros powerups
+        List<PowerUp> nearbyPowerUps = getAllPowerUpsNearLocation(location, 2.0, arenaName);
+        if (nearbyPowerUps.size() > 0) {
             return false;
         }
 
         return true;
     }
 
-    private List<PowerUp> getAllPowerUpsNearLocation(Location location, double distance) {
+    private boolean isUnsafeBlock(Material material) {
+        return material == Material.LAVA || 
+                material == Material.FIRE || 
+                material == Material.CACTUS ||
+                material == Material.COBBLE_WALL ||
+                material.name().contains("PRESSURE_PLATE") ||
+                material.name().contains("TRIPWIRE");
+    }
+
+    private List<PowerUp> getAllPowerUpsNearLocation(Location location, double distance, String arenaName) {
         List<PowerUp> nearbyPowerUps = new ArrayList<>();
+        List<PowerUp> arenaPowerUpList = arenaPowerUps.get(arenaName);
         
-        for (List<PowerUp> powerUps : arenaPowerUps.values()) {
-            for (PowerUp powerUp : powerUps) {
+        if (arenaPowerUpList != null) {
+            for (PowerUp powerUp : arenaPowerUpList) {
+                if (powerUp.isRemoved()) continue;
                 if (powerUp.getLocation().getWorld().equals(location.getWorld()) &&
                     powerUp.getLocation().distance(location) < distance) {
                     nearbyPowerUps.add(powerUp);
@@ -200,30 +282,18 @@ public class PowerUpManager {
         return nearbyPowerUps;
     }
 
-    private void checkPlayersNearPowerUps() {
+    private void cleanupExpiredPowerUps() {
         for (Map.Entry<String, List<PowerUp>> entry : arenaPowerUps.entrySet()) {
-            String arenaName = entry.getKey();
             List<PowerUp> powerUps = entry.getValue();
-            Set<Player> playersInArena = arenaManager.getPlayersInArena(arenaName);
-
-            // Verificar cada powerup
-            Iterator<PowerUp> iterator = powerUps.iterator();
-            while (iterator.hasNext()) {
-                PowerUp powerUp = iterator.next();
-
-                // Remover powerups expirados o recogidos
-                if (powerUp.isExpired() || powerUp.isCollected()) {
-                    powerUp.remove();
-                    iterator.remove();
-                    continue;
-                }
-
-                // Verificar si algún jugador está cerca
-                for (Player player : playersInArena) {
-                    if (powerUp.isNearPlayer(player)) {
-                        powerUp.applyEffect(player);
+            
+            synchronized (powerUps) {
+                Iterator<PowerUp> iterator = powerUps.iterator();
+                while (iterator.hasNext()) {
+                    PowerUp powerUp = iterator.next();
+                    
+                    if (powerUp.isExpired() || powerUp.isCollected() || powerUp.isRemoved()) {
+                        powerUp.remove();
                         iterator.remove();
-                        break;
                     }
                 }
             }
@@ -234,21 +304,18 @@ public class PowerUpManager {
         // Remover todos los powerups de la arena
         List<PowerUp> powerUps = arenaPowerUps.get(arenaName);
         if (powerUps != null) {
-            for (PowerUp powerUp : powerUps) {
-                powerUp.remove();
+            synchronized (powerUps) {
+                for (PowerUp powerUp : powerUps) {
+                    powerUp.remove();
+                }
+                powerUps.clear();
             }
-            powerUps.clear();
         }
 
-        // Cancelar tasks
+        // Cancelar task de spawn
         BukkitTask spawnTask = arenaSpawnTasks.remove(arenaName);
         if (spawnTask != null) {
             spawnTask.cancel();
-        }
-
-        BukkitTask checkTask = arenaCheckTasks.remove(arenaName);
-        if (checkTask != null) {
-            checkTask.cancel();
         }
     }
 
@@ -260,7 +327,7 @@ public class PowerUpManager {
 
         // Cancelar todos los tasks
         arenaSpawnTasks.values().forEach(BukkitTask::cancel);
-        arenaCheckTasks.values().forEach(BukkitTask::cancel);
+        arenaSpawnTasks.clear();
     }
 
     public void addArena(String arenaName) {
@@ -273,16 +340,47 @@ public class PowerUpManager {
     }
 
     public List<PowerUp> getPowerUpsInArena(String arenaName) {
-        return arenaPowerUps.getOrDefault(arenaName, new ArrayList<>());
+        List<PowerUp> powerUps = arenaPowerUps.get(arenaName);
+        return powerUps != null ? new ArrayList<>(powerUps) : new ArrayList<>();
     }
 
     public void forcePowerUpSpawn(String arenaName) {
-        trySpawnPowerUp(arenaName);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                trySpawnPowerUp(arenaName);
+            }
+        }.runTask(plugin);
     }
 
     // Método para verificar si un jugador tiene el efecto de knockback especial
     public boolean hasKnockbackPowerUp(Player player) {
-        // Acá se podria agregar lógica adicional para trackear efectos especiales
-        return player.hasPotionEffect(PotionEffectType.INCREASE_DAMAGE);
+        if (player.hasMetadata("knockback_powerup")) {
+            long expireTime = player.getMetadata("knockback_powerup").get(0).asLong();
+            if (System.currentTimeMillis() < expireTime) {
+                return true;
+            } else {
+                player.removeMetadata("knockback_powerup", plugin);
+            }
+        }
+        return false;
+    }
+
+    // Método para obtener estadísticas de powerups
+    public int getTotalActivePowerUps() {
+        return arenaPowerUps.values().stream()
+                .mapToInt(List::size)
+                .sum();
+    }
+
+    public int getActivePowerUpsInArena(String arenaName) {
+        List<PowerUp> powerUps = arenaPowerUps.get(arenaName);
+        if (powerUps == null) return 0;
+        
+        synchronized (powerUps) {
+            return (int) powerUps.stream()
+                    .filter(p -> !p.isRemoved() && !p.isExpired())
+                    .count();
+        }
     }
 }

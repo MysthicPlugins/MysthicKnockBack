@@ -118,34 +118,76 @@ public class StreakManager {
     }
 
     private static String getMvpTag(int streak) {
-        if (streak < 40) return null;
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] getMvpTag called with streak: " + streak);
+        
+        if (streak < 40) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] Streak < 40, returning null");
+            return null;
+        }
         
         MainConfig config = MysthicKnockBack.getInstance().getMainConfig();
+        if (config == null) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG ERROR] Config es null en getMvpTag");
+            return null;
+        }
         
-        if (streak >= 500) return MessageUtils.getColor(config.getStreakTag500());
-        else if (streak >= 300) return MessageUtils.getColor(config.getStreakTag300());
-        else if (streak >= 250) return MessageUtils.getColor(config.getStreakTag250());
-        else if (streak >= 200) return MessageUtils.getColor(config.getStreakTag200());
-        else if (streak >= 150) return MessageUtils.getColor(config.getStreakTag150());
-        else if (streak >= 100) return MessageUtils.getColor(config.getStreakTag100());
-        else if (streak >= 80) return MessageUtils.getColor(config.getStreakTag80());
-        else if (streak >= 60) return MessageUtils.getColor(config.getStreakTag60());
-        else if (streak >= 40) return MessageUtils.getColor(config.getStreakTag40());
+        String tag = null;
+        if (streak >= 500) tag = config.getStreakTag500();
+        else if (streak >= 300) tag = config.getStreakTag300();
+        else if (streak >= 250) tag = config.getStreakTag250();
+        else if (streak >= 200) tag = config.getStreakTag200();
+        else if (streak >= 150) tag = config.getStreakTag150();
+        else if (streak >= 100) tag = config.getStreakTag100();
+        else if (streak >= 80) tag = config.getStreakTag80();
+        else if (streak >= 60) tag = config.getStreakTag60();
+        else if (streak >= 40) tag = config.getStreakTag40();
         
-        return null;
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] Tag obtenido: " + tag);
+        
+        if (tag == null) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG ERROR] Tag es null para streak " + streak);
+            return null;
+        }
+        
+        String coloredTag = MessageUtils.getColor(tag);
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] Tag coloreado: " + coloredTag);
+        
+        return coloredTag;
     }
 
     private static void updateMvpTag(Player player) {
-        if (player == null || !player.isOnline()) return;
+        if (player == null || !player.isOnline()) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] Player es null o no está online");
+            return;
+        }
         
         UUID uuid = player.getUniqueId();
         int streak = getStreak(uuid);
         String mvpTag = getMvpTag(streak);
+        
+        // DEBUG: Imprimir información
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] Player: " + player.getName());
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] Streak: " + streak);
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] MVP Tag: " + mvpTag);
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] Streak >= 40: " + (streak >= 40));
 
         if (streak >= 40 && mvpTag != null) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] Intentando crear MVP tag...");
             removeTag(uuid);
             
             MainConfig config = MysthicKnockBack.getInstance().getMainConfig();
+            
+            // Verificar configuración
+            if (config == null) {
+                MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG ERROR] Config es null!");
+                return;
+            }
+            
+            // DEBUG: Verificar valores de configuración
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] ArmorStand Name: " + config.getStreakArmorStandName());
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] ArmorStand X: " + config.getStreakArmorStandX());
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] ArmorStand Y: " + config.getStreakArmorStandY());
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] ArmorStand Z: " + config.getStreakArmorStandZ());
             
             // Usar offsets configurables para la posición del ArmorStand
             Location loc = player.getLocation().add(
@@ -154,64 +196,95 @@ public class StreakManager {
                 config.getStreakArmorStandZ()
             );
             
-            ArmorStand armorStand = (ArmorStand) player.getWorld().spawnEntity(loc, EntityType.ARMOR_STAND);
-            armorStand.setVisible(false);
-            armorStand.setGravity(false);
-            armorStand.setCustomNameVisible(true);
-            armorStand.setSmall(true);
-            armorStand.setMarker(true);
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] Spawning ArmorStand at: " + loc);
             
-            // Usar nombre configurable para el ArmorStand
-            String armorStandName = config.getStreakArmorStandName()
-                .replace("%tag%", mvpTag)
-                .replace("%kills%", String.valueOf(streak));
-            armorStand.setCustomName(MessageUtils.getColor(armorStandName));
+            try {
+                ArmorStand armorStand = (ArmorStand) player.getWorld().spawnEntity(loc, EntityType.ARMOR_STAND);
+                armorStand.setVisible(false);
+                armorStand.setGravity(false);
+                armorStand.setCustomNameVisible(true);
+                armorStand.setSmall(true);
+                armorStand.setMarker(true);
+                
+                // Usar nombre configurable para el ArmorStand
+                String armorStandName = config.getStreakArmorStandName()
+                    .replace("%tag%", mvpTag)
+                    .replace("%kills%", String.valueOf(streak));
+                String coloredName = MessageUtils.getColor(armorStandName);
+                armorStand.setCustomName(coloredName);
+                
+                MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] ArmorStand creado con nombre: " + coloredName);
 
-            playerMvpTags.put(uuid, armorStand);
+                playerMvpTags.put(uuid, armorStand);
+                MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] ArmorStand añadido al mapa");
 
-            // Ocultar el armor stand para el jugador propietario usando NMS
-            hideArmorStandFromOwner(player, armorStand);
-
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    Player p = Bukkit.getPlayer(uuid);
-                    if (p == null || !p.isOnline() || p.isDead() || getStreak(uuid) < 40) {
-                        removeTag(uuid);
-                        cancel();
-                        return;
-                    }
-                    
-                    MainConfig currentConfig = MysthicKnockBack.getInstance().getMainConfig();
-                    armorStand.teleport(p.getLocation().add(
-                        currentConfig.getStreakArmorStandX(),
-                        currentConfig.getStreakArmorStandY(),
-                        currentConfig.getStreakArmorStandZ()
-                    ));
-                    
-                    int currentStreak = getStreak(uuid);
-                    String currentMvpTag = getMvpTag(currentStreak);
-                    
-                    if (currentMvpTag != null) {
-                        String updatedName = currentConfig.getStreakArmorStandName()
-                            .replace("%tag%", currentMvpTag)
-                            .replace("%kills%", String.valueOf(currentStreak));
-                        String coloredName = MessageUtils.getColor(updatedName);
-                        
-                        if (!armorStand.getCustomName().equals(coloredName)) {
-                            armorStand.setCustomName(coloredName);
-                        }
-                    }
-                    
-                    if (p != null) {
-                        p.setLevel(getStreak(uuid));
-                        p.setExp(1.0f);
-                    }
+                // Intentar ocultar el armor stand (puede fallar)
+                try {
+                    hideArmorStandFromOwner(player, armorStand);
+                    MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] ArmorStand ocultado del propietario");
+                } catch (Exception e) {
+                    MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG ERROR] Error ocultando ArmorStand: " + e.getMessage());
+                    e.printStackTrace();
                 }
-            }.runTaskTimer(MysthicKnockBack.getInstance(), 0L, 1L);
+
+                // Crear el runnable para actualizar posición
+                createUpdateTask(uuid, armorStand);
+                
+            } catch (Exception e) {
+                MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG ERROR] Error creando ArmorStand: " + e.getMessage());
+                e.printStackTrace();
+            }
+            
         } else {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] Removiendo tag (streak < 40 o mvpTag es null)");
             removeTag(uuid);
         }
+    }
+
+    private static void createUpdateTask(UUID uuid, ArmorStand armorStand) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Player p = Bukkit.getPlayer(uuid);
+                if (p == null || !p.isOnline() || p.isDead() || getStreak(uuid) < 40) {
+                    MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG] Cancelando task para " + uuid);
+                    removeTag(uuid);
+                    cancel();
+                    return;
+                }
+                
+                MainConfig currentConfig = MysthicKnockBack.getInstance().getMainConfig();
+                if (currentConfig == null) {
+                    MessageUtils.sendMsg(Bukkit.getConsoleSender(), "[DEBUG ERROR] Config es null en task");
+                    return;
+                }
+                
+                armorStand.teleport(p.getLocation().add(
+                    currentConfig.getStreakArmorStandX(),
+                    currentConfig.getStreakArmorStandY(),
+                    currentConfig.getStreakArmorStandZ()
+                ));
+                
+                int currentStreak = getStreak(uuid);
+                String currentMvpTag = getMvpTag(currentStreak);
+                
+                if (currentMvpTag != null) {
+                    String updatedName = currentConfig.getStreakArmorStandName()
+                        .replace("%tag%", currentMvpTag)
+                        .replace("%kills%", String.valueOf(currentStreak));
+                    String coloredName = MessageUtils.getColor(updatedName);
+                    
+                    if (!armorStand.getCustomName().equals(coloredName)) {
+                        armorStand.setCustomName(coloredName);
+                    }
+                }
+                
+                if (p != null) {
+                    p.setLevel(getStreak(uuid));
+                    p.setExp(1.0f);
+                }
+            }
+        }.runTaskTimer(MysthicKnockBack.getInstance(), 0L, 1L);
     }
 
     private static void hideArmorStandFromOwner(Player owner, ArmorStand armorStand) {

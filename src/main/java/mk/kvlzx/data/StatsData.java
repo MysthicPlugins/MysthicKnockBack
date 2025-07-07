@@ -25,7 +25,6 @@ public class StatsData {
         section.set("deaths", stats.getDeaths());
         section.set("elo", stats.getElo());
         section.set("maxStreak", stats.getMaxStreak());
-        section.set("currentStreak", stats.getCurrentStreak());
         section.set("playTime", stats.getPlayTime()); // Guardamos los minutos directamente
         section.set("kgcoins", stats.getKGCoins());
         

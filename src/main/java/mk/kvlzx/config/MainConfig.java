@@ -231,7 +231,7 @@ public class MainConfig {
         arrowLore = config.getString("config.hotbar.default.items.arrow.lore");
         arrowKnockback = config.getBoolean("config.hotbar.default.items.arrow.knockback.enabled");
         arrowKnockbackLevel = config.getInt("config.hotbar.default.items.arrow.knockback.level");
-        slimeBallId = validateAndGetMaterial(config, "config.hotbar.default.items.slimeball.id", "SLIME_BALL");
+        slimeBallId = validateAndGetMaterial(config, "config.hotbar.default.items.slime_ball.id", "SLIME_BALL");
         slimeBallName = config.getString("config.hotbar.default.items.slime_ball.name");
         slimeBallLore = config.getString("config.hotbar.default.items.slime_ball.lore");
         slimeBallKnockback = config.getBoolean("config.hotbar.default.items.slime_ball.knockback.enabled");
@@ -367,7 +367,8 @@ public class MainConfig {
             "config.hotbar.default.items.plate.id",
             "config.hotbar.default.items.feather.id",
             "config.hotbar.default.items.pearl.id",
-            "config.hotbar.default.items.arrow.id"
+            "config.hotbar.default.items.arrow.id",
+            "config.hotbar.default.items.slime_ball.id"
         };
         
         for (String path : materialPaths) {
