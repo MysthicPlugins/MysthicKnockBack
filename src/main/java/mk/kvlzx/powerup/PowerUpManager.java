@@ -10,6 +10,9 @@ import java.util.Random;
 import java.util.Set;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -33,6 +36,7 @@ public class PowerUpManager {
     private final int SPAWN_INTERVAL = 30; // Segundos entre spawns
     private final int MAX_POWERUPS_PER_ARENA = 3; // Máximo de powerups por arena
     private final int CHECK_INTERVAL = 10; // Ticks entre verificaciones de jugadores cerca
+    private final int MAX_SPAWN_ATTEMPTS = 20; // Máximo de intentos para encontrar una ubicación válida
 
     public PowerUpManager(MysthicKnockBack plugin, ArenaManager arenaManager) {
         this.plugin = plugin;
@@ -92,8 +96,8 @@ public class PowerUpManager {
         Zone pvpZone = arena.getZone("pvp");
         if (pvpZone == null) return;
 
-        // Generar ubicación aleatoria dentro de la zona PVP
-        Location spawnLocation = getRandomLocationInZone(pvpZone);
+        // Generar ubicación válida en el suelo dentro de la zona PVP
+        Location spawnLocation = getValidGroundLocationInZone(pvpZone);
         if (spawnLocation == null) return;
 
         // Crear powerup aleatorio
@@ -107,15 +111,93 @@ public class PowerUpManager {
         }
     }
 
-    private Location getRandomLocationInZone(Zone zone) {
+    private Location getValidGroundLocationInZone(Zone zone) {
         Location min = zone.getMin();
         Location max = zone.getMax();
+        
+        // Intentar múltiples ubicaciones aleatorias dentro de la zona
+        for (int attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++) {
+            double x = min.getX() + random.nextDouble() * (max.getX() - min.getX());
+            double z = min.getZ() + random.nextDouble() * (max.getZ() - min.getZ());
+            
+            // Empezar desde la parte superior de la zona
+            Location startLocation = new Location(min.getWorld(), x, max.getY(), z);
+            
+            // Buscar el suelo válido
+            Location groundLocation = findGroundLocationInZone(startLocation, min.getY());
+            if (groundLocation != null && canPlacePowerUp(groundLocation)) {
+                return groundLocation;
+            }
+        }
+        
+        return null;
+    }
 
-        double x = min.getX() + random.nextDouble() * (max.getX() - min.getX());
-        double y = min.getY() + 1; // Un bloque arriba del suelo
-        double z = min.getZ() + random.nextDouble() * (max.getZ() - min.getZ());
+    private Location findGroundLocationInZone(Location startLocation, double minY) {
+        Location searchLocation = startLocation.clone();
+        
+        // Primero, subir hasta encontrar aire si estamos dentro de un bloque
+        while (searchLocation.getBlock().getType() != Material.AIR && searchLocation.getY() < 256) {
+            searchLocation.add(0, 1, 0);
+        }
+        
+        // Luego, buscar hacia abajo hasta encontrar un bloque sólido
+        for (double y = searchLocation.getY(); y >= minY; y--) {
+            searchLocation.setY(y);
+            Block currentBlock = searchLocation.getBlock();
+            Block belowBlock = searchLocation.clone().add(0, -1, 0).getBlock();
+            
+            // Si el bloque actual es aire y el de abajo es sólido, esta es una buena ubicación
+            if (currentBlock.getType() == Material.AIR && belowBlock.getType().isSolid()) {
+                return searchLocation.clone();
+            }
+        }
+        
+        return null;
+    }
 
-        return new Location(min.getWorld(), x, y, z);
+    private boolean canPlacePowerUp(Location location) {
+        Block block = location.getBlock();
+        Block below = block.getRelative(BlockFace.DOWN);
+        
+        // Verificar que el bloque actual sea aire
+        if (block.getType() != Material.AIR) {
+            return false;
+        }
+        
+        // Verificar que haya un bloque sólido debajo
+        if (!below.getType().isSolid()) {
+            return false;
+        }
+
+        // Verificar que no haya otros powerups muy cerca (opcional)
+        List<PowerUp> nearbyPowerUps = getAllPowerUpsNearLocation(location, 3.0);
+        if (!nearbyPowerUps.isEmpty()) {
+            return false;
+        }
+
+        // Verificar que haya suficiente espacio arriba (2 bloques de altura)
+        Block above = block.getRelative(BlockFace.UP);
+        if (above.getType() != Material.AIR) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private List<PowerUp> getAllPowerUpsNearLocation(Location location, double distance) {
+        List<PowerUp> nearbyPowerUps = new ArrayList<>();
+        
+        for (List<PowerUp> powerUps : arenaPowerUps.values()) {
+            for (PowerUp powerUp : powerUps) {
+                if (powerUp.getLocation().getWorld().equals(location.getWorld()) &&
+                    powerUp.getLocation().distance(location) < distance) {
+                    nearbyPowerUps.add(powerUp);
+                }
+            }
+        }
+        
+        return nearbyPowerUps;
     }
 
     private void checkPlayersNearPowerUps() {

@@ -250,18 +250,22 @@ public class ItemListener implements Listener {
             ItemStack stack = player.getInventory().getItem(itemSlot);
 
             if (stack != null) {
+                // Añadir TODOS los bloques colocados al set, incluyendo las placas
+                placedBlocks.add(block.getLocation());
+                
                 if (blockType == Material.GOLD_PLATE) {
                     if (plugin.getCooldownManager().isOnCooldown(player, COOLDOWN_PLATE)) {
                         event.setCancelled(true);
+                        // Remover de placedBlocks si se cancela el evento
+                        placedBlocks.remove(block.getLocation());
                         return;
                     }
                     plugin.getCooldownManager().setCooldown(player, COOLDOWN_PLATE, COOLDOWN_SECONDS);
                     plugin.getCooldownManager().startCooldownVisual(player, stack, itemSlot, COOLDOWN_SECONDS, COOLDOWN_PLATE);
                     startPlateTimer(block.getLocation());
                 } else {
-                    // Solo aplicar animación y añadir a placedBlocks si NO es una placa
+                    // Aplicar animación solo si NO es una placa
                     stack.setAmount(64);
-                    placedBlocks.add(block.getLocation());
                     startBlockBreakAnimation(block);
                 }
                 player.getInventory().setItem(itemSlot, stack);
@@ -290,7 +294,7 @@ public class ItemListener implements Listener {
                     location.getBlock().setType(Material.AIR);
                 }
                 plateTimers.remove(location);
-                placedBlocks.remove(location);
+                placedBlocks.remove(location); // Remover del set cuando se elimine automáticamente
             }
         };
         timer.runTaskLater(plugin, 20L * 10); // 10 segundos
@@ -399,10 +403,11 @@ public class ItemListener implements Listener {
     }
 
     public static void cleanup() {
-        // Eliminar todos los bloques colocados
+        // Eliminar todos los bloques colocados (incluyendo placas)
         for (Location loc : placedBlocks) {
             Block block = loc.getBlock();
-            if (BlockUtils.isDecorativeBlock(block.getType())) {
+            // Verificar si es un bloque decorativo O una placa de oro
+            if (BlockUtils.isDecorativeBlock(block.getType()) || block.getType() == Material.GOLD_PLATE) {
                 block.setType(Material.AIR);
             }
         }
