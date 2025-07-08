@@ -79,7 +79,7 @@ public class EndermiteListener implements Listener {
                 // Si los endermites están deshabilitados, cancelar el spawn
                 event.setCancelled(true);
             }
-        } else {
+        } else if (entityType != EntityType.ENDERMITE || entityType != EntityType.ARMOR_STAND) {
             event.setCancelled(true);
         }
     }

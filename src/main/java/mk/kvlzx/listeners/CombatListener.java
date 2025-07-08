@@ -80,9 +80,6 @@ public class CombatListener implements Listener {
                 if (!shooter.equals(victim)) {
                     lastAttacker.put(victim.getUniqueId(), shooter.getUniqueId());
                     lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
-                    
-                    // Aplicar knockback personalizado para bolas de nieve
-                    plugin.getCombatManager().applyCustomKnockback(victim, shooter);
                 }
                 
                 event.setDamage(0.0D);

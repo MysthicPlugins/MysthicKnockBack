@@ -9,7 +9,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -57,21 +56,12 @@ public class PowerUp {
 
     private void spawnItem() {
         ItemStack item = new ItemStack(type.getMaterial());
-        ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(type.getDisplayName());
-            meta.setLore(type.getLore());
-            item.setItemMeta(meta);
-        }
 
         // Spawn del item en el centro del bloque, 0.5 bloques arriba del suelo
         Location itemLocation = location.clone().add(0.5, 1.2, 0.5);
         droppedItem = location.getWorld().dropItem(itemLocation, item);
         droppedItem.setVelocity(new Vector(0, 0, 0));
         droppedItem.setPickupDelay(Integer.MAX_VALUE);
-        droppedItem.setCustomName(type.getDisplayName());
-        droppedItem.setCustomNameVisible(false); // Lo manejamos con el holograma
-        droppedItem.setFallDistance(0);
     }
 
     private void createHologram() {
@@ -107,7 +97,6 @@ public class PowerUp {
 
     private void startAnimations() {
         animationTask = new BukkitRunnable() {
-            private double angle = 0;
             private double bobOffset = 0;
             
             @Override
@@ -127,19 +116,10 @@ public class PowerUp {
                 newLoc.setYaw(itemLoc.getYaw());
                 
                 droppedItem.teleport(newLoc);
-                
-                // Rotación del holograma
-                if (hologram != null && !hologram.isDead()) {
-                    Location hologramLoc = hologram.getLocation();
-                    hologramLoc.setYaw(hologramLoc.getYaw() + 2);
-                    hologram.teleport(hologramLoc);
-                }
-                
-                angle += 0.1;
                 bobOffset += 0.2;
             }
         };
-        animationTask.runTaskTimer(plugin, 0L, 2L);
+        animationTask.runTaskTimer(plugin, 0L, 1L);
     }
 
     private void startCheckTask() {
@@ -172,22 +152,22 @@ public class PowerUp {
         // Aplicar el efecto según el tipo
         switch (type) {
             case SPEED:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 30, 1));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200, 1));
                 break;
             case JUMP:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 20 * 30, 1));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 400, 1));
                 break;
             case STRENGTH:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 20, 0));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 100, 0));
                 break;
             case HEALTH:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20 * 10, 1));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 1));
                 break;
             case INVISIBILITY:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20 * 15, 0));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 100, 0));
                 break;
             case KNOCKBACK:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 15, 0));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 200, 0));
                 // Agregar metadata para el knockback especial
                 player.setMetadata("knockback_powerup", new FixedMetadataValue(plugin, System.currentTimeMillis() + 15000));
                 break;
