@@ -8,22 +8,22 @@ import org.bukkit.Material;
 import mk.kvlzx.utils.MessageUtils;
 
 public enum PowerUpType {
-    SPEED("§bSpeed", Material.SUGAR, Arrays.asList(
+    SPEED(MessageUtils.getColor("&bSpeed"), Material.SUGAR, Arrays.asList(
             MessageUtils.getColor("&7Increases your speed"),
             MessageUtils.getColor("&7for 30 seconds"))),
-    JUMP("§aJump", Material.RABBIT_FOOT, Arrays.asList(
+    JUMP(MessageUtils.getColor("&aJump"), Material.RABBIT_FOOT, Arrays.asList(
             MessageUtils.getColor("&7Increases your jump"),
             MessageUtils.getColor("&7for 30 seconds"))),
-    STRENGTH("§cStrength", Material.BLAZE_POWDER, Arrays.asList(
+    STRENGTH(MessageUtils.getColor("&cStrength"), Material.BLAZE_POWDER, Arrays.asList(
             MessageUtils.getColor("&7Increases your damage"),
             MessageUtils.getColor("&7for 20 seconds"))),
-    HEALTH("§dRegenerate", Material.GOLDEN_APPLE, Arrays.asList(
+    HEALTH(MessageUtils.getColor("&dRegenerate"), Material.GOLDEN_APPLE, Arrays.asList(
             MessageUtils.getColor("&7Regenerates your health"),
             MessageUtils.getColor("&7for 10 seconds"))),
-    INVISIBILITY("§8Invisibility", Material.FERMENTED_SPIDER_EYE, Arrays.asList(
+    INVISIBILITY(MessageUtils.getColor("&8Invisibility"), Material.FERMENTED_SPIDER_EYE, Arrays.asList(
             MessageUtils.getColor("&7Makes you invisible"),
             MessageUtils.getColor("&7for 15 seconds"))),
-    KNOCKBACK("§6Knockback", Material.STICK, Arrays.asList(
+    KNOCKBACK(MessageUtils.getColor("&6Knockback"), Material.STICK, Arrays.asList(
             MessageUtils.getColor("&7Increases your knockback"),
             MessageUtils.getColor("&7for 15 seconds")));
 

@@ -113,7 +113,7 @@ public class PowerUpManager {
 
         // Notificar a los jugadores
         for (Player player : playersInArena) {
-            player.sendMessage(MessageUtils.getColor("&eA " + randomType.getDisplayName() + " &epowerup has appeared in the arena!"));
+            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&eA " + randomType.getDisplayName() + " &epowerup has appeared in the arena!"));
             player.playSound(player.getLocation(), Sound.NOTE_PLING, 0.8f, 1.2f);
         }
     }

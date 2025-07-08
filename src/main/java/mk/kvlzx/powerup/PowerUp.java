@@ -1,5 +1,6 @@
 package mk.kvlzx.powerup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Location;
@@ -23,6 +24,7 @@ public class PowerUp {
     private final Location location;
     private Item droppedItem;
     private ArmorStand hologram;
+    private List<ArmorStand> loreHolograms; // Nueva lista para los hologramas del lore
     private final long spawnTime;
     private boolean collected = false;
     private boolean removed = false;
@@ -35,17 +37,18 @@ public class PowerUp {
         this.location = location.clone();
         this.spawnTime = System.currentTimeMillis();
         this.plugin = plugin;
+        this.loreHolograms = new ArrayList<>(); // Inicializar la lista
         spawnPowerUp();
     }
 
     private void spawnPowerUp() {
         if (location.getWorld() == null) return;
 
+        // Crear el holograma primero
+        createHologram();
+        
         // Crear el item visual
         spawnItem();
-        
-        // Crear el holograma
-        createHologram();
         
         // Iniciar animaciones
         startAnimations();
@@ -57,16 +60,16 @@ public class PowerUp {
     private void spawnItem() {
         ItemStack item = new ItemStack(type.getMaterial());
 
-        // Spawn del item en el centro del bloque, 0.5 bloques arriba del suelo
-        Location itemLocation = location.clone().add(0.5, 1.2, 0.5);
+        // Spawn del item ARRIBA del holograma principal (más alto que el título)
+        Location itemLocation = location.clone().add(0.5, 3.0, 0.5); // 3.0 en lugar de 1.2
         droppedItem = location.getWorld().dropItem(itemLocation, item);
         droppedItem.setVelocity(new Vector(0, 0, 0));
         droppedItem.setPickupDelay(Integer.MAX_VALUE);
     }
 
     private void createHologram() {
-        // Crear holograma principal (título)
-        Location hologramLocation = location.clone().add(0.5, 2.5, 0.5);
+        // Crear holograma principal (título) - más cerca del suelo
+        Location hologramLocation = location.clone().add(0.5, 1.5, 0.5); // 1.5 en lugar de 2.5
         hologram = (ArmorStand) location.getWorld().spawnEntity(hologramLocation, EntityType.ARMOR_STAND);
         hologram.setCustomName(type.getDisplayName());
         hologram.setCustomNameVisible(true);
@@ -78,7 +81,7 @@ public class PowerUp {
         hologram.setArms(false);
         hologram.setBasePlate(false);
 
-        // Crear hologramas para el lore
+        // Crear hologramas para el lore y guardarlos en la lista
         List<String> lore = type.getLore();
         for (int i = 0; i < lore.size(); i++) {
             Location loreLocation = hologramLocation.clone().add(0, -0.3 * (i + 1), 0);
@@ -92,12 +95,15 @@ public class PowerUp {
             loreHologram.setSmall(true);
             loreHologram.setArms(false);
             loreHologram.setBasePlate(false);
+            
+            // Agregar a la lista para poder eliminarlo después
+            loreHolograms.add(loreHologram);
         }
     }
 
     private void startAnimations() {
         animationTask = new BukkitRunnable() {
-            private double bobOffset = 0;
+            private float yaw = 0;
             
             @Override
             public void run() {
@@ -106,17 +112,17 @@ public class PowerUp {
                     return;
                 }
 
-                // Rotación del item
-                Location itemLoc = droppedItem.getLocation();
-                itemLoc.setYaw(itemLoc.getYaw() + 5);
-                
-                // Movimiento de bobbing (subir y bajar)
-                double bobHeight = Math.sin(bobOffset) * 0.1;
-                Location newLoc = location.clone().add(0.5, 1.2 + bobHeight, 0.5);
-                newLoc.setYaw(itemLoc.getYaw());
+                // Solo rotación del item, sin movimiento vertical
+                Location newLoc = location.clone().add(0.5, 3.0, 0.5);
+                newLoc.setYaw(yaw);
                 
                 droppedItem.teleport(newLoc);
-                bobOffset += 0.2;
+                yaw += 5; // Incrementar rotación
+                
+                // Resetear yaw para evitar overflow
+                if (yaw >= 360) {
+                    yaw = 0;
+                }
             }
         };
         animationTask.runTaskTimer(plugin, 0L, 1L);
@@ -127,6 +133,7 @@ public class PowerUp {
             @Override
             public void run() {
                 if (removed || isExpired()) {
+                    remove();
                     cancel();
                     return;
                 }
@@ -148,14 +155,13 @@ public class PowerUp {
         if (collected || removed) return;
         
         collected = true;
-        
-        // Aplicar el efecto según el tipo
+
         switch (type) {
             case SPEED:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200, 1));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 30, 1));
                 break;
             case JUMP:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 400, 1));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 20 * 30, 1));
                 break;
             case STRENGTH:
                 player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 100, 0));
@@ -173,8 +179,7 @@ public class PowerUp {
                 break;
         }
 
-        // Mensaje al jugador
-        player.sendMessage(MessageUtils.getColor("&aYou have picked up a " + type.getDisplayName() + " &apowerup!"));
+        player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have picked up a " + type.getDisplayName() + " &apowerup!"));
         
         // Efectos visuales/sonoros
         player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 1.5f);
@@ -213,12 +218,20 @@ public class PowerUp {
             droppedItem.remove();
         }
         
-        // Remover hologramas
+        // Remover holograma principal
         if (hologram != null && !hologram.isDead()) {
             hologram.remove();
         }
         
-        // Remover todos los armor stands (hologramas de lore) en el área
+        // Remover todos los hologramas del lore
+        for (ArmorStand loreHologram : loreHolograms) {
+            if (loreHologram != null && !loreHologram.isDead()) {
+                loreHologram.remove();
+            }
+        }
+        loreHolograms.clear();
+        
+        // Cleanup adicional por si acaso (mantener como respaldo)
         location.getWorld().getNearbyEntities(location, 2, 2, 2).forEach(entity -> {
             if (entity instanceof ArmorStand) {
                 ArmorStand stand = (ArmorStand) entity;
