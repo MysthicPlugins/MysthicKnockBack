@@ -87,7 +87,6 @@ public class ReportReasonMenu extends Menu {
 
     @Override
     public void handleClick(InventoryClickEvent event) {
-        // Validar que el click sea en el menú y no en el inventario del jugador
         if (!isValidClick(event)) {
             event.setCancelled(true);
             return;
@@ -131,12 +130,10 @@ public class ReportReasonMenu extends Menu {
     private ItemStack createItem(Material material, String name, byte data, String... lore) {
         ItemStack item = new ItemStack(material, 1, data);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(MessageUtils.getColor(name));
-        
-        if (lore.length > 0) {
-            List<String> coloredLore = new ArrayList<>();
-            for (String line : lore) {
-                coloredLore.add(MessageUtils.getColor(line));
+        meta.setDisplayName(MessageUtils.getColor(reason.getName()));
+        List<String> lore = new ArrayList<>();
+        for (String line : reason.getLore()) {
+            lore.add(MessageUtils.getColor(line));
             }
             meta.setLore(coloredLore);
         }
