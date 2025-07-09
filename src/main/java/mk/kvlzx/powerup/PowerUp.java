@@ -72,10 +72,7 @@ public class PowerUp {
         itemStand.setBasePlate(false);
         
         // Establecer el item como helmet
-        itemStand.getEquipment().setHelmet(item);
-        
-        // Prevenir que el item se caiga o sea removido
-        itemStand.getEquipment().setHelmetDropChance(0.0f);
+        itemStand.setHelmet(item);
     }
 
     private void createHologram() {
