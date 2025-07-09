@@ -7,14 +7,12 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.utils.MessageUtils;
@@ -22,9 +20,9 @@ import mk.kvlzx.utils.MessageUtils;
 public class PowerUp {
     private final PowerUpType type;
     private final Location location;
-    private Item droppedItem;
+    private ArmorStand itemStand; // Cambio: ArmorStand en lugar de Item
     private ArmorStand hologram;
-    private List<ArmorStand> loreHolograms; // Nueva lista para los hologramas del lore
+    private List<ArmorStand> loreHolograms;
     private final long spawnTime;
     private boolean collected = false;
     private boolean removed = false;
@@ -37,7 +35,7 @@ public class PowerUp {
         this.location = location.clone();
         this.spawnTime = System.currentTimeMillis();
         this.plugin = plugin;
-        this.loreHolograms = new ArrayList<>(); // Inicializar la lista
+        this.loreHolograms = new ArrayList<>();
         spawnPowerUp();
     }
 
@@ -47,8 +45,8 @@ public class PowerUp {
         // Crear el holograma primero
         createHologram();
         
-        // Crear el item visual
-        spawnItem();
+        // Crear el item visual como ArmorStand
+        spawnItemStand();
         
         // Iniciar animaciones
         startAnimations();
@@ -57,19 +55,32 @@ public class PowerUp {
         startCheckTask();
     }
 
-    private void spawnItem() {
+    private void spawnItemStand() {
         ItemStack item = new ItemStack(type.getMaterial());
 
-        // Spawn del item ARRIBA del holograma principal (más alto que el título)
-        Location itemLocation = location.clone().add(0.5, 3.0, 0.5); // 3.0 en lugar de 1.2
-        droppedItem = location.getWorld().dropItem(itemLocation, item);
-        droppedItem.setVelocity(new Vector(0, 0, 0));
-        droppedItem.setPickupDelay(Integer.MAX_VALUE);
+        // Spawn del ArmorStand ARRIBA del holograma principal
+        Location itemLocation = location.clone().add(0.5, 3.0, 0.5);
+        itemStand = (ArmorStand) location.getWorld().spawnEntity(itemLocation, EntityType.ARMOR_STAND);
+        
+        // Configurar el ArmorStand para que sea invisible y tenga el item como helmet
+        itemStand.setVisible(false);
+        itemStand.setGravity(false);
+        itemStand.setCanPickupItems(false);
+        itemStand.setMarker(true);
+        itemStand.setSmall(true);
+        itemStand.setArms(false);
+        itemStand.setBasePlate(false);
+        
+        // Establecer el item como helmet
+        itemStand.getEquipment().setHelmet(item);
+        
+        // Prevenir que el item se caiga o sea removido
+        itemStand.getEquipment().setHelmetDropChance(0.0f);
     }
 
     private void createHologram() {
         // Crear holograma principal (título) - más cerca del suelo
-        Location hologramLocation = location.clone().add(0.5, 1.5, 0.5); // 1.5 en lugar de 2.5
+        Location hologramLocation = location.clone().add(0.5, 1.5, 0.5);
         hologram = (ArmorStand) location.getWorld().spawnEntity(hologramLocation, EntityType.ARMOR_STAND);
         hologram.setCustomName(type.getDisplayName());
         hologram.setCustomNameVisible(true);
@@ -96,7 +107,6 @@ public class PowerUp {
             loreHologram.setArms(false);
             loreHologram.setBasePlate(false);
             
-            // Agregar a la lista para poder eliminarlo después
             loreHolograms.add(loreHologram);
         }
     }
@@ -107,16 +117,16 @@ public class PowerUp {
             
             @Override
             public void run() {
-                if (removed || droppedItem == null || droppedItem.isDead()) {
+                if (removed || itemStand == null || itemStand.isDead()) {
                     cancel();
                     return;
                 }
 
-                // Solo rotación del item, sin movimiento vertical
+                // Solo rotación del ArmorStand, sin movimiento vertical
                 Location newLoc = location.clone().add(0.5, 3.0, 0.5);
                 newLoc.setYaw(yaw);
                 
-                droppedItem.teleport(newLoc);
+                itemStand.teleport(newLoc);
                 yaw += 5; // Incrementar rotación
                 
                 // Resetear yaw para evitar overflow
@@ -157,25 +167,59 @@ public class PowerUp {
         collected = true;
 
         switch (type) {
-            case SPEED:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 30, 1));
-                break;
-            case JUMP:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 20 * 30, 1));
-                break;
-            case STRENGTH:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 100, 0));
-                break;
-            case HEALTH:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 1));
+            case JUMP_1:
+            case JUMP_2:
+            case JUMP_3:
+            case JUMP_4:
+                // Usar los métodos del enum para obtener duración y nivel
+                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 20 * type.getJumpDuration(), type.getJumpLevel()));
                 break;
             case INVISIBILITY:
                 player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 100, 0));
                 break;
             case KNOCKBACK:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 200, 0));
-                // Agregar metadata para el knockback especial
-                player.setMetadata("knockback_powerup", new FixedMetadataValue(plugin, System.currentTimeMillis() + 15000));
+                ItemStack knocker = null;
+                int originalKnockbackLevel = 0;
+                int knockerSlot = -1;
+
+                for (int i = 0; i < player.getInventory().getSize(); i++) {
+                    ItemStack item = player.getInventory().getItem(i);
+                    if (item != null && item.containsEnchantment(Enchantment.KNOCKBACK)) {
+                        knocker = item;
+                        originalKnockbackLevel = item.getEnchantmentLevel(Enchantment.KNOCKBACK);
+                        knockerSlot = i;
+                        break;
+                    }
+                }
+
+                if (knocker != null) {
+                    final ItemStack finalKnocker = knocker;
+                    final int finalOriginalKnockbackLevel = originalKnockbackLevel;
+                    final int finalKnockerSlot = knockerSlot;
+
+                    // Aumentar el knockback a 5
+                    ItemStack powerupKnocker = finalKnocker.clone();
+                    powerupKnocker.removeEnchantment(Enchantment.KNOCKBACK);
+                    powerupKnocker.addUnsafeEnchantment(Enchantment.KNOCKBACK, 5);
+                    player.getInventory().setItem(finalKnockerSlot, powerupKnocker);
+
+                    // Programar la restauración del knockback
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            // Restaurar el knockback original
+                            ItemStack currentKnocker = player.getInventory().getItem(finalKnockerSlot);
+                            if (currentKnocker != null && currentKnocker.isSimilar(powerupKnocker)) {
+                                ItemStack restoredKnocker = currentKnocker.clone();
+                                restoredKnocker.removeEnchantment(Enchantment.KNOCKBACK);
+                                if (finalOriginalKnockbackLevel > 0) {
+                                    restoredKnocker.addUnsafeEnchantment(Enchantment.KNOCKBACK, finalOriginalKnockbackLevel);
+                                }
+                                player.getInventory().setItem(finalKnockerSlot, restoredKnocker);
+                            }
+                        }
+                    }.runTaskLater(plugin, 100L); // 5 segundos (5 * 20 ticks)
+                }
                 break;
         }
 
@@ -194,7 +238,7 @@ public class PowerUp {
     }
 
     public boolean isExpired() {
-        return System.currentTimeMillis() - spawnTime > 90000; // 90 segundos
+        return System.currentTimeMillis() - spawnTime > 30000; // 30 segundos
     }
 
     public boolean isCollected() {
@@ -213,9 +257,9 @@ public class PowerUp {
             checkTask.cancel();
         }
         
-        // Remover item
-        if (droppedItem != null && !droppedItem.isDead()) {
-            droppedItem.remove();
+        // Remover ArmorStand del item
+        if (itemStand != null && !itemStand.isDead()) {
+            itemStand.remove();
         }
         
         // Remover holograma principal

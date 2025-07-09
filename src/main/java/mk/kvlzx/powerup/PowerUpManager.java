@@ -17,6 +17,9 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -353,19 +356,6 @@ public class PowerUpManager {
         }.runTask(plugin);
     }
 
-    // Método para verificar si un jugador tiene el efecto de knockback especial
-    public boolean hasKnockbackPowerUp(Player player) {
-        if (player.hasMetadata("knockback_powerup")) {
-            long expireTime = player.getMetadata("knockback_powerup").get(0).asLong();
-            if (System.currentTimeMillis() < expireTime) {
-                return true;
-            } else {
-                player.removeMetadata("knockback_powerup", plugin);
-            }
-        }
-        return false;
-    }
-
     // Método para obtener estadísticas de powerups
     public int getTotalActivePowerUps() {
         return arenaPowerUps.values().stream()
@@ -382,5 +372,28 @@ public class PowerUpManager {
                     .filter(p -> !p.isRemoved() && !p.isExpired())
                     .count();
         }
+    }
+
+    public void clearAllPowerUpEffects(Player player) {
+        // Remover efectos de pociones
+        player.removePotionEffect(PotionEffectType.JUMP);
+        player.removePotionEffect(PotionEffectType.INVISIBILITY);
+
+        // Resetear knocker
+        ItemStack[] contents = player.getInventory().getContents();
+        for (int i = 0; i < contents.length; i++) {
+            ItemStack item = contents[i];
+            if (item != null && item.containsEnchantment(Enchantment.KNOCKBACK)) {
+                int defaultKnockbackLevel = MysthicKnockBack.getInstance().getMainConfig().getKnockerKnockbackLevel();
+                ItemStack defaultKnocker = item.clone();
+                defaultKnocker.removeEnchantment(Enchantment.KNOCKBACK);
+                if (defaultKnockbackLevel > 0) {
+                    defaultKnocker.addUnsafeEnchantment(Enchantment.KNOCKBACK, defaultKnockbackLevel);
+                }
+                player.getInventory().setItem(i, defaultKnocker);
+                break;
+            }
+        }
+        player.updateInventory();
     }
 }

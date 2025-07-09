@@ -304,6 +304,7 @@ public class MainScoreboardManager {
 
         // Congelar y preparar a todos los jugadores
         for (Player player : Bukkit.getOnlinePlayers()) {
+            plugin.getArenaManager().getPowerUpManager().clearAllPowerUpEffects(player);
             player.setWalkSpeed(0.0f);
             player.setFoodLevel(0);
             player.setSaturation(0.0f);
