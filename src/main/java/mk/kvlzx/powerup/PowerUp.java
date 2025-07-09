@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -16,11 +19,17 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.utils.MessageUtils;
+import net.minecraft.server.v1_8_R3.Entity;
+import net.minecraft.server.v1_8_R3.EntityArmorStand;
+import net.minecraft.server.v1_8_R3.EntityHuman;
+import net.minecraft.server.v1_8_R3.EntityPlayer;
+import net.minecraft.server.v1_8_R3.PacketPlayOutEntityEquipment;
+import net.minecraft.server.v1_8_R3.WorldServer;
 
 public class PowerUp {
     private final PowerUpType type;
     private final Location location;
-    private ArmorStand itemStand; // Cambio: ArmorStand en lugar de Item
+    private ArmorStand itemStand;
     private ArmorStand hologram;
     private List<ArmorStand> loreHolograms;
     private final long spawnTime;
@@ -71,8 +80,65 @@ public class PowerUp {
         itemStand.setArms(false);
         itemStand.setBasePlate(false);
         
-        // Establecer el item como helmet
-        itemStand.setHelmet(item);
+        // Usar NMS para establecer el item como helmet (funciona con cualquier item en 1.8.8)
+        setArmorStandHelmet(itemStand, item);
+    }
+
+    /**
+     * Método para establecer el casco del ArmorStand usando NMS
+     * Esto permite que cualquier item se muestre como casco en 1.8.8
+     */
+    private void setArmorStandHelmet(ArmorStand armorStand, ItemStack item) {
+        try {
+            // Obtener la entidad NMS del ArmorStand
+            Entity nmsEntity = ((CraftEntity) armorStand).getHandle();
+            
+            if (nmsEntity instanceof EntityArmorStand) {
+                EntityArmorStand nmsArmorStand = (EntityArmorStand) nmsEntity;
+                
+                // Convertir el ItemStack de Bukkit a NMS
+                net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+                
+                // Establecer el item como casco (slot 4 = helmet)
+                nmsArmorStand.setEquipment(4, nmsItem);
+                
+                // Actualizar para todos los jugadores cercanos
+                updateArmorStandForNearbyPlayers(nmsArmorStand);
+            }
+        } catch (Exception e) {
+            // Fallback al método normal si NMS falla
+            plugin.getLogger().warning("Failed to set ArmorStand helmet using NMS, falling back to normal method: " + e.getMessage());
+            armorStand.setHelmet(item);
+        }
+    }
+
+    /**
+     * Actualizar el ArmorStand para todos los jugadores cercanos
+     */
+    private void updateArmorStandForNearbyPlayers(EntityArmorStand nmsArmorStand) {
+        try {
+            // Obtener el mundo NMS
+            WorldServer nmsWorld = ((CraftWorld) location.getWorld()).getHandle();
+            
+            // Crear paquete de equipment
+            PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(
+                nmsArmorStand.getId(), 
+                4, // Slot del casco
+                nmsArmorStand.getEquipment(4)
+            );
+            
+            // Enviar el paquete a todos los jugadores cercanos
+            for (EntityHuman entityHuman : nmsWorld.players) {
+                if (entityHuman instanceof EntityPlayer) {
+                    EntityPlayer player = (EntityPlayer) entityHuman;
+                    if (player.getBukkitEntity().getLocation().distance(location) <= 64) {
+                        player.playerConnection.sendPacket(packet);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to update ArmorStand for nearby players: " + e.getMessage());
+        }
     }
 
     private void createHologram() {
@@ -119,7 +185,7 @@ public class PowerUp {
                     return;
                 }
 
-                // Solo rotación del ArmorStand, sin movimiento vertical
+                // Rotación del ArmorStand
                 Location newLoc = location.clone().add(0.5, 3.0, 0.5);
                 newLoc.setYaw(yaw);
                 
@@ -130,9 +196,32 @@ public class PowerUp {
                 if (yaw >= 360) {
                     yaw = 0;
                 }
+                
+                // Actualizar cada cierto tiempo para asegurar que el item se muestre
+                if (yaw % 45 == 0) { // Cada 9 ticks (45/5)
+                    refreshArmorStandDisplay();
+                }
             }
         };
         animationTask.runTaskTimer(plugin, 0L, 1L);
+    }
+
+    /**
+     * Refrescar la visualización del ArmorStand para evitar problemas de renderizado
+     */
+    private void refreshArmorStandDisplay() {
+        if (itemStand == null || itemStand.isDead()) return;
+        
+        try {
+            Entity nmsEntity = ((CraftEntity) itemStand).getHandle();
+            
+            if (nmsEntity instanceof EntityArmorStand) {
+                EntityArmorStand nmsArmorStand = (EntityArmorStand) nmsEntity;
+                updateArmorStandForNearbyPlayers(nmsArmorStand);
+            }
+        } catch (Exception e) {
+            // Ignorar errores de actualización
+        }
     }
 
     private void startCheckTask() {
@@ -215,7 +304,7 @@ public class PowerUp {
                                 player.getInventory().setItem(finalKnockerSlot, restoredKnocker);
                             }
                         }
-                    }.runTaskLater(plugin, 100L); // 5 segundos (5 * 20 ticks)
+                    }.runTaskLater(plugin, 200L); // 10 segundos (10 * 20 ticks)
                 }
                 break;
         }

@@ -195,6 +195,7 @@ public class PlayerListener implements Listener {
         }
 
         plugin.getItemVerificationManager().removePlayer(player);
+        plugin.getArenaManager().getPowerUpManager().clearAllPowerUpEffects(player);
         event.setQuitMessage(null);
     }
 
@@ -274,6 +275,7 @@ public class PlayerListener implements Listener {
             .forEach(entity -> entity.remove());
 
         stopMusic(player);
+        plugin.getArenaManager().getPowerUpManager().clearAllPowerUpEffects(player);
     }
 
     private void handlePlayerKill(Player player) {

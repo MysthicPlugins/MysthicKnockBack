@@ -394,6 +394,5 @@ public class PowerUpManager {
                 break;
             }
         }
-        player.updateInventory();
     }
 }

@@ -110,7 +110,7 @@ public class KnockerShopMenu extends Menu {
     }
 
     private void setupKnockerButton(Inventory inv, int slot, KnockerShopItem item, Player player, Material currentKnocker) {
-        boolean hasKnocker = item.getMaterial() == Material.STICK || plugin.getCosmeticManager().hasPlayerBlock(player.getUniqueId(), item.getMaterial());
+        boolean hasKnocker = item.getMaterial() == Material.STICK || plugin.getCosmeticManager().hasPlayerKnocker(player.getUniqueId(), item.getMaterial());
         boolean isSelected = currentKnocker == item.getMaterial();
         
         List<String> lore = new ArrayList<>();

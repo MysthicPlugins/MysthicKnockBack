@@ -1,8 +1,9 @@
 package mk.kvlzx.menu;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.items.CustomItem;
+import mk.kvlzx.reports.ReportReason;
+import mk.kvlzx.utils.MessageUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -10,10 +11,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.items.CustomItem;
-import mk.kvlzx.reports.ReportReason;
-import mk.kvlzx.utils.MessageUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReportReasonMenu extends Menu {
 
@@ -87,6 +86,7 @@ public class ReportReasonMenu extends Menu {
 
     @Override
     public void handleClick(InventoryClickEvent event) {
+        // Validar que el click sea en el menú y no en el inventario del jugador
         if (!isValidClick(event)) {
             event.setCancelled(true);
             return;
@@ -130,10 +130,12 @@ public class ReportReasonMenu extends Menu {
     private ItemStack createItem(Material material, String name, byte data, String... lore) {
         ItemStack item = new ItemStack(material, 1, data);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(MessageUtils.getColor(reason.getName()));
-        List<String> lore = new ArrayList<>();
-        for (String line : reason.getLore()) {
-            lore.add(MessageUtils.getColor(line));
+        meta.setDisplayName(MessageUtils.getColor(name));
+        
+        if (lore.length > 0) {
+            List<String> coloredLore = new ArrayList<>();
+            for (String line : lore) {
+                coloredLore.add(MessageUtils.getColor(line));
             }
             meta.setLore(coloredLore);
         }

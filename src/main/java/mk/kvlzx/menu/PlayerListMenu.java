@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import mk.kvlzx.MysthicKnockBack;
@@ -81,7 +80,7 @@ public class PlayerListMenu extends Menu {
             event.setCancelled(true);
             return;
         }
-        
+
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
 
@@ -101,10 +100,10 @@ public class PlayerListMenu extends Menu {
             if (event.getCurrentItem().getType() == Material.SKULL_ITEM) {
                 String targetName = MessageUtils.stripColor(event.getCurrentItem().getItemMeta().getDisplayName());
                 plugin.getReportManager().setReportTarget(player.getUniqueId(), targetName);
-                plugin.getMenuManager().openMenu(player, "report_reason");
+                    plugin.getMenuManager().openMenu(player, "report_reason");
+                }
             }
         }
-    }
 
     private ItemStack createItem(Material material, String name, String... lore) {
         ItemStack item = new ItemStack(material, 1);
