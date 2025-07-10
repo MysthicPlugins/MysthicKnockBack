@@ -69,16 +69,12 @@ public class PowerUp {
     private void spawnItemStand() {
         ItemStack item = new ItemStack(type.getMaterial());
         
-        // Debug: Verificar que el item no sea null y tenga material válido
-        plugin.getLogger().info("DEBUG: Creating PowerUp item - Material: " + type.getMaterial() + ", Item: " + item);
-        
         if (item.getType() == Material.AIR) {
-            plugin.getLogger().warning("DEBUG: Item material is AIR! This will cause invisible items.");
             return;
         }
 
         // Posición para el ArmorStand (arriba del holograma)
-        Location itemLocation = location.clone().add(0.5, 3.0, 0.5);
+        Location itemLocation = location.clone().add(0.5, 1.8, 0.5);
         
         // Crear el ArmorStand invisible
         itemStand = (ArmorStand) location.getWorld().spawnEntity(itemLocation, EntityType.ARMOR_STAND);
@@ -90,25 +86,14 @@ public class PowerUp {
         itemStand.setArms(false);
         itemStand.setBasePlate(false);
         
-        // Debug: Verificar que el ArmorStand se creó correctamente
-        plugin.getLogger().info("DEBUG: ArmorStand created at: " + itemLocation + ", ID: " + itemStand.getEntityId());
-        
         // Dropear el item en la misma posición
         droppedItem = location.getWorld().dropItem(itemLocation, item);
         droppedItem.setPickupDelay(Integer.MAX_VALUE); // No se puede recoger
         droppedItem.setVelocity(new Vector(0, 0, 0)); // Sin velocidad
-        
-        plugin.getLogger().info("DEBUG: Dropped item created at: " + itemLocation + ", ID: " + droppedItem.getEntityId());
+        droppedItem.setTicksLived(Integer.MAX_VALUE);
         
         // Usar NMS para montar el item al ArmorStand
-        if (mountItemToArmorStand(itemStand, droppedItem)) {
-            plugin.getLogger().info("DEBUG: Successfully mounted item to ArmorStand using NMS");
-        } else {
-            plugin.getLogger().warning("DEBUG: Failed to mount item using NMS");
-        }
-        
-        // Debug: Verificar el estado final
-        debugArmorStandState(itemStand);
+        mountItemToArmorStand(itemStand, droppedItem);
     }
 
     /**
@@ -120,35 +105,26 @@ public class PowerUp {
             Entity nmsArmorStand = ((CraftEntity) armorStand).getHandle();
             Entity nmsItem = ((CraftEntity) item).getHandle();
             
-            plugin.getLogger().info("DEBUG: Mounting item - ArmorStand NMS: " + nmsArmorStand.getClass().getSimpleName() + 
-                                    ", Item NMS: " + nmsItem.getClass().getSimpleName());
-            
             // Verificar que no tenga passengers previos
             if (nmsArmorStand.passenger != null) {
-                plugin.getLogger().warning("DEBUG: ArmorStand already has a passenger: " + nmsArmorStand.passenger);
                 return false;
             }
             
             // Montar el item al ArmorStand
             nmsItem.mount(nmsArmorStand);
             
-            plugin.getLogger().info("DEBUG: Mount operation completed. ArmorStand passenger: " + nmsArmorStand.passenger);
-            
             // Verificar que el montaje fue exitoso
             if (nmsArmorStand.passenger == nmsItem) {
-                plugin.getLogger().info("DEBUG: Item successfully mounted to ArmorStand");
                 
                 // Enviar paquetes de actualización a los jugadores cercanos
                 updateMountForNearbyPlayers(nmsArmorStand);
                 
                 return true;
             } else {
-                plugin.getLogger().warning("DEBUG: Mount failed - passenger mismatch");
                 return false;
             }
             
         } catch (Exception e) {
-            plugin.getLogger().warning("DEBUG: Failed to mount item to ArmorStand: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -179,47 +155,11 @@ public class PowerUp {
                         }
                     }
                 }
-                
-                plugin.getLogger().info("DEBUG: Sent attach packets to nearby players");
             }
             
         } catch (Exception e) {
-            plugin.getLogger().warning("DEBUG: Failed to update mount for nearby players: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Debug: Mostrar el estado actual del ArmorStand
-     */
-    private void debugArmorStandState(ArmorStand armorStand) {
-        plugin.getLogger().info("DEBUG: ArmorStand State:");
-        plugin.getLogger().info("  - Visible: " + armorStand.isVisible());
-        plugin.getLogger().info("  - Has Arms: " + armorStand.hasArms());
-        plugin.getLogger().info("  - Location: " + armorStand.getLocation());
-        plugin.getLogger().info("  - Is Marker: " + armorStand.isMarker());
-        plugin.getLogger().info("  - Is Small: " + armorStand.isSmall());
-        plugin.getLogger().info("  - Entity ID: " + armorStand.getEntityId());
-        plugin.getLogger().info("  - Passenger: " + armorStand.getPassenger());
-        
-        // Debug del item dropeado
-        if (droppedItem != null) {
-            plugin.getLogger().info("DEBUG: Dropped Item State:");
-            plugin.getLogger().info("  - Item Type: " + droppedItem.getItemStack().getType());
-            plugin.getLogger().info("  - Location: " + droppedItem.getLocation());
-            plugin.getLogger().info("  - Entity ID: " + droppedItem.getEntityId());
-            plugin.getLogger().info("  - Is Valid: " + droppedItem.isValid());
-            plugin.getLogger().info("  - Vehicle: " + droppedItem.getVehicle());
-        }
-        
-        // Verificar jugadores cercanos
-        int nearbyPlayers = 0;
-        for (Player player : location.getWorld().getPlayers()) {
-            if (player.getLocation().distance(location) <= 64) {
-                nearbyPlayers++;
-            }
-        }
-        plugin.getLogger().info("  - Nearby players: " + nearbyPlayers);
     }
 
     private void createHologram() {
@@ -281,18 +221,6 @@ public class PowerUp {
                 
                 tickCounter++;
                 
-                // Debug periódico cada 5 segundos (100 ticks)
-                if (tickCounter % 100 == 0) {
-                    plugin.getLogger().info("DEBUG: Animation tick " + tickCounter + " - ArmorStand alive: " + !itemStand.isDead() + 
-                                            ", Item alive: " + (droppedItem != null && droppedItem.isValid()));
-                    
-                    // Verificar que el item sigue montado
-                    if (droppedItem != null && droppedItem.isValid()) {
-                        plugin.getLogger().info("DEBUG: Item vehicle: " + droppedItem.getVehicle());
-                        plugin.getLogger().info("DEBUG: ArmorStand passenger: " + itemStand.getPassenger());
-                    }
-                }
-                
                 // Refrescar montaje cada cierto tiempo
                 if (tickCounter % 60 == 0) { // Cada 3 segundos
                     refreshMount();
@@ -313,7 +241,6 @@ public class PowerUp {
         try {
             // Verificar que el item siga montado
             if (droppedItem.getVehicle() != itemStand) {
-                plugin.getLogger().info("DEBUG: Item dismounted, attempting to remount...");
                 
                 // Intentar remontar
                 Entity nmsArmorStand = ((CraftEntity) itemStand).getHandle();
@@ -321,12 +248,8 @@ public class PowerUp {
                 
                 nmsItem.mount(nmsArmorStand);
                 updateMountForNearbyPlayers(nmsArmorStand);
-                
-                plugin.getLogger().info("DEBUG: Remount attempt completed");
             }
-        } catch (Exception e) {
-            plugin.getLogger().warning("DEBUG: Failed to refresh mount: " + e.getMessage());
-        }
+        } catch (Exception e) {}
     }
 
     private void startCheckTask() {
@@ -334,7 +257,6 @@ public class PowerUp {
             @Override
             public void run() {
                 if (removed || isExpired()) {
-                    plugin.getLogger().info("DEBUG: PowerUp expired or removed, cleaning up");
                     remove();
                     cancel();
                     return;
@@ -343,7 +265,6 @@ public class PowerUp {
                 // Verificar si hay jugadores cerca
                 for (Player player : location.getWorld().getPlayers()) {
                     if (isNearPlayer(player)) {
-                        plugin.getLogger().info("DEBUG: Player " + player.getName() + " picked up PowerUp");
                         applyEffect(player);
                         cancel();
                         return;
@@ -365,10 +286,18 @@ public class PowerUp {
             case JUMP_3:
             case JUMP_4:
                 // Usar los métodos del enum para obtener duración y nivel
-                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 20 * type.getJumpDuration(), type.getJumpLevel()));
+                player.addPotionEffect(new PotionEffect(
+                        PotionEffectType.getByName(plugin.getMainConfig().getPowerUpJump1EffectId()), 
+                        type.getJumpDuration(), 
+                        type.getJumpLevel()
+                    ));
                 break;
             case INVISIBILITY:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 100, 0));
+                player.addPotionEffect(new PotionEffect(
+                        PotionEffectType.getByName(plugin.getMainConfig().getPowerUpInvisibilityId()), 
+                        plugin.getMainConfig().getPowerUpInvisibilityEffectDuration(), 
+                        plugin.getMainConfig().getPowerUpInvisibilityEffectDuration()
+                    ));
                 break;
             case KNOCKBACK:
                 ItemStack knocker = null;
@@ -411,7 +340,7 @@ public class PowerUp {
                                 player.getInventory().setItem(finalKnockerSlot, restoredKnocker);
                             }
                         }
-                    }.runTaskLater(plugin, 200L); // 10 segundos (10 * 20 ticks)
+                    }.runTaskLater(plugin, plugin.getMainConfig().getPowerUpKnockbackEffectDuration() * 20);
                 }
                 break;
         }
@@ -442,8 +371,6 @@ public class PowerUp {
         if (removed) return;
         removed = true;
         
-        plugin.getLogger().info("DEBUG: Removing PowerUp at " + location);
-        
         // Cancelar tasks
         if (animationTask != null) {
             animationTask.cancel();
@@ -455,30 +382,25 @@ public class PowerUp {
         // Remover el item dropeado primero
         if (droppedItem != null && droppedItem.isValid()) {
             droppedItem.remove();
-            plugin.getLogger().info("DEBUG: Removed dropped item");
         }
         
         // Remover ArmorStand del item
         if (itemStand != null && !itemStand.isDead()) {
             itemStand.remove();
-            plugin.getLogger().info("DEBUG: Removed item ArmorStand");
         }
         
         // Remover holograma principal
         if (hologram != null && !hologram.isDead()) {
             hologram.remove();
-            plugin.getLogger().info("DEBUG: Removed main hologram");
         }
         
         // Remover todos los hologramas del lore
-        int loreCount = loreHolograms.size();
         for (ArmorStand loreHologram : loreHolograms) {
             if (loreHologram != null && !loreHologram.isDead()) {
                 loreHologram.remove();
             }
         }
         loreHolograms.clear();
-        plugin.getLogger().info("DEBUG: Removed " + loreCount + " lore holograms");
         
         // Cleanup adicional por si acaso
         location.getWorld().getNearbyEntities(location, 3, 3, 3).forEach(entity -> {
@@ -494,8 +416,6 @@ public class PowerUp {
                 }
             }
         });
-        
-        plugin.getLogger().info("DEBUG: PowerUp cleanup completed");
     }
 
     public PowerUpType getType() {

@@ -349,7 +349,14 @@ public class MysthicKnockBack extends JavaPlugin {
         for (World world : Bukkit.getWorlds()) {
             for (Entity entity : world.getEntities()) {
                 if (entity instanceof Item) {
+                    Item item = (Item) entity;
+                    
+                    // NO remover items de powerups - Los powerups tienen pickupDelay infinito
+                    if (item.getPickupDelay() == Integer.MAX_VALUE) continue; // Skipear items de powerups
+                    
+                    // Remover solo items normales dropeados
                     entity.remove();
+                    
                 } else if (entity instanceof Arrow) {
                     Arrow arrow = (Arrow) entity;
                     if (arrow.isOnGround() || arrow.getTicksLived() > 600) {

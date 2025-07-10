@@ -1,36 +1,41 @@
 package mk.kvlzx.powerup;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Material;
 
-import mk.kvlzx.utils.MessageUtils;
+import mk.kvlzx.MysthicKnockBack;
 
 public enum PowerUpType {
-    JUMP_1(MessageUtils.getColor("&aJump I"), Material.RABBIT_FOOT, Arrays.asList(
-            MessageUtils.getColor("&7Increases your jump"),
-            MessageUtils.getColor("&7Level I for 20 seconds"))),
+    JUMP_1(MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump1Name(), 
+            Material.valueOf(MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump1Id()),
+            MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump1Lore()
+    ),
     
-    JUMP_2(MessageUtils.getColor("&aJump II"), Material.RABBIT_FOOT, Arrays.asList(
-            MessageUtils.getColor("&7Increases your jump"),
-            MessageUtils.getColor("&7Level II for 15 seconds"))),
+    JUMP_2(MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump2Name(), 
+            Material.valueOf(MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump2Id()),
+            MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump2Lore()
+    ),
     
-    JUMP_3(MessageUtils.getColor("&aJump III"), Material.RABBIT_FOOT, Arrays.asList(
-            MessageUtils.getColor("&7Increases your jump"),
-            MessageUtils.getColor("&7Level III for 10 seconds"))),
+    JUMP_3(MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump3Name(), 
+            Material.valueOf(MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump3Id()),
+            MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump3Lore()
+    ),
     
-    JUMP_4(MessageUtils.getColor("&aJump IV"), Material.RABBIT_FOOT, Arrays.asList(
-            MessageUtils.getColor("&7Increases your jump"),
-            MessageUtils.getColor("&7Level IV for 5 seconds"))),
+    JUMP_4(MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump4Name(), 
+            Material.valueOf(MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump4Id()),
+            MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump4Lore()
+    ),
     
-    INVISIBILITY(MessageUtils.getColor("&8Invisibility"), Material.FERMENTED_SPIDER_EYE, Arrays.asList(
-            MessageUtils.getColor("&7Makes you invisible"),
-            MessageUtils.getColor("&7for 5 seconds"))),
+    INVISIBILITY(MysthicKnockBack.getInstance().getMainConfig().getPowerUpInvisibilityName(), 
+                Material.valueOf(MysthicKnockBack.getInstance().getMainConfig().getPowerUpInvisibilityEffectId()),
+                MysthicKnockBack.getInstance().getMainConfig().getPowerUpInvisibilityLore()
+    ),
     
-    KNOCKBACK(MessageUtils.getColor("&6Knockback"), Material.STICK, Arrays.asList(
-            MessageUtils.getColor("&7Increases your knockback"),
-            MessageUtils.getColor("&7for 10 seconds")));
+    KNOCKBACK(MysthicKnockBack.getInstance().getMainConfig().getPowerUpKnockbackName(), 
+                Material.valueOf(MysthicKnockBack.getInstance().getMainConfig().getPowerUpKnockbackId()),
+                MysthicKnockBack.getInstance().getMainConfig().getPowerUpKnockbackLore()
+    );
 
     private final String displayName;
     private final Material material;
@@ -62,10 +67,10 @@ public enum PowerUpType {
     // Método para obtener la duración del efecto jump
     public int getJumpDuration() {
         switch (this) {
-            case JUMP_1: return 20; // 20 segundos
-            case JUMP_2: return 15; // 15 segundos
-            case JUMP_3: return 10; // 10 segundos
-            case JUMP_4: return 5;  // 5 segundos
+            case JUMP_1: return MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump1EffectDuration() * 20;
+            case JUMP_2: return MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump2EffectDuration() * 20;
+            case JUMP_3: return MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump3EffectDuration() * 20;
+            case JUMP_4: return MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump4EffectDuration() * 20;
             default: return 0;
         }
     }
@@ -73,10 +78,10 @@ public enum PowerUpType {
     // Método para obtener el nivel del efecto jump
     public int getJumpLevel() {
         switch (this) {
-            case JUMP_1: return 0; // Nivel 1 (amplifier 0)
-            case JUMP_2: return 1; // Nivel 2 (amplifier 1)
-            case JUMP_3: return 2; // Nivel 3 (amplifier 2)
-            case JUMP_4: return 3; // Nivel 4 (amplifier 3)
+            case JUMP_1: return MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump1EffectLevel();
+            case JUMP_2: return MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump2EffectLevel();
+            case JUMP_3: return MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump3EffectLevel();
+            case JUMP_4: return MysthicKnockBack.getInstance().getMainConfig().getPowerUpJump4EffectLevel();
             default: return 0;
         }
     }

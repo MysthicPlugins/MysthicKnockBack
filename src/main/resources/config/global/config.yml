@@ -179,6 +179,65 @@ config:
       cooldown: "&cYou must wait %time% seconds to report this player."
       report-message: "&aReport %target% for %reason% send successfully!"
       report-message-staff: "&c[Report] &f%reporter% &7has reported &f%target% &7for &f%reason%"
+  powerups:
+    jump- 1:
+      id: RABBIT_FOOT
+      name: "&aJump I"
+      lore:
+        - "&7Increases your jump"
+        - "&7Level I for 20 seconds"
+      effect:
+        id: JUMP
+        level: 0
+        duration: 20 # Seconds
+    jump-2:
+      id: RABBIT_FOOT
+      name: "&aJump II"
+      lore:
+        - "&7Increases your jump"
+        - "&7Level II for 15 seconds"
+      effect:
+        id: JUMP
+        level: 1
+        duration: 15 # Seconds
+    jump-3:
+      id: RABBIT_FOOT
+      name: "&aJump III"
+      lore:
+        - "&7Increases your jump"
+        - "&7Level III for 10 seconds"
+      effect:
+        id: JUMP
+        level: 2
+        duration: 10 # Seconds
+    jump-4:
+      id: RABBIT_FOOT
+      name: "&aJump IV"
+      lore:
+        - "&7Increases your jump"
+        - "&7Level IV for 5 seconds"
+      effect:
+        id: JUMP
+        level: 3
+        duration: 5 # Seconds
+    invisibility:
+      id: FERMENTED_SPIDER_EYE
+      name: "&8Invisibility"
+      lore:
+        - "&7Makes you invisible"
+        - "&7for 5 seconds"
+      effect:
+        id: INVISIBILITY
+        level: 0
+        duration: 5 # Seconds
+    knockback:
+      id: STICK
+      name: "&6Knockback"
+      lore:
+        - "&7Increases your knockback"
+        - "&7for 10 seconds"
+      effect:
+        duration: 10 # Seconds
   streak:
     tags:
       kill-40:

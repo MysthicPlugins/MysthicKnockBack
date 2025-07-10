@@ -1,5 +1,7 @@
 package mk.kvlzx.config;
 
+import java.util.List;
+
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -145,6 +147,41 @@ public class MainConfig {
     private String reportCooldownMessage;
     private String reportMessage;
     private String reportStaffMessage;
+
+    private String powerUpJump1Id;
+    private String powerUpJump1Name;
+    private List<String> powerUpJump1Lore;
+    private String powerUpJump1EffectId;
+    private Integer powerUpJump1EffectLevel;
+    private Integer powerUpJump1EffectDuration;
+    private String powerUpJump2Id;
+    private String powerUpJump2Name;
+    private List<String> powerUpJump2Lore;
+    private String powerUpJump2EffectId;
+    private Integer powerUpJump2EffectLevel;
+    private Integer powerUpJump2EffectDuration;
+    private String powerUpJump3Id;
+    private String powerUpJump3Name;
+    private List<String> powerUpJump3Lore;
+    private String powerUpJump3EffectId;
+    private Integer powerUpJump3EffectLevel;
+    private Integer powerUpJump3EffectDuration;
+    private String powerUpJump4Id;
+    private String powerUpJump4Name;
+    private List<String> powerUpJump4Lore;
+    private String powerUpJump4EffectId;
+    private Integer powerUpJump4EffectLevel;
+    private Integer powerUpJump4EffectDuration;
+    private String powerUpInvisibilityId;
+    private String powerUpInvisibilityName;
+    private List<String> powerUpInvisibilityLore;
+    private String powerUpInvisibilityEffectId;
+    private Integer powerUpInvisibilityEffectLevel;
+    private Integer powerUpInvisibilityEffectDuration;
+    private String powerUpKnockbackId;
+    private String powerUpKnockbackName;
+    private List<String> powerUpKnockbackLore;
+    private Integer powerUpKnockbackEffectDuration;
 
     private String streakTag40;
     private String streakTag60;
@@ -315,6 +352,41 @@ public class MainConfig {
         reportCooldownMessage = config.getString("config.report.messages.cooldown");
         reportMessage = config.getString("config.report.messages.report-message");
         reportStaffMessage = config.getString("config.report.messages.report-message-staff");
+        
+        powerUpJump1Id = validateAndGetMaterial(config, "config.powerups.jump-1.id", "RABBIT_FOOT");
+        powerUpJump1Name = config.getString("config.powerups.jump-1.name");
+        powerUpJump1Lore = config.getStringList("config.powerups.jump-1.lore");
+        powerUpJump1EffectId = config.getString("config.powerups.jump-1.effect.id");
+        powerUpJump1EffectLevel = config.getInt("config.powerups.jump-1.effect.level");
+        powerUpJump1EffectDuration = config.getInt("config.powerups.jump-1.effect.duration");
+        powerUpJump2Id = validateAndGetMaterial(config, "config.powerups.jump-2.id", "RABBIT_FOOT");
+        powerUpJump2Name = config.getString("config.powerups.jump-2.name");
+        powerUpJump2Lore = config.getStringList("config.powerups.jump-2.lore");
+        powerUpJump2EffectId = config.getString("config.powerups.jump-2.effect.id");
+        powerUpJump2EffectLevel = config.getInt("config.powerups.jump-2.effect.level");
+        powerUpJump2EffectDuration = config.getInt("config.powerups.jump-2.effect.duration");
+        powerUpJump3Id = validateAndGetMaterial(config, "config.powerups.jump-3.id", "RABBIT_FOOT");
+        powerUpJump3Name = config.getString("config.powerups.jump-3.name");
+        powerUpJump3Lore = config.getStringList("config.powerups.jump-3.lore");
+        powerUpJump3EffectId = config.getString("config.powerups.jump-3.effect.id");
+        powerUpJump3EffectLevel = config.getInt("config.powerups.jump-3.effect.level");
+        powerUpJump3EffectDuration = config.getInt("config.powerups.jump-3.effect.duration");
+        powerUpJump4Id = validateAndGetMaterial(config, "config.powerups.jump-4.id", "RABBIT_FOOT");
+        powerUpJump4Name = config.getString("config.powerups.jump-4.name");
+        powerUpJump4Lore = config.getStringList("config.powerups.jump-4.lore");
+        powerUpJump4EffectId = config.getString("config.powerups.jump-4.effect.id");
+        powerUpJump4EffectLevel = config.getInt("config.powerups.jump-4.effect.level");
+        powerUpJump4EffectDuration = config.getInt("config.powerups.jump-4.effect.duration");
+        powerUpInvisibilityId = validateAndGetMaterial(config, "config.powerups.invisibility.id", "FERMENTED_SPIDER_EYE");
+        powerUpInvisibilityName = config.getString("config.powerups.invisibility.name");
+        powerUpInvisibilityLore = config.getStringList("config.powerups.invisibility.lore");
+        powerUpInvisibilityEffectId = config.getString("config.powerups.invisibility.effect.id");
+        powerUpInvisibilityEffectLevel = config.getInt("config.powerups.invisibility.effect.level");
+        powerUpInvisibilityEffectDuration = config.getInt("config.powerups.invisibility.effect.duration");
+        powerUpKnockbackId = validateAndGetMaterial(config, "config.powerups.knockback.id", "STICK");
+        powerUpKnockbackName = config.getString("config.powerups.knockback.name");
+        powerUpKnockbackLore = config.getStringList("config.powerups.knockback.lore");
+        powerUpKnockbackEffectDuration = config.getInt("config.powerups.knockback.effect.duration");
 
         streakTag40 = config.getString("config.streak.tags.kill-40.tag");
         streakTag60 = config.getString("config.streak.tags.kill-60.tag");
@@ -368,7 +440,13 @@ public class MainConfig {
             "config.hotbar.default.items.feather.id",
             "config.hotbar.default.items.pearl.id",
             "config.hotbar.default.items.arrow.id",
-            "config.hotbar.default.items.slime_ball.id"
+            "config.hotbar.default.items.slime_ball.id",
+            "config.powerups.jump-1.id",
+            "config.powerups.jump-2.id",
+            "config.powerups.jump-3.id",
+            "config.powerups.jump-4.id",
+            "config.powerups.invisibility.id",
+            "config.powerups.knockback.id"
         };
         
         for (String path : materialPaths) {
@@ -532,6 +610,41 @@ public class MainConfig {
     public String getReportCooldownMessage() { return reportCooldownMessage; }
     public String getReportMessage() { return reportMessage; }
     public String getReportStaffMessage() { return reportStaffMessage; }
+
+    public String getPowerUpJump1Id() { return powerUpJump1Id; }
+    public String getPowerUpJump1Name() { return powerUpJump1Name; }
+    public List<String> getPowerUpJump1Lore() { return powerUpJump1Lore; }
+    public String getPowerUpJump1EffectId() { return powerUpJump1EffectId; }
+    public Integer getPowerUpJump1EffectLevel() { return powerUpJump1EffectLevel; }
+    public Integer getPowerUpJump1EffectDuration() { return powerUpJump1EffectDuration; }
+    public String getPowerUpJump2Id() { return powerUpJump2Id; }
+    public String getPowerUpJump2Name() { return powerUpJump2Name; }
+    public List<String> getPowerUpJump2Lore() { return powerUpJump2Lore; }
+    public String getPowerUpJump2EffectId() { return powerUpJump2EffectId; }
+    public Integer getPowerUpJump2EffectLevel() { return powerUpJump2EffectLevel; }
+    public Integer getPowerUpJump2EffectDuration() { return powerUpJump2EffectDuration; }
+    public String getPowerUpJump3Id() { return powerUpJump3Id; }
+    public String getPowerUpJump3Name() { return powerUpJump3Name; }
+    public List<String> getPowerUpJump3Lore() { return powerUpJump3Lore; }
+    public String getPowerUpJump3EffectId() { return powerUpJump3EffectId; }
+    public Integer getPowerUpJump3EffectLevel() { return powerUpJump3EffectLevel; }
+    public Integer getPowerUpJump3EffectDuration() { return powerUpJump3EffectDuration; }
+    public String getPowerUpJump4Id() { return powerUpJump4Id; }
+    public String getPowerUpJump4Name() { return powerUpJump4Name; }
+    public List<String> getPowerUpJump4Lore() { return powerUpJump4Lore; }
+    public String getPowerUpJump4EffectId() { return powerUpJump4EffectId; }
+    public Integer getPowerUpJump4EffectLevel() { return powerUpJump4EffectLevel; }
+    public Integer getPowerUpJump4EffectDuration() { return powerUpJump4EffectDuration; }
+    public String getPowerUpInvisibilityId() { return powerUpInvisibilityId; }
+    public String getPowerUpInvisibilityName() { return powerUpInvisibilityName; }
+    public List<String> getPowerUpInvisibilityLore() { return powerUpInvisibilityLore; }
+    public String getPowerUpInvisibilityEffectId() { return powerUpInvisibilityEffectId; }
+    public Integer getPowerUpInvisibilityEffectLevel() { return powerUpInvisibilityEffectLevel; }
+    public Integer getPowerUpInvisibilityEffectDuration() { return powerUpInvisibilityEffectDuration; }
+    public String getPowerUpKnockbackId() { return powerUpKnockbackId; }
+    public String getPowerUpKnockbackName() { return powerUpKnockbackName; }
+    public List<String> getPowerUpKnockbackLore() { return powerUpKnockbackLore; }
+    public Integer getPowerUpKnockbackEffectDuration() { return powerUpKnockbackEffectDuration; }
 
     public String getStreakTag40() { return streakTag40; }
     public String getStreakTag60() { return streakTag60; }
