@@ -3,39 +3,35 @@ package mk.kvlzx.powerup;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.utils.MessageUtils;
-import net.minecraft.server.v1_8_R3.DataWatcher;
 import net.minecraft.server.v1_8_R3.Entity;
-import net.minecraft.server.v1_8_R3.EntityArmorStand;
 import net.minecraft.server.v1_8_R3.EntityHuman;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
-import net.minecraft.server.v1_8_R3.Packet;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityEquipment;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityMetadata;
-import net.minecraft.server.v1_8_R3.Vector3f;
+import net.minecraft.server.v1_8_R3.PacketPlayOutAttachEntity;
 import net.minecraft.server.v1_8_R3.WorldServer;
 
 public class PowerUp {
     private final PowerUpType type;
     private final Location location;
     private ArmorStand itemStand;
+    private Item droppedItem;
     private ArmorStand hologram;
     private List<ArmorStand> loreHolograms;
     private final long spawnTime;
@@ -60,7 +56,7 @@ public class PowerUp {
         // Crear el holograma primero
         createHologram();
         
-        // Crear el item visual como ArmorStand
+        // Crear el item visual usando el método DecentHolograms
         spawnItemStand();
         
         // Iniciar animaciones
@@ -74,179 +70,122 @@ public class PowerUp {
         ItemStack item = new ItemStack(type.getMaterial());
         
         // Debug: Verificar que el item no sea null y tenga material válido
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Creating PowerUp item - Material: " + type.getMaterial() + ", Item: " + item);
+        plugin.getLogger().info("DEBUG: Creating PowerUp item - Material: " + type.getMaterial() + ", Item: " + item);
         
         if (item.getType() == Material.AIR) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Item material is AIR! This will cause invisible items.");
+            plugin.getLogger().warning("DEBUG: Item material is AIR! This will cause invisible items.");
             return;
         }
 
-        // Spawn del ArmorStand ARRIBA del holograma principal
+        // Posición para el ArmorStand (arriba del holograma)
         Location itemLocation = location.clone().add(0.5, 3.0, 0.5);
-        itemStand = (ArmorStand) location.getWorld().spawnEntity(itemLocation, EntityType.ARMOR_STAND);
         
-        // Configurar el ArmorStand para que sea invisible y tenga el item
+        // Crear el ArmorStand invisible
+        itemStand = (ArmorStand) location.getWorld().spawnEntity(itemLocation, EntityType.ARMOR_STAND);
         itemStand.setVisible(false);
         itemStand.setGravity(false);
         itemStand.setCanPickupItems(false);
-        itemStand.setMarker(true);
+        itemStand.setMarker(false); // IMPORTANTE: No marker para poder tener passengers
         itemStand.setSmall(true);
-        itemStand.setArms(true); // Habilitar brazos para poder sostener items
+        itemStand.setArms(false);
         itemStand.setBasePlate(false);
         
         // Debug: Verificar que el ArmorStand se creó correctamente
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: ArmorStand created at: " + itemLocation + ", ID: " + itemStand.getEntityId());
+        plugin.getLogger().info("DEBUG: ArmorStand created at: " + itemLocation + ", ID: " + itemStand.getEntityId());
         
-        // Intentar múltiples métodos para mostrar el item
-        boolean success = false;
+        // Dropear el item en la misma posición
+        droppedItem = location.getWorld().dropItem(itemLocation, item);
+        droppedItem.setPickupDelay(Integer.MAX_VALUE); // No se puede recoger
+        droppedItem.setVelocity(new Vector(0, 0, 0)); // Sin velocidad
         
-        // Método 1: Intentar NMS primero (casco)
-        if (setArmorStandHelmet(itemStand, item)) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Successfully set helmet using NMS");
-            success = true;
+        plugin.getLogger().info("DEBUG: Dropped item created at: " + itemLocation + ", ID: " + droppedItem.getEntityId());
+        
+        // Usar NMS para montar el item al ArmorStand
+        if (mountItemToArmorStand(itemStand, droppedItem)) {
+            plugin.getLogger().info("DEBUG: Successfully mounted item to ArmorStand using NMS");
+        } else {
+            plugin.getLogger().warning("DEBUG: Failed to mount item using NMS");
         }
         
-        // Método 2: Si NMS falla, intentar con mano derecha y pose personalizada
-        if (!success) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: NMS failed, trying hand method");
-            if (setArmorStandHand(itemStand, item)) {
-                MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Successfully set item in hand");
-                success = true;
-            }
-        }
-        
-        // Método 3: Fallback a método normal
-        if (!success) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Hand method failed, using normal helmet method");
-            itemStand.setHelmet(item);
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Set helmet using normal method");
-        }
-        
-        // Debug: Verificar el estado final del ArmorStand
+        // Debug: Verificar el estado final
         debugArmorStandState(itemStand);
     }
 
     /**
-     * Método para establecer el casco del ArmorStand usando NMS
+     * Montar el item al ArmorStand usando NMS
      */
-    private boolean setArmorStandHelmet(ArmorStand armorStand, ItemStack item) {
+    private boolean mountItemToArmorStand(ArmorStand armorStand, Item item) {
         try {
-            // Obtener la entidad NMS del ArmorStand
-            Entity nmsEntity = ((CraftEntity) armorStand).getHandle();
+            // Obtener las entidades NMS
+            Entity nmsArmorStand = ((CraftEntity) armorStand).getHandle();
+            Entity nmsItem = ((CraftEntity) item).getHandle();
             
-            if (nmsEntity instanceof EntityArmorStand) {
-                EntityArmorStand nmsArmorStand = (EntityArmorStand) nmsEntity;
+            plugin.getLogger().info("DEBUG: Mounting item - ArmorStand NMS: " + nmsArmorStand.getClass().getSimpleName() + 
+                                    ", Item NMS: " + nmsItem.getClass().getSimpleName());
+            
+            // Verificar que no tenga passengers previos
+            if (nmsArmorStand.passenger != null) {
+                plugin.getLogger().warning("DEBUG: ArmorStand already has a passenger: " + nmsArmorStand.passenger);
+                return false;
+            }
+            
+            // Montar el item al ArmorStand
+            nmsItem.mount(nmsArmorStand);
+            
+            plugin.getLogger().info("DEBUG: Mount operation completed. ArmorStand passenger: " + nmsArmorStand.passenger);
+            
+            // Verificar que el montaje fue exitoso
+            if (nmsArmorStand.passenger == nmsItem) {
+                plugin.getLogger().info("DEBUG: Item successfully mounted to ArmorStand");
                 
-                // Convertir el ItemStack de Bukkit a NMS
-                net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
-                
-                // Debug: Verificar conversión NMS
-                MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: NMS item conversion - Original: " + item + ", NMS: " + nmsItem);
-                
-                // Establecer el item como casco (slot 4 = helmet)
-                nmsArmorStand.setEquipment(4, nmsItem);
-                
-                // Actualizar para todos los jugadores cercanos
-                updateArmorStandForNearbyPlayers(nmsArmorStand);
+                // Enviar paquetes de actualización a los jugadores cercanos
+                updateMountForNearbyPlayers(nmsArmorStand);
                 
                 return true;
+            } else {
+                plugin.getLogger().warning("DEBUG: Mount failed - passenger mismatch");
+                return false;
             }
+            
         } catch (Exception e) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: NMS helmet method failed: " + e.getMessage());
+            plugin.getLogger().warning("DEBUG: Failed to mount item to ArmorStand: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     /**
-     * Método alternativo: poner el item en la mano derecha con pose personalizada
+     * Actualizar el montaje para todos los jugadores cercanos
      */
-    private boolean setArmorStandHand(ArmorStand armorStand, ItemStack item) {
-        try {
-            // Establecer el item en la mano derecha
-            armorStand.setItemInHand(item);
-            
-            // Obtener la entidad NMS para configurar la pose
-            Entity nmsEntity = ((CraftEntity) armorStand).getHandle();
-            
-            if (nmsEntity instanceof EntityArmorStand) {
-                EntityArmorStand nmsArmorStand = (EntityArmorStand) nmsEntity;
-                
-                // Configurar la pose del brazo derecho para que parezca que está en la cabeza
-                // Crear un Vector3f para la rotación (x, y, z en radianes)
-                Vector3f rightArmPose = new Vector3f(
-                    (float) Math.toRadians(-90), // Rotar hacia arriba
-                    (float) Math.toRadians(0),   // Sin rotación lateral
-                    (float) Math.toRadians(0)    // Sin rotación de torsión
-                );
-                
-                // Establecer la pose del brazo derecho
-                nmsArmorStand.setRightArmPose(rightArmPose);
-                
-                // Actualizar para todos los jugadores cercanos
-                updateArmorStandForNearbyPlayers(nmsArmorStand);
-                
-                MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Set hand item and pose successfully");
-                return true;
-            }
-        } catch (Exception e) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Hand method failed: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    /**
-     * Actualizar el ArmorStand para todos los jugadores cercanos
-     */
-    private void updateArmorStandForNearbyPlayers(EntityArmorStand nmsArmorStand) {
+    private void updateMountForNearbyPlayers(Entity nmsArmorStand) {
         try {
             // Obtener el mundo NMS
             WorldServer nmsWorld = ((CraftWorld) location.getWorld()).getHandle();
             
-            // Enviar múltiples paquetes para asegurar la sincronización
-            int entityId = nmsArmorStand.getId();
-            
-            // Paquete de equipment para casco
-            if (nmsArmorStand.getEquipment(4) != null) {
-                PacketPlayOutEntityEquipment helmetPacket = new PacketPlayOutEntityEquipment(
-                    entityId, 4, nmsArmorStand.getEquipment(4)
+            // Crear paquete de attach
+            if (nmsArmorStand.passenger != null) {
+                PacketPlayOutAttachEntity attachPacket = new PacketPlayOutAttachEntity(
+                    0, // leash = 0 para montaje normal
+                    nmsArmorStand.passenger, 
+                    nmsArmorStand
                 );
-                sendPacketToNearbyPlayers(helmetPacket, nmsWorld);
-            }
-            
-            // Paquete de equipment para mano derecha
-            if (nmsArmorStand.getEquipment(0) != null) {
-                PacketPlayOutEntityEquipment handPacket = new PacketPlayOutEntityEquipment(
-                    entityId, 0, nmsArmorStand.getEquipment(0)
-                );
-                sendPacketToNearbyPlayers(handPacket, nmsWorld);
-            }
-            
-            // Paquete de metadata para poses
-            DataWatcher dataWatcher = nmsArmorStand.getDataWatcher();
-            PacketPlayOutEntityMetadata metadataPacket = new PacketPlayOutEntityMetadata(entityId, dataWatcher, false);
-            sendPacketToNearbyPlayers(metadataPacket, nmsWorld);
-            
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Sent update packets to nearby players");
-            
-        } catch (Exception e) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Failed to update ArmorStand for nearby players: " + e.getMessage());
-        }
-    }
-
-    private void sendPacketToNearbyPlayers(Packet<?> packet, WorldServer nmsWorld) {
-        try {
-            for (EntityHuman entityHuman : nmsWorld.players) {
-                if (entityHuman instanceof EntityPlayer) {
-                    EntityPlayer player = (EntityPlayer) entityHuman;
-                    if (player.getBukkitEntity().getLocation().distance(location) <= 64) {
-                        player.playerConnection.sendPacket(packet);
+                
+                // Enviar a todos los jugadores cercanos
+                for (EntityHuman entityHuman : nmsWorld.players) {
+                    if (entityHuman instanceof EntityPlayer) {
+                        EntityPlayer player = (EntityPlayer) entityHuman;
+                        if (player.getBukkitEntity().getLocation().distance(location) <= 64) {
+                            player.playerConnection.sendPacket(attachPacket);
+                        }
                     }
                 }
+                
+                plugin.getLogger().info("DEBUG: Sent attach packets to nearby players");
             }
+            
         } catch (Exception e) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Failed to send packet: " + e.getMessage());
+            plugin.getLogger().warning("DEBUG: Failed to update mount for nearby players: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -254,15 +193,24 @@ public class PowerUp {
      * Debug: Mostrar el estado actual del ArmorStand
      */
     private void debugArmorStandState(ArmorStand armorStand) {
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: ArmorStand State:");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Visible: " + armorStand.isVisible());
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Has Arms: " + armorStand.hasArms());
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Helmet: " + armorStand.getHelmet());
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Hand Item: " + armorStand.getItemInHand());
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Location: " + armorStand.getLocation());
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Is Marker: " + armorStand.isMarker());
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Is Small: " + armorStand.isSmall());
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Entity ID: " + armorStand.getEntityId());
+        plugin.getLogger().info("DEBUG: ArmorStand State:");
+        plugin.getLogger().info("  - Visible: " + armorStand.isVisible());
+        plugin.getLogger().info("  - Has Arms: " + armorStand.hasArms());
+        plugin.getLogger().info("  - Location: " + armorStand.getLocation());
+        plugin.getLogger().info("  - Is Marker: " + armorStand.isMarker());
+        plugin.getLogger().info("  - Is Small: " + armorStand.isSmall());
+        plugin.getLogger().info("  - Entity ID: " + armorStand.getEntityId());
+        plugin.getLogger().info("  - Passenger: " + armorStand.getPassenger());
+        
+        // Debug del item dropeado
+        if (droppedItem != null) {
+            plugin.getLogger().info("DEBUG: Dropped Item State:");
+            plugin.getLogger().info("  - Item Type: " + droppedItem.getItemStack().getType());
+            plugin.getLogger().info("  - Location: " + droppedItem.getLocation());
+            plugin.getLogger().info("  - Entity ID: " + droppedItem.getEntityId());
+            plugin.getLogger().info("  - Is Valid: " + droppedItem.isValid());
+            plugin.getLogger().info("  - Vehicle: " + droppedItem.getVehicle());
+        }
         
         // Verificar jugadores cercanos
         int nearbyPlayers = 0;
@@ -271,7 +219,7 @@ public class PowerUp {
                 nearbyPlayers++;
             }
         }
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Nearby players: " + nearbyPlayers);
+        plugin.getLogger().info("  - Nearby players: " + nearbyPlayers);
     }
 
     private void createHologram() {
@@ -319,7 +267,7 @@ public class PowerUp {
                     return;
                 }
 
-                // Rotación del ArmorStand
+                // Rotación del ArmorStand (y su passenger)
                 Location newLoc = location.clone().add(0.5, 3.0, 0.5);
                 newLoc.setYaw(yaw);
                 
@@ -335,13 +283,19 @@ public class PowerUp {
                 
                 // Debug periódico cada 5 segundos (100 ticks)
                 if (tickCounter % 100 == 0) {
-                    MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Animation tick " + tickCounter + " - ArmorStand still alive: " + !itemStand.isDead());
-                    debugArmorStandState(itemStand);
+                    plugin.getLogger().info("DEBUG: Animation tick " + tickCounter + " - ArmorStand alive: " + !itemStand.isDead() + 
+                                            ", Item alive: " + (droppedItem != null && droppedItem.isValid()));
+                    
+                    // Verificar que el item sigue montado
+                    if (droppedItem != null && droppedItem.isValid()) {
+                        plugin.getLogger().info("DEBUG: Item vehicle: " + droppedItem.getVehicle());
+                        plugin.getLogger().info("DEBUG: ArmorStand passenger: " + itemStand.getPassenger());
+                    }
                 }
                 
-                // Actualizar cada cierto tiempo para asegurar que el item se muestre
-                if (yaw % 45 == 0) { // Cada 9 ticks (45/5)
-                    refreshArmorStandDisplay();
+                // Refrescar montaje cada cierto tiempo
+                if (tickCounter % 60 == 0) { // Cada 3 segundos
+                    refreshMount();
                 }
             }
         };
@@ -349,20 +303,29 @@ public class PowerUp {
     }
 
     /**
-     * Refrescar la visualización del ArmorStand para evitar problemas de renderizado
+     * Refrescar el montaje para evitar desincronización
      */
-    private void refreshArmorStandDisplay() {
-        if (itemStand == null || itemStand.isDead()) return;
+    private void refreshMount() {
+        if (itemStand == null || itemStand.isDead() || droppedItem == null || !droppedItem.isValid()) {
+            return;
+        }
         
         try {
-            Entity nmsEntity = ((CraftEntity) itemStand).getHandle();
-            
-            if (nmsEntity instanceof EntityArmorStand) {
-                EntityArmorStand nmsArmorStand = (EntityArmorStand) nmsEntity;
-                updateArmorStandForNearbyPlayers(nmsArmorStand);
+            // Verificar que el item siga montado
+            if (droppedItem.getVehicle() != itemStand) {
+                plugin.getLogger().info("DEBUG: Item dismounted, attempting to remount...");
+                
+                // Intentar remontar
+                Entity nmsArmorStand = ((CraftEntity) itemStand).getHandle();
+                Entity nmsItem = ((CraftEntity) droppedItem).getHandle();
+                
+                nmsItem.mount(nmsArmorStand);
+                updateMountForNearbyPlayers(nmsArmorStand);
+                
+                plugin.getLogger().info("DEBUG: Remount attempt completed");
             }
         } catch (Exception e) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Failed to refresh ArmorStand display: " + e.getMessage());
+            plugin.getLogger().warning("DEBUG: Failed to refresh mount: " + e.getMessage());
         }
     }
 
@@ -371,7 +334,7 @@ public class PowerUp {
             @Override
             public void run() {
                 if (removed || isExpired()) {
-                    MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: PowerUp expired or removed, cleaning up");
+                    plugin.getLogger().info("DEBUG: PowerUp expired or removed, cleaning up");
                     remove();
                     cancel();
                     return;
@@ -380,7 +343,7 @@ public class PowerUp {
                 // Verificar si hay jugadores cerca
                 for (Player player : location.getWorld().getPlayers()) {
                     if (isNearPlayer(player)) {
-                        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Player " + player.getName() + " picked up PowerUp");
+                        plugin.getLogger().info("DEBUG: Player " + player.getName() + " picked up PowerUp");
                         applyEffect(player);
                         cancel();
                         return;
@@ -479,7 +442,7 @@ public class PowerUp {
         if (removed) return;
         removed = true;
         
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Removing PowerUp at " + location);
+        plugin.getLogger().info("DEBUG: Removing PowerUp at " + location);
         
         // Cancelar tasks
         if (animationTask != null) {
@@ -489,38 +452,50 @@ public class PowerUp {
             checkTask.cancel();
         }
         
+        // Remover el item dropeado primero
+        if (droppedItem != null && droppedItem.isValid()) {
+            droppedItem.remove();
+            plugin.getLogger().info("DEBUG: Removed dropped item");
+        }
+        
         // Remover ArmorStand del item
         if (itemStand != null && !itemStand.isDead()) {
             itemStand.remove();
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Removed item ArmorStand");
+            plugin.getLogger().info("DEBUG: Removed item ArmorStand");
         }
         
         // Remover holograma principal
         if (hologram != null && !hologram.isDead()) {
             hologram.remove();
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Removed main hologram");
+            plugin.getLogger().info("DEBUG: Removed main hologram");
         }
         
         // Remover todos los hologramas del lore
+        int loreCount = loreHolograms.size();
         for (ArmorStand loreHologram : loreHolograms) {
             if (loreHologram != null && !loreHologram.isDead()) {
                 loreHologram.remove();
             }
         }
         loreHolograms.clear();
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Removed " + loreHolograms.size() + " lore holograms");
+        plugin.getLogger().info("DEBUG: Removed " + loreCount + " lore holograms");
         
-        // Cleanup adicional por si acaso (mantener como respaldo)
-        location.getWorld().getNearbyEntities(location, 2, 2, 2).forEach(entity -> {
+        // Cleanup adicional por si acaso
+        location.getWorld().getNearbyEntities(location, 3, 3, 3).forEach(entity -> {
             if (entity instanceof ArmorStand) {
                 ArmorStand stand = (ArmorStand) entity;
-                if (!stand.isVisible() && stand.isMarker()) {
+                if (!stand.isVisible() && (stand.isMarker() || stand.isSmall())) {
                     stand.remove();
+                }
+            } else if (entity instanceof Item) {
+                Item item = (Item) entity;
+                if (item.getPickupDelay() == Integer.MAX_VALUE) {
+                    item.remove();
                 }
             }
         });
         
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: PowerUp cleanup completed");
+        plugin.getLogger().info("DEBUG: PowerUp cleanup completed");
     }
 
     public PowerUpType getType() {
