@@ -3,7 +3,9 @@ package mk.kvlzx.powerup;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
@@ -19,11 +21,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.utils.MessageUtils;
+import net.minecraft.server.v1_8_R3.DataWatcher;
 import net.minecraft.server.v1_8_R3.Entity;
 import net.minecraft.server.v1_8_R3.EntityArmorStand;
 import net.minecraft.server.v1_8_R3.EntityHuman;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
+import net.minecraft.server.v1_8_R3.Packet;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityEquipment;
+import net.minecraft.server.v1_8_R3.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_8_R3.Vector3f;
 import net.minecraft.server.v1_8_R3.WorldServer;
 
 public class PowerUp {
@@ -66,29 +72,64 @@ public class PowerUp {
 
     private void spawnItemStand() {
         ItemStack item = new ItemStack(type.getMaterial());
+        
+        // Debug: Verificar que el item no sea null y tenga material válido
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Creating PowerUp item - Material: " + type.getMaterial() + ", Item: " + item);
+        
+        if (item.getType() == Material.AIR) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Item material is AIR! This will cause invisible items.");
+            return;
+        }
 
         // Spawn del ArmorStand ARRIBA del holograma principal
         Location itemLocation = location.clone().add(0.5, 3.0, 0.5);
         itemStand = (ArmorStand) location.getWorld().spawnEntity(itemLocation, EntityType.ARMOR_STAND);
         
-        // Configurar el ArmorStand para que sea invisible y tenga el item como helmet
+        // Configurar el ArmorStand para que sea invisible y tenga el item
         itemStand.setVisible(false);
         itemStand.setGravity(false);
         itemStand.setCanPickupItems(false);
         itemStand.setMarker(true);
         itemStand.setSmall(true);
-        itemStand.setArms(false);
+        itemStand.setArms(true); // Habilitar brazos para poder sostener items
         itemStand.setBasePlate(false);
         
-        // Usar NMS para establecer el item como helmet (funciona con cualquier item en 1.8.8)
-        setArmorStandHelmet(itemStand, item);
+        // Debug: Verificar que el ArmorStand se creó correctamente
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: ArmorStand created at: " + itemLocation + ", ID: " + itemStand.getEntityId());
+        
+        // Intentar múltiples métodos para mostrar el item
+        boolean success = false;
+        
+        // Método 1: Intentar NMS primero (casco)
+        if (setArmorStandHelmet(itemStand, item)) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Successfully set helmet using NMS");
+            success = true;
+        }
+        
+        // Método 2: Si NMS falla, intentar con mano derecha y pose personalizada
+        if (!success) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: NMS failed, trying hand method");
+            if (setArmorStandHand(itemStand, item)) {
+                MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Successfully set item in hand");
+                success = true;
+            }
+        }
+        
+        // Método 3: Fallback a método normal
+        if (!success) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Hand method failed, using normal helmet method");
+            itemStand.setHelmet(item);
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Set helmet using normal method");
+        }
+        
+        // Debug: Verificar el estado final del ArmorStand
+        debugArmorStandState(itemStand);
     }
 
     /**
      * Método para establecer el casco del ArmorStand usando NMS
-     * Esto permite que cualquier item se muestre como casco en 1.8.8
      */
-    private void setArmorStandHelmet(ArmorStand armorStand, ItemStack item) {
+    private boolean setArmorStandHelmet(ArmorStand armorStand, ItemStack item) {
         try {
             // Obtener la entidad NMS del ArmorStand
             Entity nmsEntity = ((CraftEntity) armorStand).getHandle();
@@ -99,17 +140,60 @@ public class PowerUp {
                 // Convertir el ItemStack de Bukkit a NMS
                 net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
                 
+                // Debug: Verificar conversión NMS
+                MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: NMS item conversion - Original: " + item + ", NMS: " + nmsItem);
+                
                 // Establecer el item como casco (slot 4 = helmet)
                 nmsArmorStand.setEquipment(4, nmsItem);
                 
                 // Actualizar para todos los jugadores cercanos
                 updateArmorStandForNearbyPlayers(nmsArmorStand);
+                
+                return true;
             }
         } catch (Exception e) {
-            // Fallback al método normal si NMS falla
-            plugin.getLogger().warning("Failed to set ArmorStand helmet using NMS, falling back to normal method: " + e.getMessage());
-            armorStand.setHelmet(item);
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: NMS helmet method failed: " + e.getMessage());
+            e.printStackTrace();
         }
+        return false;
+    }
+
+    /**
+     * Método alternativo: poner el item en la mano derecha con pose personalizada
+     */
+    private boolean setArmorStandHand(ArmorStand armorStand, ItemStack item) {
+        try {
+            // Establecer el item en la mano derecha
+            armorStand.setItemInHand(item);
+            
+            // Obtener la entidad NMS para configurar la pose
+            Entity nmsEntity = ((CraftEntity) armorStand).getHandle();
+            
+            if (nmsEntity instanceof EntityArmorStand) {
+                EntityArmorStand nmsArmorStand = (EntityArmorStand) nmsEntity;
+                
+                // Configurar la pose del brazo derecho para que parezca que está en la cabeza
+                // Crear un Vector3f para la rotación (x, y, z en radianes)
+                Vector3f rightArmPose = new Vector3f(
+                    (float) Math.toRadians(-90), // Rotar hacia arriba
+                    (float) Math.toRadians(0),   // Sin rotación lateral
+                    (float) Math.toRadians(0)    // Sin rotación de torsión
+                );
+                
+                // Establecer la pose del brazo derecho
+                nmsArmorStand.setRightArmPose(rightArmPose);
+                
+                // Actualizar para todos los jugadores cercanos
+                updateArmorStandForNearbyPlayers(nmsArmorStand);
+                
+                MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Set hand item and pose successfully");
+                return true;
+            }
+        } catch (Exception e) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Hand method failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**
@@ -120,14 +204,39 @@ public class PowerUp {
             // Obtener el mundo NMS
             WorldServer nmsWorld = ((CraftWorld) location.getWorld()).getHandle();
             
-            // Crear paquete de equipment
-            PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(
-                nmsArmorStand.getId(), 
-                4, // Slot del casco
-                nmsArmorStand.getEquipment(4)
-            );
+            // Enviar múltiples paquetes para asegurar la sincronización
+            int entityId = nmsArmorStand.getId();
             
-            // Enviar el paquete a todos los jugadores cercanos
+            // Paquete de equipment para casco
+            if (nmsArmorStand.getEquipment(4) != null) {
+                PacketPlayOutEntityEquipment helmetPacket = new PacketPlayOutEntityEquipment(
+                    entityId, 4, nmsArmorStand.getEquipment(4)
+                );
+                sendPacketToNearbyPlayers(helmetPacket, nmsWorld);
+            }
+            
+            // Paquete de equipment para mano derecha
+            if (nmsArmorStand.getEquipment(0) != null) {
+                PacketPlayOutEntityEquipment handPacket = new PacketPlayOutEntityEquipment(
+                    entityId, 0, nmsArmorStand.getEquipment(0)
+                );
+                sendPacketToNearbyPlayers(handPacket, nmsWorld);
+            }
+            
+            // Paquete de metadata para poses
+            DataWatcher dataWatcher = nmsArmorStand.getDataWatcher();
+            PacketPlayOutEntityMetadata metadataPacket = new PacketPlayOutEntityMetadata(entityId, dataWatcher, false);
+            sendPacketToNearbyPlayers(metadataPacket, nmsWorld);
+            
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Sent update packets to nearby players");
+            
+        } catch (Exception e) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Failed to update ArmorStand for nearby players: " + e.getMessage());
+        }
+    }
+
+    private void sendPacketToNearbyPlayers(Packet<?> packet, WorldServer nmsWorld) {
+        try {
             for (EntityHuman entityHuman : nmsWorld.players) {
                 if (entityHuman instanceof EntityPlayer) {
                     EntityPlayer player = (EntityPlayer) entityHuman;
@@ -137,8 +246,32 @@ public class PowerUp {
                 }
             }
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to update ArmorStand for nearby players: " + e.getMessage());
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Failed to send packet: " + e.getMessage());
         }
+    }
+
+    /**
+     * Debug: Mostrar el estado actual del ArmorStand
+     */
+    private void debugArmorStandState(ArmorStand armorStand) {
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: ArmorStand State:");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Visible: " + armorStand.isVisible());
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Has Arms: " + armorStand.hasArms());
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Helmet: " + armorStand.getHelmet());
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Hand Item: " + armorStand.getItemInHand());
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Location: " + armorStand.getLocation());
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Is Marker: " + armorStand.isMarker());
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Is Small: " + armorStand.isSmall());
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Entity ID: " + armorStand.getEntityId());
+        
+        // Verificar jugadores cercanos
+        int nearbyPlayers = 0;
+        for (Player player : location.getWorld().getPlayers()) {
+            if (player.getLocation().distance(location) <= 64) {
+                nearbyPlayers++;
+            }
+        }
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "  - Nearby players: " + nearbyPlayers);
     }
 
     private void createHologram() {
@@ -177,6 +310,7 @@ public class PowerUp {
     private void startAnimations() {
         animationTask = new BukkitRunnable() {
             private float yaw = 0;
+            private int tickCounter = 0;
             
             @Override
             public void run() {
@@ -195,6 +329,14 @@ public class PowerUp {
                 // Resetear yaw para evitar overflow
                 if (yaw >= 360) {
                     yaw = 0;
+                }
+                
+                tickCounter++;
+                
+                // Debug periódico cada 5 segundos (100 ticks)
+                if (tickCounter % 100 == 0) {
+                    MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Animation tick " + tickCounter + " - ArmorStand still alive: " + !itemStand.isDead());
+                    debugArmorStandState(itemStand);
                 }
                 
                 // Actualizar cada cierto tiempo para asegurar que el item se muestre
@@ -220,7 +362,7 @@ public class PowerUp {
                 updateArmorStandForNearbyPlayers(nmsArmorStand);
             }
         } catch (Exception e) {
-            // Ignorar errores de actualización
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Failed to refresh ArmorStand display: " + e.getMessage());
         }
     }
 
@@ -229,6 +371,7 @@ public class PowerUp {
             @Override
             public void run() {
                 if (removed || isExpired()) {
+                    MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: PowerUp expired or removed, cleaning up");
                     remove();
                     cancel();
                     return;
@@ -237,6 +380,7 @@ public class PowerUp {
                 // Verificar si hay jugadores cerca
                 for (Player player : location.getWorld().getPlayers()) {
                     if (isNearPlayer(player)) {
+                        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Player " + player.getName() + " picked up PowerUp");
                         applyEffect(player);
                         cancel();
                         return;
@@ -335,6 +479,8 @@ public class PowerUp {
         if (removed) return;
         removed = true;
         
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Removing PowerUp at " + location);
+        
         // Cancelar tasks
         if (animationTask != null) {
             animationTask.cancel();
@@ -346,11 +492,13 @@ public class PowerUp {
         // Remover ArmorStand del item
         if (itemStand != null && !itemStand.isDead()) {
             itemStand.remove();
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Removed item ArmorStand");
         }
         
         // Remover holograma principal
         if (hologram != null && !hologram.isDead()) {
             hologram.remove();
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Removed main hologram");
         }
         
         // Remover todos los hologramas del lore
@@ -360,6 +508,7 @@ public class PowerUp {
             }
         }
         loreHolograms.clear();
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: Removed " + loreHolograms.size() + " lore holograms");
         
         // Cleanup adicional por si acaso (mantener como respaldo)
         location.getWorld().getNearbyEntities(location, 2, 2, 2).forEach(entity -> {
@@ -370,6 +519,8 @@ public class PowerUp {
                 }
             }
         });
+        
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "DEBUG: PowerUp cleanup completed");
     }
 
     public PowerUpType getType() {

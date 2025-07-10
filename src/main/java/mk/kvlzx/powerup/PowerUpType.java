@@ -30,7 +30,7 @@ public enum PowerUpType {
     
     KNOCKBACK(MessageUtils.getColor("&6Knockback"), Material.STICK, Arrays.asList(
             MessageUtils.getColor("&7Increases your knockback"),
-            MessageUtils.getColor("&7for 5 seconds")));
+            MessageUtils.getColor("&7for 10 seconds")));
 
     private final String displayName;
     private final Material material;
