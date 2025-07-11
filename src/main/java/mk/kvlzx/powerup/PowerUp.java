@@ -13,6 +13,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -39,7 +40,9 @@ public class PowerUp {
     private boolean removed = false;
     private BukkitRunnable animationTask;
     private BukkitRunnable checkTask;
+    private BukkitRunnable itemPreservationTask; // Nueva tarea para preservar el item
     private final MysthicKnockBack plugin;
+    private final String itemIdentifier; // Identificador único
 
     public PowerUp(PowerUpType type, Location location, MysthicKnockBack plugin) {
         this.type = type;
@@ -47,6 +50,7 @@ public class PowerUp {
         this.spawnTime = System.currentTimeMillis();
         this.plugin = plugin;
         this.loreHolograms = new ArrayList<>();
+        this.itemIdentifier = "POWERUP_ITEM_" + System.currentTimeMillis(); // Identificador único
         spawnPowerUp();
     }
 
@@ -56,7 +60,7 @@ public class PowerUp {
         // Crear el holograma primero
         createHologram();
         
-        // Crear el item visual usando el método DecentHolograms
+        // Crear el item visual
         spawnItemStand();
         
         // Iniciar animaciones
@@ -64,6 +68,9 @@ public class PowerUp {
         
         // Iniciar task de verificación
         startCheckTask();
+        
+        // Iniciar task de preservación del item
+        startItemPreservationTask();
     }
 
     private void spawnItemStand() {
@@ -73,36 +80,80 @@ public class PowerUp {
             return;
         }
 
-        // Posición para el ArmorStand (justo arriba del holograma principal)
-        Location itemLocation = location.clone().add(0.5, 1.7, 0.5);
+        // Posición para el ArmorStand
+        Location itemLocation = location.clone().add(0.5, 1.6, 0.5);
         
         // Crear el ArmorStand invisible
         itemStand = (ArmorStand) location.getWorld().spawnEntity(itemLocation, EntityType.ARMOR_STAND);
         itemStand.setVisible(false);
         itemStand.setGravity(false);
         itemStand.setCanPickupItems(false);
-        itemStand.setMarker(false); // IMPORTANTE: No marker para poder tener passengers
+        itemStand.setMarker(false);
         itemStand.setSmall(true);
         itemStand.setArms(false);
         itemStand.setBasePlate(false);
         
-        // Dropear el item en la misma posición
+        // Dropear el item
         droppedItem = location.getWorld().dropItem(itemLocation, item);
-        droppedItem.setPickupDelay(Integer.MAX_VALUE); // No se puede recoger
-        droppedItem.setVelocity(new Vector(0, 0, 0)); // Sin velocidad
-        droppedItem.setTicksLived(1); // Resetear ticks para evitar que se elimine por edad
+        droppedItem.setPickupDelay(Integer.MAX_VALUE);
+        droppedItem.setVelocity(new Vector(0, 0, 0));
+        droppedItem.setTicksLived(1);
         
-        // Marcar el item como especial para el cleanup
-        droppedItem.setCustomName("§f§lPOWERUP_ITEM"); // Marcador invisible para el cleanup
+        // Marcar el item con un identificador único y múltiples protecciones
+        droppedItem.setCustomName("§f§l" + itemIdentifier);
         droppedItem.setCustomNameVisible(false);
         
-        // Usar NMS para montar el item al ArmorStand
-        mountItemToArmorStand(itemStand, droppedItem);
+        // Agregar metadata adicional para mayor protección
+        droppedItem.setMetadata("POWERUP_PROTECTED", new FixedMetadataValue(plugin, true));
+        droppedItem.setMetadata("POWERUP_ID", new FixedMetadataValue(plugin, itemIdentifier));
+        
+        // Intentar montar el item
+        if (!mountItemToArmorStand(itemStand, droppedItem)) {
+            plugin.getLogger().warning("Failed to mount item to ArmorStand for PowerUp: " + type.name());
+        }
     }
 
     /**
-     * Montar el item al ArmorStand usando NMS
+     * Nueva tarea para preservar el item y prevenir su eliminación
      */
+    private void startItemPreservationTask() {
+        itemPreservationTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (removed || droppedItem == null || !droppedItem.isValid()) {
+                    cancel();
+                    return;
+                }
+
+                // Mantener el item joven
+                droppedItem.setTicksLived(1);
+                
+                // Verificar que mantenga sus propiedades
+                if (droppedItem.getPickupDelay() != Integer.MAX_VALUE) {
+                    droppedItem.setPickupDelay(Integer.MAX_VALUE);
+                }
+                
+                // Verificar que mantenga su identificador
+                if (droppedItem.getCustomName() == null || !droppedItem.getCustomName().contains(itemIdentifier)) {
+                    droppedItem.setCustomName("§f§l" + itemIdentifier);
+                    droppedItem.setCustomNameVisible(false);
+                }
+                
+                // Verificar metadata
+                if (!droppedItem.hasMetadata("POWERUP_PROTECTED")) {
+                    droppedItem.setMetadata("POWERUP_PROTECTED", new FixedMetadataValue(plugin, true));
+                    droppedItem.setMetadata("POWERUP_ID", new FixedMetadataValue(plugin, itemIdentifier));
+                }
+                
+                // Verificar velocidad
+                if (droppedItem.getVelocity().length() > 0.1) {
+                    droppedItem.setVelocity(new Vector(0, 0, 0));
+                }
+            }
+        };
+        itemPreservationTask.runTaskTimer(plugin, 0L, 20L); // Cada segundo
+    }
+
     private boolean mountItemToArmorStand(ArmorStand armorStand, Item item) {
         try {
             // Obtener las entidades NMS
@@ -119,38 +170,27 @@ public class PowerUp {
             
             // Verificar que el montaje fue exitoso
             if (nmsArmorStand.passenger == nmsItem) {
-                
-                // Enviar paquetes de actualización a los jugadores cercanos
                 updateMountForNearbyPlayers(nmsArmorStand);
-                
                 return true;
             } else {
                 return false;
             }
             
         } catch (Exception e) {
-            e.printStackTrace();
+            plugin.getLogger().warning("Error mounting item to ArmorStand: " + e.getMessage());
             return false;
         }
     }
 
-    /**
-     * Actualizar el montaje para todos los jugadores cercanos
-     */
     private void updateMountForNearbyPlayers(Entity nmsArmorStand) {
         try {
-            // Obtener el mundo NMS
             WorldServer nmsWorld = ((CraftWorld) location.getWorld()).getHandle();
             
-            // Crear paquete de attach
             if (nmsArmorStand.passenger != null) {
                 PacketPlayOutAttachEntity attachPacket = new PacketPlayOutAttachEntity(
-                    0, // leash = 0 para montaje normal
-                    nmsArmorStand.passenger, 
-                    nmsArmorStand
+                    0, nmsArmorStand.passenger, nmsArmorStand
                 );
                 
-                // Enviar a todos los jugadores cercanos
                 for (EntityHuman entityHuman : nmsWorld.players) {
                     if (entityHuman instanceof EntityPlayer) {
                         EntityPlayer player = (EntityPlayer) entityHuman;
@@ -160,14 +200,12 @@ public class PowerUp {
                     }
                 }
             }
-            
         } catch (Exception e) {
-            e.printStackTrace();
+            plugin.getLogger().warning("Error updating mount for nearby players: " + e.getMessage());
         }
     }
 
     private void createHologram() {
-        // Crear holograma principal (título) - más cerca del suelo
         Location hologramLocation = location.clone().add(0.5, 1.5, 0.5);
         hologram = (ArmorStand) location.getWorld().spawnEntity(hologramLocation, EntityType.ARMOR_STAND);
         hologram.setCustomName(type.getDisplayName());
@@ -180,7 +218,6 @@ public class PowerUp {
         hologram.setArms(false);
         hologram.setBasePlate(false);
 
-        // Crear hologramas para el lore y guardarlos en la lista
         List<String> lore = type.getLore();
         for (int i = 0; i < lore.size(); i++) {
             Location loreLocation = hologramLocation.clone().add(0, -0.3 * (i + 1), 0);
@@ -211,54 +248,44 @@ public class PowerUp {
                     return;
                 }
 
-                // Rotación del ArmorStand (y su passenger)
-                Location newLoc = location.clone().add(0.5, 1.7, 0.5);
+                // Rotación del ArmorStand
+                Location newLoc = location.clone().add(0.5, 1.6, 0.5);
                 newLoc.setYaw(yaw);
                 
                 itemStand.teleport(newLoc);
-                yaw += 5; // Incrementar rotación
+                yaw += 5;
                 
-                // Resetear yaw para evitar overflow
                 if (yaw >= 360) {
                     yaw = 0;
                 }
                 
                 tickCounter++;
                 
-                // Refrescar montaje cada cierto tiempo
-                if (tickCounter % 60 == 0) { // Cada 3 segundos
+                // Refrescar montaje ocasionalmente
+                if (tickCounter % 60 == 0) {
                     refreshMount();
-                }
-                
-                // Mantener el item "joven" para evitar eliminación por edad
-                if (droppedItem != null && droppedItem.isValid()) {
-                    droppedItem.setTicksLived(1);
                 }
             }
         };
         animationTask.runTaskTimer(plugin, 0L, 1L);
     }
 
-    /**
-     * Refrescar el montaje para evitar desincronización
-     */
     private void refreshMount() {
         if (itemStand == null || itemStand.isDead() || droppedItem == null || !droppedItem.isValid()) {
             return;
         }
         
         try {
-            // Verificar que el item siga montado
             if (droppedItem.getVehicle() != itemStand) {
-                
-                // Intentar remontar
                 Entity nmsArmorStand = ((CraftEntity) itemStand).getHandle();
                 Entity nmsItem = ((CraftEntity) droppedItem).getHandle();
                 
                 nmsItem.mount(nmsArmorStand);
                 updateMountForNearbyPlayers(nmsArmorStand);
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            plugin.getLogger().warning("Error refreshing mount: " + e.getMessage());
+        }
     }
 
     private void startCheckTask() {
@@ -271,7 +298,6 @@ public class PowerUp {
                     return;
                 }
 
-                // Verificar si hay jugadores cerca
                 for (Player player : location.getWorld().getPlayers()) {
                     if (isNearPlayer(player)) {
                         applyEffect(player);
@@ -294,7 +320,6 @@ public class PowerUp {
             case JUMP_2:
             case JUMP_3:
             case JUMP_4:
-                // Usar los métodos del enum para obtener duración y nivel
                 player.addPotionEffect(new PotionEffect(
                         PotionEffectType.getByName(plugin.getMainConfig().getPowerUpJump1EffectId()), 
                         type.getJumpDuration(), 
@@ -328,17 +353,14 @@ public class PowerUp {
                     final int finalOriginalKnockbackLevel = originalKnockbackLevel;
                     final int finalKnockerSlot = knockerSlot;
 
-                    // Aumentar el knockback a 5
                     ItemStack powerupKnocker = finalKnocker.clone();
                     powerupKnocker.removeEnchantment(Enchantment.KNOCKBACK);
                     powerupKnocker.addUnsafeEnchantment(Enchantment.KNOCKBACK, 5);
                     player.getInventory().setItem(finalKnockerSlot, powerupKnocker);
 
-                    // Programar la restauración del knockback
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            // Restaurar el knockback original
                             ItemStack currentKnocker = player.getInventory().getItem(finalKnockerSlot);
                             if (currentKnocker != null && currentKnocker.isSimilar(powerupKnocker)) {
                                 ItemStack restoredKnocker = currentKnocker.clone();
@@ -360,10 +382,7 @@ public class PowerUp {
                 .replace("%powerup%", type.getDisplayName())
             ));
         
-        // Efectos visuales/sonoros
         player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 1.5f);
-        
-        // Remover el powerup
         remove();
     }
 
@@ -384,30 +403,30 @@ public class PowerUp {
         if (removed) return;
         removed = true;
         
-        // Cancelar tasks
+        // Cancelar todas las tareas
         if (animationTask != null) {
             animationTask.cancel();
         }
         if (checkTask != null) {
             checkTask.cancel();
         }
+        if (itemPreservationTask != null) {
+            itemPreservationTask.cancel();
+        }
         
-        // Remover el item dropeado primero
+        // Remover entidades
         if (droppedItem != null && droppedItem.isValid()) {
             droppedItem.remove();
         }
         
-        // Remover ArmorStand del item
         if (itemStand != null && !itemStand.isDead()) {
             itemStand.remove();
         }
         
-        // Remover holograma principal
         if (hologram != null && !hologram.isDead()) {
             hologram.remove();
         }
         
-        // Remover todos los hologramas del lore
         for (ArmorStand loreHologram : loreHolograms) {
             if (loreHologram != null && !loreHologram.isDead()) {
                 loreHologram.remove();
@@ -415,7 +434,14 @@ public class PowerUp {
         }
         loreHolograms.clear();
         
-        // Cleanup adicional por si acaso
+        // Cleanup adicional más específico
+        cleanupNearbyPowerUpEntities();
+    }
+
+    /**
+     * Limpieza específica para entidades de PowerUp
+     */
+    private void cleanupNearbyPowerUpEntities() {
         location.getWorld().getNearbyEntities(location, 3, 3, 3).forEach(entity -> {
             if (entity instanceof ArmorStand) {
                 ArmorStand stand = (ArmorStand) entity;
@@ -424,24 +450,31 @@ public class PowerUp {
                 }
             } else if (entity instanceof Item) {
                 Item item = (Item) entity;
-                if (item.getPickupDelay() == Integer.MAX_VALUE && 
-                    item.getCustomName() != null && 
-                    item.getCustomName().contains("POWERUP_ITEM")) {
+                // Verificar múltiples condiciones para identificar items de PowerUp
+                if ((item.getPickupDelay() == Integer.MAX_VALUE && 
+                     item.getCustomName() != null && 
+                     item.getCustomName().contains("POWERUP_ITEM")) ||
+                    item.hasMetadata("POWERUP_PROTECTED") ||
+                    (item.hasMetadata("POWERUP_ID") && 
+                     item.getMetadata("POWERUP_ID").get(0).asString().equals(itemIdentifier))) {
                     item.remove();
                 }
             }
         });
     }
 
-    public PowerUpType getType() {
-        return type;
+    // Método para verificar si un item pertenece a este PowerUp
+    public boolean isMyItem(Item item) {
+        return item != null && 
+               item.isValid() && 
+               ((item.getCustomName() != null && item.getCustomName().contains(itemIdentifier)) ||
+                (item.hasMetadata("POWERUP_ID") && 
+                 item.getMetadata("POWERUP_ID").get(0).asString().equals(itemIdentifier)));
     }
 
-    public Location getLocation() {
-        return location.clone();
-    }
-
-    public boolean isRemoved() {
-        return removed;
-    }
+    // Getters
+    public PowerUpType getType() { return type; }
+    public Location getLocation() { return location.clone(); }
+    public boolean isRemoved() { return removed; }
+    public String getItemIdentifier() { return itemIdentifier; }
 }

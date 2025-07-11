@@ -1,0 +1,98 @@
+report-menus:
+  player-list:
+    title: "&8• &c&lOnline Players &8•"
+    size: 54
+    items:
+      player-skulls:
+        name: "&c%player_name%" 
+        lore: "&7Click to report this player"
+      back:
+        id: ARROW
+        name: "&c← Back"
+        lore: 
+          - "&7Click to return to the menu"
+        slot: 49
+      fill:
+        slots:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          - 18
+          - 27
+          - 36
+          - 17
+          - 26
+          - 35
+          - 44
+          - 45
+          - 47
+          - 48
+          - 50
+          - 51
+          - 52
+          - 53
+  report-reasons:
+    title: "&8• &c&lSelect Reason &8•"
+    size: 54
+    items:
+      target-skull:
+        name: "&c&lReporting: &f%player_name%"
+        lore: 
+          - "&8▪ &7Select a reason for the report"
+          - ""
+          - "&8➥ &7Choose carefully"
+        slot: 13
+      report-reasons:
+        id: "%reason_id%"
+        name: "%reason_name%"
+        lore:
+          - "&8▪ &7Click to select this reason"
+          - ""
+          - "&8➥ &7%reason_lore%"
+        slots:
+          - 20
+          - 21
+          - 22
+          - 23
+          - 24
+          - 31
+      back:
+        id: ARROW
+        name: "&c← Cancel"
+        lore:
+          - "&7Click to return to the player list"
+        slot: 49
+  messages:
+    player-not-found: "&cError: Player to report not found"
+reasons:
+  hacks:
+    id: DIAMOND_SWORD
+    name: "&c&lHacks"
+    description: "Use of hacks or unfair advantages"
+  toxic:
+    id: POISONOUS_POTATO
+    name: "&e&lToxicity"
+    description: "Toxic or disrespectful behavior"
+  teaming:
+    id: GOLD_INGOT
+    name: "&6&lTeaming"
+    description: "Teaming up with other players"
+  bug_abuse:
+    id: REDSTONE
+    name: "&4&lBug Abuse"
+    description: "Exploiting game bugs"
+  inappropriate_skin:
+    id: LEATHER_CHESTPLATE
+    name: "&d&lInappropriate Skin"
+    description: "Inappropriate skin"
+  other:
+    id: PAPER
+    name: "&7&lOther"
+    description: "Other reason not listed"

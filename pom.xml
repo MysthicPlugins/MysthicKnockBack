@@ -76,6 +76,7 @@
                     <include>config/menus/top-menus.yml</include>
                     <include>config/menus/stats.yml</include>
                     <include>config/menus/hotbar.yml</include>
+                    <include>config/menus/report.yml</include>
                 </includes>
             </resource>
         </resources>

@@ -2,6 +2,7 @@ package mk.kvlzx;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Entity;
@@ -24,6 +25,7 @@ import mk.kvlzx.config.HotbarMenuConfig;
 import mk.kvlzx.config.MainConfig;
 import mk.kvlzx.config.MainMenuConfig;
 import mk.kvlzx.config.MessagesConfig;
+import mk.kvlzx.config.ReportMenuConfig;
 import mk.kvlzx.config.StatsMenuConfig;
 import mk.kvlzx.config.TabConfig;
 import mk.kvlzx.config.TopsMenuConfig;
@@ -78,6 +80,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private TopsMenuConfig topsMenuConfig;
     private StatsMenuConfig statsMenuConfig;
     private HotbarMenuConfig hotbarMenuConfig;
+    private ReportMenuConfig reportMenuConfig;
     
     private BukkitTask autoSaveTask;
     private BukkitTask weatherTimeTask; // Nueva tarea para controlar clima y tiempo
@@ -94,6 +97,7 @@ public class MysthicKnockBack extends JavaPlugin {
         topsMenuConfig = new TopsMenuConfig(this);
         statsMenuConfig = new StatsMenuConfig(this);
         hotbarMenuConfig = new HotbarMenuConfig(this);
+        reportMenuConfig = new ReportMenuConfig(this);
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
@@ -329,6 +333,7 @@ public class MysthicKnockBack extends JavaPlugin {
         topsMenuConfig.reload();
         statsMenuConfig.reload();
         hotbarMenuConfig.reload();
+        reportMenuConfig.reload();
         
         // Reiniciar auto-save con nueva configuración
         restartAutoSave();
@@ -345,24 +350,53 @@ public class MysthicKnockBack extends JavaPlugin {
         weaponManager.saveAllWeapons();
     }
 
-private void cleanupAllDroppedItems() {
+    private void cleanupAllDroppedItems() {
         for (World world : Bukkit.getWorlds()) {
             for (Entity entity : world.getEntities()) {
                 if (entity instanceof Item) {
                     Item item = (Item) entity;
                     
-                    // NO remover items de powerups - Los powerups tienen pickupDelay infinito
+                    // PROTECCIÓN MÚLTIPLE para items de PowerUp
+                    boolean isPowerUpItem = false;
+                    
+                    // Verificar por pickup delay infinito Y nombre personalizado
                     if (item.getPickupDelay() == Integer.MAX_VALUE) {
-                        // Verificar si es un item de powerup por su nombre personalizado
                         if (item.getCustomName() != null && item.getCustomName().contains("POWERUP_ITEM")) {
-                            continue; // Skipear items de powerups
+                            isPowerUpItem = true;
                         }
                     }
                     
-                    // Remover solo items normales dropeados que no sean de powerups
+                    // Verificar por metadata
+                    if (item.hasMetadata("POWERUP_PROTECTED") || item.hasMetadata("POWERUP_ID")) {
+                        isPowerUpItem = true;
+                    }
+                    
+                    // Verificar si está montado en un ArmorStand (indicativo de PowerUp)
+                    if (item.getVehicle() instanceof ArmorStand) {
+                        ArmorStand vehicle = (ArmorStand) item.getVehicle();
+                        if (!vehicle.isVisible() && vehicle.isSmall()) {
+                            isPowerUpItem = true;
+                        }
+                    }
+                    
+                    // Si es un item de PowerUp, NO eliminarlo
+                    if (isPowerUpItem) {
+                        continue;
+                    }
+                    
+                    // Eliminar solo items normales que no sean de PowerUp
+                    // Criterios para eliminar:
+                    // 1. Items con pickup delay normal (pueden ser recogidos)
+                    // 2. Items sin nombre personalizado de PowerUp
+                    // 3. Items sin metadata de protección
                     if (item.getPickupDelay() != Integer.MAX_VALUE || 
-                        (item.getCustomName() == null || !item.getCustomName().contains("POWERUP_ITEM"))) {
-                        entity.remove();
+                        item.getCustomName() == null || 
+                        !item.getCustomName().contains("POWERUP_ITEM")) {
+                        
+                        // Verificación adicional: No eliminar si tiene metadata de protección
+                        if (!item.hasMetadata("POWERUP_PROTECTED") && !item.hasMetadata("POWERUP_ID")) {
+                            entity.remove();
+                        }
                     }
                     
                 } else if (entity instanceof Arrow) {
@@ -494,5 +528,9 @@ private void cleanupAllDroppedItems() {
 
     public HotbarMenuConfig getHotbarMenuConfig() {
         return hotbarMenuConfig;
+    }
+
+    public ReportMenuConfig getReportMenuConfig() {
+        return reportMenuConfig;
     }
 }
