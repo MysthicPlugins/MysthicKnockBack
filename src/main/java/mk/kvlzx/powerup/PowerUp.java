@@ -73,8 +73,8 @@ public class PowerUp {
             return;
         }
 
-        // Posición para el ArmorStand (arriba del holograma)
-        Location itemLocation = location.clone().add(0.5, 1.8, 0.5);
+        // Posición para el ArmorStand (justo arriba del holograma principal)
+        Location itemLocation = location.clone().add(0.5, 1.7, 0.5);
         
         // Crear el ArmorStand invisible
         itemStand = (ArmorStand) location.getWorld().spawnEntity(itemLocation, EntityType.ARMOR_STAND);
@@ -90,7 +90,11 @@ public class PowerUp {
         droppedItem = location.getWorld().dropItem(itemLocation, item);
         droppedItem.setPickupDelay(Integer.MAX_VALUE); // No se puede recoger
         droppedItem.setVelocity(new Vector(0, 0, 0)); // Sin velocidad
-        droppedItem.setTicksLived(Integer.MAX_VALUE);
+        droppedItem.setTicksLived(1); // Resetear ticks para evitar que se elimine por edad
+        
+        // Marcar el item como especial para el cleanup
+        droppedItem.setCustomName("§f§lPOWERUP_ITEM"); // Marcador invisible para el cleanup
+        droppedItem.setCustomNameVisible(false);
         
         // Usar NMS para montar el item al ArmorStand
         mountItemToArmorStand(itemStand, droppedItem);
@@ -208,7 +212,7 @@ public class PowerUp {
                 }
 
                 // Rotación del ArmorStand (y su passenger)
-                Location newLoc = location.clone().add(0.5, 3.0, 0.5);
+                Location newLoc = location.clone().add(0.5, 1.7, 0.5);
                 newLoc.setYaw(yaw);
                 
                 itemStand.teleport(newLoc);
@@ -224,6 +228,11 @@ public class PowerUp {
                 // Refrescar montaje cada cierto tiempo
                 if (tickCounter % 60 == 0) { // Cada 3 segundos
                     refreshMount();
+                }
+                
+                // Mantener el item "joven" para evitar eliminación por edad
+                if (droppedItem != null && droppedItem.isValid()) {
+                    droppedItem.setTicksLived(1);
                 }
             }
         };
@@ -415,7 +424,9 @@ public class PowerUp {
                 }
             } else if (entity instanceof Item) {
                 Item item = (Item) entity;
-                if (item.getPickupDelay() == Integer.MAX_VALUE) {
+                if (item.getPickupDelay() == Integer.MAX_VALUE && 
+                    item.getCustomName() != null && 
+                    item.getCustomName().contains("POWERUP_ITEM")) {
                     item.remove();
                 }
             }

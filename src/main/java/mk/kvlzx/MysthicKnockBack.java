@@ -345,17 +345,25 @@ public class MysthicKnockBack extends JavaPlugin {
         weaponManager.saveAllWeapons();
     }
 
-    private void cleanupAllDroppedItems() {
+private void cleanupAllDroppedItems() {
         for (World world : Bukkit.getWorlds()) {
             for (Entity entity : world.getEntities()) {
                 if (entity instanceof Item) {
                     Item item = (Item) entity;
                     
                     // NO remover items de powerups - Los powerups tienen pickupDelay infinito
-                    if (item.getPickupDelay() == Integer.MAX_VALUE) continue; // Skipear items de powerups
+                    if (item.getPickupDelay() == Integer.MAX_VALUE) {
+                        // Verificar si es un item de powerup por su nombre personalizado
+                        if (item.getCustomName() != null && item.getCustomName().contains("POWERUP_ITEM")) {
+                            continue; // Skipear items de powerups
+                        }
+                    }
                     
-                    // Remover solo items normales dropeados
-                    entity.remove();
+                    // Remover solo items normales dropeados que no sean de powerups
+                    if (item.getPickupDelay() != Integer.MAX_VALUE || 
+                        (item.getCustomName() == null || !item.getCustomName().contains("POWERUP_ITEM"))) {
+                        entity.remove();
+                    }
                     
                 } else if (entity instanceof Arrow) {
                     Arrow arrow = (Arrow) entity;
