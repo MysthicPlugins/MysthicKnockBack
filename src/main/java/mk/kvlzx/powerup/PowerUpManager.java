@@ -37,11 +37,11 @@ public class PowerUpManager {
     private final Random random;
 
     // Configuración
-    private final int SPAWN_INTERVAL = 25; // Segundos entre spawns
-    private final int MAX_POWERUPS_PER_ARENA = 4; // Máximo de powerups por arena
+    private final int SPAWN_INTERVAL = MysthicKnockBack.getInstance().getMainConfig().getPowerUpSpawnInterval(); // Segundos entre spawns
+    private final int MAX_POWERUPS_PER_ARENA = MysthicKnockBack.getInstance().getMainConfig().getPowerUpMaxPowerUp(); // Máximo de powerups por arena
     private final int CHECK_INTERVAL = 5; // Ticks entre verificaciones
     private final int MAX_SPAWN_ATTEMPTS = 30; // Máximo de intentos para encontrar una ubicación válida
-    private final double MIN_DISTANCE_BETWEEN_POWERUPS = 4.0; // Distancia mínima entre powerups
+    private final double MIN_DISTANCE_BETWEEN_POWERUPS = MysthicKnockBack.getInstance().getMainConfig().getPowerUpMinDistance(); // Distancia mínima entre powerups
 
     public PowerUpManager(MysthicKnockBack plugin, ArenaManager arenaManager) {
         this.plugin = plugin;
@@ -116,7 +116,11 @@ public class PowerUpManager {
 
         // Notificar a los jugadores
         for (Player player : playersInArena) {
-            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&eA " + randomType.getDisplayName() + " &epowerup has appeared in the arena!"));
+            player.sendMessage(MessageUtils.getColor(
+                    MysthicKnockBack.getPrefix() + 
+                    plugin.getMainConfig().getPowerUpMessageAppeared()
+                    .replace("%powerup%", randomType.getDisplayName())
+                ));
             player.playSound(player.getLocation(), Sound.NOTE_PLING, 0.8f, 1.2f);
         }
     }

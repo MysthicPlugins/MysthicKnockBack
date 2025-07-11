@@ -28,7 +28,7 @@ public enum PowerUpType {
     ),
     
     INVISIBILITY(MysthicKnockBack.getInstance().getMainConfig().getPowerUpInvisibilityName(), 
-                Material.valueOf(MysthicKnockBack.getInstance().getMainConfig().getPowerUpInvisibilityEffectId()),
+                Material.valueOf(MysthicKnockBack.getInstance().getMainConfig().getPowerUpInvisibilityId()),
                 MysthicKnockBack.getInstance().getMainConfig().getPowerUpInvisibilityLore()
     ),
     

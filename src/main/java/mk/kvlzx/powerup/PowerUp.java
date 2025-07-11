@@ -296,7 +296,7 @@ public class PowerUp {
                 player.addPotionEffect(new PotionEffect(
                         PotionEffectType.getByName(plugin.getMainConfig().getPowerUpInvisibilityId()), 
                         plugin.getMainConfig().getPowerUpInvisibilityEffectDuration(), 
-                        plugin.getMainConfig().getPowerUpInvisibilityEffectDuration()
+                        plugin.getMainConfig().getPowerUpInvisibilityEffectLevel()
                     ));
                 break;
             case KNOCKBACK:
@@ -345,7 +345,11 @@ public class PowerUp {
                 break;
         }
 
-        player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have picked up a " + type.getDisplayName() + " &apowerup!"));
+        player.sendMessage(MessageUtils.getColor(
+                MysthicKnockBack.getPrefix() + 
+                plugin.getMainConfig().getPowerUpMessagePickup()
+                .replace("%powerup%", type.getDisplayName())
+            ));
         
         // Efectos visuales/sonoros
         player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 1.5f);
@@ -356,11 +360,11 @@ public class PowerUp {
 
     public boolean isNearPlayer(Player player) {
         if (player.getWorld() != location.getWorld()) return false;
-        return player.getLocation().distance(location) <= 1.8; // Radio de 1.8 bloques
+        return player.getLocation().distance(location) <= plugin.getMainConfig().getPowerUpPickupRadius();
     }
 
     public boolean isExpired() {
-        return System.currentTimeMillis() - spawnTime > 30000; // 30 segundos
+        return System.currentTimeMillis() - spawnTime > plugin.getMainConfig().getPowerUpTime() * 1000;
     }
 
     public boolean isCollected() {

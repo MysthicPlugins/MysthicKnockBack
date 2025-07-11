@@ -148,6 +148,12 @@ public class MainConfig {
     private String reportMessage;
     private String reportStaffMessage;
 
+
+    private double powerUpPickupRadius;
+    private Integer powerUpTime;
+    private Integer powerUpSpawnInterval;
+    private Integer powerUpMaxPowerUp;
+    private double powerUpMinDistance;
     private String powerUpJump1Id;
     private String powerUpJump1Name;
     private List<String> powerUpJump1Lore;
@@ -182,6 +188,8 @@ public class MainConfig {
     private String powerUpKnockbackName;
     private List<String> powerUpKnockbackLore;
     private Integer powerUpKnockbackEffectDuration;
+    private String powerUpMessageAppeared;
+    private String powerUpMessagePickup;
 
     private String streakTag40;
     private String streakTag60;
@@ -352,41 +360,49 @@ public class MainConfig {
         reportCooldownMessage = config.getString("config.report.messages.cooldown");
         reportMessage = config.getString("config.report.messages.report-message");
         reportStaffMessage = config.getString("config.report.messages.report-message-staff");
-        
-        powerUpJump1Id = validateAndGetMaterial(config, "config.powerups.jump-1.id", "RABBIT_FOOT");
-        powerUpJump1Name = config.getString("config.powerups.jump-1.name");
-        powerUpJump1Lore = config.getStringList("config.powerups.jump-1.lore");
-        powerUpJump1EffectId = config.getString("config.powerups.jump-1.effect.id");
-        powerUpJump1EffectLevel = config.getInt("config.powerups.jump-1.effect.level");
-        powerUpJump1EffectDuration = config.getInt("config.powerups.jump-1.effect.duration");
-        powerUpJump2Id = validateAndGetMaterial(config, "config.powerups.jump-2.id", "RABBIT_FOOT");
-        powerUpJump2Name = config.getString("config.powerups.jump-2.name");
-        powerUpJump2Lore = config.getStringList("config.powerups.jump-2.lore");
-        powerUpJump2EffectId = config.getString("config.powerups.jump-2.effect.id");
-        powerUpJump2EffectLevel = config.getInt("config.powerups.jump-2.effect.level");
-        powerUpJump2EffectDuration = config.getInt("config.powerups.jump-2.effect.duration");
-        powerUpJump3Id = validateAndGetMaterial(config, "config.powerups.jump-3.id", "RABBIT_FOOT");
-        powerUpJump3Name = config.getString("config.powerups.jump-3.name");
-        powerUpJump3Lore = config.getStringList("config.powerups.jump-3.lore");
-        powerUpJump3EffectId = config.getString("config.powerups.jump-3.effect.id");
-        powerUpJump3EffectLevel = config.getInt("config.powerups.jump-3.effect.level");
-        powerUpJump3EffectDuration = config.getInt("config.powerups.jump-3.effect.duration");
-        powerUpJump4Id = validateAndGetMaterial(config, "config.powerups.jump-4.id", "RABBIT_FOOT");
-        powerUpJump4Name = config.getString("config.powerups.jump-4.name");
-        powerUpJump4Lore = config.getStringList("config.powerups.jump-4.lore");
-        powerUpJump4EffectId = config.getString("config.powerups.jump-4.effect.id");
-        powerUpJump4EffectLevel = config.getInt("config.powerups.jump-4.effect.level");
-        powerUpJump4EffectDuration = config.getInt("config.powerups.jump-4.effect.duration");
-        powerUpInvisibilityId = validateAndGetMaterial(config, "config.powerups.invisibility.id", "FERMENTED_SPIDER_EYE");
-        powerUpInvisibilityName = config.getString("config.powerups.invisibility.name");
-        powerUpInvisibilityLore = config.getStringList("config.powerups.invisibility.lore");
-        powerUpInvisibilityEffectId = config.getString("config.powerups.invisibility.effect.id");
-        powerUpInvisibilityEffectLevel = config.getInt("config.powerups.invisibility.effect.level");
-        powerUpInvisibilityEffectDuration = config.getInt("config.powerups.invisibility.effect.duration");
-        powerUpKnockbackId = validateAndGetMaterial(config, "config.powerups.knockback.id", "STICK");
-        powerUpKnockbackName = config.getString("config.powerups.knockback.name");
-        powerUpKnockbackLore = config.getStringList("config.powerups.knockback.lore");
-        powerUpKnockbackEffectDuration = config.getInt("config.powerups.knockback.effect.duration");
+
+
+        powerUpPickupRadius = config.getDouble("config.powerups.pickup-radius");
+        powerUpTime = config.getInt("config.powerups.time");
+        powerUpSpawnInterval = config.getInt("config.powerups.spawn-interval");
+        powerUpMaxPowerUp = config.getInt("config.powerups.max-powerup");
+        powerUpMinDistance = config.getDouble("config.powerups.min-distance");
+        powerUpJump1Id = validateAndGetMaterial(config, "config.powerups.powerups.jump-1.id", "RABBIT_FOOT");
+        powerUpJump1Name = config.getString("config.powerups.powerups.jump-1.name");
+        powerUpJump1Lore = config.getStringList("config.powerups.powerups.jump-1.lore");
+        powerUpJump1EffectId = config.getString("config.powerups.powerups.jump-1.effect.id");
+        powerUpJump1EffectLevel = config.getInt("config.powerups.powerups.jump-1.effect.level");
+        powerUpJump1EffectDuration = config.getInt("config.powerups.powerups.jump-1.effect.duration");
+        powerUpJump2Id = validateAndGetMaterial(config, "config.powerups.powerups.jump-2.id", "RABBIT_FOOT");
+        powerUpJump2Name = config.getString("config.powerups.powerups.jump-2.name");
+        powerUpJump2Lore = config.getStringList("config.powerups.powerups.jump-2.lore");
+        powerUpJump2EffectId = config.getString("config.powerups.powerups.jump-2.effect.id");
+        powerUpJump2EffectLevel = config.getInt("config.powerups.powerups.jump-2.effect.level");
+        powerUpJump2EffectDuration = config.getInt("config.powerups.powerups.jump-2.effect.duration");
+        powerUpJump3Id = validateAndGetMaterial(config, "config.powerups.powerups.jump-3.id", "RABBIT_FOOT");
+        powerUpJump3Name = config.getString("config.powerups.powerups.jump-3.name");
+        powerUpJump3Lore = config.getStringList("config.powerups.powerups.jump-3.lore");
+        powerUpJump3EffectId = config.getString("config.powerups.powerups.jump-3.effect.id");
+        powerUpJump3EffectLevel = config.getInt("config.powerups.powerups.jump-3.effect.level");
+        powerUpJump3EffectDuration = config.getInt("config.powerups.powerups.jump-3.effect.duration");
+        powerUpJump4Id = validateAndGetMaterial(config, "config.powerups.powerups.jump-4.id", "RABBIT_FOOT");
+        powerUpJump4Name = config.getString("config.powerups.powerups.jump-4.name");
+        powerUpJump4Lore = config.getStringList("config.powerups.powerups.jump-4.lore");
+        powerUpJump4EffectId = config.getString("config.powerups.powerups.jump-4.effect.id");
+        powerUpJump4EffectLevel = config.getInt("config.powerups.powerups.jump-4.effect.level");
+        powerUpJump4EffectDuration = config.getInt("config.powerups.powerups.jump-4.effect.duration");
+        powerUpInvisibilityId = validateAndGetMaterial(config, "config.powerups.powerups.invisibility.id", "FERMENTED_SPIDER_EYE");
+        powerUpInvisibilityName = config.getString("config.powerups.powerups.invisibility.name");
+        powerUpInvisibilityLore = config.getStringList("config.powerups.powerups.invisibility.lore");
+        powerUpInvisibilityEffectId = config.getString("config.powerups.powerups.invisibility.effect.id");
+        powerUpInvisibilityEffectLevel = config.getInt("config.powerups.powerups.invisibility.effect.level");
+        powerUpInvisibilityEffectDuration = config.getInt("config.powerups.powerups.invisibility.effect.duration");
+        powerUpKnockbackId = validateAndGetMaterial(config, "config.powerups.powerups.knockback.id", "STICK");
+        powerUpKnockbackName = config.getString("config.powerups.powerups.knockback.name");
+        powerUpKnockbackLore = config.getStringList("config.powerups.powerups.knockback.lore");
+        powerUpKnockbackEffectDuration = config.getInt("config.powerups.powerups.knockback.effect.duration");
+        powerUpMessageAppeared = config.getString("config.powerups.messages.appeared");
+        powerUpMessagePickup = config.getString("config.powerups.messages.pickup");
 
         streakTag40 = config.getString("config.streak.tags.kill-40.tag");
         streakTag60 = config.getString("config.streak.tags.kill-60.tag");
@@ -611,6 +627,11 @@ public class MainConfig {
     public String getReportMessage() { return reportMessage; }
     public String getReportStaffMessage() { return reportStaffMessage; }
 
+    public double getPowerUpPickupRadius() { return powerUpPickupRadius; }
+    public Integer getPowerUpTime() { return powerUpTime; }
+    public Integer getPowerUpSpawnInterval() { return powerUpSpawnInterval; }
+    public Integer getPowerUpMaxPowerUp() { return powerUpMaxPowerUp; }
+    public double getPowerUpMinDistance() { return powerUpMinDistance; }
     public String getPowerUpJump1Id() { return powerUpJump1Id; }
     public String getPowerUpJump1Name() { return powerUpJump1Name; }
     public List<String> getPowerUpJump1Lore() { return powerUpJump1Lore; }
@@ -645,6 +666,8 @@ public class MainConfig {
     public String getPowerUpKnockbackName() { return powerUpKnockbackName; }
     public List<String> getPowerUpKnockbackLore() { return powerUpKnockbackLore; }
     public Integer getPowerUpKnockbackEffectDuration() { return powerUpKnockbackEffectDuration; }
+    public String getPowerUpMessageAppeared() { return powerUpMessageAppeared; }
+    public String getPowerUpMessagePickup() { return powerUpMessagePickup; }
 
     public String getStreakTag40() { return streakTag40; }
     public String getStreakTag60() { return streakTag60; }
