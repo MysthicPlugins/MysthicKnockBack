@@ -365,7 +365,7 @@ public class MainConfig {
         powerUpPickupRadius = config.getDouble("config.powerups.pickup-radius");
         powerUpTime = config.getInt("config.powerups.time");
         powerUpSpawnInterval = config.getInt("config.powerups.spawn-interval");
-        powerUpMaxPowerUp = config.getInt("config.powerups.max-powerup");
+        powerUpMaxPowerUp = config.getInt("config.powerups.max-powerups");
         powerUpMinDistance = config.getDouble("config.powerups.min-distance");
         powerUpJump1Id = validateAndGetMaterial(config, "config.powerups.powerups.jump-1.id", "RABBIT_FOOT");
         powerUpJump1Name = config.getString("config.powerups.powerups.jump-1.name");
