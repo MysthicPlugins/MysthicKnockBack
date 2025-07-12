@@ -253,12 +253,37 @@ config:
           - "&7Grants an arrow that explodes"
           - "&7on impact, knocking back players."
         effect:
-          duration: 30 # Seconds this powerup is active
+          duration: 15 # Seconds this powerup is active
           radius: 5.0 # Explosion radius
           power: 1.5 # Knockback power
-    messages:
+      black-hole:
+        id: ENDER_PEARL
+        name: "&5&lBlack Hole"
+        lore:
+          - "&7Throw a black hole that attracts"
+          - "&7enemies and then repels them"
+          - "&dCosmic power!"
+        item:
+          id: ENDER_PEARL
+          name: "&5&lBlack Hole Orb"
+          lore:
+            - "&7Right click to throw"
+            - "&7Creates a devastating black hole"
+            - "&dUse it wisely!"
+        effect:
+          max_throw_distance: 30
+          attraction_radius: 8.0
+          attraction_force: 0.15
+          attraction_duration: 3
+          repulsion_force: 2.5
+          repulsion_duration: 1
+        messages:
       appeared: "&eA %powerup% &epowerup has appeared in the arena!"
       pickup: "&aYou have picked up a %powerup% &apowerup!"
+      black-hole-item-pickup: "&5You have obtained a Black Hole Orb! Right click to throw."
+      black-hole-no-target: "&cYou can't throw the black hole there."
+      black-hole-too-far: "&cThe location is too far away."
+      black-hole-throw: "&5Black hole thrown!"
   streak:
     tags:
       kill-40:

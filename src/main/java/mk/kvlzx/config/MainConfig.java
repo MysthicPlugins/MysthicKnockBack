@@ -150,7 +150,6 @@ public class MainConfig {
     private String reportMessage;
     private String reportStaffMessage;
 
-
     private double powerUpPickupRadius;
     private Integer powerUpTime;
     private Integer powerUpSpawnInterval;
@@ -198,8 +197,27 @@ public class MainConfig {
     private double powerUpExplosiveArrowRadius;
     private double powerUpExplosiveArrowPower;
 
+    // Black Hole powerup fields
+    private String powerUpBlackHoleId;
+    private String powerUpBlackHoleName;
+    private List<String> powerUpBlackHoleLore;
+    private String powerUpBlackHoleItemId;
+    private String powerUpBlackHoleItemName;
+    private List<String> powerUpBlackHoleItemLore;
+    private Integer powerUpBlackHoleMaxThrowDistance;
+    private Double powerUpBlackHoleAttractionRadius;
+    private Double powerUpBlackHoleAttractionForce;
+    private Integer powerUpBlackHoleAttractionDuration;
+    private Double powerUpBlackHoleRepulsionForce;
+    private Integer powerUpBlackHoleRepulsionDuration;
+
     private String powerUpMessageAppeared;
     private String powerUpMessagePickup;
+    // Black Hole messages
+    private String powerUpBlackHoleItemPickupMessage;
+    private String powerUpBlackHoleNoTargetMessage;
+    private String powerUpBlackHoleTooFarMessage;
+    private String powerUpBlackHoleThrowMessage;
 
     private String streakTag40;
     private String streakTag60;
@@ -421,8 +439,25 @@ public class MainConfig {
         powerUpExplosiveArrowRadius = config.getDouble("config.powerups.powerups.explosive-arrow.effect.radius");
         powerUpExplosiveArrowPower = config.getDouble("config.powerups.powerups.explosive-arrow.effect.power");
 
+        powerUpBlackHoleId = validateAndGetMaterial(config, "config.powerups.powerups.black-hole.id", "ENDER_PEARL");
+        powerUpBlackHoleName = config.getString("config.powerups.powerups.black-hole.name");
+        powerUpBlackHoleLore = config.getStringList("config.powerups.powerups.black-hole.lore");
+        powerUpBlackHoleItemId = validateAndGetMaterial(config, "config.powerups.powerups.black-hole.item.id", "ENDER_PEARL");
+        powerUpBlackHoleItemName = config.getString("config.powerups.powerups.black-hole.item.name");
+        powerUpBlackHoleItemLore = config.getStringList("config.powerups.powerups.black-hole.item.lore");
+        powerUpBlackHoleMaxThrowDistance = config.getInt("config.powerups.powerups.black-hole.effect.max_throw_distance");
+        powerUpBlackHoleAttractionRadius = config.getDouble("config.powerups.powerups.black-hole.effect.attraction_radius");
+        powerUpBlackHoleAttractionForce = config.getDouble("config.powerups.powerups.black-hole.effect.attraction_force");
+        powerUpBlackHoleAttractionDuration = config.getInt("config.powerups.powerups.black-hole.effect.attraction_duration");
+        powerUpBlackHoleRepulsionForce = config.getDouble("config.powerups.powerups.black-hole.effect.repulsion_force");
+        powerUpBlackHoleRepulsionDuration = config.getInt("config.powerups.powerups.black-hole.effect.repulsion_duration");
+
         powerUpMessageAppeared = config.getString("config.powerups.messages.appeared");
         powerUpMessagePickup = config.getString("config.powerups.messages.pickup");
+        powerUpBlackHoleItemPickupMessage = config.getString("config.powerups.messages.black-hole-item-pickup");
+        powerUpBlackHoleNoTargetMessage = config.getString("config.powerups.messages.black-hole-no-target");
+        powerUpBlackHoleTooFarMessage = config.getString("config.powerups.messages.black-hole-too-far");
+        powerUpBlackHoleThrowMessage = config.getString("config.powerups.messages.black-hole-throw");
 
         streakTag40 = config.getString("config.streak.tags.kill-40.tag");
         streakTag60 = config.getString("config.streak.tags.kill-60.tag");
@@ -483,7 +518,9 @@ public class MainConfig {
             "config.powerups.jump-4.id",
             "config.powerups.invisibility.id",
             "config.powerups.knockback.id",
-            "config.powerups.powerups.explosive-arrow.id"
+            "config.powerups.powerups.explosive-arrow.id",
+            "config.powerups.powerups.black-hole.id",
+            "config.powerups.powerups.black-hole.item.id"
         };
         
         for (String path : materialPaths) {
@@ -697,8 +734,25 @@ public class MainConfig {
     public double getPowerUpExplosiveArrowRadius() { return powerUpExplosiveArrowRadius; }
     public double getPowerUpExplosiveArrowPower() { return powerUpExplosiveArrowPower; }
 
+    public String getPowerUpBlackHoleId() { return powerUpBlackHoleId; }
+    public String getPowerUpBlackHoleName() { return powerUpBlackHoleName; }
+    public List<String> getPowerUpBlackHoleLore() { return powerUpBlackHoleLore; }
+    public String getPowerUpBlackHoleItemId() { return powerUpBlackHoleItemId; }
+    public String getPowerUpBlackHoleItemName() { return powerUpBlackHoleItemName; }
+    public List<String> getPowerUpBlackHoleItemLore() { return powerUpBlackHoleItemLore; }
+    public Integer getPowerUpBlackHoleMaxThrowDistance() { return powerUpBlackHoleMaxThrowDistance; }
+    public double getPowerUpBlackHoleAttractionRadius() { return powerUpBlackHoleAttractionRadius; }
+    public double getPowerUpBlackHoleAttractionForce() { return powerUpBlackHoleAttractionForce; }
+    public Integer getPowerUpBlackHoleAttractionDuration() { return powerUpBlackHoleAttractionDuration; }
+    public double getPowerUpBlackHoleRepulsionForce() { return powerUpBlackHoleRepulsionForce; }
+    public Integer getPowerUpBlackHoleRepulsionDuration() { return powerUpBlackHoleRepulsionDuration; }
+
     public String getPowerUpMessageAppeared() { return powerUpMessageAppeared; }
     public String getPowerUpMessagePickup() { return powerUpMessagePickup; }
+    public String getPowerUpBlackHoleItemPickupMessage() { return powerUpBlackHoleItemPickupMessage; }
+    public String getPowerUpBlackHoleNoTargetMessage() { return powerUpBlackHoleNoTargetMessage; }
+    public String getPowerUpBlackHoleTooFarMessage() { return powerUpBlackHoleTooFarMessage; }
+    public String getPowerUpBlackHoleThrowMessage() { return powerUpBlackHoleThrowMessage; }
 
     public String getStreakTag40() { return streakTag40; }
     public String getStreakTag60() { return streakTag60; }

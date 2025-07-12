@@ -38,6 +38,7 @@ import mk.kvlzx.listeners.ArrowEffectListener;
 import mk.kvlzx.listeners.ChatListener;
 import mk.kvlzx.listeners.CombatListener;
 import mk.kvlzx.listeners.EndermiteListener;
+import mk.kvlzx.listeners.ExplosiveArrowListener;
 import mk.kvlzx.listeners.ItemListener;
 import mk.kvlzx.listeners.JoinMessageListener;
 import mk.kvlzx.listeners.PlayerListener;
@@ -435,6 +436,7 @@ public class MysthicKnockBack extends JavaPlugin {
         endermiteListener = new EndermiteListener(this);
         getServer().getPluginManager().registerEvents(endermiteListener, this);
         getServer().getPluginManager().registerEvents(new JoinMessageListener(this), this);
+        getServer().getPluginManager().registerEvents(new ExplosiveArrowListener(this), this);
     }
 
     // Método estático para obtener el prefix dinámicamente

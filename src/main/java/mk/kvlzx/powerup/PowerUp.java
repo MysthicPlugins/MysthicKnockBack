@@ -21,6 +21,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.items.CustomItem;
+import mk.kvlzx.items.CustomItem.ItemType;
 import mk.kvlzx.utils.MessageUtils;
 import net.minecraft.server.v1_8_R3.Entity;
 import net.minecraft.server.v1_8_R3.EntityHuman;
@@ -375,6 +377,27 @@ public class PowerUp {
                 }
                 break;
             case EXPLOSIVE_ARROW:
+                // Agregar metadata al jugador para indicar que tiene flecha explosiva
+                player.setMetadata("explosive_arrow", new FixedMetadataValue(plugin, true));
+                
+                // Verificar si el jugador está en cooldown del arco (no tiene flecha)
+                if (plugin.getCooldownManager().isOnCooldown(player, "BOW")) {
+                    // Está en cooldown, darle una flecha en el slot 9
+                    player.getInventory().setItem(9, CustomItem.create(ItemType.ARROW));
+                    
+                    // Limpiar el cooldown del arco ya que le damos la flecha
+                    plugin.getCooldownManager().clearCooldown(player, "BOW");
+                }
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (player.hasMetadata("explosive_arrow")) {
+                            player.removeMetadata("explosive_arrow", plugin);
+                        }
+                    }
+                }.runTaskLater(plugin, plugin.getMainConfig().getPowerUpExplosiveArrowEffectDuration() * 20);
+                break;
+            case BLACK_HOLE:
                 break;
         }
 
@@ -454,11 +477,11 @@ public class PowerUp {
                 Item item = (Item) entity;
                 // Verificar múltiples condiciones para identificar items de PowerUp
                 if ((item.getPickupDelay() == Integer.MAX_VALUE && 
-                     item.getCustomName() != null && 
-                     item.getCustomName().contains("POWERUP_ITEM")) ||
+                        item.getCustomName() != null && 
+                        item.getCustomName().contains("POWERUP_ITEM")) ||
                     item.hasMetadata("POWERUP_PROTECTED") ||
                     (item.hasMetadata("POWERUP_ID") && 
-                     item.getMetadata("POWERUP_ID").get(0).asString().equals(itemIdentifier))) {
+                    item.getMetadata("POWERUP_ID").get(0).asString().equals(itemIdentifier))) {
                     item.remove();
                 }
             }
@@ -468,10 +491,10 @@ public class PowerUp {
     // Método para verificar si un item pertenece a este PowerUp
     public boolean isMyItem(Item item) {
         return item != null && 
-               item.isValid() && 
-               ((item.getCustomName() != null && item.getCustomName().contains(itemIdentifier)) ||
+                item.isValid() && 
+                ((item.getCustomName() != null && item.getCustomName().contains(itemIdentifier)) ||
                 (item.hasMetadata("POWERUP_ID") && 
-                 item.getMetadata("POWERUP_ID").get(0).asString().equals(itemIdentifier)));
+                item.getMetadata("POWERUP_ID").get(0).asString().equals(itemIdentifier)));
     }
 
     // Getters
