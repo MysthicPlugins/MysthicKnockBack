@@ -278,7 +278,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private void setupWorldGamerules() {
         for (World world : Bukkit.getWorlds()) {
             // Desactivar el ciclo día/noche
-            world.setGameRuleValue("DO_DAYLIGHT_CYCLE", "false");
+            world.setGameRuleValue("doDaylightCycle", "false");
             
             // Establecer tiempo de día
             world.setTime(6000); // Mediodía

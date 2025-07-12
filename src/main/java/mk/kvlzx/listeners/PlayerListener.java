@@ -395,6 +395,7 @@ public class PlayerListener implements Listener {
                     switch (foundZone) {
                         case "spawn":
                             player.setWalkSpeed(0.2f);
+                            plugin.getArenaManager().getPowerUpManager().clearAllPowerUpEffects(player);
                             ItemsManager.giveSpawnItems(player);
                             player.spigot().setCollidesWithEntities(false);
                             break;

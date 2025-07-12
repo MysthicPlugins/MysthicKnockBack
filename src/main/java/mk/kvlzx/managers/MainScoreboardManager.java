@@ -178,6 +178,12 @@ public class MainScoreboardManager {
 
         // Obtener cache anterior del jugador
         Map<Integer, String> lastScores = lastScoreCache.get(playerId);
+
+        // Si el cache no existe, inicializarlo para evitar NullPointerException
+        if (lastScores == null) {
+            lastScores = new HashMap<>();
+            lastScoreCache.put(playerId, lastScores);
+        }
         
         // Solo actualizar scores que hayan cambiado
         for (Map.Entry<Integer, String> entry : newScores.entrySet()) {

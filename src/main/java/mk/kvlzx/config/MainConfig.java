@@ -190,6 +190,14 @@ public class MainConfig {
     private String powerUpKnockbackName;
     private List<String> powerUpKnockbackLore;
     private Integer powerUpKnockbackEffectDuration;
+
+    private String powerUpExplosiveArrowId;
+    private String powerUpExplosiveArrowName;
+    private List<String> powerUpExplosiveArrowLore;
+    private int powerUpExplosiveArrowEffectDuration;
+    private double powerUpExplosiveArrowRadius;
+    private double powerUpExplosiveArrowPower;
+
     private String powerUpMessageAppeared;
     private String powerUpMessagePickup;
 
@@ -405,6 +413,14 @@ public class MainConfig {
         powerUpKnockbackName = config.getString("config.powerups.powerups.knockback.name");
         powerUpKnockbackLore = config.getStringList("config.powerups.powerups.knockback.lore");
         powerUpKnockbackEffectDuration = config.getInt("config.powerups.powerups.knockback.effect.duration");
+
+        powerUpExplosiveArrowId = validateAndGetMaterial(config, "config.powerups.powerups.explosive-arrow.id", "TNT");
+        powerUpExplosiveArrowName = config.getString("config.powerups.powerups.explosive-arrow.name");
+        powerUpExplosiveArrowLore = config.getStringList("config.powerups.powerups.explosive-arrow.lore");
+        powerUpExplosiveArrowEffectDuration = config.getInt("config.powerups.powerups.explosive-arrow.effect.duration");
+        powerUpExplosiveArrowRadius = config.getDouble("config.powerups.powerups.explosive-arrow.effect.radius");
+        powerUpExplosiveArrowPower = config.getDouble("config.powerups.powerups.explosive-arrow.effect.power");
+
         powerUpMessageAppeared = config.getString("config.powerups.messages.appeared");
         powerUpMessagePickup = config.getString("config.powerups.messages.pickup");
 
@@ -466,7 +482,8 @@ public class MainConfig {
             "config.powerups.jump-3.id",
             "config.powerups.jump-4.id",
             "config.powerups.invisibility.id",
-            "config.powerups.knockback.id"
+            "config.powerups.knockback.id",
+            "config.powerups.powerups.explosive-arrow.id"
         };
         
         for (String path : materialPaths) {
@@ -672,6 +689,14 @@ public class MainConfig {
     public String getPowerUpKnockbackName() { return powerUpKnockbackName; }
     public List<String> getPowerUpKnockbackLore() { return powerUpKnockbackLore; }
     public Integer getPowerUpKnockbackEffectDuration() { return powerUpKnockbackEffectDuration; }
+
+    public String getPowerUpExplosiveArrowId() { return powerUpExplosiveArrowId; }
+    public String getPowerUpExplosiveArrowName() { return powerUpExplosiveArrowName; }
+    public List<String> getPowerUpExplosiveArrowLore() { return powerUpExplosiveArrowLore; }
+    public int getPowerUpExplosiveArrowEffectDuration() { return powerUpExplosiveArrowEffectDuration; }
+    public double getPowerUpExplosiveArrowRadius() { return powerUpExplosiveArrowRadius; }
+    public double getPowerUpExplosiveArrowPower() { return powerUpExplosiveArrowPower; }
+
     public String getPowerUpMessageAppeared() { return powerUpMessageAppeared; }
     public String getPowerUpMessagePickup() { return powerUpMessagePickup; }
 

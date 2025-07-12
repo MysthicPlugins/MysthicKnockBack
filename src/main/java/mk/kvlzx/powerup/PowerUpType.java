@@ -49,6 +49,13 @@ public enum PowerUpType {
                 MysthicKnockBack.getInstance().getMainConfig().getPowerUpKnockbackLore().stream()
                     .map(MessageUtils::getColor)
                     .collect(Collectors.toList())
+    ),
+
+    EXPLOSIVE_ARROW(MessageUtils.getColor(MysthicKnockBack.getInstance().getMainConfig().getPowerUpExplosiveArrowName()),
+            Material.valueOf(MysthicKnockBack.getInstance().getMainConfig().getPowerUpExplosiveArrowId()),
+            MysthicKnockBack.getInstance().getMainConfig().getPowerUpExplosiveArrowLore().stream()
+                    .map(MessageUtils::getColor)
+                    .collect(Collectors.toList())
     );
 
     private final String displayName;

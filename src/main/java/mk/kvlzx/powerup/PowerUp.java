@@ -329,7 +329,7 @@ public class PowerUp {
             case INVISIBILITY:
                 player.addPotionEffect(new PotionEffect(
                         PotionEffectType.getByName(plugin.getMainConfig().getPowerUpInvisibilityEffectId()), 
-                        plugin.getMainConfig().getPowerUpInvisibilityEffectDuration(), 
+                        plugin.getMainConfig().getPowerUpInvisibilityEffectDuration() * 20, 
                         plugin.getMainConfig().getPowerUpInvisibilityEffectLevel()
                     ));
                 break;
@@ -373,6 +373,8 @@ public class PowerUp {
                         }
                     }.runTaskLater(plugin, plugin.getMainConfig().getPowerUpKnockbackEffectDuration() * 20);
                 }
+                break;
+            case EXPLOSIVE_ARROW:
                 break;
         }
 
