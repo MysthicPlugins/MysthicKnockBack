@@ -12,12 +12,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.ReportMenuConfig;
 import mk.kvlzx.utils.MessageUtils;
 
 public class PlayerListMenu extends Menu {
+    private final ReportMenuConfig menuConfig;
 
     public PlayerListMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &c&lOnline Players &8•", 54);
+        super(plugin, plugin.getReportMenuConfig().getMenuPlayerListTitle(), plugin.getReportMenuConfig().getMenuPlayerListSize());
+        this.menuConfig = plugin.getReportMenuConfig();
     }
 
     @Override
@@ -33,12 +36,16 @@ public class PlayerListMenu extends Menu {
             ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
             SkullMeta meta = (SkullMeta) skull.getItemMeta();
             meta.setOwner(target.getName());
-            meta.setDisplayName(MessageUtils.getColor("&c" + target.getName()));
-            
+            meta.setDisplayName(MessageUtils.getColor(
+            menuConfig.getMenuPlayerListItemSkullName().replace("%player_name%", target.getName())
+            ));
+
             List<String> lore = new ArrayList<>();
-            lore.add(MessageUtils.getColor("&7Click to report this player"));
+            for (String line : menuConfig.getMenuPlayerListItemSkullLore()) {
+                lore.add(MessageUtils.getColor(line));
+            }
             meta.setLore(lore);
-            
+
             skull.setItemMeta(meta);
             inv.setItem(slot, skull);
 
@@ -48,19 +55,20 @@ public class PlayerListMenu extends Menu {
         }
 
         // Boton de volver
-        inv.setItem(49, createItem(Material.ARROW, "&c← Back", "&7Click to return to the menu"));
+        inv.setItem(
+            menuConfig.getMenuPlayerListItemBackSlot(), 
+            createItem(Material.valueOf(menuConfig.getMenuPlayerListItemBackId()),
+            menuConfig.getMenuPlayerListItemBackName(),
+            menuConfig.getMenuPlayerListItemBackLore().toArray(new String[0]))
+        );
 
         // Bordes de cabezas de wither y redstone, dejando 2 espacios
         ItemStack witherSkull = createItem(Material.SKULL_ITEM, "&7", (byte) 1); // Cabeza de wither
         ItemStack redstone = createItem(Material.REDSTONE, "&7"); // Redstone
 
         // Definir los slots de los bordes
-        int[] borderSlots = {
-            0, 1, 2, 3, 4, 5, 6, 7, 8,     // Linea superior
-            9, 18, 27, 36,                   // Columna izquierda
-            17, 26, 35, 44,                  // Columna derecha
-            45, 46, 47, 48, 50, 51, 52, 53  // Ultima fila (excluyendo el boton de volver)
-        };
+        List<Integer> borderSlotList = menuConfig.getMenuPlayerListFillerSlots();
+        int[] borderSlots = borderSlotList.stream().mapToInt(Integer::intValue).toArray();
 
         // Poner los items con el patron de wither, espacio, espacio, redstone, espacio, espacio
         for (int i = 0; i < borderSlots.length; i++) {
@@ -92,7 +100,7 @@ public class PlayerListMenu extends Menu {
                 return;
             }
 
-            if (event.getSlot() == 49) {
+            if (event.getSlot() == menuConfig.getMenuPlayerListItemBackSlot()) {
                 plugin.getMenuManager().openMenu(player, "main");
                 return;
             }

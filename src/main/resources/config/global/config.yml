@@ -18,6 +18,8 @@ config:
         name: "&a✦ Main Menu"
         lore: "&7Right click to open the menu"
         slot: 4
+  blocks: 
+    time: 5 # Seconds to despawn
   hotbar:
     default:
       items:

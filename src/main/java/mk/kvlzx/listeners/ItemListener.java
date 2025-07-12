@@ -354,7 +354,7 @@ public class ItemListener implements Listener {
         List<BukkitRunnable> tasks = new ArrayList<>();
         blockAnimationTasks.put(block.getLocation(), tasks);
 
-        final int TOTAL_TIME = 100; // 5 segundos
+        final int TOTAL_TIME = plugin.getMainConfig().getBlocksTime() * 20;
         final int STAGES = 10;
         final int DELAY_PER_STAGE = TOTAL_TIME / STAGES;
 

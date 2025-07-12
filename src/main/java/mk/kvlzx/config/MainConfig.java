@@ -28,6 +28,8 @@ public class MainConfig {
     private String skullLore;
     private Integer skullSlot;
 
+    private Integer blocksTime;
+
     private String knockerId;
     private String knockerName;
     private String knockerLore;
@@ -239,6 +241,8 @@ public class MainConfig {
         skullName = config.getString("config.items.spawn-items.skull.name");
         skullLore = config.getString("config.items.spawn-items.skull.lore");
         skullSlot = config.getInt("config.items.spawn-items.skull.slot");
+
+        blocksTime = config.getInt("config.blocks.time");
 
         // Validar y cargar IDs de materiales con valores por defecto
         knockerId = validateAndGetMaterial(config, "config.hotbar.default.items.knocker.id", "STICK");
@@ -506,7 +510,9 @@ public class MainConfig {
     public String getSkullName() { return skullName; }
     public String getSkullLore() { return skullLore; }
     public Integer getSkullSlot() { return skullSlot; }
-    
+
+    public Integer getBlocksTime() { return blocksTime; }
+
     public String getKnockerId() { return knockerId; }
     public String getKnockerName() { return knockerName; }
     public String getKnockerLore() { return knockerLore; }

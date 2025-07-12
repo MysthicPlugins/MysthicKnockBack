@@ -81,7 +81,7 @@ public class PowerUp {
         }
 
         // Posición para el ArmorStand
-        Location itemLocation = location.clone().add(0.5, 1.6, 0.5);
+        Location itemLocation = location.clone().add(0.5, 1.4, 0.5);
         
         // Crear el ArmorStand invisible
         itemStand = (ArmorStand) location.getWorld().spawnEntity(itemLocation, EntityType.ARMOR_STAND);
@@ -249,7 +249,7 @@ public class PowerUp {
                 }
 
                 // Rotación del ArmorStand
-                Location newLoc = location.clone().add(0.5, 1.6, 0.5);
+                Location newLoc = location.clone().add(0.5, 1.4, 0.5);
                 newLoc.setYaw(yaw);
                 
                 itemStand.teleport(newLoc);
@@ -328,7 +328,7 @@ public class PowerUp {
                 break;
             case INVISIBILITY:
                 player.addPotionEffect(new PotionEffect(
-                        PotionEffectType.getByName(plugin.getMainConfig().getPowerUpInvisibilityId()), 
+                        PotionEffectType.getByName(plugin.getMainConfig().getPowerUpInvisibilityEffectId()), 
                         plugin.getMainConfig().getPowerUpInvisibilityEffectDuration(), 
                         plugin.getMainConfig().getPowerUpInvisibilityEffectLevel()
                     ));

@@ -5,7 +5,8 @@ report-menus:
     items:
       player-skulls:
         name: "&c%player_name%" 
-        lore: "&7Click to report this player"
+        lore: 
+          - "&7Click to report this player"
       back:
         id: ARROW
         name: "&c← Back"
@@ -43,15 +44,13 @@ report-menus:
     size: 54
     items:
       target-skull:
-        name: "&c&lReporting: &f%player_name%"
+        name: "&c&lReporting: &f%target_name%"
         lore: 
           - "&8▪ &7Select a reason for the report"
           - ""
           - "&8➥ &7Choose carefully"
         slot: 13
       report-reasons:
-        id: "%reason_id%"
-        name: "%reason_name%"
         lore:
           - "&8▪ &7Click to select this reason"
           - ""
@@ -84,11 +83,11 @@ reasons:
     id: GOLD_INGOT
     name: "&6&lTeaming"
     description: "Teaming up with other players"
-  bug_abuse:
+  bug-abuse:
     id: REDSTONE
     name: "&4&lBug Abuse"
     description: "Exploiting game bugs"
-  inappropriate_skin:
+  inappropriate-skin:
     id: LEATHER_CHESTPLATE
     name: "&d&lInappropriate Skin"
     description: "Inappropriate skin"

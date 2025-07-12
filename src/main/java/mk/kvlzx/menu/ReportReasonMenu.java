@@ -1,6 +1,7 @@
 package mk.kvlzx.menu;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.ReportMenuConfig;
 import mk.kvlzx.items.CustomItem;
 import mk.kvlzx.reports.ReportReason;
 import mk.kvlzx.utils.MessageUtils;
@@ -15,9 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReportReasonMenu extends Menu {
+    private final ReportMenuConfig menuConfig;
 
     public ReportReasonMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &c&lSelect Reason &8•", 54);
+        super(plugin, plugin.getReportMenuConfig().getMenuReportReasonTitle(), plugin.getReportMenuConfig().getMenuReportReasonSize());
+        this.menuConfig = plugin.getReportMenuConfig();
     }
 
     @Override
@@ -27,23 +30,22 @@ public class ReportReasonMenu extends Menu {
         // Cabeza del jugador a reportar
         ItemStack targetHead = CustomItem.createSkullFromUUID(
             plugin.getServer().getPlayer(targetName).getUniqueId(),
-            "&c&lReporting: &f" + targetName,
-            "&8▪ &7Select a reason for the report",
-            "",
-            "&8➥ &7Choose carefully"
+            menuConfig.getMenuReportReasonItemSkullName().replace("%target_name%", targetName),
+            menuConfig.getMenuReportReasonItemSkullLore().toArray(new String[0])
         );
-        inv.setItem(13, targetHead);
+        inv.setItem(menuConfig.getMenuReportReasonItemSkullSlot(), targetHead);
 
-        // Razones de reporte centradas (5 arriba y 1 abajo)
-        int[] reasonSlots = {20, 21, 22, 23, 24, 31}; // 6 slots
+        // Razones de reporte centradas
+        List<Integer> reasonSlotList = menuConfig.getMenuReportReasonItemReasonSlots();
+        int[] reasonSlots = reasonSlotList.stream().mapToInt(Integer::intValue).toArray();
         int index = 0;
         for (ReportReason reason : ReportReason.values()) {
             if (index >= reasonSlots.length) break;
             
             List<String> lore = new ArrayList<>();
-            lore.add("&8▪ &7Click to select this reason");
-            lore.add("");
-            lore.add("&8➥ &7" + reason.getDescription());
+            for (String line : menuConfig.getMenuReportReasonItemReasonLore()) {
+                lore.add(MessageUtils.getColor(line.replace("%reason_lore%", reason.getDescription())));
+            }
             
             inv.setItem(reasonSlots[index], createItem(
                 reason.getIcon(),
@@ -79,9 +81,12 @@ public class ReportReasonMenu extends Menu {
             inv.setItem(i, (i % 2 == 0) ? yellowWool : blackWool);
         }
 
-        // Botón para cancelar (slot 49)
-        inv.setItem(49, createItem(Material.ARROW, "&c← Cancel", 
-            "&7Click to return to the player list"));
+        // Botón para cancelar
+        inv.setItem(menuConfig.getMenuReportReasonItemBackSlot(), 
+            createItem(Material.valueOf(menuConfig.getMenuReportReasonItemBackId()), 
+            menuConfig.getMenuReportReasonItemBackName(), 
+            menuConfig.getMenuReportReasonItemBackLore().toArray(new String[0])
+        ));
     }
 
     @Override
@@ -101,18 +106,20 @@ public class ReportReasonMenu extends Menu {
         String targetName = plugin.getReportManager().getReportTarget(player.getUniqueId());
         if (targetName == null) {
             player.closeInventory();
-            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cError: Player to report not found"));
+            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + menuConfig.getMenuReportReasonMessageError()));
             return;
         }
 
         // Botón cancelar
-        if (event.getSlot() == 49 && clicked.getType() == Material.ARROW) {
+        if (event.getSlot() == menuConfig.getMenuPlayerListItemBackSlot() && 
+        clicked.getType() == Material.valueOf(menuConfig.getMenuPlayerListItemBackId())) {
             plugin.getMenuManager().openMenu(player, "player_list");
             return;
         }
 
         // Verificar si es una razón de reporte (basado en los slots)
-        int[] reasonSlots = {20, 21, 22, 23, 24, 31};
+        List<Integer> reasonSlotList = menuConfig.getMenuReportReasonItemReasonSlots();
+        int[] reasonSlots = reasonSlotList.stream().mapToInt(Integer::intValue).toArray();
         for (int i = 0; i < reasonSlots.length; i++) {
             if (event.getSlot() == reasonSlots[i] && i < ReportReason.values().length) {
                 ReportReason selectedReason = ReportReason.values()[i];

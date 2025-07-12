@@ -2,15 +2,40 @@ package mk.kvlzx.reports;
 
 import org.bukkit.Material;
 
+import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.utils.MessageUtils;
 
 public enum ReportReason {
-    HACKS(Material.DIAMOND_SWORD, "&c&lHacks", "Use of hacks or unfair advantages"),
-    TOXIC(Material.POISONOUS_POTATO, "&e&lToxicity", "Toxic or disrespectful behavior"),
-    TEAMING(Material.GOLD_INGOT, "&6&lTeaming", "Teaming up with other players"),
-    BUG_ABUSE(Material.REDSTONE, "&4&lBug Abuse", "Exploiting game bugs"),
-    INAPPROPRIATE_SKIN(Material.LEATHER_CHESTPLATE, "&d&lInappropriate Skin", "Inappropriate skin"),
-    OTHER(Material.PAPER, "&7&lOther", "Other reason not listed");
+    HACKS(
+        Material.valueOf(MysthicKnockBack.getInstance().getReportMenuConfig().getReasonHacksId()), 
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonHacksName(), 
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonHacksLore()
+    ),
+    TOXIC(
+        Material.valueOf(MysthicKnockBack.getInstance().getReportMenuConfig().getReasonToxicId()),
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonToxicName(),
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonToxicLore()
+    ),
+    TEAMING(
+        Material.valueOf(MysthicKnockBack.getInstance().getReportMenuConfig().getReasonTeamingId()),
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonTeamingName(),
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonTeamingLore()
+    ),
+    BUG_ABUSE(
+        Material.valueOf(MysthicKnockBack.getInstance().getReportMenuConfig().getReasonBugAbuseId()),
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonBugAbuseName(),
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonBugAbuseLore()
+    ),
+    INAPPROPRIATE_SKIN(
+        Material.valueOf(MysthicKnockBack.getInstance().getReportMenuConfig().getReasonInappropriateSkinId()),
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonInappropriateSkinName(),
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonInappropriateSkinLore()
+    ),
+    OTHER(
+        Material.valueOf(MysthicKnockBack.getInstance().getReportMenuConfig().getReasonOtherId()),
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonOtherName(),
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonOtherLore()
+    );
 
     private final Material icon;
     private final String displayName;
