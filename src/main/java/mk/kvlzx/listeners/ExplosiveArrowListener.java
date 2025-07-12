@@ -30,7 +30,7 @@ public class ExplosiveArrowListener implements Listener {
                     shooter.removeMetadata("explosive_arrow", plugin);
                     
                     // Crear explosión visual sin daño al terreno
-                    arrow.getWorld().createExplosion(arrow.getLocation(), 0.0F);
+                    arrow.getWorld().createExplosion(arrow.getLocation(), (float) plugin.getMainConfig().getPowerUpExplosiveArrowRadius());
                     
                     // Aplicar knockback a jugadores cercanos
                     for (Entity entity : arrow.getNearbyEntities(
@@ -42,8 +42,11 @@ public class ExplosiveArrowListener implements Listener {
                             Player player = (Player) entity;
                             Vector direction = player.getLocation().toVector()
                                     .subtract(arrow.getLocation().toVector())
-                                    .normalize();
-                            player.setVelocity(direction.multiply(plugin.getMainConfig().getPowerUpExplosiveArrowPower()));
+                                    .normalize()
+                                    .multiply(plugin.getMainConfig().getPowerUpExplosiveArrowPower());
+                            // Igualar el knockback vertical al horizontal
+                            direction.setY(direction.length());
+                            player.setVelocity(direction);
                         }
                     }
                     

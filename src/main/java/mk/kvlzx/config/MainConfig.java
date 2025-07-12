@@ -197,7 +197,6 @@ public class MainConfig {
     private double powerUpExplosiveArrowRadius;
     private double powerUpExplosiveArrowPower;
 
-    // Black Hole powerup fields
     private String powerUpBlackHoleId;
     private String powerUpBlackHoleName;
     private List<String> powerUpBlackHoleLore;
@@ -213,11 +212,7 @@ public class MainConfig {
 
     private String powerUpMessageAppeared;
     private String powerUpMessagePickup;
-    // Black Hole messages
     private String powerUpBlackHoleItemPickupMessage;
-    private String powerUpBlackHoleNoTargetMessage;
-    private String powerUpBlackHoleTooFarMessage;
-    private String powerUpBlackHoleThrowMessage;
 
     private String streakTag40;
     private String streakTag60;
@@ -445,19 +440,16 @@ public class MainConfig {
         powerUpBlackHoleItemId = validateAndGetMaterial(config, "config.powerups.powerups.black-hole.item.id", "ENDER_PEARL");
         powerUpBlackHoleItemName = config.getString("config.powerups.powerups.black-hole.item.name");
         powerUpBlackHoleItemLore = config.getStringList("config.powerups.powerups.black-hole.item.lore");
-        powerUpBlackHoleMaxThrowDistance = config.getInt("config.powerups.powerups.black-hole.effect.max_throw_distance");
-        powerUpBlackHoleAttractionRadius = config.getDouble("config.powerups.powerups.black-hole.effect.attraction_radius");
-        powerUpBlackHoleAttractionForce = config.getDouble("config.powerups.powerups.black-hole.effect.attraction_force");
-        powerUpBlackHoleAttractionDuration = config.getInt("config.powerups.powerups.black-hole.effect.attraction_duration");
-        powerUpBlackHoleRepulsionForce = config.getDouble("config.powerups.powerups.black-hole.effect.repulsion_force");
-        powerUpBlackHoleRepulsionDuration = config.getInt("config.powerups.powerups.black-hole.effect.repulsion_duration");
+        powerUpBlackHoleMaxThrowDistance = config.getInt("config.powerups.powerups.black-hole.effect.max-throw-distance");
+        powerUpBlackHoleAttractionRadius = config.getDouble("config.powerups.powerups.black-hole.effect.attraction-radius");
+        powerUpBlackHoleAttractionForce = config.getDouble("config.powerups.powerups.black-hole.effect.attraction-force");
+        powerUpBlackHoleAttractionDuration = config.getInt("config.powerups.powerups.black-hole.effect.attraction-duration");
+        powerUpBlackHoleRepulsionForce = config.getDouble("config.powerups.powerups.black-hole.effect.repulsion-force");
+        powerUpBlackHoleRepulsionDuration = config.getInt("config.powerups.powerups.black-hole.effect.repulsion-duration");
 
         powerUpMessageAppeared = config.getString("config.powerups.messages.appeared");
         powerUpMessagePickup = config.getString("config.powerups.messages.pickup");
         powerUpBlackHoleItemPickupMessage = config.getString("config.powerups.messages.black-hole-item-pickup");
-        powerUpBlackHoleNoTargetMessage = config.getString("config.powerups.messages.black-hole-no-target");
-        powerUpBlackHoleTooFarMessage = config.getString("config.powerups.messages.black-hole-too-far");
-        powerUpBlackHoleThrowMessage = config.getString("config.powerups.messages.black-hole-throw");
 
         streakTag40 = config.getString("config.streak.tags.kill-40.tag");
         streakTag60 = config.getString("config.streak.tags.kill-60.tag");
@@ -750,9 +742,6 @@ public class MainConfig {
     public String getPowerUpMessageAppeared() { return powerUpMessageAppeared; }
     public String getPowerUpMessagePickup() { return powerUpMessagePickup; }
     public String getPowerUpBlackHoleItemPickupMessage() { return powerUpBlackHoleItemPickupMessage; }
-    public String getPowerUpBlackHoleNoTargetMessage() { return powerUpBlackHoleNoTargetMessage; }
-    public String getPowerUpBlackHoleTooFarMessage() { return powerUpBlackHoleTooFarMessage; }
-    public String getPowerUpBlackHoleThrowMessage() { return powerUpBlackHoleThrowMessage; }
 
     public String getStreakTag40() { return streakTag40; }
     public String getStreakTag60() { return streakTag60; }

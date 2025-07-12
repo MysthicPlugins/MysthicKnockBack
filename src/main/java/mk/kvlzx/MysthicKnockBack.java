@@ -35,6 +35,7 @@ import mk.kvlzx.cosmetics.CosmeticManager;
 import mk.kvlzx.data.InventoryData;
 import mk.kvlzx.hotbar.PlayerHotbar;
 import mk.kvlzx.listeners.ArrowEffectListener;
+import mk.kvlzx.listeners.BlackHoleListener;
 import mk.kvlzx.listeners.ChatListener;
 import mk.kvlzx.listeners.CombatListener;
 import mk.kvlzx.listeners.EndermiteListener;
@@ -437,6 +438,7 @@ public class MysthicKnockBack extends JavaPlugin {
         getServer().getPluginManager().registerEvents(endermiteListener, this);
         getServer().getPluginManager().registerEvents(new JoinMessageListener(this), this);
         getServer().getPluginManager().registerEvents(new ExplosiveArrowListener(this), this);
+        getServer().getPluginManager().registerEvents(new BlackHoleListener(this), this);
     }
 
     // Método estático para obtener el prefix dinámicamente

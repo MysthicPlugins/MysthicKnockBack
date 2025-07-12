@@ -42,9 +42,9 @@ public class PowerUp {
     private boolean removed = false;
     private BukkitRunnable animationTask;
     private BukkitRunnable checkTask;
-    private BukkitRunnable itemPreservationTask; // Nueva tarea para preservar el item
+    private BukkitRunnable itemPreservationTask;
     private final MysthicKnockBack plugin;
-    private final String itemIdentifier; // Identificador único
+    private final String itemIdentifier;
 
     public PowerUp(PowerUpType type, Location location, MysthicKnockBack plugin) {
         this.type = type;
@@ -52,26 +52,17 @@ public class PowerUp {
         this.spawnTime = System.currentTimeMillis();
         this.plugin = plugin;
         this.loreHolograms = new ArrayList<>();
-        this.itemIdentifier = "POWERUP_ITEM_" + System.currentTimeMillis(); // Identificador único
+        this.itemIdentifier = "POWERUP_ITEM_" + System.currentTimeMillis();
         spawnPowerUp();
     }
 
     private void spawnPowerUp() {
         if (location.getWorld() == null) return;
 
-        // Crear el holograma primero
         createHologram();
-        
-        // Crear el item visual
         spawnItemStand();
-        
-        // Iniciar animaciones
         startAnimations();
-        
-        // Iniciar task de verificación
         startCheckTask();
-        
-        // Iniciar task de preservación del item
         startItemPreservationTask();
     }
 
@@ -82,10 +73,8 @@ public class PowerUp {
             return;
         }
 
-        // Posición para el ArmorStand
         Location itemLocation = location.clone().add(0.5, 1.4, 0.5);
         
-        // Crear el ArmorStand invisible
         itemStand = (ArmorStand) location.getWorld().spawnEntity(itemLocation, EntityType.ARMOR_STAND);
         itemStand.setVisible(false);
         itemStand.setGravity(false);
@@ -95,29 +84,22 @@ public class PowerUp {
         itemStand.setArms(false);
         itemStand.setBasePlate(false);
         
-        // Dropear el item
         droppedItem = location.getWorld().dropItem(itemLocation, item);
         droppedItem.setPickupDelay(Integer.MAX_VALUE);
         droppedItem.setVelocity(new Vector(0, 0, 0));
         droppedItem.setTicksLived(1);
         
-        // Marcar el item con un identificador único y múltiples protecciones
         droppedItem.setCustomName("§f§l" + itemIdentifier);
         droppedItem.setCustomNameVisible(false);
         
-        // Agregar metadata adicional para mayor protección
         droppedItem.setMetadata("POWERUP_PROTECTED", new FixedMetadataValue(plugin, true));
         droppedItem.setMetadata("POWERUP_ID", new FixedMetadataValue(plugin, itemIdentifier));
         
-        // Intentar montar el item
         if (!mountItemToArmorStand(itemStand, droppedItem)) {
             plugin.getLogger().warning("Failed to mount item to ArmorStand for PowerUp: " + type.name());
         }
     }
 
-    /**
-     * Nueva tarea para preservar el item y prevenir su eliminación
-     */
     private void startItemPreservationTask() {
         itemPreservationTask = new BukkitRunnable() {
             @Override
@@ -127,50 +109,41 @@ public class PowerUp {
                     return;
                 }
 
-                // Mantener el item joven
                 droppedItem.setTicksLived(1);
                 
-                // Verificar que mantenga sus propiedades
                 if (droppedItem.getPickupDelay() != Integer.MAX_VALUE) {
                     droppedItem.setPickupDelay(Integer.MAX_VALUE);
                 }
                 
-                // Verificar que mantenga su identificador
                 if (droppedItem.getCustomName() == null || !droppedItem.getCustomName().contains(itemIdentifier)) {
                     droppedItem.setCustomName("§f§l" + itemIdentifier);
                     droppedItem.setCustomNameVisible(false);
                 }
                 
-                // Verificar metadata
                 if (!droppedItem.hasMetadata("POWERUP_PROTECTED")) {
                     droppedItem.setMetadata("POWERUP_PROTECTED", new FixedMetadataValue(plugin, true));
                     droppedItem.setMetadata("POWERUP_ID", new FixedMetadataValue(plugin, itemIdentifier));
                 }
                 
-                // Verificar velocidad
                 if (droppedItem.getVelocity().length() > 0.1) {
                     droppedItem.setVelocity(new Vector(0, 0, 0));
                 }
             }
         };
-        itemPreservationTask.runTaskTimer(plugin, 0L, 20L); // Cada segundo
+        itemPreservationTask.runTaskTimer(plugin, 0L, 20L);
     }
 
     private boolean mountItemToArmorStand(ArmorStand armorStand, Item item) {
         try {
-            // Obtener las entidades NMS
             Entity nmsArmorStand = ((CraftEntity) armorStand).getHandle();
             Entity nmsItem = ((CraftEntity) item).getHandle();
             
-            // Verificar que no tenga passengers previos
             if (nmsArmorStand.passenger != null) {
                 return false;
             }
             
-            // Montar el item al ArmorStand
             nmsItem.mount(nmsArmorStand);
             
-            // Verificar que el montaje fue exitoso
             if (nmsArmorStand.passenger == nmsItem) {
                 updateMountForNearbyPlayers(nmsArmorStand);
                 return true;
@@ -250,7 +223,6 @@ public class PowerUp {
                     return;
                 }
 
-                // Rotación del ArmorStand
                 Location newLoc = location.clone().add(0.5, 1.4, 0.5);
                 newLoc.setYaw(yaw);
                 
@@ -263,7 +235,6 @@ public class PowerUp {
                 
                 tickCounter++;
                 
-                // Refrescar montaje ocasionalmente
                 if (tickCounter % 60 == 0) {
                     refreshMount();
                 }
@@ -377,15 +348,10 @@ public class PowerUp {
                 }
                 break;
             case EXPLOSIVE_ARROW:
-                // Agregar metadata al jugador para indicar que tiene flecha explosiva
                 player.setMetadata("explosive_arrow", new FixedMetadataValue(plugin, true));
                 
-                // Verificar si el jugador está en cooldown del arco (no tiene flecha)
                 if (plugin.getCooldownManager().isOnCooldown(player, "BOW")) {
-                    // Está en cooldown, darle una flecha en el slot 9
                     player.getInventory().setItem(9, CustomItem.create(ItemType.ARROW));
-                    
-                    // Limpiar el cooldown del arco ya que le damos la flecha
                     plugin.getCooldownManager().clearCooldown(player, "BOW");
                 }
                 new BukkitRunnable() {
@@ -398,6 +364,17 @@ public class PowerUp {
                 }.runTaskLater(plugin, plugin.getMainConfig().getPowerUpExplosiveArrowEffectDuration() * 20);
                 break;
             case BLACK_HOLE:
+                // Dar el item de agujero negro al jugador
+                BlackHoleItem blackHoleItem = new BlackHoleItem(plugin);
+                ItemStack blackHoleItemStack = blackHoleItem.createBlackHoleItem();
+                
+                // Buscar un slot libre en el inventario
+                int freeSlot = player.getInventory().firstEmpty();
+                if (freeSlot != -1) {
+                    player.getInventory().setItem(freeSlot, blackHoleItemStack);
+                }
+                
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMainConfig().getPowerUpBlackHoleItemPickupMessage()));
                 break;
         }
 
@@ -428,7 +405,6 @@ public class PowerUp {
         if (removed) return;
         removed = true;
         
-        // Cancelar todas las tareas
         if (animationTask != null) {
             animationTask.cancel();
         }
@@ -439,7 +415,6 @@ public class PowerUp {
             itemPreservationTask.cancel();
         }
         
-        // Remover entidades
         if (droppedItem != null && droppedItem.isValid()) {
             droppedItem.remove();
         }
@@ -459,13 +434,9 @@ public class PowerUp {
         }
         loreHolograms.clear();
         
-        // Cleanup adicional más específico
         cleanupNearbyPowerUpEntities();
     }
 
-    /**
-     * Limpieza específica para entidades de PowerUp
-     */
     private void cleanupNearbyPowerUpEntities() {
         location.getWorld().getNearbyEntities(location, 3, 3, 3).forEach(entity -> {
             if (entity instanceof ArmorStand) {
@@ -475,7 +446,6 @@ public class PowerUp {
                 }
             } else if (entity instanceof Item) {
                 Item item = (Item) entity;
-                // Verificar múltiples condiciones para identificar items de PowerUp
                 if ((item.getPickupDelay() == Integer.MAX_VALUE && 
                         item.getCustomName() != null && 
                         item.getCustomName().contains("POWERUP_ITEM")) ||
@@ -488,7 +458,6 @@ public class PowerUp {
         });
     }
 
-    // Método para verificar si un item pertenece a este PowerUp
     public boolean isMyItem(Item item) {
         return item != null && 
                 item.isValid() && 
@@ -502,4 +471,5 @@ public class PowerUp {
     public Location getLocation() { return location.clone(); }
     public boolean isRemoved() { return removed; }
     public String getItemIdentifier() { return itemIdentifier; }
+
 }
