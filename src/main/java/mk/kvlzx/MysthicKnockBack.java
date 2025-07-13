@@ -357,50 +357,65 @@ public class MysthicKnockBack extends JavaPlugin {
             for (Entity entity : world.getEntities()) {
                 if (entity instanceof Item) {
                     Item item = (Item) entity;
-                    
+
                     // PROTECCIÓN MÚLTIPLE para items de PowerUp
                     boolean isPowerUpItem = false;
-                    
+                    boolean isBlackHoleItem = false;
+
                     // Verificar por pickup delay infinito Y nombre personalizado
                     if (item.getPickupDelay() == Integer.MAX_VALUE) {
                         if (item.getCustomName() != null && item.getCustomName().contains("POWERUP_ITEM")) {
                             isPowerUpItem = true;
                         }
+                        // BlackHole: nombre personalizado contiene BLACKHOLE_ITEM
+                        if (item.getCustomName() != null && item.getCustomName().contains("BLACKHOLE_ITEM")) {
+                            isBlackHoleItem = true;
+                        }
                     }
-                    
+
                     // Verificar por metadata
                     if (item.hasMetadata("POWERUP_PROTECTED") || item.hasMetadata("POWERUP_ID")) {
                         isPowerUpItem = true;
                     }
-                    
-                    // Verificar si está montado en un ArmorStand (indicativo de PowerUp)
+                    // BlackHole: metadata especial
+                    if (item.hasMetadata("BLACKHOLE_PROTECTED") || item.hasMetadata("BLACKHOLE_ID")) {
+                        isBlackHoleItem = true;
+                    }
+
+                    // Verificar si está montado en un ArmorStand (indicativo de PowerUp o BlackHole)
                     if (item.getVehicle() instanceof ArmorStand) {
                         ArmorStand vehicle = (ArmorStand) item.getVehicle();
                         if (!vehicle.isVisible() && vehicle.isSmall()) {
-                            isPowerUpItem = true;
+                            // Si tiene nombre de BlackHole, marcarlo como tal
+                            if (item.getCustomName() != null && item.getCustomName().contains("BLACKHOLE_ITEM")) {
+                                isBlackHoleItem = true;
+                            } else {
+                                isPowerUpItem = true;
+                            }
                         }
                     }
-                    
-                    // Si es un item de PowerUp, NO eliminarlo
-                    if (isPowerUpItem) {
+
+                    // Si es un item de PowerUp o BlackHole, NO eliminarlo
+                    if (isPowerUpItem || isBlackHoleItem) {
                         continue;
                     }
-                    
-                    // Eliminar solo items normales que no sean de PowerUp
+
+                    // Eliminar solo items normales que no sean de PowerUp ni BlackHole
                     // Criterios para eliminar:
                     // 1. Items con pickup delay normal (pueden ser recogidos)
-                    // 2. Items sin nombre personalizado de PowerUp
+                    // 2. Items sin nombre personalizado de PowerUp/BlackHole
                     // 3. Items sin metadata de protección
-                    if (item.getPickupDelay() != Integer.MAX_VALUE || 
-                        item.getCustomName() == null || 
-                        !item.getCustomName().contains("POWERUP_ITEM")) {
-                        
+                    if (item.getPickupDelay() != Integer.MAX_VALUE ||
+                        item.getCustomName() == null ||
+                        (!item.getCustomName().contains("POWERUP_ITEM") && !item.getCustomName().contains("BLACKHOLE_ITEM"))) {
+
                         // Verificación adicional: No eliminar si tiene metadata de protección
-                        if (!item.hasMetadata("POWERUP_PROTECTED") && !item.hasMetadata("POWERUP_ID")) {
+                        if (!item.hasMetadata("POWERUP_PROTECTED") && !item.hasMetadata("POWERUP_ID")
+                                && !item.hasMetadata("BLACKHOLE_PROTECTED") && !item.hasMetadata("BLACKHOLE_ID")) {
                             entity.remove();
                         }
                     }
-                    
+
                 } else if (entity instanceof Arrow) {
                     Arrow arrow = (Arrow) entity;
                     if (arrow.isOnGround() || arrow.getTicksLived() > 600) {

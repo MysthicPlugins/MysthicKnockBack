@@ -1,6 +1,9 @@
 package mk.kvlzx.listeners;
 
 import mk.kvlzx.MysthicKnockBack;
+import net.minecraft.server.v1_8_R3.PacketPlayOutExplosion;
+import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -8,6 +11,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.util.Vector;
+
+import java.util.Collections;
 
 public class ExplosiveArrowListener implements Listener {
 
@@ -30,7 +35,21 @@ public class ExplosiveArrowListener implements Listener {
                     shooter.removeMetadata("explosive_arrow", plugin);
                     
                     // Crear explosión visual sin daño al terreno
-                    arrow.getWorld().createExplosion(arrow.getLocation(), (float) plugin.getMainConfig().getPowerUpExplosiveArrowRadius());
+                    Location loc = arrow.getLocation();
+                    PacketPlayOutExplosion packet = new PacketPlayOutExplosion(
+                        loc.getX(), 
+                        loc.getY(), 
+                        loc.getZ(), 
+                        (float) plugin.getMainConfig().getPowerUpExplosiveArrowRadius(), 
+                        Collections.emptyList(), 
+                        null
+                    );
+
+                    for (Player p : loc.getWorld().getPlayers()) {
+                        if (p.getLocation().distanceSquared(loc) < 4096) { // 64*64
+                            ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
+                        }
+                    }
                     
                     // Aplicar knockback a jugadores cercanos
                     for (Entity entity : arrow.getNearbyEntities(
