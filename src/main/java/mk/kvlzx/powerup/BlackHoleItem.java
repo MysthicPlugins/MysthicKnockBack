@@ -123,13 +123,15 @@ public class BlackHoleItem {
         }
         
         String itemDisplayName = meta.getDisplayName();
-        String expectedDisplayName = plugin.getMainConfig().getPowerUpBlackHoleItemName();
+        // Procesar el nombre esperado con códigos de color
+        String expectedDisplayName = MessageUtils.getColor(plugin.getMainConfig().getPowerUpBlackHoleItemName());
         plugin.getLogger().info("DEBUG: isBlackHoleItem - display name del item: '" + itemDisplayName + "'");
-        plugin.getLogger().info("DEBUG: isBlackHoleItem - display name esperado: '" + expectedDisplayName + "'");
+        plugin.getLogger().info("DEBUG: isBlackHoleItem - display name esperado procesado: '" + expectedDisplayName + "'");
         
-        boolean contains = itemDisplayName.contains(expectedDisplayName);
-        plugin.getLogger().info("DEBUG: isBlackHoleItem - contiene nombre esperado: " + contains);
+        // Comparar directamente para mayor precisión
+        boolean matches = itemDisplayName.equals(expectedDisplayName);
+        plugin.getLogger().info("DEBUG: isBlackHoleItem - nombres coinciden: " + matches);
         
-        return contains;
+        return matches;
     }
 }

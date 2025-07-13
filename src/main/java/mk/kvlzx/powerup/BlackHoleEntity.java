@@ -16,9 +16,11 @@ import org.bukkit.util.Vector;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.utils.MessageUtils;
+import mk.kvlzx.utils.ParticleUtils;
 import net.minecraft.server.v1_8_R3.Entity;
 import net.minecraft.server.v1_8_R3.EntityHuman;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
+import net.minecraft.server.v1_8_R3.EnumParticle;
 import net.minecraft.server.v1_8_R3.PacketPlayOutAttachEntity;
 import net.minecraft.server.v1_8_R3.WorldServer;
 
@@ -309,6 +311,8 @@ public class BlackHoleEntity {
         plugin.getLogger().info("§a[BlackHole DEBUG] Iniciando tarea de efectos...");
         
         effectTask = new BukkitRunnable() {
+            private int tickCounter = 0;
+            
             @Override
             public void run() {
                 if (!isActive || blackHoleStand == null || blackHoleStand.isDead()) {
@@ -317,22 +321,42 @@ public class BlackHoleEntity {
                     return;
                 }
                 
-                // Location effectLoc = blackHoleStand.getLocation();
+                Location effectLoc = blackHoleStand.getLocation();
+                tickCounter++;
                 
                 if (isRepulsing) {
-                    // Efectos de repulsión
-                    // effectLoc.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, effectLoc, 3);
-                    // effectLoc.getWorld().spawnParticle(Particle.FLAME, effectLoc, 20, 1, 1, 1, 0.1);
+                    // Efectos de repulsión - explosivos y agresivos
+                    ParticleUtils.spawnParticle(effectLoc, EnumParticle.EXPLOSION_LARGE, 2, 1.0, 0.1);
+                    ParticleUtils.spawnParticle(effectLoc, EnumParticle.FLAME, 15, 2.0, 0.1);
+                    ParticleUtils.spawnParticle(effectLoc, EnumParticle.SMOKE_LARGE, 10, 1.5, 0.05);
+                    ParticleUtils.spawnParticle(effectLoc, EnumParticle.FIREWORKS_SPARK, 8, 1.0, 0.2);
+                    
+                    // Círculo de fuego cada 10 ticks
+                    if (tickCounter % 10 == 0) {
+                        ParticleUtils.spawnParticleCircle(effectLoc, EnumParticle.FLAME, 16, 3.0, 0.1);
+                    }
+                    
                 } else {
-                    // Efectos de atracción
-                    // effectLoc.getWorld().spawnParticle(Particle.PORTAL, effectLoc, 30, 2, 2, 2, 0.5);
-                    // effectLoc.getWorld().spawnParticle(Particle.SMOKE_NORMAL, effectLoc, 10, 1, 1, 1, 0.1);
-                    // effectLoc.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, effectLoc, 15, 2, 2, 2, 0.3);
+                    // Efectos de atracción - místicos y absorbentes
+                    ParticleUtils.spawnParticle(effectLoc, EnumParticle.PORTAL, 25, 2.0, 0.5);
+                    ParticleUtils.spawnParticle(effectLoc, EnumParticle.ENCHANTMENT_TABLE, 12, 1.5, 0.3);
+                    ParticleUtils.spawnParticle(effectLoc, EnumParticle.SPELL_WITCH, 8, 1.0, 0.1);
+                    ParticleUtils.spawnParticle(effectLoc, EnumParticle.SMOKE_NORMAL, 6, 1.0, 0.05);
+                    
+                    // Espiral de atracción cada 5 ticks
+                    if (tickCounter % 5 == 0) {
+                        ParticleUtils.spawnParticleSpiral(effectLoc, EnumParticle.PORTAL, 20, 4.0, 3.0, 0.1);
+                    }
+                    
+                    // Círculo de encantamiento cada 15 ticks
+                    if (tickCounter % 15 == 0) {
+                        ParticleUtils.spawnParticleCircle(effectLoc, EnumParticle.ENCHANTMENT_TABLE, 12, 2.0, 0.2);
+                    }
                 }
             }
         };
         
-        effectTask.runTaskTimer(plugin, 0L, 5L);
+        effectTask.runTaskTimer(plugin, 0L, 3L); // Cada 3 ticks para más fluidez
     }
     
     /**
