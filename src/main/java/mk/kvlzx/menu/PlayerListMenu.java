@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import mk.kvlzx.MysthicKnockBack;
@@ -115,7 +116,7 @@ public class PlayerListMenu extends Menu {
 
     private ItemStack createItem(Material material, String name, String... lore) {
         ItemStack item = new ItemStack(material, 1);
-        org.bukkit.inventory.meta.ItemMeta meta = item.getItemMeta();
+        ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(MessageUtils.getColor(name));
         
         if (lore.length > 0) {

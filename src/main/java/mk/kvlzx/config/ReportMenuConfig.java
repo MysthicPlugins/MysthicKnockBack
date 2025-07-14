@@ -67,8 +67,8 @@ public class ReportMenuConfig {
 
         menuPlayerListTitle = config.getString("report-menus.player-list.title");
         menuPlayerListSize = config.getInt("report-menus.player-list.size");
-        menuPlayerListItemSkullName = config.getString("report-menus.player-list-items.player-skulls.name");
-        menuPlayerListItemSkullLore = config.getStringList("report-menus.player-list-items.player-skulls.lore");
+        menuPlayerListItemSkullName = config.getString("report-menus.player-list.items.player-skulls.name");
+        menuPlayerListItemSkullLore = config.getStringList("report-menus.player-list.items.player-skulls.lore");
         menuPlayerListItemBackId = validateAndGetMaterial(config, "report-menus.player-list.items.back.id", "ARROW");
         menuPlayerListItemBackName = config.getString("report-menus.player-list.items.back.name");
         menuPlayerListItemBackLore = config.getStringList("report-menus.player-list.items.back.lore");

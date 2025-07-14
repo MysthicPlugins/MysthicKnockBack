@@ -275,7 +275,7 @@ config:
           attraction-radius: 10.0
           attraction-force: 1.15
           attraction-duration: 5
-          repulsion-force: 4.5
+          repulsion-force: 2.5
           repulsion-duration: 2
       double-pearl:
         id: ENDER_PEARL

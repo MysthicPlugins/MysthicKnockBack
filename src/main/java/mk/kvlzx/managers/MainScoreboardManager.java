@@ -380,6 +380,7 @@ public class MainScoreboardManager {
             new BukkitRunnable() {
                 @Override
                 public void run() {
+                    arenaChanging = false;
                     ItemsManager.giveSpawnItems(player);
                     player.teleport(nextSpawn);
                     plugin.getArenaManager().addPlayerToArena(player, nextArena);
@@ -396,7 +397,6 @@ public class MainScoreboardManager {
                         player.setWalkSpeed(0.2f);
                         player.setFoodLevel(20);
                         player.setSaturation(20.0f);
-                        arenaChanging = false;
                         
                         String title = config.getScoreTitleAfterChangeTitle();
                         String subtitle = config.getScoreTitleAfterChangeSubtitle();

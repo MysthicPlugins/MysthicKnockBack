@@ -59,13 +59,18 @@ public class ExplosiveArrowListener implements Listener {
                         
                         if (entity instanceof Player && !entity.equals(shooter)) {
                             Player player = (Player) entity;
-                            Vector direction = player.getLocation().toVector()
-                                    .subtract(arrow.getLocation().toVector())
-                                    .normalize()
-                                    .multiply(plugin.getMainConfig().getPowerUpExplosiveArrowPower());
-                            // Igualar el knockback vertical al horizontal
-                            direction.setY(direction.length());
-                            player.setVelocity(direction);
+
+                            // Verificar si el jugador está en la zona pvp
+                            String playerZone = plugin.getArenaManager().getPlayerZone(player);
+                            if (playerZone != null && playerZone.equals("pvp")) {
+                                Vector direction = player.getLocation().toVector()
+                                        .subtract(arrow.getLocation().toVector())
+                                        .normalize()
+                                        .multiply(plugin.getMainConfig().getPowerUpExplosiveArrowPower());
+                                // Igualar el knockback vertical al horizontal
+                                direction.setY(direction.length());
+                                player.setVelocity(direction);
+                            }
                         }
                     }
                     

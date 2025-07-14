@@ -15,6 +15,8 @@ public class CooldownManager {
     private final Map<UUID, List<BukkitRunnable>> cooldownTasks = new HashMap<>();
     // Nuevo mapa para rastrear tareas por tipo de cooldown
     private final Map<UUID, Map<String, BukkitRunnable>> activeCooldownTasks = new HashMap<>();
+    // Mapa para guardar los slots de cada tipo de cooldown
+    private final Map<UUID, Map<String, Integer>> cooldownSlots = new HashMap<>();
 
     public CooldownManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -44,6 +46,10 @@ public class CooldownManager {
                 playerActiveTasks.remove(cooldownType);
             }
         }
+        
+        // Guardar el slot del cooldown
+        cooldownSlots.computeIfAbsent(playerId, k -> new HashMap<>())
+                .put(cooldownType, slot);
         
         ItemStack cooldownItem = original.clone();
         cooldownItem.setAmount(seconds);
@@ -104,6 +110,14 @@ public class CooldownManager {
                         cooldownTasks.remove(playerId);
                     }
                 }
+                // Remover de cooldownSlots
+                Map<String, Integer> playerSlots = cooldownSlots.get(playerId);
+                if (playerSlots != null) {
+                    playerSlots.remove(cooldownType);
+                    if (playerSlots.isEmpty()) {
+                        cooldownSlots.remove(playerId);
+                    }
+                }
             }
         };
 
@@ -120,8 +134,9 @@ public class CooldownManager {
             playerCooldowns.remove(type);
         }
         
-        // También cancelar la tarea visual activa de ese tipo
         UUID playerId = player.getUniqueId();
+        
+        // Cancelar la tarea visual activa de ese tipo
         Map<String, BukkitRunnable> playerActiveTasks = activeCooldownTasks.get(playerId);
         if (playerActiveTasks != null && playerActiveTasks.containsKey(type)) {
             BukkitRunnable task = playerActiveTasks.remove(type);
@@ -132,12 +147,38 @@ public class CooldownManager {
                 activeCooldownTasks.remove(playerId);
             }
         }
+        
+        // Restaurar el item simplemente seteando la cantidad a 1
+        Map<String, Integer> playerSlots = cooldownSlots.get(playerId);
+        if (playerSlots != null && playerSlots.containsKey(type)) {
+            Integer slot = playerSlots.remove(type);
+            if (slot != null) {
+                ItemStack currentItem = player.getInventory().getItem(slot);
+                if (currentItem != null) {
+                    currentItem.setAmount(1);
+                }
+            }
+            if (playerSlots.isEmpty()) {
+                cooldownSlots.remove(playerId);
+            }
+        }
     }
 
     public void clearAllCooldowns(Player player) {
         UUID playerId = player.getUniqueId();
         
         cooldowns.remove(playerId);
+        
+        // Restaurar todos los items seteando cantidad a 1
+        Map<String, Integer> playerSlots = cooldownSlots.remove(playerId);
+        if (playerSlots != null) {
+            for (Integer slot : playerSlots.values()) {
+                ItemStack currentItem = player.getInventory().getItem(slot);
+                if (currentItem != null) {
+                    currentItem.setAmount(1);
+                }
+            }
+        }
         
         // Cancelar todas las tareas activas
         Map<String, BukkitRunnable> playerActiveTasks = activeCooldownTasks.remove(playerId);
