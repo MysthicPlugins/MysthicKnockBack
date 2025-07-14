@@ -428,14 +428,25 @@ public class PlayerListener implements Listener {
         if (pearlSlot == -1) return; // Si no tiene configurada la perla, no dar nada
 
         ItemStack currentItem = killer.getInventory().getItem(pearlSlot);
+        
+        // Verificar si el jugador tiene el powerup de doble perla activo
+        int pearlsToGive = 1;
+        if (killer.hasMetadata("double_pearl_powerup")) {
+            pearlsToGive = 2;
+            
+            // Mensaje para informar al jugador
+            killer.sendMessage(MessageUtils.getColor(
+                MysthicKnockBack.getPrefix() + 
+                plugin.getMainConfig().getPowerUpDoublePearlActivationMessage()
+            ));
+        }
 
         if (currentItem == null || currentItem.getType() == Material.AIR) {
-            killer.getInventory().setItem(pearlSlot, CustomItem.createPearl(1));
+            killer.getInventory().setItem(pearlSlot, CustomItem.createPearl(pearlsToGive));
         } else if (currentItem.getType() == Material.ENDER_PEARL) {
             int currentAmount = currentItem.getAmount();
-            if (currentAmount < 64) {
-                killer.getInventory().setItem(pearlSlot, CustomItem.createPearl(currentAmount + 1));
-            }
+            int newAmount = Math.min(currentAmount + pearlsToGive, 64); // Máximo 64 perlas
+            killer.getInventory().setItem(pearlSlot, CustomItem.createPearl(newAmount));
         }
     }
 

@@ -210,9 +210,16 @@ public class MainConfig {
     private Double powerUpBlackHoleRepulsionForce;
     private Integer powerUpBlackHoleRepulsionDuration;
 
+    private String powerUpDoublePearlId;
+    private String powerUpDoublePearlName;
+    private List<String> powerUpDoublePearlLore;
+    private Integer powerUpDoublePearlEffectDuration;
+
     private String powerUpMessageAppeared;
     private String powerUpMessagePickup;
     private String powerUpBlackHoleItemPickupMessage;
+    private String powerUpDoublePearlActivationMessage;
+    private String powerUpDoublePearlExpiredMessage;
 
     private String streakTag40;
     private String streakTag60;
@@ -434,10 +441,10 @@ public class MainConfig {
         powerUpExplosiveArrowRadius = config.getDouble("config.powerups.powerups.explosive-arrow.effect.radius");
         powerUpExplosiveArrowPower = config.getDouble("config.powerups.powerups.explosive-arrow.effect.power");
 
-        powerUpBlackHoleId = validateAndGetMaterial(config, "config.powerups.powerups.black-hole.id", "ENDER_PEARL");
+        powerUpBlackHoleId = validateAndGetMaterial(config, "config.powerups.powerups.black-hole.id", "OBSIDIAN");
         powerUpBlackHoleName = config.getString("config.powerups.powerups.black-hole.name");
         powerUpBlackHoleLore = config.getStringList("config.powerups.powerups.black-hole.lore");
-        powerUpBlackHoleItemId = validateAndGetMaterial(config, "config.powerups.powerups.black-hole.item.id", "ENDER_PEARL");
+        powerUpBlackHoleItemId = validateAndGetMaterial(config, "config.powerups.powerups.black-hole.item.id", "OBSIDIAN");
         powerUpBlackHoleItemName = config.getString("config.powerups.powerups.black-hole.item.name");
         powerUpBlackHoleItemLore = config.getStringList("config.powerups.powerups.black-hole.item.lore");
         powerUpBlackHoleMaxThrowDistance = config.getInt("config.powerups.powerups.black-hole.effect.max-throw-distance");
@@ -447,9 +454,17 @@ public class MainConfig {
         powerUpBlackHoleRepulsionForce = config.getDouble("config.powerups.powerups.black-hole.effect.repulsion-force");
         powerUpBlackHoleRepulsionDuration = config.getInt("config.powerups.powerups.black-hole.effect.repulsion-duration");
 
+        powerUpDoublePearlId = validateAndGetMaterial(config, "config.powerups.powerups.double-pearl.id", "ENDER_PEARL");
+        powerUpDoublePearlName = config.getString("config.powerups.powerups.double-pearl.name");
+        powerUpDoublePearlLore = config.getStringList("config.powerups.powerups.double-pearl.lore");
+        powerUpDoublePearlEffectDuration = config.getInt("config.powerups.powerups.double-pearl.effect.duration");
+
         powerUpMessageAppeared = config.getString("config.powerups.messages.appeared");
         powerUpMessagePickup = config.getString("config.powerups.messages.pickup");
         powerUpBlackHoleItemPickupMessage = config.getString("config.powerups.messages.black-hole-item-pickup");
+        powerUpDoublePearlActivationMessage = config.getString("config.powerups.messages.double-pearl-activation");
+        powerUpDoublePearlExpiredMessage = config.getString("config.powerups.messages.double-pearl-expired");
+        
 
         streakTag40 = config.getString("config.streak.tags.kill-40.tag");
         streakTag60 = config.getString("config.streak.tags.kill-60.tag");
@@ -512,7 +527,8 @@ public class MainConfig {
             "config.powerups.knockback.id",
             "config.powerups.powerups.explosive-arrow.id",
             "config.powerups.powerups.black-hole.id",
-            "config.powerups.powerups.black-hole.item.id"
+            "config.powerups.powerups.black-hole.item.id",
+            "config.powerups.powerups.double-pearl.id"
         };
         
         for (String path : materialPaths) {
@@ -739,9 +755,16 @@ public class MainConfig {
     public double getPowerUpBlackHoleRepulsionForce() { return powerUpBlackHoleRepulsionForce; }
     public Integer getPowerUpBlackHoleRepulsionDuration() { return powerUpBlackHoleRepulsionDuration; }
 
+    public String getPowerUpDoublePearlId() { return powerUpDoublePearlId; }
+    public String getPowerUpDoublePearlName() { return powerUpDoublePearlName; }
+    public List<String> getPowerUpDoublePearlLore() { return powerUpDoublePearlLore; }
+    public Integer getPowerUpDoublePearlEffectDuration() { return powerUpDoublePearlEffectDuration; }
+
     public String getPowerUpMessageAppeared() { return powerUpMessageAppeared; }
     public String getPowerUpMessagePickup() { return powerUpMessagePickup; }
     public String getPowerUpBlackHoleItemPickupMessage() { return powerUpBlackHoleItemPickupMessage; }
+    public String getPowerUpDoublePearlActivationMessage() { return powerUpDoublePearlActivationMessage; }
+    public String getPowerUpDoublePearlExpiredMessage() { return powerUpDoublePearlExpiredMessage; }
 
     public String getStreakTag40() { return streakTag40; }
     public String getStreakTag60() { return streakTag60; }

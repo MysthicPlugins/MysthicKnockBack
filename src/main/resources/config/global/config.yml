@@ -257,14 +257,14 @@ config:
           radius: 5.0 # Explosion radius
           power: 10.5 # Knockback power
       black-hole:
-        id: ENDER_PEARL
+        id: OBSIDIAN
         name: "&5&lBlack Hole"
         lore:
           - "&7Throw a black hole that attracts"
           - "&7enemies and then repels them"
           - "&dCosmic power!"
         item:
-          id: ENDER_PEARL
+          id: OBSIDIAN
           name: "&5&lBlack Hole Orb"
           lore:
             - "&7Right click to throw"
@@ -272,15 +272,26 @@ config:
             - "&dUse it wisely!"
         effect:
           max-throw-distance: 30
-          attraction-radius: 8.0
-          attraction-force: 0.15
-          attraction-duration: 3
-          repulsion-force: 2.5
-          repulsion-duration: 1
+          attraction-radius: 10.0
+          attraction-force: 1.15
+          attraction-duration: 5
+          repulsion-force: 4.5
+          repulsion-duration: 2
+      double-pearl:
+        id: ENDER_PEARL
+        name: "&b&lDouble Pearl"
+        lore:
+          - "&7Doubles the pearls obtained"
+          - "&7from kills for 15 seconds"
+          - "&aKill more to get more pearls!"
+        effect:
+          duration: 15 # Seconds
     messages:
       appeared: "&eA %powerup% &epowerup has appeared in the arena!"
       pickup: "&aYou have picked up a %powerup% &apowerup!"
       black-hole-item-pickup: "&5You have obtained a Black Hole Orb! Right click to throw."
+      double-pearl-activation: "&aDouble pearl activated! +1 extra pearl per kill"
+      double-pearl-expired: "&cThe double pearl effect has expired!"
   streak:
     tags:
       kill-40:

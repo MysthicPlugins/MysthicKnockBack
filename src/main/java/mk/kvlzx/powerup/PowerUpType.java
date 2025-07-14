@@ -63,6 +63,13 @@ public enum PowerUpType {
             MysthicKnockBack.getInstance().getMainConfig().getPowerUpBlackHoleLore().stream()
                     .map(MessageUtils::getColor)
                     .collect(Collectors.toList())
+    ),
+    
+    DOUBLE_PEARL(MessageUtils.getColor(MysthicKnockBack.getInstance().getMainConfig().getPowerUpDoublePearlName()),
+            Material.valueOf(MysthicKnockBack.getInstance().getMainConfig().getPowerUpDoublePearlId()),
+            MysthicKnockBack.getInstance().getMainConfig().getPowerUpDoublePearlLore().stream()
+                    .map(MessageUtils::getColor)
+                    .collect(Collectors.toList())
     );
 
     private final String displayName;

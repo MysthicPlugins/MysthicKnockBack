@@ -383,6 +383,18 @@ public class PowerUpManager {
         player.removePotionEffect(PotionEffectType.JUMP);
         player.removePotionEffect(PotionEffectType.INVISIBILITY);
 
+        if (player.hasMetadata("explosive_arrow")) {
+            player.removeMetadata("explosive_arrow", plugin);
+        }
+
+        if (player.hasMetadata("blackhole_active")) {
+            player.removeMetadata("blackhole_active", plugin);
+        }
+
+        if (player.hasMetadata("double_pearl_powerup")) {
+            player.removeMetadata("double_pearl_powerup", plugin);
+        }
+
         // Resetear knocker
         ItemStack[] contents = player.getInventory().getContents();
         for (int i = 0; i < contents.length; i++) {

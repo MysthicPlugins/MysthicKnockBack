@@ -44,30 +44,19 @@ public class BlackHoleEntity {
         this.location = location.clone();
         this.thrower = thrower;
         this.itemIdentifier = "BLACKHOLE_ITEM_" + System.currentTimeMillis();
-        
-        // Debug: Información de creación
-        plugin.getLogger().info("§a[BlackHole DEBUG] Creando BlackHoleEntity:");
-        plugin.getLogger().info("§a[BlackHole DEBUG] - Location: " + location.toString());
-        plugin.getLogger().info("§a[BlackHole DEBUG] - Thrower: " + thrower.getName());
-        plugin.getLogger().info("§a[BlackHole DEBUG] - World: " + (location.getWorld() != null ? location.getWorld().getName() : "NULL"));
     }
     
     /**
      * Spawna el agujero negro
      */
     public void spawn() {
-        plugin.getLogger().info("§a[BlackHole DEBUG] Intentando spawnear agujero negro...");
         
         if (location.getWorld() == null) {
-            plugin.getLogger().warning("§c[BlackHole DEBUG] World es null, no se puede spawnear!");
             return;
         }
         
-        plugin.getLogger().info("§a[BlackHole DEBUG] World válido, procediendo con spawn...");
-        
         // Crear el ArmorStand elevado
         Location standLocation = location.clone().add(0, 2, 0);
-        plugin.getLogger().info("§a[BlackHole DEBUG] Spawneando ArmorStand en: " + standLocation.toString());
         
         try {
             blackHoleStand = (ArmorStand) location.getWorld().spawnEntity(standLocation, EntityType.ARMOR_STAND);
@@ -79,11 +68,8 @@ public class BlackHoleEntity {
             blackHoleStand.setArms(false);
             blackHoleStand.setBasePlate(false);
             
-            plugin.getLogger().info("§a[BlackHole DEBUG] ArmorStand creado exitosamente!");
-            
             // Crear el item visual del agujero negro
             ItemStack blackHoleItemStack = new ItemStack(Material.OBSIDIAN);
-            plugin.getLogger().info("§a[BlackHole DEBUG] Creando item de obsidiana...");
             
             blackHoleItem = location.getWorld().dropItem(standLocation, blackHoleItemStack);
             blackHoleItem.setPickupDelay(Integer.MAX_VALUE);
@@ -96,19 +82,12 @@ public class BlackHoleEntity {
             blackHoleItem.setMetadata("BLACKHOLE_PROTECTED", new FixedMetadataValue(plugin, true));
             blackHoleItem.setMetadata("BLACKHOLE_ID", new FixedMetadataValue(plugin, itemIdentifier));
             
-            plugin.getLogger().info("§a[BlackHole DEBUG] Item creado, intentando montar al ArmorStand...");
-            
             // Montar el item al ArmorStand usando NMS
-            if (mountItemToArmorStand(blackHoleStand, blackHoleItem)) {
-                plugin.getLogger().info("§a[BlackHole DEBUG] Item montado exitosamente!");
-            } else {
-                plugin.getLogger().warning("§c[BlackHole DEBUG] Fallo al montar item al ArmorStand!");
-            }
+            mountItemToArmorStand(blackHoleStand, blackHoleItem);
             
             isActive = true;
             
             // Iniciar todas las tareas
-            plugin.getLogger().info("§a[BlackHole DEBUG] Iniciando tareas...");
             startAnimationTask();
             startEffectTask();
             startItemPreservationTask();
@@ -116,10 +95,8 @@ public class BlackHoleEntity {
             
             // Sonido de spawn
             location.getWorld().playSound(location, Sound.ENDERDRAGON_GROWL, 2.0f, 0.5f);
-            plugin.getLogger().info("§a[BlackHole DEBUG] Agujero negro spawneado completamente!");
             
         } catch (Exception e) {
-            plugin.getLogger().severe("§c[BlackHole DEBUG] Error al spawnear agujero negro: " + e.getMessage());
             e.printStackTrace();
             // Cleanup en caso de error
             cleanup();
@@ -131,29 +108,24 @@ public class BlackHoleEntity {
      */
     private boolean mountItemToArmorStand(ArmorStand armorStand, Item item) {
         try {
-            plugin.getLogger().info("§a[BlackHole DEBUG] Intentando montar item usando NMS...");
             
             Entity nmsArmorStand = ((CraftEntity) armorStand).getHandle();
             Entity nmsItem = ((CraftEntity) item).getHandle();
             
             if (nmsArmorStand.passenger != null) {
-                plugin.getLogger().warning("§c[BlackHole DEBUG] ArmorStand ya tiene un pasajero!");
                 return false;
             }
             
             nmsItem.mount(nmsArmorStand);
             
             if (nmsArmorStand.passenger == nmsItem) {
-                plugin.getLogger().info("§a[BlackHole DEBUG] Montado exitosamente, actualizando para jugadores cercanos...");
                 updateMountForNearbyPlayers(nmsArmorStand);
                 return true;
             } else {
-                plugin.getLogger().warning("§c[BlackHole DEBUG] Fallo al montar - passenger no coincide!");
                 return false;
             }
             
         } catch (Exception e) {
-            plugin.getLogger().severe("§c[BlackHole DEBUG] Error mounting item to ArmorStand: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -171,20 +143,16 @@ public class BlackHoleEntity {
                     0, nmsArmorStand.passenger, nmsArmorStand
                 );
                 
-                int playersUpdated = 0;
                 for (EntityHuman entityHuman : nmsWorld.players) {
                     if (entityHuman instanceof EntityPlayer) {
                         EntityPlayer player = (EntityPlayer) entityHuman;
                         if (player.getBukkitEntity().getLocation().distance(location) <= 64) {
                             player.playerConnection.sendPacket(attachPacket);
-                            playersUpdated++;
                         }
                     }
                 }
-                plugin.getLogger().info("§a[BlackHole DEBUG] Paquete de montaje enviado a " + playersUpdated + " jugadores");
             }
         } catch (Exception e) {
-            plugin.getLogger().warning("§c[BlackHole DEBUG] Error updating mount for nearby players: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -193,13 +161,11 @@ public class BlackHoleEntity {
      * Tarea de preservación del item (copiado de PowerUp)
      */
     private void startItemPreservationTask() {
-        plugin.getLogger().info("§a[BlackHole DEBUG] Iniciando tarea de preservación del item...");
         
         itemPreservationTask = new BukkitRunnable() {
             @Override
             public void run() {
                 if (!isActive || blackHoleItem == null || !blackHoleItem.isValid()) {
-                    plugin.getLogger().info("§a[BlackHole DEBUG] Cancelando tarea de preservación - item inválido");
                     cancel();
                     return;
                 }
@@ -231,7 +197,6 @@ public class BlackHoleEntity {
                 
                 // Verificar montaje
                 if (blackHoleItem.getVehicle() != blackHoleStand) {
-                    plugin.getLogger().warning("§c[BlackHole DEBUG] Item desmontado, remontando...");
                     refreshMount();
                 }
             }
@@ -245,7 +210,6 @@ public class BlackHoleEntity {
      */
     private void refreshMount() {
         if (blackHoleStand == null || blackHoleStand.isDead() || blackHoleItem == null || !blackHoleItem.isValid()) {
-            plugin.getLogger().warning("§c[BlackHole DEBUG] No se puede refrescar montaje - entidades inválidas");
             return;
         }
         
@@ -256,10 +220,8 @@ public class BlackHoleEntity {
                 
                 nmsItem.mount(nmsArmorStand);
                 updateMountForNearbyPlayers(nmsArmorStand);
-                plugin.getLogger().info("§a[BlackHole DEBUG] Montaje refrescado exitosamente");
             }
         } catch (Exception e) {
-            plugin.getLogger().warning("§c[BlackHole DEBUG] Error refreshing mount: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -268,7 +230,6 @@ public class BlackHoleEntity {
      * Inicia la animación del agujero negro
      */
     private void startAnimationTask() {
-        plugin.getLogger().info("§a[BlackHole DEBUG] Iniciando tarea de animación...");
         
         animationTask = new BukkitRunnable() {
             private float yaw = 0;
@@ -277,7 +238,6 @@ public class BlackHoleEntity {
             @Override
             public void run() {
                 if (!isActive || blackHoleStand == null || blackHoleStand.isDead()) {
-                    plugin.getLogger().info("§a[BlackHole DEBUG] Cancelando animación - agujero negro inactivo");
                     cancel();
                     return;
                 }
@@ -308,7 +268,6 @@ public class BlackHoleEntity {
      * Inicia los efectos visuales del agujero negro
      */
     private void startEffectTask() {
-        plugin.getLogger().info("§a[BlackHole DEBUG] Iniciando tarea de efectos...");
         
         effectTask = new BukkitRunnable() {
             private int tickCounter = 0;
@@ -316,7 +275,6 @@ public class BlackHoleEntity {
             @Override
             public void run() {
                 if (!isActive || blackHoleStand == null || blackHoleStand.isDead()) {
-                    plugin.getLogger().info("§a[BlackHole DEBUG] Cancelando efectos - agujero negro inactivo");
                     cancel();
                     return;
                 }
@@ -363,16 +321,11 @@ public class BlackHoleEntity {
      * Inicia la fase de atracción
      */
     private void startAttractionPhase() {
-        plugin.getLogger().info("§a[BlackHole DEBUG] Iniciando fase de atracción...");
-        plugin.getLogger().info("§a[BlackHole DEBUG] - Radio de atracción: " + plugin.getMainConfig().getPowerUpBlackHoleAttractionRadius());
-        plugin.getLogger().info("§a[BlackHole DEBUG] - Fuerza de atracción: " + plugin.getMainConfig().getPowerUpBlackHoleAttractionForce());
-        plugin.getLogger().info("§a[BlackHole DEBUG] - Duración: " + plugin.getMainConfig().getPowerUpBlackHoleAttractionDuration() + " segundos");
         
         attractionTask = new BukkitRunnable() {
             @Override
             public void run() {
                 if (!isActive || blackHoleStand == null || blackHoleStand.isDead()) {
-                    plugin.getLogger().info("§a[BlackHole DEBUG] Cancelando atracción - agujero negro inactivo");
                     cancel();
                     return;
                 }
@@ -380,8 +333,6 @@ public class BlackHoleEntity {
                 Location blackHoleLocation = blackHoleStand.getLocation();
                 double attractionRadius = plugin.getMainConfig().getPowerUpBlackHoleAttractionRadius();
                 double attractionForce = plugin.getMainConfig().getPowerUpBlackHoleAttractionForce();
-                
-                int playersAffected = 0;
                 
                 // Atraer jugadores (excepto el que lanzó el agujero negro)
                 for (Player player : blackHoleLocation.getWorld().getPlayers()) {
@@ -398,18 +349,12 @@ public class BlackHoleEntity {
                         
                         // Aplicar velocidad
                         player.setVelocity(direction);
-                        playersAffected++;
                         
                         // Sonido de atracción
                         if (Math.random() < 0.3) {
                             player.playSound(player.getLocation(), Sound.ENDERDRAGON_WINGS, 0.5f, 2.0f);
                         }
                     }
-                }
-                
-                // Debug cada 20 ticks (1 segundo)
-                if (System.currentTimeMillis() % 1000 < 50) {
-                    plugin.getLogger().info("§a[BlackHole DEBUG] Atracción activa - Jugadores afectados: " + playersAffected);
                 }
             }
         };
@@ -420,7 +365,6 @@ public class BlackHoleEntity {
         new BukkitRunnable() {
             @Override
             public void run() {
-                plugin.getLogger().info("§a[BlackHole DEBUG] Cambiando a fase de repulsión...");
                 startRepulsionPhase();
             }
         }.runTaskLater(plugin, 20L * plugin.getMainConfig().getPowerUpBlackHoleAttractionDuration());
@@ -430,11 +374,9 @@ public class BlackHoleEntity {
      * Inicia la fase de repulsión
      */
     private void startRepulsionPhase() {
-        plugin.getLogger().info("§a[BlackHole DEBUG] Iniciando fase de repulsión...");
         
         if (attractionTask != null) {
             attractionTask.cancel();
-            plugin.getLogger().info("§a[BlackHole DEBUG] Tarea de atracción cancelada");
         }
         
         isRepulsing = true;
@@ -442,15 +384,10 @@ public class BlackHoleEntity {
         // Sonido de cambio de fase
         location.getWorld().playSound(location, Sound.EXPLODE, 2.0f, 0.8f);
         
-        plugin.getLogger().info("§a[BlackHole DEBUG] - Radio de repulsión: " + plugin.getMainConfig().getPowerUpBlackHoleRepulsionForce());
-        plugin.getLogger().info("§a[BlackHole DEBUG] - Fuerza de repulsión: " + plugin.getMainConfig().getPowerUpBlackHoleRepulsionForce());
-        plugin.getLogger().info("§a[BlackHole DEBUG] - Duración: " + plugin.getMainConfig().getPowerUpBlackHoleRepulsionDuration() + " segundos");
-        
         repulsionTask = new BukkitRunnable() {
             @Override
             public void run() {
                 if (!isActive || blackHoleStand == null || blackHoleStand.isDead()) {
-                    plugin.getLogger().info("§a[BlackHole DEBUG] Cancelando repulsión - agujero negro inactivo");
                     cancel();
                     return;
                 }
@@ -458,8 +395,6 @@ public class BlackHoleEntity {
                 Location blackHoleLocation = blackHoleStand.getLocation();
                 double repulsionRadius = plugin.getMainConfig().getPowerUpBlackHoleRepulsionForce();
                 double repulsionForce = plugin.getMainConfig().getPowerUpBlackHoleRepulsionForce();
-                
-                int playersAffected = 0;
                 
                 // Repeler jugadores (excepto el que lanzó el agujero negro)
                 for (Player player : blackHoleLocation.getWorld().getPlayers()) {
@@ -476,18 +411,12 @@ public class BlackHoleEntity {
                         
                         // Aplicar velocidad
                         player.setVelocity(direction);
-                        playersAffected++;
                         
                         // Sonido de repulsión
                         if (Math.random() < 0.4) {
                             player.playSound(player.getLocation(), Sound.EXPLODE, 0.8f, 1.2f);
                         }
                     }
-                }
-                
-                // Debug cada 20 ticks (1 segundo)
-                if (System.currentTimeMillis() % 1000 < 50) {
-                    plugin.getLogger().info("§a[BlackHole DEBUG] Repulsión activa - Jugadores afectados: " + playersAffected);
                 }
             }
         };
@@ -498,7 +427,6 @@ public class BlackHoleEntity {
         new BukkitRunnable() {
             @Override
             public void run() {
-                plugin.getLogger().info("§a[BlackHole DEBUG] Tiempo de vida agotado, destruyendo agujero negro...");
                 destroy();
             }
         }.runTaskLater(plugin, 20L * plugin.getMainConfig().getPowerUpBlackHoleRepulsionDuration());
@@ -508,10 +436,8 @@ public class BlackHoleEntity {
      * Destruye el agujero negro
      */
     public void destroy() {
-        plugin.getLogger().info("§a[BlackHole DEBUG] Destruyendo agujero negro...");
         
         if (!isActive) {
-            plugin.getLogger().info("§a[BlackHole DEBUG] Agujero negro ya estaba inactivo");
             return;
         }
         
@@ -524,13 +450,10 @@ public class BlackHoleEntity {
         if (blackHoleStand != null && !blackHoleStand.isDead()) {
             Location finalLoc = blackHoleStand.getLocation();
             finalLoc.getWorld().playSound(finalLoc, Sound.EXPLODE, 3.0f, 0.5f);
-            plugin.getLogger().info("§a[BlackHole DEBUG] Efecto final reproducido");
         }
         
         // Remover entidades
         cleanup();
-        
-        plugin.getLogger().info("§a[BlackHole DEBUG] Agujero negro destruido completamente");
     }
     
     /**
@@ -539,23 +462,18 @@ public class BlackHoleEntity {
     private void cancelAllTasks() {
         if (animationTask != null) {
             animationTask.cancel();
-            plugin.getLogger().info("§a[BlackHole DEBUG] Tarea de animación cancelada");
         }
         if (effectTask != null) {
             effectTask.cancel();
-            plugin.getLogger().info("§a[BlackHole DEBUG] Tarea de efectos cancelada");
         }
         if (attractionTask != null) {
             attractionTask.cancel();
-            plugin.getLogger().info("§a[BlackHole DEBUG] Tarea de atracción cancelada");
         }
         if (repulsionTask != null) {
             repulsionTask.cancel();
-            plugin.getLogger().info("§a[BlackHole DEBUG] Tarea de repulsión cancelada");
         }
         if (itemPreservationTask != null) {
             itemPreservationTask.cancel();
-            plugin.getLogger().info("§a[BlackHole DEBUG] Tarea de preservación cancelada");
         }
     }
     
@@ -566,13 +484,11 @@ public class BlackHoleEntity {
         // Remover item
         if (blackHoleItem != null && blackHoleItem.isValid()) {
             blackHoleItem.remove();
-            plugin.getLogger().info("§a[BlackHole DEBUG] Item de obsidiana removido");
         }
         
         // Remover ArmorStand
         if (blackHoleStand != null && !blackHoleStand.isDead()) {
             blackHoleStand.remove();
-            plugin.getLogger().info("§a[BlackHole DEBUG] ArmorStand removido");
         }
         
         // Limpiar entidades cercanas relacionadas

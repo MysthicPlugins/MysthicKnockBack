@@ -236,10 +236,18 @@ public class MainScoreboardManager {
     private void updateScoreOptimized(Objective obj, String newText, String oldText, int score) {
         String coloredNewText = MessageUtils.getColor(newText);
         
-        // Si hay texto anterior, removerlo
-        if (oldText != null && !oldText.isEmpty()) {
-            String coloredOldText = MessageUtils.getColor(oldText);
-            obj.getScoreboard().resetScores(coloredOldText);
+        // Obtener todos los scores actuales en esta posición
+        Set<String> currentEntries = new HashSet<>();
+        for (String entry : obj.getScoreboard().getEntries()) {
+            Score entryScore = obj.getScore(entry);
+            if (entryScore.getScore() == score) {
+                currentEntries.add(entry);
+            }
+        }
+        
+        // Limpiar todas las entradas en esta posición
+        for (String entry : currentEntries) {
+            obj.getScoreboard().resetScores(entry);
         }
         
         // Agregar el nuevo texto

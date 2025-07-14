@@ -376,6 +376,24 @@ public class PowerUp {
                 
                 player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMainConfig().getPowerUpBlackHoleItemPickupMessage()));
                 break;
+            case DOUBLE_PEARL:
+                // Aplicar metadata al jugador para indicar que tiene el powerup de doble perla
+                player.setMetadata("double_pearl_powerup", new FixedMetadataValue(plugin, true));
+                
+                // Programar la remoción del efecto después de 15 segundos
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (player.hasMetadata("double_pearl_powerup")) {
+                            player.removeMetadata("double_pearl_powerup", plugin);
+                            player.sendMessage(MessageUtils.getColor(
+                                MysthicKnockBack.getPrefix() + 
+                                plugin.getMainConfig().getPowerUpDoublePearlExpiredMessage()
+                            ));
+                        }
+                    }
+                }.runTaskLater(plugin, plugin.getMainConfig().getPowerUpDoublePearlEffectDuration() * 20);
+                break;
         }
 
         player.sendMessage(MessageUtils.getColor(
