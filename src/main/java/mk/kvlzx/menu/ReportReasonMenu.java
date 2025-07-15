@@ -111,8 +111,8 @@ public class ReportReasonMenu extends Menu {
         }
 
         // Botón cancelar
-        if (event.getSlot() == menuConfig.getMenuPlayerListItemBackSlot() && 
-        clicked.getType() == Material.valueOf(menuConfig.getMenuPlayerListItemBackId())) {
+        if (event.getSlot() == menuConfig.getMenuReportReasonItemBackSlot() &&
+        clicked.getType() == Material.valueOf(menuConfig.getMenuReportReasonItemBackId())) {
             plugin.getMenuManager().openMenu(player, "player_list");
             return;
         }

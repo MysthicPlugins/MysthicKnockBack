@@ -377,10 +377,11 @@ public class MainScoreboardManager {
                 plugin.getArenaManager().removePlayerFromArena(player, currentArena);
             }
 
+            arenaChanging = false;
+
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    arenaChanging = false;
                     ItemsManager.giveSpawnItems(player);
                     player.teleport(nextSpawn);
                     plugin.getArenaManager().addPlayerToArena(player, nextArena);
