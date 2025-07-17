@@ -37,22 +37,22 @@ public class ReportMenuConfig {
 
     private String reasonHacksId;
     private String reasonHacksName;
-    private String reasonHacksLore;
+    private String reasonHacksDescription;
     private String reasonToxicId;
     private String reasonToxicName;
-    private String reasonToxicLore;
+    private String reasonToxicDescription;
     private String reasonTeamingId;
     private String reasonTeamingName;
-    private String reasonTeamingLore;
+    private String reasonTeamingDescription;
     private String reasonBugAbuseId;
     private String reasonBugAbuseName;
-    private String reasonBugAbuseLore;
+    private String reasonBugAbuseDescription;
     private String reasonInappropriateSkinId;
     private String reasonInappropriateSkinName;
-    private String reasonInappropriateSkinLore;
+    private String reasonInappropriateSkinDescription;
     private String reasonOtherId;
     private String reasonOtherName;
-    private String reasonOtherLore;
+    private String reasonOtherDescription;
 
 
     public ReportMenuConfig(MysthicKnockBack plugin) {
@@ -80,8 +80,8 @@ public class ReportMenuConfig {
         menuReportReasonItemSkullName = config.getString("report-menus.report-reasons.items.target-skull.name");
         menuReportReasonItemSkullLore = config.getStringList("report-menus.report-reasons.items.target-skull.lore");
         menuReportReasonItemSkullSlot = config.getInt("report-menus.report-reasons.items.target-skull.slot");
-        menuReportReasonItemReasonLore = config.getStringList("report-menus.report-reasons.items.report-reasons.lore");
-        menuReportReasonItemReasonSlots = config.getIntegerList("report-menus.report-reasons.items.report-reasons.slots");
+        menuReportReasonItemReasonLore = config.getStringList("report-menus.report-reasons.items.reasons.lore");
+        menuReportReasonItemReasonSlots = config.getIntegerList("report-menus.report-reasons.items.reasons.slots");
         menuReportReasonItemBackId = validateAndGetMaterial(config, "report-menus.report-reasons.items.back.id", "ARROW");
         menuReportReasonItemBackName = config.getString("report-menus.report-reasons.items.back.name");
         menuReportReasonItemBackLore = config.getStringList("report-menus.report-reasons.items.back.lore");
@@ -90,22 +90,22 @@ public class ReportMenuConfig {
 
         reasonHacksId = config.getString("reasons.hacks.id");
         reasonHacksName = config.getString("reasons.hacks.name");
-        reasonHacksLore = config.getString("reasons.hacks.lore");
+        reasonHacksDescription = config.getString("reasons.hacks.description");
         reasonToxicId = config.getString("reasons.toxic.id");
         reasonToxicName = config.getString("reasons.toxic.name");
-        reasonToxicLore = config.getString("reasons.toxic.lore");
+        reasonToxicDescription = config.getString("reasons.toxic.description");
         reasonTeamingId = config.getString("reasons.teaming.id");
         reasonTeamingName = config.getString("reasons.teaming.name");
-        reasonTeamingLore = config.getString("reasons.teaming.lore");
+        reasonTeamingDescription = config.getString("reasons.teaming.description");
         reasonBugAbuseId = config.getString("reasons.bug-abuse.id");
         reasonBugAbuseName = config.getString("reasons.bug-abuse.name");
-        reasonBugAbuseLore = config.getString("reasons.bug-abuse.lore");
+        reasonBugAbuseDescription = config.getString("reasons.bug-abuse.description");
         reasonInappropriateSkinId = config.getString("reasons.inappropriate-skin.id");
         reasonInappropriateSkinName = config.getString("reasons.inappropriate-skin.name");
-        reasonInappropriateSkinLore = config.getString("reasons.inappropriate-skin.lore");
+        reasonInappropriateSkinDescription = config.getString("reasons.inappropriate-skin.description");
         reasonOtherId = config.getString("reasons.other.id");
         reasonOtherName = config.getString("reasons.other.name");
-        reasonOtherLore = config.getString("reasons.other.lore");
+        reasonOtherDescription = config.getString("reasons.other.description");
 
     }
 
@@ -186,22 +186,22 @@ public class ReportMenuConfig {
 
     public String getReasonHacksId() { return reasonHacksId; }
     public String getReasonHacksName() { return reasonHacksName; }
-    public String getReasonHacksLore() { return reasonHacksLore; }
+    public String getReasonHacksDescription() { return reasonHacksDescription; }
     public String getReasonToxicId() { return reasonToxicId; }
     public String getReasonToxicName() { return reasonToxicName; }
-    public String getReasonToxicLore() { return reasonToxicLore; }
+    public String getReasonToxicDescription() { return reasonToxicDescription; }
     public String getReasonTeamingId() { return reasonTeamingId; }
     public String getReasonTeamingName() { return reasonTeamingName; }
-    public String getReasonTeamingLore() { return reasonTeamingLore; }
+    public String getReasonTeamingDescription() { return reasonTeamingDescription; }
     public String getReasonBugAbuseId() { return reasonBugAbuseId; }
     public String getReasonBugAbuseName() { return reasonBugAbuseName; }
-    public String getReasonBugAbuseLore() { return reasonBugAbuseLore; }
+    public String getReasonBugAbuseDescription() { return reasonBugAbuseDescription; }
     public String getReasonInappropriateSkinId() { return reasonInappropriateSkinId; }
     public String getReasonInappropriateSkinName() { return reasonInappropriateSkinName; }
-    public String getReasonInappropriateSkinLore() { return reasonInappropriateSkinLore; }
+    public String getReasonInappropriateSkinDescription() { return reasonInappropriateSkinDescription; }
     public String getReasonOtherId() { return reasonOtherId; }
     public String getReasonOtherName() { return reasonOtherName; }
-    public String getReasonOtherLore() { return reasonOtherLore; }
+    public String getReasonOtherDescription() { return reasonOtherDescription; }
 
 }
 

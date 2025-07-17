@@ -323,7 +323,7 @@ public class MainScoreboardManager {
             player.setFoodLevel(0);
             player.setSaturation(0.0f);
             player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 128, false, false));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 1, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 1, false, false));
             player.playSound(player.getLocation(), Sound.PORTAL_TRIGGER, 1.0f, 1.0f);
             player.setNoDamageTicks(100);
         }

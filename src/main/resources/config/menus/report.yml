@@ -50,7 +50,7 @@ report-menus:
           - ""
           - "&8➥ &7Choose carefully"
         slot: 13
-      report-reasons:
+      reasons:
         lore:
           - "&8▪ &7Click to select this reason"
           - ""

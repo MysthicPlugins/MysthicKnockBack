@@ -71,6 +71,7 @@ public class MainConfig {
     private Boolean slimeBallKnockback;
     private Integer slimeBallKnockbackLevel;
 
+    private double featherSpeed;
     private Integer defaultElo;
     private Long combatLog;
     private Integer eloMinGained;
@@ -314,6 +315,7 @@ public class MainConfig {
         slimeBallKnockback = config.getBoolean("config.hotbar.default.items.slime_ball.knockback.enabled");
         slimeBallKnockbackLevel = config.getInt("config.hotbar.default.items.slime_ball.knockback.level");
 
+        featherSpeed = config.getDouble("config.combat.speed");
         defaultElo = config.getInt("config.combat.default-elo");
         combatLog = config.getLong("config.combat.combat-log");
         eloMinGained = config.getInt("config.combat.elo.min");
@@ -616,6 +618,7 @@ public class MainConfig {
     public Boolean getSlimeBallKnoback() { return slimeBallKnockback; }
     public Integer getSlimeBallKnockbackLevel() { return slimeBallKnockbackLevel; }
 
+    public double getFeatherSpeed() { return featherSpeed; }
     public Integer getDefaultElo() { return defaultElo; }
     public Long getCombatLog() { return combatLog; }
     public Integer getEloMinGained() { return eloMinGained; }

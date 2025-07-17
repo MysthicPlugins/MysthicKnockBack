@@ -9,32 +9,32 @@ public enum ReportReason {
     HACKS(
         Material.valueOf(MysthicKnockBack.getInstance().getReportMenuConfig().getReasonHacksId()), 
         MysthicKnockBack.getInstance().getReportMenuConfig().getReasonHacksName(), 
-        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonHacksLore()
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonHacksDescription()
     ),
     TOXIC(
         Material.valueOf(MysthicKnockBack.getInstance().getReportMenuConfig().getReasonToxicId()),
         MysthicKnockBack.getInstance().getReportMenuConfig().getReasonToxicName(),
-        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonToxicLore()
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonToxicDescription()
     ),
     TEAMING(
         Material.valueOf(MysthicKnockBack.getInstance().getReportMenuConfig().getReasonTeamingId()),
         MysthicKnockBack.getInstance().getReportMenuConfig().getReasonTeamingName(),
-        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonTeamingLore()
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonTeamingDescription()
     ),
     BUG_ABUSE(
         Material.valueOf(MysthicKnockBack.getInstance().getReportMenuConfig().getReasonBugAbuseId()),
         MysthicKnockBack.getInstance().getReportMenuConfig().getReasonBugAbuseName(),
-        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonBugAbuseLore()
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonBugAbuseDescription()
     ),
     INAPPROPRIATE_SKIN(
         Material.valueOf(MysthicKnockBack.getInstance().getReportMenuConfig().getReasonInappropriateSkinId()),
         MysthicKnockBack.getInstance().getReportMenuConfig().getReasonInappropriateSkinName(),
-        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonInappropriateSkinLore()
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonInappropriateSkinDescription()
     ),
     OTHER(
         Material.valueOf(MysthicKnockBack.getInstance().getReportMenuConfig().getReasonOtherId()),
         MysthicKnockBack.getInstance().getReportMenuConfig().getReasonOtherName(),
-        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonOtherLore()
+        MysthicKnockBack.getInstance().getReportMenuConfig().getReasonOtherDescription()
     );
 
     private final Material icon;
