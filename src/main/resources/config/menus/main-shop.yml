@@ -1,0 +1,124 @@
+menu:
+  title: "&8• &a&lMain Shop &8•"
+  size: 54
+  items:
+    balance:
+      id: EMERALD
+      name: "&a&lYour Balance"
+      lore:
+        - "&7Current balance: &a%coins% KGCoins"
+      slot: 4
+    blocks:
+      id: SANDSTONE
+      name: "&e&lCustom Blocks"
+      lore:
+        - "&7Click to view available blocks"
+        - ""
+        - "&8▪ &7Special decorative blocks"
+        - "&8▪ &7Perfect for building"
+        - ""
+        - "&8➥ Includes +30 unique blocks"
+        - "&aAvailable!"
+      slot: 19
+    knockers:
+      id: STICK
+      name: "&e&lCustom Knockers"
+      lore:
+        - "&7Click to view available knockers"
+        - ""
+        - "&8▪ &7Special knockback sticks"
+        - "&8▪ &7Visual effects when hitting"
+        - ""
+        - "&8➥ Includes +20 unique knockers"
+        - "&aAvailable!"
+      slot: 22
+    kill-messages:
+      id: PAPER
+      name: "&e&lKill Messages"
+      lore:
+        - "&7Click to view kill messages"
+        - ""
+        - "&8▪ &7Messages when eliminating players"
+        - "&8▪ &7Show your style"
+        - ""
+        - "&8➥ Includes +10 unique messages"
+        - "&aAvailable!"
+      slot: 25
+    death-messages:
+      id: BOOK_AND_QUILL
+      name: "&e&lDeath Messages"
+      lore:
+        - "&7Click to view death messages"
+        - ""
+        - "&8▪ &7Custom messages when dying"
+        - "&8▪ &7Die in style"
+        - ""
+        - "&8➥ Includes +20 unique messages"
+        - "&aAvailable!"
+      slot: 28
+    arrow-effects:
+      id: ARROW
+      name: "&e&lArrow Effects"
+      lore:
+        - "&7Click to view arrow effects"
+        - ""
+        - "&8▪ &7Special effects on your arrows"
+        - "&8▪ &7Particles and animations"
+        - ""
+        - "&8➥ Includes +5 unique effects"
+        - "&aAvailable!"
+      slot: 31
+    death-sounds:
+      id: NOTE_BLOCK
+      name: "&d&lDeath Sounds"
+      lore:
+        - "&7Click to view death sounds"
+        - ""
+        - "&8▪ &7Special sounds when dying"
+        - "&8▪ &7Unique audio effects"
+        - ""
+        - "&8➥ Includes +5 unique sounds"
+        - "&aAvailable!"
+      slot: 34
+    kill-sounds:
+      id: DIAMOND_SWORD
+      name: "&e&lKill Sounds"
+      lore:
+        - "&7Click to view kill sounds"
+        - ""
+        - "&8▪ &7Special sounds when eliminating players"
+        - "&8▪ &7Unique audio effects"
+        - ""
+        - "&8➥ Includes +5 unique sounds"
+        - "&aAvailable!"
+      slot: 37
+    join-messages:
+      id: ANVIL
+      name: "&e&lJoin Messages"
+      lore:
+        - "&7Click to view join messages"
+        - ""
+        - "&8▪ &7Messages when joining the game"
+        - "&8▪ &7Show your style"
+        - ""
+        - "&8➥ Includes +10 unique messages"
+        - "&aAvailable!"
+      slot: 40
+    music:
+      id: GOLD_RECORD
+      name: "&5&lMusic"
+      lore:
+        - "&7Click to view music"
+        - ""
+        - "&8▪ &7Custom music"
+        - "&8▪ &7Exclusive themes"
+        - ""
+        - "&8➥ Includes +5 unique music"
+        - "&aAvailable!"
+      slot: 43
+    back:
+      id: ARROW
+      name: "&c← Back"
+      lore:
+        - "&7Click to return to main menu"
+      slot: 49

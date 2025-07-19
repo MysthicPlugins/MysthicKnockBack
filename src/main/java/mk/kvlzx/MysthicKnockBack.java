@@ -26,6 +26,7 @@ import mk.kvlzx.config.MainConfig;
 import mk.kvlzx.config.MainMenuConfig;
 import mk.kvlzx.config.MessagesConfig;
 import mk.kvlzx.config.ReportMenuConfig;
+import mk.kvlzx.config.ShopMenuConfig;
 import mk.kvlzx.config.StatsMenuConfig;
 import mk.kvlzx.config.TabConfig;
 import mk.kvlzx.config.TopsMenuConfig;
@@ -83,6 +84,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private StatsMenuConfig statsMenuConfig;
     private HotbarMenuConfig hotbarMenuConfig;
     private ReportMenuConfig reportMenuConfig;
+    private ShopMenuConfig shopMenuConfig;
     
     private BukkitTask autoSaveTask;
     private BukkitTask weatherTimeTask; // Nueva tarea para controlar clima y tiempo
@@ -100,6 +102,7 @@ public class MysthicKnockBack extends JavaPlugin {
         statsMenuConfig = new StatsMenuConfig(this);
         hotbarMenuConfig = new HotbarMenuConfig(this);
         reportMenuConfig = new ReportMenuConfig(this);
+        shopMenuConfig = new ShopMenuConfig(this);
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
@@ -281,6 +284,7 @@ public class MysthicKnockBack extends JavaPlugin {
         for (World world : Bukkit.getWorlds()) {
             // Desactivar el ciclo día/noche
             world.setGameRuleValue("doDaylightCycle", "false");
+            world.setGameRuleValue("AnnounceAdvancements", "false");
             
             // Establecer tiempo de día
             world.setTime(6000); // Mediodía
@@ -336,6 +340,7 @@ public class MysthicKnockBack extends JavaPlugin {
         statsMenuConfig.reload();
         hotbarMenuConfig.reload();
         reportMenuConfig.reload();
+        shopMenuConfig.reload();
         
         // Reiniciar auto-save con nueva configuración
         restartAutoSave();
@@ -552,4 +557,10 @@ public class MysthicKnockBack extends JavaPlugin {
     public ReportMenuConfig getReportMenuConfig() {
         return reportMenuConfig;
     }
+
+
+    public ShopMenuConfig getShopMenuConfig() {
+        return shopMenuConfig;
+    }
+
 }

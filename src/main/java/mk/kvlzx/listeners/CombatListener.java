@@ -48,8 +48,26 @@ public class CombatListener implements Listener {
 
         Player victim = (Player) event.getEntity();
         Player attacker = null;
+        boolean isEnderPearl = false;
         
-        if (event.getDamager() instanceof Player) {
+        if (event.getDamager() instanceof EnderPearl) {
+            EnderPearl pearl = (EnderPearl) event.getDamager();
+            if (pearl.getShooter() instanceof Player) {
+                Player thrower = (Player) pearl.getShooter();
+                attacker = thrower;
+                isEnderPearl = true;
+                
+                // Registrar el último atacante solo si no es self-damage
+                if (!thrower.equals(victim)) {
+                    lastAttacker.put(victim.getUniqueId(), thrower.getUniqueId());
+                    lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
+                    // Aplicar knockback de perla con prioridad
+                    plugin.getCombatManager().applyPrioritizedKnockback(victim, thrower, true);
+                }
+            }
+            event.setDamage(0.0D);
+            if (isEnderPearl) return; // Salir temprano para evitar knockback adicional
+        } else if (event.getDamager() instanceof Player) {
             attacker = (Player) event.getDamager();
         } else if (event.getDamager() instanceof Arrow) {
             Arrow arrow = (Arrow) event.getDamager();
@@ -85,19 +103,6 @@ public class CombatListener implements Listener {
                 event.setDamage(0.0D);
                 return;
             }
-        } else if (event.getDamager() instanceof EnderPearl) {
-            // Las perlas de ender solo deben dar knockback a otros jugadores, NO al que la lanzó
-            EnderPearl pearl = (EnderPearl) event.getDamager();
-            if (pearl.getShooter() instanceof Player) {
-                Player thrower = (Player) pearl.getShooter();
-                
-                // Solo aplicar knockback si NO es self-damage (thrower != victim)
-                if (!thrower.equals(victim)) {
-                    plugin.getCombatManager().applyCustomKnockback(victim, thrower);
-                }
-            }
-            event.setDamage(0.0D);
-            return;
         } else if (event.getDamager() instanceof Endermite) {
             // Manejar ataques de endermites
             Endermite endermite = (Endermite) event.getDamager();

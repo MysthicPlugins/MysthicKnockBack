@@ -11,110 +11,46 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.ShopMenuConfig;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 
 public class ShopMenu extends Menu {
+    private final ShopMenuConfig menuConfig;
 
     public ShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &a&lMain Shop &8•", 54);
+        super(plugin, plugin.getShopMenuConfig().getMenuTitle(), plugin.getShopMenuConfig().getMenuSize());
+        this.menuConfig = plugin.getShopMenuConfig();
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Mostrar balance en el centro superior
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current balance: &a" + stats.getKGCoins() + " KGCoins"));
+        // Mostrar balance
+        ItemStack balance = menuConfig.createMenuItem("balance");
+        if (balance != null) {
+            ItemMeta meta = balance.getItemMeta();
+            List<String> lore = new ArrayList<>();
+            for (String line : menuConfig.getBalanceLore()) {
+                lore.add(MessageUtils.getColor(line.replace("%coins%", String.valueOf(stats.getKGCoins()))));
+            }
+            meta.setLore(lore);
+            balance.setItemMeta(meta);
+            inv.setItem(menuConfig.getBalanceSlot(), balance);
+        }
 
-        // Primera fila de items (slots 19-25)
-        inv.setItem(19, createItem(Material.SANDSTONE, "&e&lCustom Blocks",
-            "&7Click to view available blocks",
-            "",
-            "&8▪ &7Special decorative blocks",
-            "&8▪ &7Perfect for building",
-            "",
-            "&8➥ Includes +30 unique blocks",
-            "&aAvailable!"));
-
-        inv.setItem(22, createItem(Material.STICK, "&e&lCustom Knockers", 
-            "&7Click to view available knockers",
-            "",
-            "&8▪ &7Special knockback sticks",
-            "&8▪ &7Visual effects when hitting",
-            "",
-            "&8➥ Includes +20 unique knockers",
-            "&aAvailable!"));
-
-        inv.setItem(25, createItem(Material.PAPER, "&e&lKill Messages", 
-            "&7Click to view kill messages",
-            "",
-            "&8▪ &7Messages when eliminating players",
-            "&8▪ &7Show your style",
-            "",
-            "&8➥ Includes +10 unique messages",
-            "&aAvailable!"));
-
-        // Segunda fila de items (slots 28-34)
-        inv.setItem(28, createItem(Material.BOOK_AND_QUILL, "&e&lDeath Messages", 
-            "&7Click to view death messages",
-            "",
-            "&8▪ &7Custom messages when dying",
-            "&8▪ &7Die in style",
-            "",
-            "&8➥ Includes +20 unique messages",
-            "&aAvailable!"));
-
-        inv.setItem(31, createItem(Material.ARROW, "&e&lArrow Effects", 
-            "&7Click to view arrow effects",
-            "",
-            "&8▪ &7Special effects on your arrows",
-            "&8▪ &7Particles and animations",
-            "",
-            "&8➥ Includes +5 unique effects",
-            "&aAvailable!"));
-
-        inv.setItem(34, createItem(Material.NOTE_BLOCK, "&d&lDeath Sounds", 
-            "&7Click to view death sounds",
-            "",
-            "&8▪ &7Special sounds when dying",
-            "&8▪ &7Unique audio effects",
-            "",
-            "&8➥ Includes +5 unique sounds",
-            "&aAvailable!"));
-
-        // Tercera fila de items (slots 37-43)
-        inv.setItem(37, createItem(Material.DIAMOND_SWORD, "&e&lKill Sounds", 
-            "&7Click to view kill sounds",
-            "",
-            "&8▪ &7Special sounds when eliminating players",
-            "&8▪ &7Unique audio effects",
-            "",
-            "&8➥ Includes +5 unique sounds",
-            "&aAvailable!"));
-
-        inv.setItem(40, createItem(Material.ANVIL, "&e&lJoin Messages", 
-            "&7Click to view join messages",
-            "",
-            "&8▪ &7Messages when joining the game",
-            "&8▪ &7Show your style",
-            "",
-            "&8➥ Includes +10 unique messages",
-            "&aAvailable!"));
-
-        inv.setItem(43, createItem(Material.GOLD_RECORD, "&5&lMusic",
-            "&7Click to view music",
-            "",
-            "&8▪ &7Custom music",
-            "&8▪ &7Exclusive themes",
-            "",
-            "&8➥ Includes +5 unique music",
-            "&aAvailable!"));
-
-        // Botón para volver
-        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to main menu"));
+        // Configurar items de la tienda
+        inv.setItem(menuConfig.getBlocksSlot(), menuConfig.createMenuItem("blocks"));
+        inv.setItem(menuConfig.getKnockersSlot(), menuConfig.createMenuItem("knockers"));
+        inv.setItem(menuConfig.getKillMessagesSlot(), menuConfig.createMenuItem("kill-messages"));
+        inv.setItem(menuConfig.getDeathMessagesSlot(), menuConfig.createMenuItem("death-messages"));
+        inv.setItem(menuConfig.getArrowEffectsSlot(), menuConfig.createMenuItem("arrow-effects"));
+        inv.setItem(menuConfig.getDeathSoundsSlot(), menuConfig.createMenuItem("death-sounds"));
+        inv.setItem(menuConfig.getKillSoundsSlot(), menuConfig.createMenuItem("kill-sounds"));
+        inv.setItem(menuConfig.getJoinMessagesSlot(), menuConfig.createMenuItem("join-messages"));
+        inv.setItem(menuConfig.getMusicSlot(), menuConfig.createMenuItem("music"));
+        inv.setItem(menuConfig.getBackSlot(), menuConfig.createMenuItem("back"));
 
         // Relleno
         fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
@@ -131,42 +67,29 @@ public class ShopMenu extends Menu {
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
         
-        switch(event.getSlot()) {
-            case 19: // Bloques
-                plugin.getMenuManager().openMenu(player, "block_categories");
-                break;
-            case 22: // Knockers
-                plugin.getMenuManager().openMenu(player, "knocker_categories");
-                break;
-            case 25: // Mensajes de Kill
-                plugin.getMenuManager().openMenu(player, "kill_message_categories");
-                break;
-            case 28: // Mensajes de muerte
-                plugin.getMenuManager().openMenu(player, "death_message_categories");
-                break;
-            case 31: // Efectos de flecha
-                plugin.getMenuManager().openMenu(player, "arrow_effect_categories");
-                break;
-            case 34: // Sonidos de muerte
-                plugin.getMenuManager().openMenu(player, "death_sound_categories");
-                break;
-            case 37: // Sonidos de kill
-                plugin.getMenuManager().openMenu(player, "kill_sound_categories");
-                break;
-            case 40: // Mensajes de entrada
-                plugin.getMenuManager().openMenu(player, "join_message_categories");
-                break;
-            case 43: // Música
-                plugin.getMenuManager().openMenu(player, "music_categories");
-                break;
-            case 49: // Volver
-                plugin.getMenuManager().openMenu(player, "main");
-                break;
+        int slot = event.getSlot();
+        
+        if (slot == menuConfig.getBlocksSlot()) {
+            plugin.getMenuManager().openMenu(player, "block_categories");
+        } else if (slot == menuConfig.getKnockersSlot()) {
+            plugin.getMenuManager().openMenu(player, "knocker_categories");
+        } else if (slot == menuConfig.getKillMessagesSlot()) {
+            plugin.getMenuManager().openMenu(player, "kill_message_categories");
+        } else if (slot == menuConfig.getDeathMessagesSlot()) {
+            plugin.getMenuManager().openMenu(player, "death_message_categories");
+        } else if (slot == menuConfig.getArrowEffectsSlot()) {
+            plugin.getMenuManager().openMenu(player, "arrow_effect_categories");
+        } else if (slot == menuConfig.getDeathSoundsSlot()) {
+            plugin.getMenuManager().openMenu(player, "death_sound_categories");
+        } else if (slot == menuConfig.getKillSoundsSlot()) {
+            plugin.getMenuManager().openMenu(player, "kill_sound_categories");
+        } else if (slot == menuConfig.getJoinMessagesSlot()) {
+            plugin.getMenuManager().openMenu(player, "join_message_categories");
+        } else if (slot == menuConfig.getMusicSlot()) {
+            plugin.getMenuManager().openMenu(player, "music_categories");
+        } else if (slot == menuConfig.getBackSlot()) {
+            plugin.getMenuManager().openMenu(player, "main");
         }
-    }
-
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
     }
 
     private ItemStack createItem(Material material, String name, byte data, String... lore) {

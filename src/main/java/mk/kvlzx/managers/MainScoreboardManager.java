@@ -41,7 +41,7 @@ public class MainScoreboardManager {
     private boolean placeholderAPIEnabled;
     
     private int timeLeft;
-    private boolean arenaChanging = false;
+    private boolean isChangingArena = false;
     private int animationFrame = 0;
 
     private final Map<UUID, Scoreboard> playerScoreboards = new HashMap<>();
@@ -54,6 +54,9 @@ public class MainScoreboardManager {
     // Espacios únicos pre-generados para evitar regeneración constante
     private final Map<Integer, String> uniqueSpaces = new HashMap<>();
 
+    private long arenaChangeStartTime;
+    private static final long MAX_ARENA_CHANGE_TIME = 3000; // 3 segundos máximo
+    
     public MainScoreboardManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
         this.config = plugin.getTabConfig();
@@ -293,18 +296,61 @@ public class MainScoreboardManager {
     }
 
     public boolean isArenaChanging() {
-        return arenaChanging;
+        // Si ha pasado demasiado tiempo, forzar el fin del cambio
+        if (isChangingArena && System.currentTimeMillis() - arenaChangeStartTime > MAX_ARENA_CHANGE_TIME) {
+            completeArenaChange();
+            return false;
+        }
+        return isChangingArena;
+    }
+
+    public void startArenaChange() {
+        isChangingArena = true;
+        arenaChangeStartTime = System.currentTimeMillis();
+        
+        // Congelar a todos los jugadores
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            freezePlayer(player);
+        }
+    }
+
+    public void completeArenaChange() {
+        isChangingArena = false;
+        
+        // Descongelar a todos los jugadores
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            unfreezePlayer(player);
+        }
+    }
+
+    private void freezePlayer(Player player) {
+        player.setWalkSpeed(0.0f);
+        player.setFoodLevel(0);
+        player.setSaturation(0.0f);
+        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 128, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 1, false, false));
+        player.setNoDamageTicks(100);
+    }
+
+    private void unfreezePlayer(Player player) {
+        player.setWalkSpeed(0.2f);
+        player.setFoodLevel(20);
+        player.setSaturation(20.0f);
+        player.removePotionEffect(PotionEffectType.JUMP);
+        player.removePotionEffect(PotionEffectType.BLINDNESS);
+        player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 1.0f);
     }
 
     private void rotateArena() {
-        arenaChanging = true;
+        // Cambiar arenaChanging por isChangingArena
+        startArenaChange(); // Usar el método existente en lugar de asignar directamente
 
         ArenaManager arenaManager = plugin.getArenaManager();
         String currentArena = arenaManager.getCurrentArena();
         String nextArena = arenaManager.getNextArena();
         
         if (nextArena == null || currentArena == null) {
-            arenaChanging = false;
+            completeArenaChange(); // Usar el método existente en lugar de asignar directamente
             return;
         }
 
@@ -312,7 +358,7 @@ public class MainScoreboardManager {
         Location nextSpawn = nextArenaObj.getSpawnLocation();
         
         if (nextSpawn == null) {
-            arenaChanging = false;
+            completeArenaChange(); // Usar el método existente en lugar de asignar directamente
             return;
         }
 
@@ -377,7 +423,7 @@ public class MainScoreboardManager {
                 plugin.getArenaManager().removePlayerFromArena(player, currentArena);
             }
 
-            arenaChanging = false;
+            completeArenaChange(); // Usar el método existente en lugar de asignar directamente
 
             new BukkitRunnable() {
                 @Override

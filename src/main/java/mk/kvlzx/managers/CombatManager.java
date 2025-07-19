@@ -17,6 +17,8 @@ public class CombatManager {
     private final MysthicKnockBack plugin;
     private final Map<UUID, Long> lastHitTime = new HashMap<>();
     private final Map<UUID, Vector> pendingKnockback = new HashMap<>();
+    private final Map<UUID, Long> knockbackCooldown = new HashMap<>();
+    private static final long KNOCKBACK_COOLDOWN_MS = 200; // 200ms cooldown entre knockbacks
 
     private double horizontalKnockback = MysthicKnockBack.getInstance().getMainConfig().getHorizontalKnockback();
     private double verticalKnockback = MysthicKnockBack.getInstance().getMainConfig().getVerticalKnockback();
@@ -267,10 +269,41 @@ public class CombatManager {
     public void cleanup() {
         lastHitTime.clear();
         pendingKnockback.clear();
+        knockbackCooldown.clear();
     }
 
     // Método para verificar si hay knockback pendente (usado en CombatListener)
     public boolean hasPendingKnockback(UUID playerUUID) {
         return pendingKnockback.containsKey(playerUUID);
+    }
+
+    public void applyPrioritizedKnockback(Player victim, Player attacker, boolean isPearl) {
+        if (!canApplyKnockback(victim.getUniqueId())) {
+            return;
+        }
+
+        Vector knockback = calculateCustomKnockback(attacker, victim, false);
+
+        if (knockback != null) {
+            UUID victimUUID = victim.getUniqueId();
+            pendingKnockback.put(victimUUID, knockback);
+            knockbackCooldown.put(victimUUID, System.currentTimeMillis());
+
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                if (victim.isOnline() && pendingKnockback.containsKey(victimUUID)) {
+                    victim.setVelocity(pendingKnockback.get(victimUUID));
+                    pendingKnockback.remove(victimUUID);
+                }
+            }, 1L);
+        }
+    }
+
+    private boolean canApplyKnockback(UUID victimUUID) {
+        if (!knockbackCooldown.containsKey(victimUUID)) {
+            return true;
+        }
+        
+        long lastKnockback = knockbackCooldown.get(victimUUID);
+        return System.currentTimeMillis() - lastKnockback > KNOCKBACK_COOLDOWN_MS;
     }
 }

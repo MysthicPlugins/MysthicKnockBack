@@ -62,7 +62,79 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        
+        // Asegurarnos de limpiar cualquier efecto residual
+        cleanupPlayerEffects(player);
+        
+        String currentArena = plugin.getArenaManager().getCurrentArena();
+        
+        // Si la arena está cambiando, esperar a que termine el cambio antes de procesar al jugador
+        if (plugin.getScoreboardManager().isArenaChanging()) {
+            // Congelar al jugador temporalmente
+            freezePlayer(player);
+            
+            // Programar la restauración cuando termine el cambio
+            new BukkitRunnable() {
+                private int attempts = 0;
+                private static final int MAX_ATTEMPTS = 100; // 5 segundos máximo
+                
+                @Override
+                public void run() {
+                    attempts++;
+                    
+                    if (!plugin.getScoreboardManager().isArenaChanging() || attempts >= MAX_ATTEMPTS) {
+                        // Limpiar efectos y restaurar estado
+                        cleanupPlayerEffects(player);
+                        unfreezePlayer(player);
+                        
+                        // Procesar spawn normal
+                        processNormalJoin(player, currentArena);
+                        
+                        this.cancel();
+                    }
+                }
+            }.runTaskTimer(plugin, 0L, 1L);
+        } else {
+            // Procesar spawn normal directamente
+            processNormalJoin(player, currentArena);
+        }
+    }
+    
+    private void cleanupPlayerEffects(Player player) {
+        // Limpiar todos los efectos
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            player.removePotionEffect(effect.getType());
+        }
+        
+        // Restaurar estados básicos
+        player.setWalkSpeed(0.2f);
+        player.setFoodLevel(20);
+        player.setSaturation(20.0f);
+        player.setHealth(player.getMaxHealth());
+        player.setFireTicks(0);
+    }
+    
+    private void freezePlayer(Player player) {
+        player.setWalkSpeed(0.0f);
+        player.setFoodLevel(0);
+        player.setSaturation(0.0f);
+        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 128, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 1, false, false));
+        player.setNoDamageTicks(100);
+    }
+    
+    private void unfreezePlayer(Player player) {
+        player.setWalkSpeed(0.2f);
+        player.setFoodLevel(20);
+        player.setSaturation(20.0f);
+        player.removePotionEffect(PotionEffectType.JUMP);
+        player.removePotionEffect(PotionEffectType.BLINDNESS);
+        player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 1.0f);
+    }
+    
+    private void processNormalJoin(Player player, String currentArena) {
         ItemsManager.giveSpawnItems(player);
+        
         if (plugin.getMainConfig().getJoinTitleEnabled()) {
             TitleUtils.sendTitle(
                 player,
@@ -77,52 +149,15 @@ public class PlayerListener implements Listener {
         // Actualizar rango
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         RankManager.updatePlayerRank(player, stats.getElo());
+
         
-        String currentArena = plugin.getArenaManager().getCurrentArena();
         if (currentArena != null) {
             Arena arena = plugin.getArenaManager().getArena(currentArena);
             if (arena != null && arena.getSpawnLocation() != null) {
                 player.teleport(arena.getSpawnLocation());
                 plugin.getArenaManager().addPlayerToArena(player, currentArena);
-                // Mostrar el borde al reconectarse
                 plugin.getArenaManager().showArenaBorder(arena);
             }
-        }
-
-        // Verificar si la arena está cambiando al conectarse
-        if (plugin.getScoreboardManager().isArenaChanging()) {
-            // Si la arena está cambiando, congelar al jugador temporalmente
-            player.setWalkSpeed(0.0f);
-            player.setFoodLevel(0);
-            player.setSaturation(0.0f);
-            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 128, false, false));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 1, false, false));
-            player.setNoDamageTicks(100);
-            
-            // Programar la restauración de movimiento cuando termine el cambio de arena
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    // Verificar cada tick si la arena ya no está cambiando
-                    if (!plugin.getScoreboardManager().isArenaChanging()) {
-                        // Restaurar movimiento normal
-                        player.setWalkSpeed(0.2f);
-                        player.setFoodLevel(20);
-                        player.setSaturation(20.0f);
-                        player.removePotionEffect(PotionEffectType.JUMP);
-                        player.removePotionEffect(PotionEffectType.BLINDNESS);
-                        
-                        player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 1.0f);
-                        
-                        this.cancel();
-                    }
-                }
-            }.runTaskTimer(plugin, 0L, 1L); // Verificar cada tick
-        } else {
-            // Si no hay cambio de arena, asegurar velocidad normal
-            player.setWalkSpeed(0.2f);
-            player.setFoodLevel(20);
-            player.setSaturation(20.0f);
         }
         
         plugin.getScoreboardManager().updatePlayerZone(player, currentArena);
