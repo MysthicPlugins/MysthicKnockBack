@@ -47,10 +47,7 @@ public class StreakManager {
                 
                 Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + streakLostMessage));
                 player.playSound(player.getLocation(), Sound.ENDERMAN_DEATH, 1.0f, 1.0f);
-            }
-            if (player != null) {
-                player.setLevel(currentStreak);
-                player.setExp(1.0f);
+                updatePlayerExperience(player);
             }
         }
         currentStreaks.put(uuid, 0);
@@ -71,6 +68,10 @@ public class StreakManager {
 
     public static void setMaxStreak(UUID uuid, int maxStreak) {
         maxStreaks.put(uuid, maxStreak);
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null) {
+            updatePlayerExperience(player);
+        }
     }
 
     private static void notifyStreak(UUID uuid, int streak) {
@@ -114,6 +115,7 @@ public class StreakManager {
             }
         }
 
+        updatePlayerExperience(Bukkit.getPlayer(uuid));
         updateMvpTag(Bukkit.getPlayer(uuid));
     }
 
@@ -275,6 +277,19 @@ public class StreakManager {
         if (oldTag != null && !oldTag.isDead()) {
             oldTag.remove(); // Elimina la entidad del mundo
         }
+    }
+
+    // Método nuevo para actualizar la experiencia del jugador
+    private static void updatePlayerExperience(Player player) {
+        if (player == null) return;
+        UUID uuid = player.getUniqueId();
+        int maxStreak = getMaxStreak(uuid);
+        player.setLevel(maxStreak);
+        
+        // Calcular la barra de experiencia
+        int currentStreak = getStreak(uuid);
+        float expProgress = currentStreak / (float)Math.max(maxStreak, 1);
+        player.setExp(Math.min(expProgress, 1.0f));
     }
 
     public static void cleanup() {
