@@ -17,8 +17,6 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -395,20 +393,6 @@ public class PowerUpManager {
             player.removeMetadata("double_pearl_powerup", plugin);
         }
 
-        // Resetear knocker
-        ItemStack[] contents = player.getInventory().getContents();
-        for (int i = 0; i < contents.length; i++) {
-            ItemStack item = contents[i];
-            if (item != null && item.containsEnchantment(Enchantment.KNOCKBACK)) {
-                int defaultKnockbackLevel = MysthicKnockBack.getInstance().getMainConfig().getKnockerKnockbackLevel();
-                ItemStack defaultKnocker = item.clone();
-                defaultKnocker.removeEnchantment(Enchantment.KNOCKBACK);
-                if (defaultKnockbackLevel > 0) {
-                    defaultKnocker.addUnsafeEnchantment(Enchantment.KNOCKBACK, defaultKnockbackLevel);
-                }
-                player.getInventory().setItem(i, defaultKnocker);
-                break;
-            }
-        }
+        plugin.getCombatManager().removePowerupKnockback(player);
     }
 }

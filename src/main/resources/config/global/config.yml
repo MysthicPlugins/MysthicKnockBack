@@ -247,6 +247,7 @@ config:
           - "&7for 10 seconds"
         effect:
           duration: 10 # Seconds
+          multiplier: 2.0 # Knockback multiplier
       explosive-arrow:
         id: TNT
         name: "&cExplosive Arrow"

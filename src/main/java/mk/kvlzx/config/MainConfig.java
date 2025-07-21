@@ -190,6 +190,7 @@ public class MainConfig {
     private String powerUpKnockbackName;
     private List<String> powerUpKnockbackLore;
     private Integer powerUpKnockbackEffectDuration;
+    private double powerUpKnockbackMultiplier;
 
     private String powerUpExplosiveArrowId;
     private String powerUpExplosiveArrowName;
@@ -435,6 +436,7 @@ public class MainConfig {
         powerUpKnockbackName = config.getString("config.powerups.powerups.knockback.name");
         powerUpKnockbackLore = config.getStringList("config.powerups.powerups.knockback.lore");
         powerUpKnockbackEffectDuration = config.getInt("config.powerups.powerups.knockback.effect.duration");
+        powerUpKnockbackMultiplier = config.getDouble("config.powerups.powerups.knockback.effect.multiplier");
 
         powerUpExplosiveArrowId = validateAndGetMaterial(config, "config.powerups.powerups.explosive-arrow.id", "TNT");
         powerUpExplosiveArrowName = config.getString("config.powerups.powerups.explosive-arrow.name");
@@ -737,6 +739,7 @@ public class MainConfig {
     public String getPowerUpKnockbackName() { return powerUpKnockbackName; }
     public List<String> getPowerUpKnockbackLore() { return powerUpKnockbackLore; }
     public Integer getPowerUpKnockbackEffectDuration() { return powerUpKnockbackEffectDuration; }
+    public double getPowerUpKnockbackMultiplier() { return powerUpKnockbackMultiplier; }
 
     public String getPowerUpExplosiveArrowId() { return powerUpExplosiveArrowId; }
     public String getPowerUpExplosiveArrowName() { return powerUpExplosiveArrowName; }

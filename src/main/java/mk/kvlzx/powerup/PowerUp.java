@@ -14,7 +14,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -307,45 +306,9 @@ public class PowerUp {
                     ));
                 break;
             case KNOCKBACK:
-                ItemStack knocker = null;
-                int originalKnockbackLevel = 0;
-                int knockerSlot = -1;
-
-                for (int i = 0; i < player.getInventory().getSize(); i++) {
-                    ItemStack item = player.getInventory().getItem(i);
-                    if (item != null && item.containsEnchantment(Enchantment.KNOCKBACK)) {
-                        knocker = item;
-                        originalKnockbackLevel = item.getEnchantmentLevel(Enchantment.KNOCKBACK);
-                        knockerSlot = i;
-                        break;
-                    }
-                }
-
-                if (knocker != null) {
-                    final ItemStack finalKnocker = knocker;
-                    final int finalOriginalKnockbackLevel = originalKnockbackLevel;
-                    final int finalKnockerSlot = knockerSlot;
-
-                    ItemStack powerupKnocker = finalKnocker.clone();
-                    powerupKnocker.removeEnchantment(Enchantment.KNOCKBACK);
-                    powerupKnocker.addUnsafeEnchantment(Enchantment.KNOCKBACK, 5);
-                    player.getInventory().setItem(finalKnockerSlot, powerupKnocker);
-
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            ItemStack currentKnocker = player.getInventory().getItem(finalKnockerSlot);
-                            if (currentKnocker != null && currentKnocker.isSimilar(powerupKnocker)) {
-                                ItemStack restoredKnocker = currentKnocker.clone();
-                                restoredKnocker.removeEnchantment(Enchantment.KNOCKBACK);
-                                if (finalOriginalKnockbackLevel > 0) {
-                                    restoredKnocker.addUnsafeEnchantment(Enchantment.KNOCKBACK, finalOriginalKnockbackLevel);
-                                }
-                                player.getInventory().setItem(finalKnockerSlot, restoredKnocker);
-                            }
-                        }
-                    }.runTaskLater(plugin, plugin.getMainConfig().getPowerUpKnockbackEffectDuration() * 20);
-                }
+                // Aplicar powerup de knockback al jugador
+                plugin.getCombatManager().addPowerupKnockback(player, 
+                plugin.getMainConfig().getPowerUpKnockbackEffectDuration());
                 break;
             case EXPLOSIVE_ARROW:
                 player.setMetadata("explosive_arrow", new FixedMetadataValue(plugin, true));

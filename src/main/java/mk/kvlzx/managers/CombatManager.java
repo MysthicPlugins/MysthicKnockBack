@@ -18,7 +18,9 @@ public class CombatManager {
     private final Map<UUID, Long> lastHitTime = new HashMap<>();
     private final Map<UUID, Vector> pendingKnockback = new HashMap<>();
     private final Map<UUID, Long> knockbackCooldown = new HashMap<>();
+    private final Map<UUID, Long> powerupKnockbackPlayers = new HashMap<>();
     private static final long KNOCKBACK_COOLDOWN_MS = 200; // 200ms cooldown entre knockbacks
+    private static final double POWERUP_KNOCKBACK_MULTIPLIER = MysthicKnockBack.getInstance().getMainConfig().getPowerUpKnockbackMultiplier(); 
 
     private double horizontalKnockback = MysthicKnockBack.getInstance().getMainConfig().getHorizontalKnockback();
     private double verticalKnockback = MysthicKnockBack.getInstance().getMainConfig().getVerticalKnockback();
@@ -146,6 +148,11 @@ public class CombatManager {
         horizontal *= (1.0 - (resistance * knockbackResistanceReduction));
         vertical *= (1.0 - (resistance * knockbackResistanceReduction));
 
+        // Verificar si el atacante tiene el powerup de knockback
+        if (powerupKnockbackPlayers.containsKey(attacker.getUniqueId())) {
+            horizontal *= POWERUP_KNOCKBACK_MULTIPLIER;
+        }
+
         // Crear vector final
         Vector knockback = new Vector(
             direction.getX() * horizontal,
@@ -270,6 +277,7 @@ public class CombatManager {
         lastHitTime.clear();
         pendingKnockback.clear();
         knockbackCooldown.clear();
+        powerupKnockbackPlayers.clear();
     }
 
     // Método para verificar si hay knockback pendente (usado en CombatListener)
@@ -305,5 +313,19 @@ public class CombatManager {
         
         long lastKnockback = knockbackCooldown.get(victimUUID);
         return System.currentTimeMillis() - lastKnockback > KNOCKBACK_COOLDOWN_MS;
+    }
+
+    public void addPowerupKnockback(Player player, int duration) {
+        powerupKnockbackPlayers.put(player.getUniqueId(), System.currentTimeMillis() + (duration * 1000L));
+        checkPowerupKnockbackExpiration();
+    }
+
+    public void removePowerupKnockback(Player player) {
+        powerupKnockbackPlayers.remove(player.getUniqueId());
+    }
+
+    private void checkPowerupKnockbackExpiration() {
+        long currentTime = System.currentTimeMillis();
+        powerupKnockbackPlayers.entrySet().removeIf(entry -> entry.getValue() <= currentTime);
     }
 }
