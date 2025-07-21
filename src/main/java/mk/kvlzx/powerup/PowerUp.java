@@ -284,7 +284,6 @@ public class PowerUp {
 
     public void applyEffect(Player player) {
         if (collected || removed) return;
-        
         collected = true;
 
         switch (type) {
@@ -308,7 +307,7 @@ public class PowerUp {
             case KNOCKBACK:
                 // Aplicar powerup de knockback al jugador
                 plugin.getCombatManager().addPowerupKnockback(player, 
-                plugin.getMainConfig().getPowerUpKnockbackEffectDuration());
+                    plugin.getMainConfig().getPowerUpKnockbackEffectDuration());
                 break;
             case EXPLOSIVE_ARROW:
                 player.setMetadata("explosive_arrow", new FixedMetadataValue(plugin, true));

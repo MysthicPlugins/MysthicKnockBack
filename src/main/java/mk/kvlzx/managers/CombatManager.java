@@ -20,7 +20,6 @@ public class CombatManager {
     private final Map<UUID, Long> knockbackCooldown = new HashMap<>();
     private final Map<UUID, Long> powerupKnockbackPlayers = new HashMap<>();
     private static final long KNOCKBACK_COOLDOWN_MS = 200; // 200ms cooldown entre knockbacks
-    private static final double POWERUP_KNOCKBACK_MULTIPLIER = MysthicKnockBack.getInstance().getMainConfig().getPowerUpKnockbackMultiplier(); 
 
     private double horizontalKnockback = MysthicKnockBack.getInstance().getMainConfig().getHorizontalKnockback();
     private double verticalKnockback = MysthicKnockBack.getInstance().getMainConfig().getVerticalKnockback();
@@ -135,6 +134,13 @@ public class CombatManager {
             horizontal += knockbackLevel * knockbackMultiplier;
         }
 
+        // Verificar si el atacante tiene el powerup de knockback
+        if (powerupKnockbackPlayers.containsKey(attacker.getUniqueId())) {
+            plugin.getLogger().info("Aplicando powerup de knockback a " + attacker.getName());
+            horizontal *= plugin.getMainConfig().getPowerUpKnockbackEffectMultiplier();
+            plugin.getLogger().info("Nuevo knockback horizontal de: " + attacker.getName() + " es: " + horizontal);
+        }
+
         // Para flechas, también verificar el encantamiento Punch en el arco
         if (isArrow && weapon != null && weapon.getType() == Material.BOW) {
             if (weapon.containsEnchantment(Enchantment.ARROW_KNOCKBACK)) {
@@ -147,11 +153,6 @@ public class CombatManager {
         double resistance = getKnockbackResistance(victim);
         horizontal *= (1.0 - (resistance * knockbackResistanceReduction));
         vertical *= (1.0 - (resistance * knockbackResistanceReduction));
-
-        // Verificar si el atacante tiene el powerup de knockback
-        if (powerupKnockbackPlayers.containsKey(attacker.getUniqueId())) {
-            horizontal *= POWERUP_KNOCKBACK_MULTIPLIER;
-        }
 
         // Crear vector final
         Vector knockback = new Vector(
@@ -316,6 +317,7 @@ public class CombatManager {
     }
 
     public void addPowerupKnockback(Player player, int duration) {
+        plugin.getLogger().info("Agregando powerup de knockback a " + player.getName() + " por " + duration + " segundos.");
         powerupKnockbackPlayers.put(player.getUniqueId(), System.currentTimeMillis() + (duration * 1000L));
         checkPowerupKnockbackExpiration();
     }
