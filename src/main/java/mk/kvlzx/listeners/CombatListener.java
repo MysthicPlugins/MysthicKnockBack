@@ -143,6 +143,12 @@ public class CombatListener implements Listener {
             return;
         }
 
+        // Si el atacante está en modo staff, no aplicar knockback
+        if (attacker.hasMetadata("mysthicstaff_modmode")) {
+            event.setCancelled(true);
+            return;
+        }
+
         // Verificar cooldown de hit
         if (!plugin.getCombatManager().canHit(attacker)) {
             event.setCancelled(true);

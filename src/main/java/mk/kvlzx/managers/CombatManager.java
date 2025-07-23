@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.bukkit.entity.Endermite;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -18,7 +19,7 @@ public class CombatManager {
     private final Map<UUID, Long> lastHitTime = new HashMap<>();
     private final Map<UUID, Vector> pendingKnockback = new HashMap<>();
     private final Map<UUID, Long> knockbackCooldown = new HashMap<>();
-    private final Map<UUID, Long> powerupKnockbackPlayers = new HashMap<>();
+    private final Map<UUID, BukkitRunnable> powerupKnockbackTasks = new HashMap<>();
     private static final long KNOCKBACK_COOLDOWN_MS = 200; // 200ms cooldown entre knockbacks
 
     private double horizontalKnockback = MysthicKnockBack.getInstance().getMainConfig().getHorizontalKnockback();
@@ -135,10 +136,8 @@ public class CombatManager {
         }
 
         // Verificar si el atacante tiene el powerup de knockback
-        if (powerupKnockbackPlayers.containsKey(attacker.getUniqueId())) {
-            plugin.getLogger().info("Aplicando powerup de knockback a " + attacker.getName());
-            horizontal *= plugin.getMainConfig().getPowerUpKnockbackEffectMultiplier();
-            plugin.getLogger().info("Nuevo knockback horizontal de: " + attacker.getName() + " es: " + horizontal);
+        if (hasKnockbackPowerup(attacker)) {
+            horizontal += plugin.getMainConfig().getPowerUpKnockbackEffectMultiplier();
         }
 
         // Para flechas, también verificar el encantamiento Punch en el arco
@@ -278,7 +277,14 @@ public class CombatManager {
         lastHitTime.clear();
         pendingKnockback.clear();
         knockbackCooldown.clear();
-        powerupKnockbackPlayers.clear();
+        
+        // Cancelar todas las tareas de powerup activas
+        for (BukkitRunnable task : powerupKnockbackTasks.values()) {
+            if (task != null) {
+                task.cancel();
+            }
+        }
+        powerupKnockbackTasks.clear();
     }
 
     // Método para verificar si hay knockback pendente (usado en CombatListener)
@@ -317,17 +323,34 @@ public class CombatManager {
     }
 
     public void addPowerupKnockback(Player player, int duration) {
-        plugin.getLogger().info("Agregando powerup de knockback a " + player.getName() + " por " + duration + " segundos.");
-        powerupKnockbackPlayers.put(player.getUniqueId(), System.currentTimeMillis() + (duration * 1000L));
-        checkPowerupKnockbackExpiration();
+        UUID playerUUID = player.getUniqueId();
+        
+        // Si ya tiene un powerup activo, cancelar el anterior
+        removePowerupKnockback(player);
+        
+        // Crear y programar la tarea de remoción
+        BukkitRunnable removalTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                powerupKnockbackTasks.remove(playerUUID);
+            }
+        };
+        
+        // Guardar la tarea y programarla
+        powerupKnockbackTasks.put(playerUUID, removalTask);
+        removalTask.runTaskLater(plugin, duration * 20L); // Convertir segundos a ticks
     }
 
     public void removePowerupKnockback(Player player) {
-        powerupKnockbackPlayers.remove(player.getUniqueId());
+        UUID playerUUID = player.getUniqueId();
+        BukkitRunnable task = powerupKnockbackTasks.remove(playerUUID);
+        
+        if (task != null) {
+            task.cancel();
+        }
     }
 
-    private void checkPowerupKnockbackExpiration() {
-        long currentTime = System.currentTimeMillis();
-        powerupKnockbackPlayers.entrySet().removeIf(entry -> entry.getValue() <= currentTime);
+    public boolean hasKnockbackPowerup(Player player) {
+        return powerupKnockbackTasks.containsKey(player.getUniqueId());
     }
 }

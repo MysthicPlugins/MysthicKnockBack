@@ -40,25 +40,25 @@ public class ChatListener implements Listener {
         // Escapar % en el mensaje del jugador
         String escapedMessage = message.replace("%", "%%");
 
-        // Aplicar formato del chat
-        String formattedMessage = MessageUtils.getColor(mainConfig.getChatFormat()
+        // Aplicar placeholders primero (sin el mensaje del jugador)
+        String chatTemplate = mainConfig.getChatFormat()
             .replace("%kbffa_rank%", rankPrefix)
-            .replace("%player_name%", playerName)
-            .replace("%message%", escapedMessage));
+            .replace("%player_name%", playerName);
 
-        // Aplicar placeholders si está disponible
         if (placeholderAPIEnabled) {
             try {
-                formattedMessage = PlaceholderAPI.setPlaceholders(player, formattedMessage);
+                chatTemplate = PlaceholderAPI.setPlaceholders(player, chatTemplate);
             } catch (Exception e) {
                 plugin.getLogger().warning("Error processing placeholders for player " + playerName + ": " + e.getMessage());
-                // Fallback sin placeholders adicionales
-                formattedMessage = MessageUtils.getColor(mainConfig.getChatFormat()
+                // Usar template sin placeholders adicionales
+                chatTemplate = mainConfig.getChatFormat()
                     .replace("%kbffa_rank%", rankPrefix)
-                    .replace("%player_name%", playerName)
-                    .replace("%message%", escapedMessage));
+                    .replace("%player_name%", playerName);
             }
         }
+
+        // Ahora insertar el mensaje escapado y aplicar colores
+        String formattedMessage = MessageUtils.getColor(chatTemplate.replace("%message%", escapedMessage));
 
         // Establecer el formato final
         event.setFormat(formattedMessage);
