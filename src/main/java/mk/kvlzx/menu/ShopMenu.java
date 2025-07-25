@@ -70,9 +70,9 @@ public class ShopMenu extends Menu {
         int slot = event.getSlot();
         
         if (slot == menuConfig.getBlocksSlot()) {
-            plugin.getMenuManager().openMenu(player, "block_categories");
+            plugin.getMenuManager().openMenu(player, "block_shop");
         } else if (slot == menuConfig.getKnockersSlot()) {
-            plugin.getMenuManager().openMenu(player, "knocker_categories");
+            plugin.getMenuManager().openMenu(player, "knocker_shop");
         } else if (slot == menuConfig.getKillMessagesSlot()) {
             plugin.getMenuManager().openMenu(player, "kill_message_categories");
         } else if (slot == menuConfig.getDeathMessagesSlot()) {

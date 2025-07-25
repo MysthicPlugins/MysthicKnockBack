@@ -20,20 +20,16 @@ import mk.kvlzx.utils.MessageUtils;
 
 public class BlockShopMenu extends Menu {
     private final List<BlockShopItem> shopItems;
-    private static String currentCategory = "COMMON";
 
     public BlockShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lBlock Shop &8•", 45);
+        super(plugin, "&8• &e&lBlock Shop &8•", 54); // Aumentamos a 54 slots para más espacio
         this.shopItems = initializeShopItems();
-    }
-
-    public static void setCurrentCategory(String category) {
-        currentCategory = category;
     }
 
     private List<BlockShopItem> initializeShopItems() {
         List<BlockShopItem> items = new ArrayList<>();
         
+        // Bloques ordenados por rareza y precio
         addCommonBlocks(items);
         addUncommonBlocks(items);
         addRareBlocks(items);
@@ -41,6 +37,7 @@ public class BlockShopMenu extends Menu {
         addLegendaryBlocks(items);
         addTrollBlocks(items);
         
+        // Bedrock al final como bloque especial
         items.add(new BlockShopItem(Material.BEDROCK, "Bedrock", 50000, "SPECIAL", "&4", 
             "&4&lUnlocked by obtaining all other blocks"));
         
@@ -74,23 +71,8 @@ public class BlockShopMenu extends Menu {
         items.add(new BlockShopItem(Material.BOOKSHELF, "Bookshelf", 5000, "RARE", "&9", "&6Holds ancient secrets"));
     }
 
-    // Agregar nueva categoría de bloques troll
-    private void addTrollBlocks(List<BlockShopItem> items) {
-        items.add(new BlockShopItem(Material.GLASS, "Mystic Glass", 15000, "TROLL", "&d", "&fAs fragile as it is deceptive"));
-        items.add(new BlockShopItem(Material.STAINED_GLASS, "Void Glass", 15000, "TROLL", "&d", "&8The darkness calls you"));
-        items.add(new BlockShopItem(Material.NOTE_BLOCK, "Music Block", 15000, "TROLL", "&d", "&eResonates with ancient melodies"));
-        items.add(new BlockShopItem(Material.CHEST, "Chaos Chest", 15000, "TROLL", "&d", "&6What's inside?"));
-        items.add(new BlockShopItem(Material.TRAPPED_CHEST, "Trapped Chest", 15000, "TROLL", "&d", "&cBeware when opening"));
-        items.add(new BlockShopItem(Material.ENDER_PORTAL_FRAME, "Void Frame", 15000, "TROLL", "&d", "&5Portal to nothingness"));
-        items.add(new BlockShopItem(Material.JUKEBOX, "Jukebox", 15000, "TROLL", "&d", "&eMelodies from beyond"));
-        items.add(new BlockShopItem(Material.ANVIL, "Ancestral Anvil", 15000, "TROLL", "&d", "&7Forged by titans"));
-        items.add(new BlockShopItem(Material.HOPPER, "Void Hopper", 15000, "TROLL", "&d", "&8Absorbs everything in its path"));
-        items.add(new BlockShopItem(Material.DISPENSER, "Chaos Dispenser", 15000, "TROLL", "&d", "&cFires surprises"));
-    }
-
     private void addEpicBlocks(List<BlockShopItem> items) {
         items.add(new BlockShopItem(Material.PRISMARINE, "Prismarine", 7500, "EPIC", "&5", "&3Treasure from the ocean depths"));
-        items.add(new BlockShopItem(Material.COAL_BLOCK, "Coal Block", 7500, "EPIC", "&5", "&3Forged in the heart of a volcano"));
         items.add(new BlockShopItem(Material.ENDER_STONE, "End Stone", 7500, "EPIC", "&5", "&fForged in the lands of the void"));
         items.add(new BlockShopItem(Material.SPONGE, "Ancestral Sponge", 7500, "EPIC", "&5", "&eAbsorbs the essence of the ocean"));
         items.add(new BlockShopItem(Material.SEA_LANTERN, "Sea Lantern", 7500, "EPIC", "&5", "&bGlows with light from the depths"));
@@ -105,44 +87,59 @@ public class BlockShopMenu extends Menu {
         items.add(new BlockShopItem(Material.NETHER_BRICK, "Nether Brick", 10000, "LEGENDARY", "&6", "&cCreated in eternal hell"));
     }
 
+    private void addTrollBlocks(List<BlockShopItem> items) {
+        items.add(new BlockShopItem(Material.GLASS, "Mystic Glass", 15000, "TROLL", "&d", "&fAs fragile as it is deceptive"));
+        items.add(new BlockShopItem(Material.STAINED_GLASS, "Void Glass", 15000, "TROLL", "&d", "&8The darkness calls you"));
+        items.add(new BlockShopItem(Material.NOTE_BLOCK, "Music Block", 15000, "TROLL", "&d", "&eResonates with ancient melodies"));
+        items.add(new BlockShopItem(Material.CHEST, "Chaos Chest", 15000, "TROLL", "&d", "&6What's inside?"));
+        items.add(new BlockShopItem(Material.TRAPPED_CHEST, "Trapped Chest", 15000, "TROLL", "&d", "&cBeware when opening"));
+        items.add(new BlockShopItem(Material.ENDER_PORTAL_FRAME, "Void Frame", 15000, "TROLL", "&d", "&5Portal to nothingness"));
+        items.add(new BlockShopItem(Material.JUKEBOX, "Jukebox", 15000, "TROLL", "&d", "&eMelodies from beyond"));
+        items.add(new BlockShopItem(Material.ANVIL, "Ancestral Anvil", 15000, "TROLL", "&d", "&7Forged by titans"));
+        items.add(new BlockShopItem(Material.HOPPER, "Void Hopper", 15000, "TROLL", "&d", "&8Absorbs everything in its path"));
+        items.add(new BlockShopItem(Material.DISPENSER, "Chaos Dispenser", 15000, "TROLL", "&d", "&cFires surprises"));
+    }
+
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
         // Balance actual
         inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins",
-            "",
-            "&7Current Category: " + currentCategory));
+            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins"));
 
-        // Si es la categoría ESPECIAL (Bedrock), mostrar en el centro
-        if (currentCategory.equals("SPECIAL")) {
-            for (BlockShopItem item : shopItems) {
-                if (item.getRarity().equals("SPECIAL")) {
-                    setupBlockButton(inv, 22, item, player, plugin.getCosmeticManager().getPlayerBlock(player.getUniqueId()));
-                    break;
-                }
-            }
-        } else {
-            // Para otras categorías, mantener el layout original
-            int slot = 10;
-            for (BlockShopItem item : shopItems) {
-                if (item.getRarity().equals(currentCategory)) {
-                    if (slot > 34) break;
-                    setupBlockButton(inv, slot, item, player, plugin.getCosmeticManager().getPlayerBlock(player.getUniqueId()));
-                    slot++;
-                    if ((slot + 1) % 9 == 0) slot += 2;
-                }
-            }
+        // Colocar todos los bloques en el inventario
+        Material currentBlock = plugin.getCosmeticManager().getPlayerBlock(player.getUniqueId());
+        
+        // Slots disponibles para bloques (evitando el balance y botón de volver)
+        int[] availableSlots = {
+            9, 10, 11, 12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23, 24, 25, 26,
+            27, 28, 29, 30, 31, 32, 33, 34, 35,
+            36, 37, 38, 39, 41, 42, 43, 44, 45,
+            46, 47, 48, 50, 51, 52, 53
+        };
+        
+        int slotIndex = 0;
+        for (BlockShopItem item : shopItems) {
+            if (slotIndex >= availableSlots.length) break;
+            
+            int slot = availableSlots[slotIndex];
+            setupBlockButton(inv, slot, item, player, currentBlock);
+            slotIndex++;
         }
 
-        // Botones de navegación
-        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to categories"));
+        // Botón para volver
+        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
 
-        // Relleno
+        // Relleno en slots vacíos
         ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
-        fillEmptySlots(inv, filler);
+        for (int i = 0; i < inv.getSize(); i++) {
+            if (inv.getItem(i) == null) {
+                inv.setItem(i, filler);
+            }
+        }
     }
 
     private void setupBlockButton(Inventory inv, int slot, BlockShopItem item, Player player, Material currentBlock) {
@@ -152,6 +149,8 @@ public class BlockShopMenu extends Menu {
         List<String> lore = new ArrayList<>();
         
         lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
+        lore.add("");
+        lore.add(item.getLore());
         lore.add("");
         
         if (item.getMaterial() == Material.SANDSTONE) {
@@ -176,6 +175,13 @@ public class BlockShopMenu extends Menu {
             lore.add("&7Click to purchase");
             lore.add("");
             lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
+            
+            // Verificación especial para Bedrock
+            if (item.getMaterial() == Material.BEDROCK) {
+                if (!hasAllBlocks(player.getUniqueId())) {
+                    lore.add("&c➥ Requires all other blocks");
+                }
+            }
         }
 
         String displayName = (isSelected ? "&b" : item.getRarityColor()) + item.getName();
@@ -205,8 +211,8 @@ public class BlockShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (event.getSlot() == 40) {
-            plugin.getMenuManager().openMenu(player, "block_categories");
+        if (event.getSlot() == 49) { // Botón de volver
+            plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
 

@@ -19,20 +19,16 @@ import mk.kvlzx.utils.MessageUtils;
 
 public class KnockerShopMenu extends Menu {
     private final List<KnockerShopItem> shopItems;
-    private static String currentCategory = "COMMON";
 
     public KnockerShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lKnocker Shop &8•", 45);
+        super(plugin, "&8• &e&lKnocker Shop &8•", 54); // Aumentamos a 54 slots para más espacio
         this.shopItems = initializeShopItems();
-    }
-
-    public static void setCurrentCategory(String category) {
-        currentCategory = category;
     }
 
     private List<KnockerShopItem> initializeShopItems() {
         List<KnockerShopItem> items = new ArrayList<>();
         
+        // Knockers ordenados por rareza y precio
         addCommonKnockers(items);
         addUncommonKnockers(items);
         addRareKnockers(items);
@@ -86,27 +82,40 @@ public class KnockerShopMenu extends Menu {
 
         // Balance actual
         inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins",
-            "",
-            "&7Current Category: " + currentCategory));
+            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins"));
 
-        // Mostrar knockers
-        int slot = 10;
+        // Colocar todos los knockers en el inventario
+        Material currentKnocker = plugin.getCosmeticManager().getPlayerKnocker(player.getUniqueId());
+        
+        // Slots disponibles para knockers (evitando el balance y botón de volver)
+        int[] availableSlots = {
+            9, 10, 11, 12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23, 24, 25, 26,
+            27, 28, 29, 30, 31, 32, 33, 34, 35,
+            36, 37, 38, 39, 41, 42, 43, 44, 45,
+            46, 47, 48, 50, 51, 52, 53
+        };
+        
+        int slotIndex = 0;
         for (KnockerShopItem item : shopItems) {
-            if (item.getRarity().equals(currentCategory)) {
-                if (slot > 34) break;
-                setupKnockerButton(inv, slot, item, player, plugin.getCosmeticManager().getPlayerKnocker(player.getUniqueId()));
-                slot++;
-                if ((slot + 1) % 9 == 0) slot += 2;
-            }
+            if (slotIndex >= availableSlots.length) break;
+            
+            int slot = availableSlots[slotIndex];
+            setupKnockerButton(inv, slot, item, player, currentKnocker);
+            slotIndex++;
         }
 
         // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to categories"));
+        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
 
-        // Relleno
-        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
+        // Relleno en slots vacíos
+        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
+        for (int i = 0; i < inv.getSize(); i++) {
+            if (inv.getItem(i) == null) {
+                inv.setItem(i, filler);
+            }
+        }
     }
 
     private void setupKnockerButton(Inventory inv, int slot, KnockerShopItem item, Player player, Material currentKnocker) {
@@ -147,6 +156,7 @@ public class KnockerShopMenu extends Menu {
         String displayName = (isSelected ? "&b" : item.getRarityColor()) + item.getName();
         ItemStack buttonItem = createItem(item.getMaterial(), displayName, item.getData(), lore.toArray(new String[0]));
         
+        // Añadir encantamiento visual si es el knocker seleccionado
         if (isSelected) {
             buttonItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
             ItemMeta meta = buttonItem.getItemMeta();
@@ -169,8 +179,8 @@ public class KnockerShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (event.getSlot() == 40) {
-            plugin.getMenuManager().openMenu(player, "knocker_categories");
+        if (event.getSlot() == 49) { // Botón de volver
+            plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
 

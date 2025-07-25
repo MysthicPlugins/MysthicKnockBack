@@ -106,7 +106,7 @@ config:
       vertical-knockback: 0.45
       knockback-level: 2
     knockback-limits:
-      max-horizontal-knockback: 1.2
+      max-horizontal-knockback: 1.7
       max-horizontal-knockback-arrow: 2.4
       max-vertical-knockback: 0.7
     ranks:
