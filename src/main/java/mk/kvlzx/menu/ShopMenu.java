@@ -74,19 +74,19 @@ public class ShopMenu extends Menu {
         } else if (slot == menuConfig.getKnockersSlot()) {
             plugin.getMenuManager().openMenu(player, "knocker_shop");
         } else if (slot == menuConfig.getKillMessagesSlot()) {
-            plugin.getMenuManager().openMenu(player, "kill_message_categories");
+            plugin.getMenuManager().openMenu(player, "kill_message_shop");
         } else if (slot == menuConfig.getDeathMessagesSlot()) {
-            plugin.getMenuManager().openMenu(player, "death_message_categories");
+            plugin.getMenuManager().openMenu(player, "death_message_shop");
         } else if (slot == menuConfig.getArrowEffectsSlot()) {
-            plugin.getMenuManager().openMenu(player, "arrow_effect_categories");
+            plugin.getMenuManager().openMenu(player, "arrow_effect_shop");
         } else if (slot == menuConfig.getDeathSoundsSlot()) {
-            plugin.getMenuManager().openMenu(player, "death_sound_categories");
+            plugin.getMenuManager().openMenu(player, "death_sound_shop");
         } else if (slot == menuConfig.getKillSoundsSlot()) {
-            plugin.getMenuManager().openMenu(player, "kill_sound_categories");
+            plugin.getMenuManager().openMenu(player, "kill_sound_shop");
         } else if (slot == menuConfig.getJoinMessagesSlot()) {
-            plugin.getMenuManager().openMenu(player, "join_message_categories");
+            plugin.getMenuManager().openMenu(player, "join_message_shop");
         } else if (slot == menuConfig.getMusicSlot()) {
-            plugin.getMenuManager().openMenu(player, "music_categories");
+            plugin.getMenuManager().openMenu(player, "music_shop");
         } else if (slot == menuConfig.getBackSlot()) {
             plugin.getMenuManager().openMenu(player, "main");
         }

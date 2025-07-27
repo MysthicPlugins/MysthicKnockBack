@@ -20,15 +20,10 @@ import mk.kvlzx.utils.MessageUtils;
 
 public class JoinMessageShopMenu extends Menu {
     private final List<JoinMessageItem> shopItems;
-    private static String currentCategory = "COMMON";
 
     public JoinMessageShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lJoin Message Shop &8•", 45);
+        super(plugin, "&8• &e&lJoin Message Shop &8•", 54);
         this.shopItems = initializeShopItems();
-    }
-
-    public static void setCurrentCategory(String category) {
-        currentCategory = category;
     }
 
     private List<JoinMessageItem> initializeShopItems() {
@@ -146,28 +141,42 @@ public class JoinMessageShopMenu extends Menu {
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+
+        // Balance actual
         inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins",
-            "",
-            "&7Current Category: " + currentCategory));
-        int slot = 10;
+            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins"));
+
+        // Slots disponibles para mensajes (evitando el balance y botón de volver)
+        int[] availableSlots = {
+            9, 10, 11, 12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23, 24, 25, 26,
+            27, 28, 29, 30, 31, 32, 33, 34, 35,
+            36, 37, 38, 39, 40, 41, 42, 43, 44,
+            45, 46, 47, 48, 50, 51, 52, 53
+        };
+
+        int slotIndex = 0;
         for (JoinMessageItem item : shopItems) {
-            if (item.getRarity().equals(currentCategory)) {
-                if (slot > 34) break;
-                setupMessageButton(inv, slot, item, player);
-                slot++;
-                if ((slot + 1) % 9 == 0) slot += 2;
-            }
+            if (slotIndex >= availableSlots.length) break;
+            
+            int slot = availableSlots[slotIndex];
+            setupMessageButton(inv, slot, item, player);
+            slotIndex++;
         }
-        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to categories"));
-        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
+
+        // Botón para volver
+        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
+
+        // Relleno
+        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
     }
 
     private void setupMessageButton(Inventory inv, int slot, JoinMessageItem item, Player player) {
         String currentMessage = plugin.getCosmeticManager().getPlayerJoinMessage(player.getUniqueId());
         boolean hasMessage = plugin.getCosmeticManager().hasPlayerJoinMessage(player.getUniqueId(), item.getMessage());
         boolean isSelected = currentMessage.equals(item.getMessage());
+        
         List<String> lore = new ArrayList<>();
         lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
         lore.add("");
@@ -188,14 +197,29 @@ public class JoinMessageShopMenu extends Menu {
             lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
         }
         
-        Material material = isSelected ? Material.ENCHANTED_BOOK : Material.PAPER;
+        // Crear el botón con el material adecuado según la rareza
+        Material material;
+        switch (item.getRarity()) {
+            case "COMMON":
+                material = isSelected ? Material.ENCHANTED_BOOK : Material.PAPER;
+                break;
+            case "EPIC":
+                material = isSelected ? Material.ENCHANTED_BOOK : Material.WRITTEN_BOOK;
+                break;
+            case "LEGENDARY":
+                material = isSelected ? Material.ENCHANTED_BOOK : Material.BOOK_AND_QUILL;
+                break;
+            default:
+                material = isSelected ? Material.ENCHANTED_BOOK : Material.PAPER;
+        }
+
         ItemStack button = createItem(material, 
             (isSelected ? "&b" : item.getRarityColor()) + item.getName(), 
             lore.toArray(new String[0]));
 
         if (isSelected) {
+            button.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
             ItemMeta meta = button.getItemMeta();
-            meta.addEnchant(Enchantment.DURABILITY, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             button.setItemMeta(meta);
         }
@@ -215,8 +239,8 @@ public class JoinMessageShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
         
-        if (event.getSlot() == 40) {
-            plugin.getMenuManager().openMenu(player, "join_message_categories");
+        if (event.getSlot() == 49) {
+            plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
         
@@ -233,6 +257,7 @@ public class JoinMessageShopMenu extends Menu {
     private void handleMessageSelection(Player player, JoinMessageItem messageItem) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         String currentMessage = plugin.getCosmeticManager().getPlayerJoinMessage(player.getUniqueId());
+        
         if (plugin.getCosmeticManager().hasPlayerJoinMessage(player.getUniqueId(), messageItem.getName())) {
             if (currentMessage.equals(messageItem.getName())) {
                 plugin.getCosmeticManager().setPlayerJoinMessage(player.getUniqueId(), "default");
@@ -283,4 +308,4 @@ public class JoinMessageShopMenu extends Menu {
             .findFirst()
             .orElse(null);
     }
-} 
+}

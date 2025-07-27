@@ -19,15 +19,10 @@ import mk.kvlzx.utils.MessageUtils;
 
 public class MusicShopMenu extends Menu {
     private final List<BackgroundMusicItem> musicItems;
-    private static String currentCategory = "COMMON";
 
     public MusicShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &d&lMusic Store &8•", 45);
+        super(plugin, "&8• &d&lMusic Store &8•", 54);
         this.musicItems = initializeMusicItems();
-    }
-
-    public static void setCurrentCategory(String category) {
-        currentCategory = category;
     }
 
     private List<BackgroundMusicItem> initializeMusicItems() {
@@ -78,29 +73,35 @@ public class MusicShopMenu extends Menu {
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Current balance
+        // Balance
         inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current balance: &e" + stats.getKGCoins() + " KGCoins",
-            "",
-            "&7Current category: " + currentCategory));
+            "&7Current balance: &e" + stats.getKGCoins() + " KGCoins"));
 
-        // Display music
-        int slot = 10;
+        // Slots disponibles para música (evitando el balance y botón de volver)
+        int[] availableSlots = {
+            9, 10, 11, 12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23, 24, 25, 26,
+            27, 28, 29, 30, 31, 32, 33, 34, 35,
+            36, 37, 38, 39, 40, 41, 42, 43, 44,
+            45, 46, 47, 48, 50, 51, 52, 53
+        };
+
+        // Configurar botones de música
+        int slotIndex = 0;
         for (BackgroundMusicItem item : musicItems) {
-            if (item.getRarity().equals(currentCategory)) {
-                if (slot > 34) break;
-                setupMusicButton(inv, slot, item, player);
-                slot++;
-                if ((slot + 1) % 9 == 0) slot += 2;
-            }
+            if (slotIndex >= availableSlots.length) break;
+            
+            int slot = availableSlots[slotIndex];
+            setupMusicButton(inv, slot, item, player);
+            slotIndex++;
         }
 
-        // Back button
-        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to categories"));
+        // Botón de volver
+        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
 
         // Filler
-        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
+        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
     }
 
     private void setupMusicButton(Inventory inv, int slot, BackgroundMusicItem item, Player player) {
@@ -135,8 +136,8 @@ public class MusicShopMenu extends Menu {
             lore.toArray(new String[0]));
 
         if (isSelected) {
+            button.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
             ItemMeta meta = button.getItemMeta();
-            meta.addEnchant(Enchantment.DURABILITY, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             button.setItemMeta(meta);
         }
@@ -156,10 +157,10 @@ public class MusicShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (event.getSlot() == 40) {
-            // Stop any preview music
+        if (event.getSlot() == 49) {
+            // Detener música previa si está sonando
             stopPreviewMusic(player);
-            plugin.getMenuManager().openMenu(player, "music_categories");
+            plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
 
@@ -170,21 +171,21 @@ public class MusicShopMenu extends Menu {
         BackgroundMusicItem musicItem = findMusicItem(itemName);
         if (musicItem == null) return;
 
-        // If right-click, play preview
+        // Si es click derecho, reproducir música de muestra
         if (event.isRightClick()) {
             playPreviewMusic(player, musicItem);
             return;
         }
 
-        // If left-click, handle purchase/selection
+        // Si es click izquierdo, manejar selección o compra
         handleMusicSelection(player, musicItem);
     }
 
     private void playPreviewMusic(Player player, BackgroundMusicItem musicItem) {
-        // Stop any previous music
+        // Detener música previa si está sonando
         stopPreviewMusic(player);
 
-        // Use the MusicManager to play the music
+        // Reproducir música de muestra usando el MusicManager
         plugin.getMusicManager().playPreviewMusic(player, musicItem.getSound());
     }
 

@@ -395,7 +395,7 @@ public class PlayerListener implements Listener {
                         deathMessage = messageItem != null ? messageItem.getMessage() : DEATH_MESSAGES.get(0);
                     }
                     Bukkit.broadcastMessage(MessageUtils.getColor(
-                        String.format(deathMessage, player.getName())
+                        deathMessage.replace("%player%", player.getName())
                     ));
                     // Manejar el sonido de muerte del jugador
                     handlePlayerDeath(player);

@@ -37,13 +37,9 @@ public class BlockUtils {
 
     public static final List<Material> TROLL_BLOCKS = Arrays.asList(
         Material.GLASS,             // Glass (se moverá a troll)
-        Material.STAINED_GLASS,     // Stained Glass (se moverá a troll)
         Material.NOTE_BLOCK,        // Note Block (troll)
-        Material.CHEST,             // Chest (troll)
-        Material.TRAPPED_CHEST,     // Trapped Chest (troll)
         Material.ENDER_PORTAL_FRAME,// End Portal Frame (troll)
         Material.JUKEBOX,           // Jukebox (troll)
-        Material.ANVIL,             // Anvil (troll)
         Material.HOPPER,            // Hopper (troll)
         Material.DISPENSER,         // Dispenser (troll)
         Material.DROPPER            // Dropper (troll)

@@ -19,15 +19,10 @@ import mk.kvlzx.utils.MessageUtils;
 
 public class DeathMessageShopMenu extends Menu {
     private final List<DeathMessageItem> shopItems;
-    private static String currentCategory = "COMMON";
 
     public DeathMessageShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lMessage Shop &8•", 45);
+        super(plugin, "&8• &e&lMessage Shop &8•", 54);
         this.shopItems = initializeShopItems();
-    }
-
-    public static void setCurrentCategory(String category) {
-        currentCategory = category;
     }
 
     private List<DeathMessageItem> initializeShopItems() {
@@ -35,106 +30,106 @@ public class DeathMessageShopMenu extends Menu {
 
         // Mensajes Comunes (5)
         items.add(new DeathMessageItem(
-            "&b%s &fsought glory, but found a respawn.",
+            "&b%player% &fsought glory, but found a respawn.",
             "Glory Seeker", 10000, "COMMON", "&7",
             "&7An inevitable fate"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &fran toward eternity, but ran out of battery.",
+            "&b%player% &fran toward eternity, but ran out of battery.",
             "Eternal Runner", 10000, "COMMON", "&7",
             "&7Energy is limited"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &ftried a stellar jump and ended up in a crater.",
+            "&b%player% &ftried a stellar jump and ended up in a crater.",
             "Stellar Jumper", 10000, "COMMON", "&7",
             "&7The stars were too far"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &fdreamed of flying free, but forgot the parachute.",
+            "&b%player% &fdreamed of flying free, but forgot the parachute.",
             "Reckless Dreamer", 10000, "COMMON", "&7",
             "&7Gravity doesn't forgive"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &ftried a leap to infinity and landed at spawn.",
+            "&b%player% &ftried a leap to infinity and landed at spawn.",
             "Infinite Jumper", 10000, "COMMON", "&7",
             "&7The spawn always waits"
         ));
 
         // Mensajes Épicos (8)
         items.add(new DeathMessageItem(
-            "&b%s &5danced with shadows and tripped in the darkness.",
+            "&b%player% &5danced with shadows and tripped in the darkness.",
             "Shadow Dancer", 25000, "EPIC", "&5",
             "&5Shadows are treacherous"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &5defied fate, and fate taught them a lesson.",
+            "&b%player% &5defied fate, and fate taught them a lesson.",
             "Fate Defier", 25000, "EPIC", "&5",
             "&5Fate always wins"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &5dreamed of being a titan, but the ground was their judge.",
+            "&b%player% &5dreamed of being a titan, but the ground was their judge.",
             "Titan Aspirant", 25000, "EPIC", "&5",
             "&5The ground is relentless"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &5wanted to write their saga, but the chapter ended early.",
+            "&b%player% &5wanted to write their saga, but the chapter ended early.",
             "Frustrated Writer", 25000, "EPIC", "&5",
             "&5An unfinished story"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &5wanted to be a comet, but crashed like a meteor.",
+            "&b%player% &5wanted to be a comet, but crashed like a meteor.",
             "Failed Comet", 25000, "EPIC", "&5",
             "&5Shone until the end"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &5dreamed of touching the clouds, but the ground woke them up.",
+            "&b%player% &5dreamed of touching the clouds, but the ground woke them up.",
             "Cloud Dreamer", 25000, "EPIC", "&5",
             "&5A harsh awakening"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &5ran with their soul ablaze, but the fire went out.",
+            "&b%player% &5ran with their soul ablaze, but the fire went out.",
             "Blazing Soul", 25000, "EPIC", "&5",
             "&5Flames are fleeting"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &5wanted to be a hero, but the arena wrote another story.",
+            "&b%player% &5wanted to be a hero, but the arena wrote another story.",
             "Frustrated Hero", 25000, "EPIC", "&5",
             "&5The arena is cruel"
         ));
 
         // Mensajes Legendarios (7)
         items.add(new DeathMessageItem(
-            "&b%s &6sought to conquer the sky, but the abyss claimed them.",
+            "&b%player% &6sought to conquer the sky, but the abyss claimed them.",
             "Fallen Conqueror", 50000, "LEGENDARY", "&6",
             "&6The abyss always claims"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &6leaped into infinity, but infinity didn't answer.",
+            "&b%player% &6leaped into infinity, but infinity didn't answer.",
             "Void Jumper", 50000, "LEGENDARY", "&6",
             "&6Infinity is silent"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &6defied the void, and the void gave a deadly embrace.",
+            "&b%player% &6defied the void, and the void gave a deadly embrace.",
             "Void Defier", 50000, "LEGENDARY", "&6",
             "&6The void always embraces"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &6shone like lightning before fading in the storm.",
+            "&b%player% &6shone like lightning before fading in the storm.",
             "Fleeting Lightning", 50000, "LEGENDARY", "&6",
             "&6The storm consumes all"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &6danced on the edge of danger, and the edge cut first.",
+            "&b%player% &6danced on the edge of danger, and the edge cut first.",
             "Edge Dancer", 50000, "LEGENDARY", "&6",
             "&6The edge doesn't forgive"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &6defied the abyss, and the abyss whispered 'see you soon'.",
+            "&b%player% &6defied the abyss, and the abyss whispered 'see you soon'.",
             "Abyss Whisper", 50000, "LEGENDARY", "&6",
             "&6The abyss always returns"
         ));
         items.add(new DeathMessageItem(
-            "&b%s &6wanted to be an epic poem, but rhymed with defeat.",
+            "&b%player% &6wanted to be an epic poem, but rhymed with defeat.",
             "Defeated Poet", 50000, "LEGENDARY", "&6",
             "&6Defeat also rhymes"
         ));
@@ -149,27 +144,32 @@ public class DeathMessageShopMenu extends Menu {
 
         // Balance actual
         inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins",
-            "",
-            "&7Current Category: " + currentCategory));
+            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins"));
 
-        // Mostrar mensajes
-        int slot = 10;
+        // Slots disponibles para mensajes (evitando el balance y botón de volver)
+        int[] availableSlots = {
+            9, 10, 11, 12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23, 24, 25, 26,
+            27, 28, 29, 30, 31, 32, 33, 34, 35,
+            36, 37, 38, 39, 40, 41, 42, 43, 44,
+            45, 46, 47, 48, 50, 51, 52, 53
+        };
+
+        int slotIndex = 0;
         for (DeathMessageItem item : shopItems) {
-            if (item.getRarity().equals(currentCategory)) {
-                if (slot > 34) break;
-                setupMessageButton(inv, slot, item, player, currentMessage);
-                slot++;
-                if ((slot + 1) % 9 == 0) slot += 2;
-            }
+            if (slotIndex >= availableSlots.length) break;
+            
+            int slot = availableSlots[slotIndex];
+            setupMessageButton(inv, slot, item, player, currentMessage);
+            slotIndex++;
         }
 
         // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to categories"));
+        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
 
         // Relleno
-        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
+        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
     }
 
     private void setupMessageButton(Inventory inv, int slot, DeathMessageItem item, Player player, String currentMessage) {
@@ -179,7 +179,7 @@ public class DeathMessageShopMenu extends Menu {
         List<String> lore = new ArrayList<>();
         lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
         lore.add("");
-        lore.add(MessageUtils.getColor("&7Message: " + item.getMessage().replace("%s", player.getName())));
+        lore.add(MessageUtils.getColor("&7Message: " + item.getMessage().replace("%player%", player.getName())));
         lore.add("");
         
         if (hasMessage) {
@@ -195,15 +195,30 @@ public class DeathMessageShopMenu extends Menu {
             lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
         }
 
-        // Crear el botón con el material adecuado
-        Material material = isSelected ? Material.ENCHANTED_BOOK : Material.PAPER;
+        // Crear el botón con el material adecuado según la rareza
+        Material material;
+        switch (item.getRarity()) {
+            case "COMMON":
+                material = isSelected ? Material.ENCHANTED_BOOK : Material.PAPER;
+                break;
+            case "EPIC":
+                material = isSelected ? Material.ENCHANTED_BOOK : Material.BOOK;
+                break;
+            case "LEGENDARY":
+                material = isSelected ? Material.ENCHANTED_BOOK : Material.BOOK_AND_QUILL;
+                break;
+            default:
+                material = isSelected ? Material.ENCHANTED_BOOK : Material.PAPER;
+                break;
+        }
+
         ItemStack button = createItem(material, 
             (isSelected ? "&b" : item.getRarityColor()) + item.getName(), 
             lore.toArray(new String[0]));
 
         if (isSelected) {
+            button.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
             ItemMeta meta = button.getItemMeta();
-            meta.addEnchant(Enchantment.DURABILITY, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             button.setItemMeta(meta);
         }
@@ -252,8 +267,8 @@ public class DeathMessageShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (event.getSlot() == 40) {
-            plugin.getMenuManager().openMenu(player, "death_message_categories");
+        if (event.getSlot() == 49) {
+            plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
 

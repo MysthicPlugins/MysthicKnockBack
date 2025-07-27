@@ -2,6 +2,7 @@ package mk.kvlzx.menu;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -20,15 +21,10 @@ import mk.kvlzx.utils.MessageUtils;
 
 public class KillMessageShopMenu extends Menu {
     private final List<KillMessageItem> shopItems;
-    private static String currentCategory = "COMMON";
 
     public KillMessageShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lKill Message Shop &8•", 45);
+        super(plugin, "&8• &e&lKill Message Shop &8•", 54);
         this.shopItems = initializeShopItems();
-    }
-
-    public static void setCurrentCategory(String category) {
-        currentCategory = category;
     }
 
     private List<KillMessageItem> initializeShopItems() {
@@ -36,70 +32,80 @@ public class KillMessageShopMenu extends Menu {
 
         // Mensajes Comunes (15000 coins)
         items.add(new KillMessageItem(
-            "&b{killer} &7launched &b{victim} &7into the orbit of defeat!",
+            "&b%player% &7launched &b%victim% &7into the orbit of defeat!",
             "Orbital Launch", 15000, "COMMON", "&7",
             "&7A one-way space trip!"
         ));
         items.add(new KillMessageItem(
-            "&b{victim} &7challenged &b{killer}&7, but the ground hugged them first.",
+            "&b%victim% &7challenged &b%player%&7, but the ground hugged them first.",
             "Ground Hug", 15000, "COMMON", "&7",
             "&7The ground always wins!"
         ));
         items.add(new KillMessageItem(
-            "&b{killer} &7gave &b{victim} &7a ticket to the respawn screen!",
+            "&b%player% &7gave &b%victim% &7a ticket to the respawn screen!",
             "Respawn Ticket", 15000, "COMMON", "&7",
             "&7A direct trip to spawn!"
         ));
         items.add(new KillMessageItem(
-            "&b{victim} &7learned to fly... &7but &b{killer} &7cancelled the lesson.",
+            "&b%victim% &7learned to fly... &7but &b%player% &7cancelled the lesson.",
             "Flight School", 15000, "COMMON", "&7",
             "&7Flight lessons are dangerous!"
         ));
 
         // Mensajes Épicos (35000 coins)
         items.add(new KillMessageItem(
-            "&b{killer} &9transformed &b{victim} &9into a shooting star!",
+            "&b%player% &9transformed &b%victim% &9into a shooting star!",
             "Shooting Star", 35000, "EPIC", "&9",
             "&9Shines as it falls!"
         ));
         items.add(new KillMessageItem(
-            "&b{killer} &9helped &b{victim} &9reach the clouds... permanently.",
+            "&b%player% &9helped &b%victim% &9reach the clouds... permanently.",
             "Cloud Reach", 35000, "EPIC", "&9",
             "&9A celestial journey!"
         ));
         items.add(new KillMessageItem(
-            "&b{killer} &9showed &b{victim} &9the meaning of true knockback!",
+            "&b%player% &9showed &b%victim% &9the meaning of true knockback!",
             "True Knockback", 35000, "EPIC", "&9",
             "&9The true essence of KB!"
         ));
         items.add(new KillMessageItem(
-            "&b{killer} &9sent &b{victim} &9on a journey to the stars!",
+            "&b%player% &9sent &b%victim% &9on a journey to the stars!",
             "Star Journey", 35000, "EPIC", "&9",
             "&9An interplanetary trip!"
         ));
 
         // Mensajes Legendarios (75000 coins)
         items.add(new KillMessageItem(
-            "&b{killer} &6unleashed the power of knockback on &b{victim}&6!",
+            "&b%player% &6unleashed the power of knockback on &b%victim%&6!",
             "KB Master", 75000, "LEGENDARY", "&6",
             "&6The power of the true master!"
         ));
         items.add(new KillMessageItem(
-            "&b{killer} &6rewrote &b{victim}'s &6destiny with a legendary hit!",
+            "&b%player% &6rewrote &b%victim%'s &6destiny with a legendary hit!",
             "Destiny Writer", 75000, "LEGENDARY", "&6",
             "&6Rewriting stories!"
         ));
         items.add(new KillMessageItem(
-            "&b{killer} &6showed &b{victim} &6what godlike knockback looks like!",
+            "&b%player% &6showed &b%victim% &6what godlike knockback looks like!",
             "God of KB", 75000, "LEGENDARY", "&6",
             "&6The power of a god!"
         ));
         items.add(new KillMessageItem(
-            "&b{killer} &6sent &b{victim} &6to the hall of legends!",
+            "&b%player% &6sent &b%victim% &6to the hall of legends!",
             "Legend Maker", 75000, "LEGENDARY", "&6",
             "&6A place in history!"
         ));
 
+        // Ordenar por rareza: COMMON → EPIC → LEGENDARY
+        items.sort((a, b) -> {
+            Map<String, Integer> rarityOrder = Map.of(
+                "COMMON", 1,
+                "EPIC", 2, 
+                "LEGENDARY", 3
+            );
+            return rarityOrder.get(a.getRarity()).compareTo(rarityOrder.get(b.getRarity()));
+        });
+        
         return items;
     }
 
@@ -109,24 +115,31 @@ public class KillMessageShopMenu extends Menu {
 
         // Balance actual
         inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins",
-            "",
-            "&7Current Category: " + currentCategory));
+            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins"));
 
-        // Mostrar mensajes de la categoría actual
-        int slot = 10;
+        // Slots disponibles para mensajes (evitando el balance y botón de volver)
+        int[] availableSlots = {
+            9, 10, 11, 12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23, 24, 25, 26,
+            27, 28, 29, 30, 31, 32, 33, 34, 35,
+            36, 37, 38, 39, 40, 41, 42, 43, 44,
+            45, 46, 47, 48, 50, 51, 52, 53
+        };
+        
+        int slotIndex = 0;
+        
+        // Mostrar todos los mensajes organizados por rareza
         for (KillMessageItem item : shopItems) {
-            if (item.getRarity().equals(currentCategory)) {
-                if (slot > 34) break;
-                setupMessageButton(inv, slot, item, player);
-                slot++;
-                if ((slot + 1) % 9 == 0) slot += 2;
-            }
+            if (slotIndex >= availableSlots.length) break;
+            
+            int slot = availableSlots[slotIndex];
+            setupMessageButton(inv, slot, item, player);
+            slotIndex++;
         }
 
         // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to categories"));
+        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
 
         // Relleno
         fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
@@ -151,8 +164,8 @@ public class KillMessageShopMenu extends Menu {
         lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
         lore.add("");
         lore.add(MessageUtils.getColor(item.getMessage()
-            .replace("{killer}", player.getName())
-            .replace("{victim}", victimName)));
+            .replace("%player%", player.getName())
+            .replace("%victim%", victimName)));
         lore.add("");
         
         if (hasMessage) {
@@ -195,8 +208,8 @@ public class KillMessageShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (event.getSlot() == 40) {
-            plugin.getMenuManager().openMenu(player, "kill_message_categories");
+        if (event.getSlot() == 49) {
+            plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
 

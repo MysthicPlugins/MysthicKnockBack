@@ -89,13 +89,9 @@ public class BlockShopMenu extends Menu {
 
     private void addTrollBlocks(List<BlockShopItem> items) {
         items.add(new BlockShopItem(Material.GLASS, "Mystic Glass", 15000, "TROLL", "&d", "&fAs fragile as it is deceptive"));
-        items.add(new BlockShopItem(Material.STAINED_GLASS, "Void Glass", 15000, "TROLL", "&d", "&8The darkness calls you"));
         items.add(new BlockShopItem(Material.NOTE_BLOCK, "Music Block", 15000, "TROLL", "&d", "&eResonates with ancient melodies"));
-        items.add(new BlockShopItem(Material.CHEST, "Chaos Chest", 15000, "TROLL", "&d", "&6What's inside?"));
-        items.add(new BlockShopItem(Material.TRAPPED_CHEST, "Trapped Chest", 15000, "TROLL", "&d", "&cBeware when opening"));
         items.add(new BlockShopItem(Material.ENDER_PORTAL_FRAME, "Void Frame", 15000, "TROLL", "&d", "&5Portal to nothingness"));
         items.add(new BlockShopItem(Material.JUKEBOX, "Jukebox", 15000, "TROLL", "&d", "&eMelodies from beyond"));
-        items.add(new BlockShopItem(Material.ANVIL, "Ancestral Anvil", 15000, "TROLL", "&d", "&7Forged by titans"));
         items.add(new BlockShopItem(Material.HOPPER, "Void Hopper", 15000, "TROLL", "&d", "&8Absorbs everything in its path"));
         items.add(new BlockShopItem(Material.DISPENSER, "Chaos Dispenser", 15000, "TROLL", "&d", "&cFires surprises"));
     }
@@ -116,7 +112,7 @@ public class BlockShopMenu extends Menu {
             9, 10, 11, 12, 13, 14, 15, 16, 17,
             18, 19, 20, 21, 22, 23, 24, 25, 26,
             27, 28, 29, 30, 31, 32, 33, 34, 35,
-            36, 37, 38, 39, 41, 42, 43, 44, 45,
+            36, 37, 38, 39, 40, 41, 42, 43, 44, 45,
             46, 47, 48, 50, 51, 52, 53
         };
         

@@ -19,15 +19,10 @@ import java.util.List;
 
 public class ArrowEffectShopMenu extends Menu {
     private final List<ArrowEffectItem> shopItems;
-    private static String currentCategory = "COMMON";
 
     public ArrowEffectShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lEffects Shop &8•", 45);
+        super(plugin, "&8• &e&lEffects Shop &8•", 54);
         this.shopItems = initializeShopItems();
-    }
-
-    public static void setCurrentCategory(String category) {
-        currentCategory = category;
     }
 
     private List<ArrowEffectItem> initializeShopItems() {
@@ -73,29 +68,34 @@ public class ArrowEffectShopMenu extends Menu {
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Mostrar el balance del jugador y la categoría actual
+        // Balance actual
         inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current balance: &e" + stats.getKGCoins() + " KGCoins",
-            "",
-            "&7Current category: " + currentCategory));
+            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins"));
 
-        // Mostrar efectos por categoría
-        int slot = 10;
+        // Slots disponibles para efectos (evitando el balance y botón de volver)
+        int[] availableSlots = {
+            9, 10, 11, 12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23, 24, 25, 26,
+            27, 28, 29, 30, 31, 32, 33, 34, 35,
+            36, 37, 38, 39, 40, 41, 42, 43, 44,
+            45, 46, 47, 48, 50, 51, 52, 53
+        };
+
+        int slotIndex = 0;
         for (ArrowEffectItem item : shopItems) {
-            if (item.getRarity().equals(currentCategory)) {
-                if (slot > 34) break;
-                setupEffectButton(inv, slot, item, player);
-                slot++;
-                if ((slot + 1) % 9 == 0) slot += 2;
-            }
+            if (slotIndex >= availableSlots.length) break;
+            
+            int slot = availableSlots[slotIndex];
+            setupEffectButton(inv, slot, item, player);
+            slotIndex++;
         }
 
-        // Back button
-        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to categories"));
+        // Botón para volver
+        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
 
-        // Filler
-        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
+        // Relleno
+        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
     }
 
     private void setupEffectButton(Inventory inv, int slot, ArrowEffectItem item, Player player) {
@@ -129,8 +129,8 @@ public class ArrowEffectShopMenu extends Menu {
             lore.toArray(new String[0]));
 
         if (isSelected) {
+            button.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
             ItemMeta meta = button.getItemMeta();
-            meta.addEnchant(Enchantment.DURABILITY, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             button.setItemMeta(meta);
         }
@@ -150,8 +150,8 @@ public class ArrowEffectShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (event.getSlot() == 40) {
-            plugin.getMenuManager().openMenu(player, "arrow_effect_categories");
+        if (event.getSlot() == 49) {
+            plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
 

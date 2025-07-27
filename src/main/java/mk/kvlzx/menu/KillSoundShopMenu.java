@@ -20,15 +20,10 @@ import mk.kvlzx.utils.MessageUtils;
 
 public class KillSoundShopMenu extends Menu {
     private final List<KillSoundItem> shopItems;
-    private static String currentCategory = "COMMON";
 
     public KillSoundShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lKill Sound Shop &8•", 45);
+        super(plugin, "&8• &e&lKill Sound Shop &8•", 54);
         this.shopItems = initializeShopItems();
-    }
-
-    public static void setCurrentCategory(String category) {
-        currentCategory = category;
     }
 
     private List<KillSoundItem> initializeShopItems() {
@@ -76,27 +71,32 @@ public class KillSoundShopMenu extends Menu {
 
         // Balance actual
         inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins",
-            "",
-            "&7Current Category: " + currentCategory));
+            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins"));
 
-        // Mostrar sonidos
-        int slot = 10;
+        // Slots disponibles para sonidos (evitando el balance y botón de volver)
+        int[] availableSlots = {
+            9, 10, 11, 12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23, 24, 25, 26,
+            27, 28, 29, 30, 31, 32, 33, 34, 35,
+            36, 37, 38, 39, 40, 41, 42, 43, 44,
+            45, 46, 47, 48, 50, 51, 52, 53
+        };
+
+        int slotIndex = 0;
         for (KillSoundItem item : shopItems) {
-            if (item.getRarity().equals(currentCategory)) {
-                if (slot > 34) break;
-                setupSoundButton(inv, slot, item, player);
-                slot++;
-                if ((slot + 1) % 9 == 0) slot += 2;
-            }
+            if (slotIndex >= availableSlots.length) break;
+            
+            int slot = availableSlots[slotIndex];
+            setupSoundButton(inv, slot, item, player);
+            slotIndex++;
         }
 
         // Botón para volver
-        inv.setItem(40, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to categories"));
+        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
+            "&7Click to return to the shop"));
 
         // Relleno
-        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
+        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
     }
 
     private void setupSoundButton(Inventory inv, int slot, KillSoundItem item, Player player) {
@@ -124,14 +124,34 @@ public class KillSoundShopMenu extends Menu {
             lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
         }
 
-        Material material = isSelected ? Material.JUKEBOX : Material.NOTE_BLOCK;
+        // Crear el botón con el material adecuado según la rareza
+        Material material;
+        if (isSelected) {
+            material = Material.JUKEBOX;
+        } else {
+            switch (item.getRarity()) {
+                case "COMMON":
+                    material = Material.NOTE_BLOCK;
+                    break;
+                case "EPIC":
+                    material = Material.RECORD_11;
+                    break;
+                case "LEGENDARY":
+                    material = Material.RECORD_12;
+                    break;
+                default:
+                    material = Material.NOTE_BLOCK;
+            }
+        }
+
         ItemStack button = createItem(material, 
             (isSelected ? "&b" : item.getRarityColor()) + item.getName(), 
             lore.toArray(new String[0]));
 
         if (isSelected) {
+            button.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            // Ocultar el texto del encantamiento
             ItemMeta meta = button.getItemMeta();
-            meta.addEnchant(Enchantment.DURABILITY, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             button.setItemMeta(meta);
         }
@@ -151,8 +171,8 @@ public class KillSoundShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (event.getSlot() == 40) {
-            plugin.getMenuManager().openMenu(player, "kill_sound_categories");
+        if (event.getSlot() == 49) {
+            plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
 
