@@ -1,6 +1,7 @@
 package mk.kvlzx.menu;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -98,11 +99,11 @@ public class KillMessageShopMenu extends Menu {
 
         // Ordenar por rareza: COMMON → EPIC → LEGENDARY
         items.sort((a, b) -> {
-            Map<String, Integer> rarityOrder = Map.of(
-                "COMMON", 1,
-                "EPIC", 2, 
-                "LEGENDARY", 3
-            );
+            Map<String, Integer> rarityOrder = new HashMap<>();
+            rarityOrder.put("COMMON", 1);
+            rarityOrder.put("EPIC", 2);
+            rarityOrder.put("LEGENDARY", 3);
+            
             return rarityOrder.get(a.getRarity()).compareTo(rarityOrder.get(b.getRarity()));
         });
         
