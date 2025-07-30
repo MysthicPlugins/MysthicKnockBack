@@ -78,6 +78,7 @@
                     <include>config/menus/hotbar.yml</include>
                     <include>config/menus/report.yml</include>
                     <include>config/menus/main-shop.yml</include>
+                    <include>config/menus/blocks-shop.yml</include>
                 </includes>
             </resource>
         </resources>

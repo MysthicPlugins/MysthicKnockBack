@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.cosmetics.BlockShopItem;
 import mk.kvlzx.cosmetics.KnockerShopItem;
 import mk.kvlzx.data.InventoryData;
 import mk.kvlzx.items.CustomItem;
@@ -45,15 +44,8 @@ public class PlayerHotbar {
             knocker = CustomItem.create(ItemType.KNOCKER);
         }
         
-        // Crear el bloque
-        BlockShopItem shopItem = BlockShopItem.getByMaterial(blockType);
-        ItemStack blocks;
-        if (shopItem != null) {
-            blocks = shopItem.createItemStack();
-            blocks.setAmount(64);
-        } else {
-            blocks = new ItemStack(blockType, 64);
-        }
+        // Crear el bloque usando BlockUtils
+        ItemStack blocks = BlockUtils.createBlockItem(blockType, uuid);
         
         // Obtener el arma seleccionada por el jugador
         ItemType selectedWeapon = MysthicKnockBack.getInstance().getWeaponManager().getSelectedWeapon(uuid);
@@ -113,17 +105,12 @@ public class PlayerHotbar {
     // Actualizar bloques cosméticos en el layout
     private static void updateBlocksInLayout(ItemStack[] layout, UUID uuid) {
         Material blockType = MysthicKnockBack.getInstance().getCosmeticManager().getPlayerBlock(uuid);
-        BlockShopItem shopItem = BlockShopItem.getByMaterial(blockType);
+        ItemStack blocks = BlockUtils.createBlockItem(blockType, uuid);
         
-        if (shopItem != null) {
-            ItemStack blocks = shopItem.createItemStack();
-            blocks.setAmount(64);
-            
-            // Actualizar todos los slots que contengan bloques decorativos
-            for (int i = 0; i < layout.length; i++) {
-                if (layout[i] != null && BlockUtils.isDecorativeBlock(layout[i].getType())) {
-                    layout[i] = blocks.clone();
-                }
+        // Actualizar todos los slots que contengan bloques decorativos
+        for (int i = 0; i < layout.length; i++) {
+            if (layout[i] != null && BlockUtils.isDecorativeBlock(layout[i].getType())) {
+                layout[i] = blocks.clone();
             }
         }
     }
@@ -175,13 +162,9 @@ public class PlayerHotbar {
                 
                 // Aplicar metadatos específicos según el tipo de item
                 if (BlockUtils.isDecorativeBlock(item.getType())) {
-                    // Recrear bloque con metadatos correctos
+                    // Recrear bloque con metadatos correctos usando BlockUtils
                     Material blockType = MysthicKnockBack.getInstance().getCosmeticManager().getPlayerBlock(player.getUniqueId());
-                    BlockShopItem shopItem = BlockShopItem.getByMaterial(blockType);
-                    if (shopItem != null) {
-                        item = shopItem.createItemStack();
-                        item.setAmount(64);
-                    }
+                    item = BlockUtils.createBlockItem(blockType, player.getUniqueId());
                 } else if (item.containsEnchantment(Enchantment.KNOCKBACK)) {
                     // Recrear knocker con metadatos correctos
                     Material knockerType = MysthicKnockBack.getInstance().getCosmeticManager().getPlayerKnocker(player.getUniqueId());

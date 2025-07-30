@@ -2,6 +2,7 @@ package mk.kvlzx.menu;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Material;
@@ -14,123 +15,181 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.cosmetics.BlockShopItem;
+import mk.kvlzx.config.BlocksShopConfig;
 import mk.kvlzx.stats.PlayerStats;
+import mk.kvlzx.utils.BlockUtils;
 import mk.kvlzx.utils.MessageUtils;
 
 public class BlockShopMenu extends Menu {
-    private final List<BlockShopItem> shopItems;
+    private final BlocksShopConfig config;
 
     public BlockShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lBlock Shop &8•", 54); // Aumentamos a 54 slots para más espacio
-        this.shopItems = initializeShopItems();
-    }
-
-    private List<BlockShopItem> initializeShopItems() {
-        List<BlockShopItem> items = new ArrayList<>();
-        
-        // Bloques ordenados por rareza y precio
-        addCommonBlocks(items);
-        addUncommonBlocks(items);
-        addRareBlocks(items);
-        addEpicBlocks(items);
-        addLegendaryBlocks(items);
-        addTrollBlocks(items);
-        
-        // Bedrock al final como bloque especial
-        items.add(new BlockShopItem(Material.BEDROCK, "Bedrock", 50000, "SPECIAL", "&4", 
-            "&4&lUnlocked by obtaining all other blocks"));
-        
-        return items;
-    }
-
-    private void addCommonBlocks(List<BlockShopItem> items) {
-        // Bloques básicos
-        items.add(new BlockShopItem(Material.SANDSTONE, "Sandstone", 0, "COMMON", "&7", "&7Shaped by the desert winds"));
-        items.add(new BlockShopItem(Material.WOOD, "Oak Wood", 1000, "COMMON", "&7", "&6Carved from the oldest tree in the forest"));
-        items.add(new BlockShopItem(Material.WOOL, "White Wool", 1000, "COMMON", "&7", "&fWoven from the purest fleece"));
-        items.add(new BlockShopItem(Material.MELON_BLOCK, "Melon Block", 1000, "COMMON", "&7", "&2Sweet and refreshing"));
-        items.add(new BlockShopItem(Material.PUMPKIN, "Pumpkin", 1000, "COMMON", "&7", "&6Carved on Halloween night"));
-    }
-
-    private void addUncommonBlocks(List<BlockShopItem> items) {
-        items.add(new BlockShopItem(Material.SMOOTH_BRICK, "Stone Bricks", 2500, "UNCOMMON", "&a", "&7Carved by master masons"));
-        items.add(new BlockShopItem(Material.MOSSY_COBBLESTONE, "Mossy Cobblestone", 2500, "UNCOMMON", "&a", "&2Covered by the passage of time"));
-        items.add(new BlockShopItem(Material.NETHERRACK, "Netherrack", 2500, "UNCOMMON", "&a", "&cBurning to the touch"));
-        items.add(new BlockShopItem(Material.COAL_ORE, "Coal Ore", 2500, "UNCOMMON", "&a", "&8Mined from the depths of the earth"));
-        items.add(new BlockShopItem(Material.HAY_BLOCK, "Hay Block", 2500, "UNCOMMON", "&a", "&eHarvested from golden fields"));
-        items.add(new BlockShopItem(Material.IRON_BLOCK, "Iron Block", 2500, "UNCOMMON", "&a", "&7Forged from pure metal"));
-    }
-
-    private void addRareBlocks(List<BlockShopItem> items) {
-        items.add(new BlockShopItem(Material.QUARTZ_BLOCK, "Quartz Block", 5000, "RARE", "&9", "&fMined from the deepest Nether"));
-        items.add(new BlockShopItem(Material.PACKED_ICE, "Packed Ice", 5000, "RARE", "&9", "&bFrozen by ice dragons"));
-        items.add(new BlockShopItem(Material.COAL_BLOCK, "Coal Block", 5000, "RARE", "&9", "&8Compressed over millennia"));
-        items.add(new BlockShopItem(Material.LAPIS_BLOCK, "Lapis Lazuli Block", 5000, "RARE", "&9", "&9Imbued with ancient magic"));
-        items.add(new BlockShopItem(Material.CLAY, "Clay Block", 5000, "RARE", "&9", "&fMolded by the gods"));
-        items.add(new BlockShopItem(Material.BOOKSHELF, "Bookshelf", 5000, "RARE", "&9", "&6Holds ancient secrets"));
-    }
-
-    private void addEpicBlocks(List<BlockShopItem> items) {
-        items.add(new BlockShopItem(Material.PRISMARINE, "Prismarine", 7500, "EPIC", "&5", "&3Treasure from the ocean depths"));
-        items.add(new BlockShopItem(Material.ENDER_STONE, "End Stone", 7500, "EPIC", "&5", "&fForged in the lands of the void"));
-        items.add(new BlockShopItem(Material.SPONGE, "Ancestral Sponge", 7500, "EPIC", "&5", "&eAbsorbs the essence of the ocean"));
-        items.add(new BlockShopItem(Material.SEA_LANTERN, "Sea Lantern", 7500, "EPIC", "&5", "&bGlows with light from the depths"));
-        items.add(new BlockShopItem(Material.GLOWSTONE, "Glowstone", 7500, "EPIC", "&5", "&eEmits eternal light"));
-    }
-
-    private void addLegendaryBlocks(List<BlockShopItem> items) {
-        items.add(new BlockShopItem(Material.EMERALD_BLOCK, "Emerald Block", 10000, "LEGENDARY", "&6", "&aSparkles with pure wealth"));
-        items.add(new BlockShopItem(Material.DIAMOND_BLOCK, "Diamond Block", 10000, "LEGENDARY", "&6", "&bCrystallized over eons"));
-        items.add(new BlockShopItem(Material.GOLD_BLOCK, "Gold Block", 10000, "LEGENDARY", "&6", "&eForged by ancient gods"));
-        items.add(new BlockShopItem(Material.OBSIDIAN, "Obsidian", 10000, "LEGENDARY", "&6", "&8Born from primordial fire"));
-        items.add(new BlockShopItem(Material.NETHER_BRICK, "Nether Brick", 10000, "LEGENDARY", "&6", "&cCreated in eternal hell"));
-    }
-
-    private void addTrollBlocks(List<BlockShopItem> items) {
-        items.add(new BlockShopItem(Material.GLASS, "Mystic Glass", 15000, "TROLL", "&d", "&fAs fragile as it is deceptive"));
-        items.add(new BlockShopItem(Material.NOTE_BLOCK, "Music Block", 15000, "TROLL", "&d", "&eResonates with ancient melodies"));
-        items.add(new BlockShopItem(Material.ENDER_PORTAL_FRAME, "Void Frame", 15000, "TROLL", "&d", "&5Portal to nothingness"));
-        items.add(new BlockShopItem(Material.JUKEBOX, "Jukebox", 15000, "TROLL", "&d", "&eMelodies from beyond"));
-        items.add(new BlockShopItem(Material.HOPPER, "Void Hopper", 15000, "TROLL", "&d", "&8Absorbs everything in its path"));
-        items.add(new BlockShopItem(Material.DISPENSER, "Chaos Dispenser", 15000, "TROLL", "&d", "&cFires surprises"));
+        super(plugin, plugin.getBlocksShopConfig().getMenuTitle(), plugin.getBlocksShopConfig().getMenuSize());
+        this.config = plugin.getBlocksShopConfig();
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Balance actual
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins"));
+        // Balance item
+        setupBalanceItem(inv, stats);
 
-        // Colocar todos los bloques en el inventario
-        Material currentBlock = plugin.getCosmeticManager().getPlayerBlock(player.getUniqueId());
+        // Setup block items
+        setupBlockItems(inv, player);
+
+        // Back button
+        setupBackButton(inv);
+
+        // Fill empty slots with filler items
+        if (config.isFillEmptySlots()) {
+            fillEmptySlots(inv);
+        }
+    }
+
+    private void setupBalanceItem(Inventory inv, PlayerStats stats) {
+        List<String> balanceLore = new ArrayList<>();
+        for (String line : config.getBalanceLore()) {
+            balanceLore.add(line.replace("%balance%", String.valueOf(stats.getKGCoins())));
+        }
         
-        // Slots disponibles para bloques (evitando el balance y botón de volver)
-        int[] availableSlots = {
-            9, 10, 11, 12, 13, 14, 15, 16, 17,
-            18, 19, 20, 21, 22, 23, 24, 25, 26,
-            27, 28, 29, 30, 31, 32, 33, 34, 35,
-            36, 37, 38, 39, 40, 41, 42, 43, 44, 45,
-            46, 47, 48, 50, 51, 52, 53
-        };
+        ItemStack balanceItem = config.createMenuItem(
+            config.getBalanceMaterial(), 
+            config.getBalanceTitle(), 
+            balanceLore
+        );
+        
+        inv.setItem(config.getBalanceSlot(), balanceItem);
+    }
+
+    private void setupBlockItems(Inventory inv, Player player) {
+        Material currentBlock = plugin.getCosmeticManager().getPlayerBlock(player.getUniqueId());
+        List<Integer> availableSlots = config.getBlockSlots();
+        Map<String, BlocksShopConfig.BlockItem> blockItems = config.getBlockItems();
         
         int slotIndex = 0;
-        for (BlockShopItem item : shopItems) {
-            if (slotIndex >= availableSlots.length) break;
+        for (Map.Entry<String, BlocksShopConfig.BlockItem> entry : blockItems.entrySet()) {
+            if (slotIndex >= availableSlots.size()) break;
             
-            int slot = availableSlots[slotIndex];
-            setupBlockButton(inv, slot, item, player, currentBlock);
-            slotIndex++;
+            String blockKey = entry.getKey();
+            BlocksShopConfig.BlockItem blockItem = entry.getValue();
+            Material blockMaterial = BlockUtils.getMaterialFromKey(blockKey);
+            
+            if (blockMaterial != null) {
+                int slot = availableSlots.get(slotIndex);
+                setupBlockButton(inv, slot, blockKey, blockItem, blockMaterial, player, currentBlock);
+                slotIndex++;
+            }
+        }
+    }
+
+    private void setupBlockButton(Inventory inv, int slot, String blockKey, BlocksShopConfig.BlockItem blockItem, 
+                                    Material blockMaterial, Player player, Material currentBlock) {
+        
+        boolean hasBlock = blockItem.isDefault() || plugin.getCosmeticManager().hasPlayerBlock(player.getUniqueId(), blockMaterial);
+        boolean isSelected = currentBlock == blockMaterial;
+        
+        // Determine the status of the block
+        String statusKey = determineBlockStatus(blockItem, hasBlock, isSelected, player);
+        List<String> statusLore = config.getStatusMessage(statusKey);
+        
+        // Build the final lore for the block item
+        List<String> finalLore = buildBlockLore(blockItem, statusLore, player);
+        
+        // Create the title for the block item
+        String title = config.getBlockTitle()
+            .replace("%rarity_color%", blockItem.getRarityColor())
+            .replace("%block_name%", blockItem.getName());
+        
+        if (isSelected) {
+            title = "&b" + blockItem.getName();
+        }
+        
+        // Create the item for the block
+        ItemStack blockItemStack = config.createMenuItem(blockMaterial.name(), title, finalLore);
+        
+        // Add enchantments if the block is selected
+        if (isSelected && config.isEnchantedIfSelected()) {
+            blockItemStack.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            if (config.isHideEnchants()) {
+                ItemMeta meta = blockItemStack.getItemMeta();
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                blockItemStack.setItemMeta(meta);
+            }
         }
 
-        // Botón para volver
-        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to the shop"));
+        inv.setItem(slot, blockItemStack);
+    }
 
-        // Relleno en slots vacíos
-        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
+    private String determineBlockStatus(BlocksShopConfig.BlockItem blockItem, boolean hasBlock, 
+                                        boolean isSelected, Player player) {
+        
+        if (blockItem.isDefault()) {
+            return isSelected ? "default_selected" : "default_click_to_select";
+        } else if (hasBlock) {
+            return isSelected ? "owned_selected" : "owned_click_to_select";
+        } else {
+            // Special verification for bedrock
+            if (blockItem.hasSpecialRequirement() && "all_blocks".equals(blockItem.getSpecialRequirement())) {
+                if (!hasAllBlocks(player.getUniqueId())) {
+                    return "bedrock_locked";
+                }
+            }
+            
+            PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+            return stats.getKGCoins() < blockItem.getPrice() ? "insufficient_funds" : "purchasable";
+        }
+    }
+
+    private List<String> buildBlockLore(BlocksShopConfig.BlockItem blockItem, List<String> statusLore, Player player) {
+        List<String> finalLore = new ArrayList<>();
+        
+        for (String line : config.getBlockLore()) {
+            String processedLine = line
+                .replace("%rarity_color%", blockItem.getRarityColor())
+                .replace("%rarity%", blockItem.getRarity())
+                .replace("%block_lore%", blockItem.getLore())
+                .replace("%block_name%", blockItem.getName());
+            
+            if (processedLine.contains("%status_lore%")) {
+                for (String statusLine : statusLore) {
+                    String processedStatusLine = statusLine
+                        .replace("%price%", String.valueOf(blockItem.getPrice()))
+                        .replace("%balance%", String.valueOf(PlayerStats.getStats(player.getUniqueId()).getKGCoins()))
+                        .replace("%block_name%", blockItem.getName());
+                    finalLore.add(processedStatusLine);
+                }
+            } else {
+                finalLore.add(processedLine);
+            }
+        }
+        
+        return finalLore;
+    }
+
+    private void setupBackButton(Inventory inv) {
+        ItemStack backButton = config.createMenuItem(
+            config.getBackButtonMaterial(),
+            config.getBackButtonTitle(),
+            config.getBackButtonLore()
+        );
+        
+        inv.setItem(config.getBackButtonSlot(), backButton);
+    }
+
+    private void fillEmptySlots(Inventory inv) {
+        Material fillerMaterial;
+        try {
+            fillerMaterial = Material.valueOf(config.getFillerMaterial().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            fillerMaterial = Material.STAINED_GLASS_PANE;
+        }
+        
+        ItemStack filler = new ItemStack(fillerMaterial, 1, (short) config.getFillerData());
+        ItemMeta meta = filler.getItemMeta();
+        meta.setDisplayName(MessageUtils.getColor(config.getFillerTitle()));
+        filler.setItemMeta(meta);
+        
         for (int i = 0; i < inv.getSize(); i++) {
             if (inv.getItem(i) == null) {
                 inv.setItem(i, filler);
@@ -138,66 +197,8 @@ public class BlockShopMenu extends Menu {
         }
     }
 
-    private void setupBlockButton(Inventory inv, int slot, BlockShopItem item, Player player, Material currentBlock) {
-        boolean hasBlock = item.getMaterial() == Material.SANDSTONE || plugin.getCosmeticManager().hasPlayerBlock(player.getUniqueId(), item.getMaterial());
-        boolean isSelected = currentBlock == item.getMaterial();
-        
-        List<String> lore = new ArrayList<>();
-        
-        lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
-        lore.add("");
-        lore.add(item.getLore());
-        lore.add("");
-        
-        if (item.getMaterial() == Material.SANDSTONE) {
-            lore.add("&aDefault Block");
-            lore.add("&8➥ Always available");
-            if (isSelected) {
-                lore.add("");
-                lore.add("&aCurrently selected");
-            } else {
-                lore.add("");
-                lore.add("&eClick to select");
-            }
-        } else if (hasBlock) {
-            if (isSelected) {
-                lore.add("&aCurrently selected");
-                lore.add("&8➥ Using this block");
-            } else {
-                lore.add("&eClick to select");
-                lore.add("&8➥ You already own this block");
-            }
-        } else {
-            lore.add("&7Click to purchase");
-            lore.add("");
-            lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
-            
-            // Verificación especial para Bedrock
-            if (item.getMaterial() == Material.BEDROCK) {
-                if (!hasAllBlocks(player.getUniqueId())) {
-                    lore.add("&c➥ Requires all other blocks");
-                }
-            }
-        }
-
-        String displayName = (isSelected ? "&b" : item.getRarityColor()) + item.getName();
-        ItemStack buttonItem = createItem(item.getMaterial(), displayName, lore.toArray(new String[0]));
-        
-        // Añadir encantamiento visual si es el bloque seleccionado
-        if (isSelected) {
-            buttonItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-            // Ocultar el texto del encantamiento
-            ItemMeta meta = buttonItem.getItemMeta();
-            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-            buttonItem.setItemMeta(meta);
-        }
-
-        inv.setItem(slot, buttonItem);
-    }
-
     @Override
     public void handleClick(InventoryClickEvent event) {
-        // Validar que el click sea en el menú y no en el inventario del jugador
         if (!isValidClick(event)) {
             event.setCancelled(true);
             return;
@@ -207,82 +208,84 @@ public class BlockShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (event.getSlot() == 49) { // Botón de volver
+        // Back button
+        if (event.getSlot() == config.getBackButtonSlot()) {
             plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
 
-        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE || 
-            clicked.getType() == Material.EMERALD) return;
+        // Ignore clicks on special items
+        if (clicked == null || 
+            clicked.getType().name().equals(config.getFillerMaterial()) || 
+            clicked.getType().name().equals(config.getBalanceMaterial())) {
+            return;
+        }
 
-        BlockShopItem shopItem = findShopItem(clicked.getType());
-        if (shopItem == null) return;
+        // Find the clicked block
+        String clickedBlockKey = findBlockKeyFromMaterial(clicked.getType());
+        if (clickedBlockKey == null) return;
+        
+        BlocksShopConfig.BlockItem blockItem = config.getBlockItem(clickedBlockKey);
+        if (blockItem == null) return;
+        
+        Material blockMaterial = BlockUtils.getMaterialFromKey(clickedBlockKey);
+        if (blockMaterial == null) return;
 
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Verificación especial para Bedrock
-        if (shopItem.getMaterial() == Material.BEDROCK) {
+        // Special verification for bedrock
+        if (blockItem.hasSpecialRequirement() && "all_blocks".equals(blockItem.getSpecialRequirement())) {
             if (!hasAllBlocks(player.getUniqueId())) {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou need to unlock all other blocks first!"));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + config.getBedrockLockedMessage()));
                 return;
             }
         }
 
-        if (plugin.getCosmeticManager().hasPlayerBlock(player.getUniqueId(), shopItem.getMaterial())) {
-            plugin.getCosmeticManager().setPlayerBlock(player.getUniqueId(), shopItem.getMaterial());
-            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have selected the " + shopItem.getName() + " block"));
+        if (blockItem.isDefault() || plugin.getCosmeticManager().hasPlayerBlock(player.getUniqueId(), blockMaterial)) {
+            // Select block
+            plugin.getCosmeticManager().setPlayerBlock(player.getUniqueId(), blockMaterial);
+            String message = config.getBlockSelectedMessage().replace("%block_name%", blockItem.getName());
+            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
             player.closeInventory();
         } else {
-            if (stats.getKGCoins() >= shopItem.getPrice()) {
-                stats.removeKGCoins(shopItem.getPrice());
-                plugin.getCosmeticManager().addPlayerBlock(player.getUniqueId(), shopItem.getMaterial());
-                plugin.getCosmeticManager().setPlayerBlock(player.getUniqueId(), shopItem.getMaterial());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have purchased and selected the " +
-                    shopItem.getName() + " block &afor &e" + shopItem.getPrice() + " KGCoins&a!"));
+            // Purchase block
+            if (stats.getKGCoins() >= blockItem.getPrice()) {
+                stats.removeKGCoins(blockItem.getPrice());
+                plugin.getCosmeticManager().addPlayerBlock(player.getUniqueId(), blockMaterial);
+                plugin.getCosmeticManager().setPlayerBlock(player.getUniqueId(), blockMaterial);
+                
+                String message = config.getBlockPurchasedMessage()
+                    .replace("%block_name%", blockItem.getName())
+                    .replace("%price%", String.valueOf(blockItem.getPrice()));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou don't have enough KGCoins to purchase this block."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + config.getInsufficientFundsMessage()));
             }
         }
     }
 
-    private BlockShopItem findShopItem(Material material) {
-        return shopItems.stream()
-            .filter(item -> item.getMaterial() == material)
-            .findFirst()
-            .orElse(null);
-    }
-
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
-    }
-
-    private ItemStack createItem(Material material, String name, byte data, String... lore) {
-        ItemStack item = new ItemStack(material, 1, data);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(MessageUtils.getColor(name));
-        
-        if (lore.length > 0) {
-            List<String> coloredLore = new ArrayList<>();
-            for (String line : lore) {
-                coloredLore.add(MessageUtils.getColor(line));
-            }
-            meta.setLore(coloredLore);
-        }
-        
-        item.setItemMeta(meta);
-        return item;
+    private String findBlockKeyFromMaterial(Material material) {
+        return BlockUtils.getKeyFromMaterial(material);
     }
 
     private boolean hasAllBlocks(UUID uuid) {
-        int totalBlocks = (int) shopItems.stream()
-            .filter(item -> item.getMaterial() != Material.BEDROCK)
+        Map<String, BlocksShopConfig.BlockItem> allBlocks = config.getBlockItems();
+        
+        int totalBlocks = (int) allBlocks.values().stream()
+            .filter(item -> !item.hasSpecialRequirement())
             .count();
             
-        int ownedBlocks = (int) shopItems.stream()
-            .filter(item -> item.getMaterial() != Material.BEDROCK)
-            .filter(item -> plugin.getCosmeticManager().hasPlayerBlock(uuid, item.getMaterial()))
-            .count();
+        int ownedBlocks = 0;
+        for (Map.Entry<String, BlocksShopConfig.BlockItem> entry : allBlocks.entrySet()) {
+            BlocksShopConfig.BlockItem item = entry.getValue();
+            if (!item.hasSpecialRequirement()) {
+                Material material = BlockUtils.getMaterialFromKey(entry.getKey());
+                if (material != null && (item.isDefault() || plugin.getCosmeticManager().hasPlayerBlock(uuid, material))) {
+                    ownedBlocks++;
+                }
+            }
+        }
             
         return totalBlocks == ownedBlocks;
     }

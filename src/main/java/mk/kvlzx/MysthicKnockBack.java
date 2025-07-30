@@ -21,6 +21,7 @@ import mk.kvlzx.commands.MainCommand;
 import mk.kvlzx.commands.MainTabCompleter;
 import mk.kvlzx.commands.StatsCommand;
 import mk.kvlzx.commands.StatsTabCompleter;
+import mk.kvlzx.config.BlocksShopConfig;
 import mk.kvlzx.config.HotbarMenuConfig;
 import mk.kvlzx.config.MainConfig;
 import mk.kvlzx.config.MainMenuConfig;
@@ -85,6 +86,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private HotbarMenuConfig hotbarMenuConfig;
     private ReportMenuConfig reportMenuConfig;
     private ShopMenuConfig shopMenuConfig;
+    private BlocksShopConfig blocksShopConfig;
     
     private BukkitTask autoSaveTask;
     private BukkitTask weatherTimeTask; // Nueva tarea para controlar clima y tiempo
@@ -103,6 +105,7 @@ public class MysthicKnockBack extends JavaPlugin {
         hotbarMenuConfig = new HotbarMenuConfig(this);
         reportMenuConfig = new ReportMenuConfig(this);
         shopMenuConfig = new ShopMenuConfig(this);
+        blocksShopConfig = new BlocksShopConfig(this);
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
@@ -341,6 +344,7 @@ public class MysthicKnockBack extends JavaPlugin {
         hotbarMenuConfig.reload();
         reportMenuConfig.reload();
         shopMenuConfig.reload();
+        blocksShopConfig.reload();
         
         // Reiniciar auto-save con nueva configuración
         restartAutoSave();
@@ -558,9 +562,12 @@ public class MysthicKnockBack extends JavaPlugin {
         return reportMenuConfig;
     }
 
-
     public ShopMenuConfig getShopMenuConfig() {
         return shopMenuConfig;
+    }
+
+    public BlocksShopConfig getBlocksShopConfig() {
+        return blocksShopConfig;
     }
 
 }

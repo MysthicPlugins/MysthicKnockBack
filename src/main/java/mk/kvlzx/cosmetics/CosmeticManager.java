@@ -71,16 +71,7 @@ public class CosmeticManager {
         int blockSlot = findItemSlot(layout, "BLOCK");
         if (blockSlot != -1) {
             Material newBlock = getPlayerBlock(player.getUniqueId());
-            BlockShopItem shopItem = BlockShopItem.getByMaterial(newBlock);
-
-            ItemStack updated;
-            if (shopItem != null) {
-                updated = shopItem.createItemStack();
-                updated.setAmount(64);
-            } else {
-                updated = new ItemStack(newBlock, 64);
-            }
-
+            ItemStack updated = BlockUtils.createBlockItem(newBlock, player.getUniqueId());
             layout[blockSlot] = updated;
         }
 

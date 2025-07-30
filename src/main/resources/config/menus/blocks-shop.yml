@@ -1,0 +1,338 @@
+menu:
+  title: "&8• &e&lBlock Shop &8•"
+  size: 54
+  items:
+    # Balance display
+    balance:
+      slot: 4
+      material: EMERALD
+      title: "&a&lYour Balance"
+      lore:
+        - "&7Current Balance: &e%balance% KGCoins"
+    
+    # Block items configuration
+    blocks:
+      slots: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 50, 51, 52, 53]
+      title: "%rarity_color%%block_name%"
+      lore:
+        - "%rarity_color%✦ Rarity: %rarity%"
+        - ""
+        - "%block_lore%"
+        - ""
+        - "%status_lore%"
+      enchanted_if_selected: true
+      hide_enchants: true
+    
+    # Back button
+    back_button:
+      slot: 49
+      material: ARROW
+      title: "&c← Back"
+      lore:
+        - "&7Click to return to the shop"
+    
+    # Filler items
+    filler:
+      material: STAINED_GLASS_PANE
+      data: 15
+      title: " "
+      fill_empty_slots: true
+
+# Block definitions
+block_items:
+  # COMMON blocks
+  sandstone:
+    name: "Sandstone"
+    price: 0
+    rarity: "COMMON"
+    rarity_color: "&7"
+    lore: "&7Shaped by the desert winds"
+    default: true
+  
+  oak_wood:
+    name: "Oak Wood"
+    price: 1000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    lore: "&6Carved from the oldest tree in the forest"
+  
+  white_wool:
+    name: "White Wool"
+    price: 1000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    lore: "&fWoven from the purest fleece"
+  
+  melon_block:
+    name: "Melon Block"
+    price: 1000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    lore: "&2Sweet and refreshing"
+  
+  pumpkin:
+    name: "Pumpkin"
+    price: 1000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    lore: "&6Carved on Halloween night"
+
+  # UNCOMMON blocks
+  stone_bricks:
+    name: "Stone Bricks"
+    price: 2500
+    rarity: "UNCOMMON"
+    rarity_color: "&a"
+    lore: "&7Carved by master masons"
+  
+  mossy_cobblestone:
+    name: "Mossy Cobblestone"
+    price: 2500
+    rarity: "UNCOMMON"
+    rarity_color: "&a"
+    lore: "&2Covered by the passage of time"
+  
+  netherrack:
+    name: "Netherrack"
+    price: 2500
+    rarity: "UNCOMMON"
+    rarity_color: "&a"
+    lore: "&cBurning to the touch"
+  
+  coal_ore:
+    name: "Coal Ore"
+    price: 2500
+    rarity: "UNCOMMON"
+    rarity_color: "&a"
+    lore: "&8Mined from the depths of the earth"
+  
+  hay_block:
+    name: "Hay Block"
+    price: 2500
+    rarity: "UNCOMMON"
+    rarity_color: "&a"
+    lore: "&eHarvested from golden fields"
+  
+  iron_block:
+    name: "Iron Block"
+    price: 2500
+    rarity: "UNCOMMON"
+    rarity_color: "&a"
+    lore: "&7Forged from pure metal"
+
+  # RARE blocks
+  quartz_block:
+    name: "Quartz Block"
+    price: 5000
+    rarity: "RARE"
+    rarity_color: "&9"
+    lore: "&fMined from the deepest Nether"
+  
+  packed_ice:
+    name: "Packed Ice"
+    price: 5000
+    rarity: "RARE"
+    rarity_color: "&9"
+    lore: "&bFrozen by ice dragons"
+  
+  coal_block:
+    name: "Coal Block"
+    price: 5000
+    rarity: "RARE"
+    rarity_color: "&9"
+    lore: "&8Compressed over millennia"
+  
+  lapis_block:
+    name: "Lapis Lazuli Block"
+    price: 5000
+    rarity: "RARE"
+    rarity_color: "&9"
+    lore: "&9Imbued with ancient magic"
+  
+  clay:
+    name: "Clay Block"
+    price: 5000
+    rarity: "RARE"
+    rarity_color: "&9"
+    lore: "&fMolded by the gods"
+  
+  bookshelf:
+    name: "Bookshelf"
+    price: 5000
+    rarity: "RARE"
+    rarity_color: "&9"
+    lore: "&6Holds ancient secrets"
+
+  # EPIC blocks
+  prismarine:
+    name: "Prismarine"
+    price: 7500
+    rarity: "EPIC"
+    rarity_color: "&5"
+    lore: "&3Treasure from the ocean depths"
+  
+  end_stone:
+    name: "End Stone"
+    price: 7500
+    rarity: "EPIC"
+    rarity_color: "&5"
+    lore: "&fForged in the lands of the void"
+  
+  ancestral_sponge:
+    name: "Ancestral Sponge"
+    price: 7500
+    rarity: "EPIC"
+    rarity_color: "&5"
+    lore: "&eAbsorbs the essence of the ocean"
+  
+  sea_lantern:
+    name: "Sea Lantern"
+    price: 7500
+    rarity: "EPIC"
+    rarity_color: "&5"
+    lore: "&bGlows with light from the depths"
+  
+  glowstone:
+    name: "Glowstone"
+    price: 7500
+    rarity: "EPIC"
+    rarity_color: "&5"
+    lore: "&eEmits eternal light"
+
+  # LEGENDARY blocks
+  emerald_block:
+    name: "Emerald Block"
+    price: 10000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    lore: "&aSparkles with pure wealth"
+  
+  diamond_block:
+    name: "Diamond Block"
+    price: 10000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    lore: "&bCrystallized over eons"
+  
+  gold_block:
+    name: "Gold Block"
+    price: 10000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    lore: "&eForged by ancient gods"
+  
+  obsidian:
+    name: "Obsidian"
+    price: 10000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    lore: "&8Born from primordial fire"
+  
+  nether_brick:
+    name: "Nether Brick"
+    price: 10000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    lore: "&cCreated in eternal hell"
+
+  # TROLL blocks
+  mystic_glass:
+    name: "Mystic Glass"
+    price: 15000
+    rarity: "TROLL"
+    rarity_color: "&d"
+    lore: "&fAs fragile as it is deceptive"
+  
+  music_block:
+    name: "Music Block"
+    price: 15000
+    rarity: "TROLL"
+    rarity_color: "&d"
+    lore: "&eResonates with ancient melodies"
+  
+  void_frame:
+    name: "Void Frame"
+    price: 15000
+    rarity: "TROLL"
+    rarity_color: "&d"
+    lore: "&5Portal to nothingness"
+  
+  jukebox:
+    name: "Jukebox"
+    price: 15000
+    rarity: "TROLL"
+    rarity_color: "&d"
+    lore: "&eMelodies from beyond"
+  
+  void_hopper:
+    name: "Void Hopper"
+    price: 15000
+    rarity: "TROLL"
+    rarity_color: "&d"
+    lore: "&8Absorbs everything in its path"
+  
+  chaos_dispenser:
+    name: "Chaos Dispenser"
+    price: 15000
+    rarity: "TROLL"
+    rarity_color: "&d"
+    lore: "&cFires surprises"
+
+  # SPECIAL block
+  bedrock:
+    name: "Bedrock"
+    price: 50000
+    rarity: "SPECIAL"
+    rarity_color: "&4"
+    lore: "&4&lUnlocked by obtaining all other blocks"
+    special_requirement: "all_blocks"
+
+# Status messages for different block states
+status_messages:
+  default_available:
+    - "&aDefault Block"
+    - "&8➥ Always available"
+  
+  default_selected:
+    - "&aDefault Block"
+    - "&8➥ Always available"
+    - ""
+    - "&aCurrently selected"
+  
+  default_click_to_select:
+    - "&aDefault Block"
+    - "&8➥ Always available"
+    - ""
+    - "&eClick to select"
+  
+  owned_selected:
+    - "&aCurrently selected"
+    - "&8➥ Using this block"
+  
+  owned_click_to_select:
+    - "&eClick to select"
+    - "&8➥ You already own this block"
+  
+  purchasable:
+    - "&7Click to purchase"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+  
+  bedrock_locked:
+    - "&7Click to purchase"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+    - "&c➥ Requires all other blocks"
+  
+  insufficient_funds:
+    - "&cInsufficient funds"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+    - "&8➥ You have: &e%balance% KGCoins"
+
+# Messages
+messages:
+  block_selected: "&aYou have selected the %block_name% block"
+  block_purchased: "&aYou have purchased and selected the %block_name% block &afor &e%price% KGCoins&a!"
+  insufficient_funds: "&cYou don't have enough KGCoins to purchase this block."
+  bedrock_locked: "&cYou need to unlock all other blocks first!"
