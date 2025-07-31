@@ -108,6 +108,7 @@ public class MysthicKnockBack extends JavaPlugin {
         reportMenuConfig = new ReportMenuConfig(this);
         shopMenuConfig = new ShopMenuConfig(this);
         blocksShopConfig = new BlocksShopConfig(this);
+        knockersShopConfig = new KnockersShopConfig(this);
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
