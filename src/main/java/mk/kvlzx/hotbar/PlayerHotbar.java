@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.cosmetics.KnockerShopItem;
 import mk.kvlzx.data.InventoryData;
 import mk.kvlzx.items.CustomItem;
 import mk.kvlzx.items.CustomItem.ItemType;
@@ -29,34 +28,28 @@ public class PlayerHotbar {
     // Método para obtener el layout por defecto personalizado por jugador
     private static ItemStack[] getDefaultLayout(UUID uuid) {
         ItemStack[] layout = new ItemStack[9];
-        
+
         // Obtener el bloque cosmético del jugador
         Material blockType = MysthicKnockBack.getInstance().getCosmeticManager().getPlayerBlock(uuid);
         // Obtener el knocker cosmético del jugador
         Material knockerType = MysthicKnockBack.getInstance().getCosmeticManager().getPlayerKnocker(uuid);
-        
+
         // Crear el knocker
-        KnockerShopItem knockerItem = KnockerShopItem.getByMaterial(knockerType);
-        ItemStack knocker;
-        if (knockerItem != null) {
-            knocker = knockerItem.createItemStack();
-        } else {
-            knocker = CustomItem.create(ItemType.KNOCKER);
-        }
-        
+        ItemStack knocker = MysthicKnockBack.getInstance().getKnockersShopConfig().createKnockerItem(knockerType);
+
         // Crear el bloque usando BlockUtils
         ItemStack blocks = BlockUtils.createBlockItem(blockType, uuid);
-        
+
         // Obtener el arma seleccionada por el jugador
         ItemType selectedWeapon = MysthicKnockBack.getInstance().getWeaponManager().getSelectedWeapon(uuid);
-        
+
         layout[0] = knocker.clone();
         layout[1] = blocks.clone();
         layout[2] = CustomItem.create(selectedWeapon); // Usar el arma seleccionada
         layout[6] = CustomItem.create(ItemType.PLATE);
         layout[7] = CustomItem.create(ItemType.FEATHER);
         layout[8] = CustomItem.create(ItemType.PEARL);
-        
+
         return layout;
     }
 
@@ -132,16 +125,12 @@ public class PlayerHotbar {
     // Actualizar knocker cosmético en el layout
     private static void updateKnockerInLayout(ItemStack[] layout, UUID uuid) {
         Material knockerType = MysthicKnockBack.getInstance().getCosmeticManager().getPlayerKnocker(uuid);
-        KnockerShopItem knockerItem = KnockerShopItem.getByMaterial(knockerType);
-        
-        if (knockerItem != null) {
-            ItemStack knocker = knockerItem.createItemStack();
-            
-            // Actualizar todos los slots que contengan knockers
-            for (int i = 0; i < layout.length; i++) {
-                if (layout[i] != null && layout[i].containsEnchantment(Enchantment.KNOCKBACK)) {
-                    layout[i] = knocker.clone();
-                }
+        ItemStack knocker = MysthicKnockBack.getInstance().getKnockersShopConfig().createKnockerItem(knockerType);
+
+        // Actualizar todos los slots que contengan knockers
+        for (int i = 0; i < layout.length; i++) {
+            if (layout[i] != null && layout[i].containsEnchantment(Enchantment.KNOCKBACK)) {
+                layout[i] = knocker.clone();
             }
         }
     }
@@ -168,10 +157,7 @@ public class PlayerHotbar {
                 } else if (item.containsEnchantment(Enchantment.KNOCKBACK)) {
                     // Recrear knocker con metadatos correctos
                     Material knockerType = MysthicKnockBack.getInstance().getCosmeticManager().getPlayerKnocker(player.getUniqueId());
-                    KnockerShopItem knockerItem = KnockerShopItem.getByMaterial(knockerType);
-                    if (knockerItem != null) {
-                        item = knockerItem.createItemStack();
-                    }
+                    item = MysthicKnockBack.getInstance().getKnockersShopConfig().createKnockerItem(knockerType);
                 } else if (isWeaponItem(item)) {
                     // Recrear arma con el tipo seleccionado
                     ItemType selectedWeapon = MysthicKnockBack.getInstance().getWeaponManager().getSelectedWeapon(player.getUniqueId());

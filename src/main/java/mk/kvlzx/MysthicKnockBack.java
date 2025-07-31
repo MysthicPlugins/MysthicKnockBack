@@ -23,6 +23,7 @@ import mk.kvlzx.commands.StatsCommand;
 import mk.kvlzx.commands.StatsTabCompleter;
 import mk.kvlzx.config.BlocksShopConfig;
 import mk.kvlzx.config.HotbarMenuConfig;
+import mk.kvlzx.config.KnockersShopConfig;
 import mk.kvlzx.config.MainConfig;
 import mk.kvlzx.config.MainMenuConfig;
 import mk.kvlzx.config.MessagesConfig;
@@ -87,6 +88,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private ReportMenuConfig reportMenuConfig;
     private ShopMenuConfig shopMenuConfig;
     private BlocksShopConfig blocksShopConfig;
+    private KnockersShopConfig knockersShopConfig;
     
     private BukkitTask autoSaveTask;
     private BukkitTask weatherTimeTask; // Nueva tarea para controlar clima y tiempo
@@ -345,6 +347,7 @@ public class MysthicKnockBack extends JavaPlugin {
         reportMenuConfig.reload();
         shopMenuConfig.reload();
         blocksShopConfig.reload();
+        knockersShopConfig.reload();
         
         // Reiniciar auto-save con nueva configuración
         restartAutoSave();
@@ -568,6 +571,10 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public BlocksShopConfig getBlocksShopConfig() {
         return blocksShopConfig;
+    }
+
+    public KnockersShopConfig getKnockersShopConfig() {
+        return knockersShopConfig;
     }
 
 }

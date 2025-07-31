@@ -79,6 +79,7 @@
                     <include>config/menus/report.yml</include>
                     <include>config/menus/main-shop.yml</include>
                     <include>config/menus/blocks-shop.yml</include>
+                    <include>config/menus/knockers-shop.yml</include>
                 </includes>
             </resource>
         </resources>

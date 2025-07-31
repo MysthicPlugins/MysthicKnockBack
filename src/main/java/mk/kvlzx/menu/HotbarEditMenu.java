@@ -15,7 +15,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.config.HotbarMenuConfig;
-import mk.kvlzx.cosmetics.KnockerShopItem;
 import mk.kvlzx.hotbar.PlayerHotbar;
 import mk.kvlzx.items.CustomItem;
 import mk.kvlzx.items.CustomItem.ItemType;
@@ -248,9 +247,8 @@ public class HotbarEditMenu extends Menu {
 
         // Si es un knocker personalizado (tiene encantamiento Knockback)
         if (item.containsEnchantment(Enchantment.KNOCKBACK)) {
-            // Verificar si es un knocker válido comparando con los registrados
-            return Arrays.stream(ItemType.values()).anyMatch(type -> type == ItemType.KNOCKER) || 
-                    KnockerShopItem.getByMaterial(item.getType()) != null;
+            return plugin.getKnockersShopConfig().getKnockerItems().values().stream()
+                    .anyMatch(knocker -> knocker.getMaterial() == item.getType() && knocker.getData() == item.getDurability());
         }
 
         // Verificar otros items personalizados
@@ -262,7 +260,6 @@ public class HotbarEditMenu extends Menu {
                     });
     }
 
-    // Método que faltaba para obtener el lore del weapon toggle
     private List<String> getWeaponToggleLore(ItemType selectedWeapon) {
         List<String> lore = new ArrayList<>();
         for (String line : menuConfig.getWeaponToggleLore()) {

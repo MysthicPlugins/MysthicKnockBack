@@ -1,0 +1,250 @@
+menu:
+  title: "&8• &e&lKnocker Shop &8•"
+  size: 54
+  items:
+    # Balance display
+    balance:
+      slot: 4
+      material: EMERALD
+      title: "&a&lYour Balance"
+      lore:
+        - "&7Current Balance: &e%balance% KGCoins"
+    
+    # Knocker items configuration
+    knockers:
+      slots: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 50, 51, 52, 53]
+      title: "%rarity_color%%knocker_name%"
+      lore:
+        - "%rarity_color%✦ Rarity: %rarity%"
+        - ""
+        - "%knocker_lore%"
+        - ""
+        - "%status_lore%"
+      enchanted_if_selected: true
+      hide_enchants: true
+    
+    # Back button
+    back_button:
+      slot: 49
+      material: ARROW
+      title: "&c← Back"
+      lore:
+        - "&7Click to return to the shop"
+    
+    # Filler items
+    filler:
+      material: STAINED_GLASS_PANE
+      data: 15
+      title: " "
+      fill_empty_slots: true
+
+knocker_items:
+  # COMMON knockers
+  stick:
+    name: "Default Stick"
+    price: 0
+    rarity: "COMMON"
+    rarity_color: "&7"
+    lore: "&8The classic stick of all time"
+    default: true
+  
+  bone:
+    name: "Knockout Bone"
+    price: 5000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    lore: "&eDogs love it!"
+  
+  wooden_shovel:
+    name: "Wooden Shovel"
+    price: 5000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    lore: "&6Digging your victory!"
+  
+  blaze_rod:
+    name: "Blaze Rod"
+    price: 5000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    lore: "&cHot to the touch"
+  
+  carrot_stick:
+    name: "Carrot on a Stick"
+    price: 5000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    lore: "&6Rabbits' favorite!"
+
+  # UNCOMMON knockers
+  golden_hoe:
+    name: "Golden Hoe"
+    price: 15000
+    rarity: "UNCOMMON"
+    rarity_color: "&a"
+    lore: "&eShines like the sun!"
+  
+  iron_shovel:
+    name: "Iron Shovel"
+    price: 15000
+    rarity: "UNCOMMON"
+    rarity_color: "&a"
+    lore: "&7Forged in the mountains"
+  
+  stone_hoe:
+    name: "Stone Hoe"
+    price: 15000
+    rarity: "UNCOMMON"
+    rarity_color: "&a"
+    lore: "&8As tough as rock"
+  
+  wooden_hoe:
+    name: "Wooden Hoe"
+    price: 15000
+    rarity: "UNCOMMON"
+    rarity_color: "&a"
+    lore: "&6Hand-carved"
+  
+  wooden_sword:
+    name: "Wooden Sword"
+    price: 15000
+    rarity: "UNCOMMON"
+    rarity_color: "&a"
+    lore: "&6Perfect for training!"
+
+  # RARE knockers
+  diamond_hoe:
+    name: "Diamond Hoe"
+    price: 50000
+    rarity: "RARE"
+    rarity_color: "&9"
+    lore: "&bThe brightest of all!"
+  
+  golden_sword:
+    name: "Golden Sword"
+    price: 50000
+    rarity: "RARE"
+    rarity_color: "&9"
+    lore: "&eThe weapon of kings!"
+  
+  iron_sword:
+    name: "Iron Sword"
+    price: 50000
+    rarity: "RARE"
+    rarity_color: "&9"
+    lore: "&7Sharp as none"
+  
+  diamond_shovel:
+    name: "Diamond Shovel"
+    price: 50000
+    rarity: "RARE"
+    rarity_color: "&9"
+    lore: "&bDigging in style"
+  
+  golden_shovel:
+    name: "Golden Shovel"
+    price: 50000
+    rarity: "RARE"
+    rarity_color: "&9"
+    lore: "&eGleaming like gold!"
+
+  # EPIC knockers
+  diamond_sword:
+    name: "Diamond Sword"
+    price: 500000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    lore: "&bThe most powerful of all!"
+  
+  iron_axe:
+    name: "Iron Axe"
+    price: 500000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    lore: "&7Cuts like butter!"
+  
+  diamond_axe:
+    name: "Diamond Axe"
+    price: 500000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    lore: "&bThe ultimate destroyer!"
+  
+  golden_axe:
+    name: "Golden Axe"
+    price: 500000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    lore: "&eWorthy of a king!"
+
+  # LEGENDARY knockers
+  nether_star:
+    name: "Nether Star"
+    price: 1000000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    lore: "&c&lThe power of the Wither!"
+  
+  ghast_tear:
+    name: "Ghast Tear"
+    price: 1000000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    lore: "&f&lTears of power!"
+  
+  prismarine_shard:
+    name: "Prismarine Shard"
+    price: 1000000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    lore: "&3&lThe strength of the ocean!"
+  
+  emerald_power:
+    name: "Emerald of Power"
+    price: 1000000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    lore: "&a&lWealth is power!"
+
+# Status messages for different knocker states
+status_messages:
+  default_available:
+    - "&aDefault Knocker"
+    - "&8➥ Always available"
+  
+  default_selected:
+    - "&aDefault Knocker"
+    - "&8➥ Always available"
+    - ""
+    - "&aCurrently selected"
+  
+  default_click_to_select:
+    - "&aDefault Knocker"
+    - "&8➥ Always available"
+    - ""
+    - "&eClick to select"
+  
+  owned_selected:
+    - "&aCurrently selected"
+    - "&8➥ Using this knocker"
+  
+  owned_click_to_select:
+    - "&eClick to select"
+    - "&8➥ You already own this knocker"
+  
+  purchasable:
+    - "&7Click to purchase"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+  
+  insufficient_funds:
+    - "&cInsufficient funds"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+    - "&8➥ You have: &e%balance% KGCoins"
+
+# Messages
+messages:
+  knocker_selected: "&aYou have selected the %knocker_name% knocker"
+  knocker_purchased: "&aYou have purchased and selected the %knocker_name% knocker &afor &e%price% KGCoins&a!"
+  insufficient_funds: "&cYou don't have enough KGCoins to purchase this knocker."

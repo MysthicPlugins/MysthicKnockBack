@@ -1,7 +1,9 @@
 package mk.kvlzx.menu;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -13,104 +15,214 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.cosmetics.KnockerShopItem;
+import mk.kvlzx.config.KnockersShopConfig;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 
 public class KnockerShopMenu extends Menu {
-    private final List<KnockerShopItem> shopItems;
+    private final KnockersShopConfig config;
 
     public KnockerShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lKnocker Shop &8•", 54); // Aumentamos a 54 slots para más espacio
-        this.shopItems = initializeShopItems();
-    }
-
-    private List<KnockerShopItem> initializeShopItems() {
-        List<KnockerShopItem> items = new ArrayList<>();
-        
-        // Knockers ordenados por rareza y precio
-        addCommonKnockers(items);
-        addUncommonKnockers(items);
-        addRareKnockers(items);
-        addEpicKnockers(items);
-        addLegendaryKnockers(items);
-        
-        return items;
-    }
-
-    private void addCommonKnockers(List<KnockerShopItem> items) {
-        items.add(new KnockerShopItem(Material.STICK, "Default Stick", 0, "COMMON", "&7", "&8The classic stick of all time"));
-        items.add(new KnockerShopItem(Material.BONE, "Knockout Bone", 5000, "COMMON", "&7", "&eDogs love it!"));
-        items.add(new KnockerShopItem(Material.WOOD_SPADE, "Wooden Shovel", 5000, "COMMON", "&7", "&6Digging your victory!"));
-        items.add(new KnockerShopItem(Material.BLAZE_ROD, "Blaze Rod", 5000, "COMMON", "&7", "&cHot to the touch"));
-        items.add(new KnockerShopItem(Material.CARROT_STICK, "Carrot on a Stick", 5000, "COMMON", "&7", "&6Rabbits' favorite!"));
-    }
-
-    private void addUncommonKnockers(List<KnockerShopItem> items) {
-        items.add(new KnockerShopItem(Material.GOLD_HOE, "Golden Hoe", 15000, "UNCOMMON", "&a", "&eShines like the sun!"));
-        items.add(new KnockerShopItem(Material.IRON_SPADE, "Iron Shovel", 15000, "UNCOMMON", "&a", "&7Forged in the mountains"));
-        items.add(new KnockerShopItem(Material.STONE_HOE, "Stone Hoe", 15000, "UNCOMMON", "&a", "&8As tough as rock"));
-        items.add(new KnockerShopItem(Material.WOOD_HOE, "Wooden Hoe", 15000, "UNCOMMON", "&a", "&6Hand-carved"));
-        items.add(new KnockerShopItem(Material.WOOD_SWORD, "Wooden Sword", 15000, "UNCOMMON", "&a", "&6Perfect for training!"));
-    }
-
-    private void addRareKnockers(List<KnockerShopItem> items) {
-        items.add(new KnockerShopItem(Material.DIAMOND_HOE, "Diamond Hoe", 50000, "RARE", "&9", "&bThe brightest of all!"));
-        items.add(new KnockerShopItem(Material.GOLD_SWORD, "Golden Sword", 50000, "RARE", "&9", "&eThe weapon of kings!"));
-        items.add(new KnockerShopItem(Material.IRON_SWORD, "Iron Sword", 50000, "RARE", "&9", "&7Sharp as none"));
-        items.add(new KnockerShopItem(Material.DIAMOND_SPADE, "Diamond Shovel", 50000, "RARE", "&9", "&bDigging in style"));
-        items.add(new KnockerShopItem(Material.GOLD_SPADE, "Golden Shovel", 50000, "RARE", "&9", "&eGleaming like gold!"));
-    }
-
-    private void addEpicKnockers(List<KnockerShopItem> items) {
-        items.add(new KnockerShopItem(Material.DIAMOND_SWORD, "Diamond Sword", 500000, "EPIC", "&5", "&bThe most powerful of all!"));
-        items.add(new KnockerShopItem(Material.IRON_AXE, "Iron Axe", 500000, "EPIC", "&5", "&7Cuts like butter!"));
-        items.add(new KnockerShopItem(Material.DIAMOND_AXE, "Diamond Axe", 500000, "EPIC", "&5", "&bThe ultimate destroyer!"));
-        items.add(new KnockerShopItem(Material.GOLD_AXE, "Golden Axe", 500000, "EPIC", "&5", "&eWorthy of a king!"));
-    }
-
-    private void addLegendaryKnockers(List<KnockerShopItem> items) {
-        items.add(new KnockerShopItem(Material.NETHER_STAR, "Nether Star", 1000000, "LEGENDARY", "&6", "&c&lThe power of the Wither!"));
-        items.add(new KnockerShopItem(Material.GHAST_TEAR, "Ghast Tear", 1000000, "LEGENDARY", "&6", "&f&lTears of power!"));
-        items.add(new KnockerShopItem(Material.PRISMARINE_SHARD, "Prismarine Shard", 1000000, "LEGENDARY", "&6", "&3&lThe strength of the ocean!"));
-        items.add(new KnockerShopItem(Material.EMERALD, "Emerald of Power", 1000000, "LEGENDARY", "&6", "&a&lWealth is power!"));
+        super(plugin, plugin.getKnockersShopConfig().getMenuTitle(), plugin.getKnockersShopConfig().getMenuSize());
+        this.config = plugin.getKnockersShopConfig();
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Balance actual
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins"));
+        // Balance item
+        setupBalanceItem(inv, stats);
 
-        // Colocar todos los knockers en el inventario
-        Material currentKnocker = plugin.getCosmeticManager().getPlayerKnocker(player.getUniqueId());
+        // Setup knocker items (ordenados por rareza)
+        setupKnockerItems(inv, player);
+
+        // Back button
+        setupBackButton(inv);
+
+        // Fill empty slots with filler items
+        if (config.isFillEmptySlots()) {
+            fillEmptySlots(inv);
+        }
+    }
+
+    private void setupBalanceItem(Inventory inv, PlayerStats stats) {
+        List<String> balanceLore = new ArrayList<>();
+        for (String line : config.getBalanceLore()) {
+            balanceLore.add(line.replace("%balance%", String.valueOf(stats.getKGCoins())));
+        }
         
-        // Slots disponibles para knockers (evitando el balance y botón de volver)
-        int[] availableSlots = {
-            9, 10, 11, 12, 13, 14, 15, 16, 17,
-            18, 19, 20, 21, 22, 23, 24, 25, 26,
-            27, 28, 29, 30, 31, 32, 33, 34, 35,
-            36, 37, 38, 39, 40, 41, 42, 43, 44, 45,
-            46, 47, 48, 50, 51, 52, 53
-        };
+        ItemStack balanceItem = config.createMenuItem(
+            config.getBalanceMaterial(), 
+            config.getBalanceTitle(), 
+            0,
+            balanceLore
+        );
+        
+        inv.setItem(config.getBalanceSlot(), balanceItem);
+    }
+
+    private void setupKnockerItems(Inventory inv, Player player) {
+        Material currentKnocker = plugin.getCosmeticManager().getPlayerKnocker(player.getUniqueId());
+        List<Integer> availableSlots = config.getKnockerSlots();
+        
+        // Ordenar knockers por rareza
+        List<Map.Entry<String, KnockersShopConfig.KnockerItem>> sortedKnockers = getSortedKnockersByRarity();
         
         int slotIndex = 0;
-        for (KnockerShopItem item : shopItems) {
-            if (slotIndex >= availableSlots.length) break;
+        for (Map.Entry<String, KnockersShopConfig.KnockerItem> entry : sortedKnockers) {
+            if (slotIndex >= availableSlots.size()) break;
             
-            int slot = availableSlots[slotIndex];
-            setupKnockerButton(inv, slot, item, player, currentKnocker);
-            slotIndex++;
+            String knockerKey = entry.getKey();
+            KnockersShopConfig.KnockerItem knockerItem = entry.getValue();
+            Material knockerMaterial = knockerItem.getMaterial();
+            
+            if (knockerMaterial != null) {
+                int slot = availableSlots.get(slotIndex);
+                setupKnockerButton(inv, slot, knockerKey, knockerItem, knockerMaterial, player, currentKnocker);
+                slotIndex++;
+            }
+        }
+    }
+
+    /**
+     * Ordena los knockers por rareza siguiendo el orden: COMMON, UNCOMMON, RARE, EPIC, LEGENDARY
+     */
+    private List<Map.Entry<String, KnockersShopConfig.KnockerItem>> getSortedKnockersByRarity() {
+        Map<String, KnockersShopConfig.KnockerItem> knockerItems = config.getKnockerItems();
+        
+        // Define the rarity order
+        Map<String, Integer> rarityOrder = new HashMap<>();
+        rarityOrder.put("COMMON", 1);
+        rarityOrder.put("UNCOMMON", 2);
+        rarityOrder.put("RARE", 3);
+        rarityOrder.put("EPIC", 4);
+        rarityOrder.put("LEGENDARY", 5);
+        
+        // Convert the map to a list and sort it
+        List<Map.Entry<String, KnockersShopConfig.KnockerItem>> sortedList = new ArrayList<>(knockerItems.entrySet());
+        
+        sortedList.sort((entry1, entry2) -> {
+            KnockersShopConfig.KnockerItem item1 = entry1.getValue();
+            KnockersShopConfig.KnockerItem item2 = entry2.getValue();
+            
+            // First compare by rarity
+            int rarity1 = rarityOrder.getOrDefault(item1.getRarity(), 999);
+            int rarity2 = rarityOrder.getOrDefault(item2.getRarity(), 999);
+            
+            if (rarity1 != rarity2) {
+                return Integer.compare(rarity1, rarity2);
+            }
+            
+            // If rarity is the same, compare by price
+            if (item1.getPrice() != item2.getPrice()) {
+                return Integer.compare(item1.getPrice(), item2.getPrice());
+            }
+            
+            // If rarity and price are the same, compare by name
+            return item1.getName().compareToIgnoreCase(item2.getName());
+        });
+        
+        return sortedList;
+    }
+
+    private void setupKnockerButton(Inventory inv, int slot, String knockerKey, KnockersShopConfig.KnockerItem knockerItem, 
+                                    Material knockerMaterial, Player player, Material currentKnocker) {
+        
+        boolean hasKnocker = knockerItem.isDefault() || plugin.getCosmeticManager().hasPlayerKnocker(player.getUniqueId(), knockerMaterial);
+        boolean isSelected = currentKnocker == knockerMaterial;
+        
+        // Determine the status of the knocker
+        String statusKey = determineKnockerStatus(knockerItem, hasKnocker, isSelected, player);
+        List<String> statusLore = config.getStatusMessage(statusKey);
+        
+        // Build the final lore for the knocker item
+        List<String> finalLore = buildKnockerLore(knockerItem, statusLore, player);
+        
+        // Create the title for the knocker item
+        String title = config.getKnockerTitle()
+            .replace("%rarity_color%", knockerItem.getRarityColor())
+            .replace("%knocker_name%", knockerItem.getName());
+        
+        // Create the item for the knocker
+        ItemStack knockerItemStack = config.createMenuItem(knockerItem.getMaterial().name(), title, knockerItem.getData(), finalLore);
+        
+        // Add enchantments if the knocker is selected
+        if (isSelected && config.isEnchantedIfSelected()) {
+            knockerItemStack.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            if (config.isHideEnchants()) {
+                ItemMeta meta = knockerItemStack.getItemMeta();
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                knockerItemStack.setItemMeta(meta);
+            }
         }
 
-        // Botón para volver
-        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to the shop"));
+        inv.setItem(slot, knockerItemStack);
+    }
 
-        // Relleno en slots vacíos
-        ItemStack filler = createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15);
+    private String determineKnockerStatus(KnockersShopConfig.KnockerItem knockerItem, boolean hasKnocker, 
+                                        boolean isSelected, Player player) {
+        
+        if (knockerItem.isDefault()) {
+            return isSelected ? "default_selected" : "default_click_to_select";
+        } else if (hasKnocker) {
+            return isSelected ? "owned_selected" : "owned_click_to_select";
+        } else {
+            PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+            return stats.getKGCoins() < knockerItem.getPrice() ? "insufficient_funds" : "purchasable";
+        }
+    }
+
+    private List<String> buildKnockerLore(KnockersShopConfig.KnockerItem knockerItem, List<String> statusLore, Player player) {
+        List<String> finalLore = new ArrayList<>();
+        
+        for (String line : config.getKnockerLore()) {
+            String processedLine = line
+                .replace("%rarity_color%", knockerItem.getRarityColor())
+                .replace("%rarity%", knockerItem.getRarity())
+                .replace("%knocker_lore%", knockerItem.getLore())
+                .replace("%knocker_name%", knockerItem.getName());
+            
+            if (processedLine.contains("%status_lore%")) {
+                for (String statusLine : statusLore) {
+                    String processedStatusLine = statusLine
+                        .replace("%price%", String.valueOf(knockerItem.getPrice()))
+                        .replace("%balance%", String.valueOf(PlayerStats.getStats(player.getUniqueId()).getKGCoins()))
+                        .replace("%knocker_name%", knockerItem.getName());
+                    finalLore.add(processedStatusLine);
+                }
+            } else {
+                finalLore.add(processedLine);
+            }
+        }
+        
+        return finalLore;
+    }
+
+    private void setupBackButton(Inventory inv) {
+        ItemStack backButton = config.createMenuItem(
+            config.getBackButtonMaterial(),
+            config.getBackButtonTitle(),
+            0,
+            config.getBackButtonLore()
+        );
+        
+        inv.setItem(config.getBackButtonSlot(), backButton);
+    }
+
+    private void fillEmptySlots(Inventory inv) {
+        Material fillerMaterial;
+        try {
+            fillerMaterial = Material.valueOf(config.getFillerMaterial().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            fillerMaterial = Material.STAINED_GLASS_PANE;
+        }
+        
+        ItemStack filler = new ItemStack(fillerMaterial, 1, (short) config.getFillerData());
+        ItemMeta meta = filler.getItemMeta();
+        meta.setDisplayName(MessageUtils.getColor(config.getFillerTitle()));
+        filler.setItemMeta(meta);
+        
         for (int i = 0; i < inv.getSize(); i++) {
             if (inv.getItem(i) == null) {
                 inv.setItem(i, filler);
@@ -118,58 +230,8 @@ public class KnockerShopMenu extends Menu {
         }
     }
 
-    private void setupKnockerButton(Inventory inv, int slot, KnockerShopItem item, Player player, Material currentKnocker) {
-        boolean hasKnocker = item.getMaterial() == Material.STICK || plugin.getCosmeticManager().hasPlayerKnocker(player.getUniqueId(), item.getMaterial());
-        boolean isSelected = currentKnocker == item.getMaterial();
-        
-        List<String> lore = new ArrayList<>();
-        
-        lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
-        lore.add("");
-        lore.add(MessageUtils.getColor(item.getDescription()));
-        lore.add("");
-        
-        if (item.getMaterial() == Material.STICK && item.getData() == 0) {
-            lore.add("&aDefault Knocker");
-            lore.add("&8➥ Always available");
-            if (isSelected) {
-                lore.add("");
-                lore.add("&aCurrently selected");
-            } else {
-                lore.add("");
-                lore.add("&eClick to select");
-            }
-        } else if (hasKnocker) {
-            if (isSelected) {
-                lore.add("&aCurrently selected");
-                lore.add("&8➥ Using this knocker");
-            } else {
-                lore.add("&eClick to select");
-                lore.add("&8➥ You already own this knocker");
-            }
-        } else {
-            lore.add("&7Click to purchase");
-            lore.add("");
-            lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
-        }
-
-        String displayName = (isSelected ? "&b" : item.getRarityColor()) + item.getName();
-        ItemStack buttonItem = createItem(item.getMaterial(), displayName, item.getData(), lore.toArray(new String[0]));
-        
-        // Añadir encantamiento visual si es el knocker seleccionado
-        if (isSelected) {
-            buttonItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-            ItemMeta meta = buttonItem.getItemMeta();
-            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-            buttonItem.setItemMeta(meta);
-        }
-
-        inv.setItem(slot, buttonItem);
-    }
-
     @Override
     public void handleClick(InventoryClickEvent event) {
-        // Validar que el click sea en el menú y no en el inventario del jugador
         if (!isValidClick(event)) {
             event.setCancelled(true);
             return;
@@ -179,67 +241,62 @@ public class KnockerShopMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (event.getSlot() == 49) { // Botón de volver
+        // Back button
+        if (event.getSlot() == config.getBackButtonSlot()) {
             plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
 
-        // Verificar si es el slot del balance - no hacer nada
-        if (event.getSlot() == 4) {
+        // Ignore clicks on special items
+        if (clicked == null || 
+            clicked.getType().name().equals(config.getFillerMaterial()) || 
+            clicked.getType().name().equals(config.getBalanceMaterial())) {
             return;
         }
 
-        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE) return;
-
-        KnockerShopItem shopItem = findShopItem(clicked);
-        if (shopItem == null) return;
+        // Find the clicked knocker
+        String clickedKnockerKey = findKnockerKeyFromMaterial(clicked.getType(), clicked.getDurability());
+        if (clickedKnockerKey == null) return;
+        
+        KnockersShopConfig.KnockerItem knockerItem = config.getKnockerItem(clickedKnockerKey);
+        if (knockerItem == null) return;
+        
+        Material knockerMaterial = knockerItem.getMaterial();
+        if (knockerMaterial == null) return;
 
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Si ya tiene el knocker o es el palo por defecto
-        if (plugin.getCosmeticManager().hasPlayerKnocker(player.getUniqueId(), shopItem.getMaterial())) {
-            plugin.getCosmeticManager().setPlayerKnocker(player.getUniqueId(), shopItem.getMaterial());
-            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have selected the " + shopItem.getName() + " knocker"));
+        if (knockerItem.isDefault() || plugin.getCosmeticManager().hasPlayerKnocker(player.getUniqueId(), knockerMaterial)) {
+            // Select knocker
+            plugin.getCosmeticManager().setPlayerKnocker(player.getUniqueId(), knockerMaterial);
+            String message = config.getKnockerSelectedMessage().replace("%knocker_name%", knockerItem.getName());
+            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
             player.closeInventory();
         } else {
-            if (stats.getKGCoins() >= shopItem.getPrice()) {
-                stats.removeKGCoins(shopItem.getPrice());
-                plugin.getCosmeticManager().addPlayerKnocker(player.getUniqueId(), shopItem.getMaterial());
-                plugin.getCosmeticManager().setPlayerKnocker(player.getUniqueId(), shopItem.getMaterial());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have purchased and selected the " +
-                    shopItem.getName() + " knocker &afor &e" + shopItem.getPrice() + " KGCoins&a!"));
+            // Purchase knocker
+            if (stats.getKGCoins() >= knockerItem.getPrice()) {
+                stats.removeKGCoins(knockerItem.getPrice());
+                plugin.getCosmeticManager().addPlayerKnocker(player.getUniqueId(), knockerMaterial);
+                plugin.getCosmeticManager().setPlayerKnocker(player.getUniqueId(), knockerMaterial);
+                
+                String message = config.getKnockerPurchasedMessage()
+                    .replace("%knocker_name%", knockerItem.getName())
+                    .replace("%price%", String.valueOf(knockerItem.getPrice()));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou don't have enough KGCoins to purchase this knocker."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + config.getInsufficientFundsMessage()));
             }
         }
     }
 
-    private KnockerShopItem findShopItem(ItemStack clicked) {
-        return shopItems.stream()
-            .filter(item -> item.getMaterial() == clicked.getType() && item.getData() == clicked.getDurability())
-            .findFirst()
-            .orElse(null);
-    }
-
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
-    }
-
-    private ItemStack createItem(Material material, String name, byte data, String... lore) {
-        ItemStack item = new ItemStack(material, 1, data);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(MessageUtils.getColor(name));
-        
-        if (lore.length > 0) {
-            List<String> coloredLore = new ArrayList<>();
-            for (String line : lore) {
-                coloredLore.add(MessageUtils.getColor(line));
+    private String findKnockerKeyFromMaterial(Material material, short data) {
+        for (Map.Entry<String, KnockersShopConfig.KnockerItem> entry : config.getKnockerItems().entrySet()) {
+            KnockersShopConfig.KnockerItem item = entry.getValue();
+            if (item.getMaterial() == material && item.getData() == data) {
+                return entry.getKey();
             }
-            meta.setLore(coloredLore);
         }
-        
-        item.setItemMeta(meta);
-        return item;
+        return null;
     }
 }

@@ -1,6 +1,7 @@
 package mk.kvlzx.menu;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -35,7 +36,7 @@ public class BlockShopMenu extends Menu {
         // Balance item
         setupBalanceItem(inv, stats);
 
-        // Setup block items
+        // Setup block items (ordenados por rareza)
         setupBlockItems(inv, player);
 
         // Back button
@@ -65,10 +66,12 @@ public class BlockShopMenu extends Menu {
     private void setupBlockItems(Inventory inv, Player player) {
         Material currentBlock = plugin.getCosmeticManager().getPlayerBlock(player.getUniqueId());
         List<Integer> availableSlots = config.getBlockSlots();
-        Map<String, BlocksShopConfig.BlockItem> blockItems = config.getBlockItems();
+        
+        // Ordenar bloques por rareza
+        List<Map.Entry<String, BlocksShopConfig.BlockItem>> sortedBlocks = getSortedBlocksByRarity();
         
         int slotIndex = 0;
-        for (Map.Entry<String, BlocksShopConfig.BlockItem> entry : blockItems.entrySet()) {
+        for (Map.Entry<String, BlocksShopConfig.BlockItem> entry : sortedBlocks) {
             if (slotIndex >= availableSlots.size()) break;
             
             String blockKey = entry.getKey();
@@ -81,6 +84,46 @@ public class BlockShopMenu extends Menu {
                 slotIndex++;
             }
         }
+    }
+
+    private List<Map.Entry<String, BlocksShopConfig.BlockItem>> getSortedBlocksByRarity() {
+        Map<String, BlocksShopConfig.BlockItem> blockItems = config.getBlockItems();
+        
+        // Definir el orden de rareza
+        Map<String, Integer> rarityOrder = new HashMap<>();
+        rarityOrder.put("COMMON", 1);
+        rarityOrder.put("UNCOMMON", 2);
+        rarityOrder.put("RARE", 3);
+        rarityOrder.put("EPIC", 4);
+        rarityOrder.put("LEGENDARY", 5);
+        rarityOrder.put("TROLL", 6);
+        rarityOrder.put("SPECIAL", 7);
+        
+        // Convertir a lista y ordenar
+        List<Map.Entry<String, BlocksShopConfig.BlockItem>> sortedList = new ArrayList<>(blockItems.entrySet());
+        
+        sortedList.sort((entry1, entry2) -> {
+            BlocksShopConfig.BlockItem item1 = entry1.getValue();
+            BlocksShopConfig.BlockItem item2 = entry2.getValue();
+            
+            // First compare by rarity
+            int rarity1 = rarityOrder.getOrDefault(item1.getRarity(), 999);
+            int rarity2 = rarityOrder.getOrDefault(item2.getRarity(), 999);
+            
+            if (rarity1 != rarity2) {
+                return Integer.compare(rarity1, rarity2);
+            }
+            
+            // If rarities are the same, compare by price
+            if (item1.getPrice() != item2.getPrice()) {
+                return Integer.compare(item1.getPrice(), item2.getPrice());
+            }
+            
+            // If both rarity and price are the same, compare by name
+            return item1.getName().compareToIgnoreCase(item2.getName());
+        });
+        
+        return sortedList;
     }
 
     private void setupBlockButton(Inventory inv, int slot, String blockKey, BlocksShopConfig.BlockItem blockItem, 
@@ -100,10 +143,6 @@ public class BlockShopMenu extends Menu {
         String title = config.getBlockTitle()
             .replace("%rarity_color%", blockItem.getRarityColor())
             .replace("%block_name%", blockItem.getName());
-        
-        if (isSelected) {
-            title = "&b" + blockItem.getName();
-        }
         
         // Create the item for the block
         ItemStack blockItemStack = config.createMenuItem(blockMaterial.name(), title, finalLore);

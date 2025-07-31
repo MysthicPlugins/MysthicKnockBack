@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.enchantments.Enchantment;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.KnockersShopConfig;
 import mk.kvlzx.hotbar.PlayerHotbar;
 import mk.kvlzx.utils.BlockUtils;
 import mk.kvlzx.utils.config.CustomConfig;
@@ -53,7 +54,6 @@ public class CosmeticManager {
         playerBlocks.put(uuid, blockType);
         savePlayerBlock(uuid);
         
-        // Actualizar el layout del jugador
         Player player = plugin.getServer().getPlayer(uuid);
         if (player != null && player.isOnline()) {
             updatePlayerLayout(player);
@@ -67,7 +67,6 @@ public class CosmeticManager {
     private void updatePlayerLayout(Player player) {
         ItemStack[] layout = PlayerHotbar.getPlayerLayout(player.getUniqueId());
 
-        // Actualizar bloque
         int blockSlot = findItemSlot(layout, "BLOCK");
         if (blockSlot != -1) {
             Material newBlock = getPlayerBlock(player.getUniqueId());
@@ -75,19 +74,10 @@ public class CosmeticManager {
             layout[blockSlot] = updated;
         }
 
-        // Actualizar knocker
         int knockerSlot = findItemSlot(layout, "KNOCKER");
         if (knockerSlot != -1) {
             Material newKnocker = getPlayerKnocker(player.getUniqueId());
-            KnockerShopItem knocker = KnockerShopItem.getByMaterial(newKnocker);
-
-            ItemStack knockerItem;
-            if (knocker != null) {
-                knockerItem = knocker.createItemStack();
-            } else {
-                knockerItem = new ItemStack(newKnocker);
-            }
-
+            ItemStack knockerItem = plugin.getKnockersShopConfig().createKnockerItem(newKnocker);
             layout[knockerSlot] = knockerItem;
         }
 
@@ -116,7 +106,7 @@ public class CosmeticManager {
     }
 
     public boolean hasPlayerBlock(UUID uuid, Material blockType) {
-        if (blockType == Material.SANDSTONE) return true; // Bloque default siempre disponible
+        if (blockType == Material.SANDSTONE) return true;
         Set<Material> ownedBlocks = playerOwnedBlocks.getOrDefault(uuid, new HashSet<>());
         return ownedBlocks.contains(blockType);
     }
@@ -147,28 +137,39 @@ public class CosmeticManager {
     }
 
     public Material getPlayerKnocker(UUID uuid) {
-        return playerKnockers.getOrDefault(uuid, Material.STICK); // Stick como default
+        return playerKnockers.getOrDefault(uuid, Material.STICK);
     }
 
     private void savePlayerKnocker(UUID uuid) {
-        Set<Material> ownedKnockers = playerOwnedKnockers.get(uuid);
-        if (ownedKnockers != null) {
-            cosmeticConfig.getConfig().set("owned_knockers." + uuid.toString(), ownedKnockers.stream()
-                .map(Material::name)
-                .collect(Collectors.toList()));
+        Material knocker = playerKnockers.get(uuid);
+        if (knocker != null) {
+            cosmeticConfig.getConfig().set("knockers." + uuid.toString(), knocker.name());
             cosmeticConfig.saveConfig();
         }
     }
 
     public boolean hasPlayerKnocker(UUID uuid, Material knockerType) {
-        if (knockerType == Material.STICK) return true; // Knocker default siempre disponible
+        KnockersShopConfig.KnockerItem defaultKnocker = plugin.getKnockersShopConfig().getKnockerItems().values().stream().filter(KnockersShopConfig.KnockerItem::isDefault).findFirst().orElse(null);
+        if (defaultKnocker != null && knockerType == defaultKnocker.getMaterial()) {
+            return true;
+        }
         Set<Material> ownedKnockers = playerOwnedKnockers.getOrDefault(uuid, new HashSet<>());
         return ownedKnockers.contains(knockerType);
     }
 
     public void addPlayerKnocker(UUID uuid, Material knockerType) {
         playerOwnedKnockers.computeIfAbsent(uuid, k -> new HashSet<>()).add(knockerType);
-        savePlayerKnocker(uuid);
+        savePlayerOwnedKnockers(uuid);
+    }
+
+    private void savePlayerOwnedKnockers(UUID uuid) {
+        Set<Material> knockers = playerOwnedKnockers.get(uuid);
+        if (knockers != null) {
+            cosmeticConfig.getConfig().set("owned_knockers." + uuid.toString(), knockers.stream()
+                .map(Material::name)
+                .collect(Collectors.toList()));
+            cosmeticConfig.saveConfig();
+        }
     }
 
     public String getPlayerDeathMessage(UUID uuid) {
@@ -250,7 +251,6 @@ public class CosmeticManager {
     }
 
     public void setPlayerArrowEffect(UUID uuid, String effectName) {
-        // CAMBIO: Siempre guardamos el valor, incluso si es "none"
         playerArrowEffects.put(uuid, effectName);
         savePlayerArrowEffect(uuid);
     }
@@ -288,7 +288,6 @@ public class CosmeticManager {
     }
 
     public void setPlayerDeathSound(UUID uuid, String soundName) {
-        // CAMBIO: Siempre guardamos el valor, incluso si es "none"
         playerDeathSounds.put(uuid, soundName);
         savePlayerDeathSound(uuid);
     }
@@ -326,7 +325,6 @@ public class CosmeticManager {
     }
 
     public void setPlayerKillSound(UUID uuid, String soundName) {
-        // CAMBIO: Siempre guardamos el valor, incluso si es "none"
         playerKillSounds.put(uuid, soundName);
         savePlayerKillSound(uuid);
     }
@@ -364,7 +362,6 @@ public class CosmeticManager {
     }
 
     public void setPlayerBackgroundMusic(UUID uuid, String musicName) {
-        // CAMBIO: Siempre guardamos el valor, incluso si es "none"
         playerBackgroundMusic.put(uuid, musicName);
         savePlayerBackgroundMusic(uuid);
     }
@@ -445,8 +442,8 @@ public class CosmeticManager {
         for (Map.Entry<UUID, Material> entry : playerKnockers.entrySet()) {
             cosmeticConfig.getConfig().set("knockers." + entry.getKey().toString(), entry.getValue().name());
         }
-        playerOwnedKnockers.forEach((uuid, blocks) -> {
-            cosmeticConfig.getConfig().set("owned_knockers." + uuid.toString(), blocks.stream()
+        playerOwnedKnockers.forEach((uuid, knockers) -> {
+            cosmeticConfig.getConfig().set("owned_knockers." + uuid.toString(), knockers.stream()
                 .map(Material::name)
                 .collect(Collectors.toList()));
         });
@@ -540,10 +537,10 @@ public class CosmeticManager {
             for (String uuid : knockerSection.getKeys(false)) {
                 try {
                     UUID playerUUID = UUID.fromString(uuid);
-                    Material block = Material.valueOf(knockerSection.getString(uuid));
-                    playerKnockers.put(playerUUID, block);
+                    Material knocker = Material.valueOf(knockerSection.getString(uuid));
+                    playerKnockers.put(playerUUID, knocker);
                 } catch (IllegalArgumentException e) {
-                    plugin.getLogger().warning("Error loading cosmetic block for " + uuid);
+                    plugin.getLogger().warning("Error loading cosmetic knocker for " + uuid);
                 }
             }
         }
@@ -558,7 +555,7 @@ public class CosmeticManager {
                         .collect(Collectors.toSet());
                     playerOwnedKnockers.put(playerUUID, knockers);
                 } catch (IllegalArgumentException e) {
-                    plugin.getLogger().warning("Error loading owned blocks for " + uuid);
+                    plugin.getLogger().warning("Error loading owned knockers for " + uuid);
                 }
             }
         }
