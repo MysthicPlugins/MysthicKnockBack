@@ -1,0 +1,292 @@
+menu:
+  title: "&8• &e&lMessage Shop &8•"
+  size: 54
+  items:
+    # Balance display
+    balance:
+      slot: 4
+      material: EMERALD
+      title: "&a&lYour Balance"
+      lore:
+        - "&7Current Balance: &e%balance% KGCoins"
+    
+    # Death message items configuration
+    death_messages:
+      slots: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 50, 51, 52, 53]
+      title: "%rarity_color%%message_name%"
+      lore:
+        - "%rarity_color%✦ Rarity: %rarity%"
+        - ""
+        - "&7Message: %preview_message%"
+        - ""
+        - "%status_lore%"
+      materials:
+        common:
+          selected: ENCHANTED_BOOK
+          unselected: PAPER
+        epic:
+          selected: ENCHANTED_BOOK
+          unselected: BOOK
+        legendary:
+          selected: ENCHANTED_BOOK
+          unselected: BOOK_AND_QUILL
+      enchanted_if_selected: true
+      hide_enchants: true
+    
+    # Back button
+    back_button:
+      slot: 49
+      material: ARROW
+      title: "&c← Back"
+      lore:
+        - "&7Click to return to the shop"
+    
+    # Filler items
+    filler:
+      material: STAINED_GLASS_PANE
+      data: 7
+      title: " "
+      fill_empty_slots: true
+
+# Death message definitions
+death_message_items:
+  # COMMON messages
+  glory_seeker:
+    name: "Glory Seeker"
+    message: "&b%player% &fsought glory, but found a respawn."
+    price: 10000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7An inevitable fate"
+  
+  eternal_runner:
+    name: "Eternal Runner"
+    message: "&b%player% &fran toward eternity, but ran out of battery."
+    price: 10000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Energy is limited"
+  
+  stellar_jumper:
+    name: "Stellar Jumper"
+    message: "&b%player% &ftried a stellar jump and ended up in a crater."
+    price: 10000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7The stars were too far"
+  
+  reckless_dreamer:
+    name: "Reckless Dreamer"
+    message: "&b%player% &fdreamed of flying free, but forgot the parachute."
+    price: 10000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Gravity doesn't forgive"
+  
+  infinite_jumper:
+    name: "Infinite Jumper"
+    message: "&b%player% &ftried a leap to infinity and landed at spawn."
+    price: 10000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7The spawn always waits"
+  
+  void_walker:
+    name: "Void Walker"
+    message: "&b%player% &ftook a stroll through the void and got lost."
+    price: 10000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7The void has no GPS"
+  
+  cloud_chaser:
+    name: "Cloud Chaser"
+    message: "&b%player% &fchased clouds but caught only air."
+    price: 10000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Clouds are elusive"
+
+  # EPIC messages
+  shadow_dancer:
+    name: "Shadow Dancer"
+    message: "&b%player% &5danced with shadows and tripped in the darkness."
+    price: 25000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5Shadows are treacherous"
+  
+  fate_defier:
+    name: "Fate Defier"
+    message: "&b%player% &5defied fate, and fate taught them a lesson."
+    price: 25000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5Fate always wins"
+  
+  titan_aspirant:
+    name: "Titan Aspirant"
+    message: "&b%player% &5dreamed of being a titan, but the ground was their judge."
+    price: 25000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5The ground is relentless"
+  
+  frustrated_writer:
+    name: "Frustrated Writer"
+    message: "&b%player% &5wanted to write their saga, but the chapter ended early."
+    price: 25000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5An unfinished story"
+  
+  failed_comet:
+    name: "Failed Comet"
+    message: "&b%player% &5wanted to be a comet, but crashed like a meteor."
+    price: 25000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5Shone until the end"
+  
+  cloud_dreamer:
+    name: "Cloud Dreamer"
+    message: "&b%player% &5dreamed of touching the clouds, but the ground woke them up."
+    price: 25000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5A harsh awakening"
+  
+  blazing_soul:
+    name: "Blazing Soul"
+    message: "&b%player% &5ran with their soul ablaze, but the fire went out."
+    price: 25000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5Flames are fleeting"
+  
+  frustrated_hero:
+    name: "Frustrated Hero"
+    message: "&b%player% &5wanted to be a hero, but the arena wrote another story."
+    price: 25000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5The arena is cruel"
+  
+  cosmic_wanderer:
+    name: "Cosmic Wanderer"
+    message: "&b%player% &5wandered through the cosmos and lost their way home."
+    price: 25000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5The cosmos is vast"
+  
+  dream_chaser:
+    name: "Dream Chaser"
+    message: "&b%player% &5chased their dreams off a cliff."
+    price: 25000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5Dreams can be dangerous"
+
+  # LEGENDARY messages
+  fallen_conqueror:
+    name: "Fallen Conqueror"
+    message: "&b%player% &6sought to conquer the sky, but the abyss claimed them."
+    price: 50000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6The abyss always claims"
+  
+  void_jumper:
+    name: "Void Jumper"
+    message: "&b%player% &6leaped into infinity, but infinity didn't answer."
+    price: 50000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Infinity is silent"
+  
+  void_defier:
+    name: "Void Defier"
+    message: "&b%player% &6defied the void, and the void gave a deadly embrace."
+    price: 50000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6The void always embraces"
+  
+  fleeting_lightning:
+    name: "Fleeting Lightning"
+    message: "&b%player% &6shone like lightning before fading in the storm."
+    price: 50000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6The storm consumes all"
+  
+  edge_dancer:
+    name: "Edge Dancer"
+    message: "&b%player% &6danced on the edge of danger, and the edge cut first."
+    price: 50000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6The edge doesn't forgive"
+  
+  abyss_whisper:
+    name: "Abyss Whisper"
+    message: "&b%player% &6defied the abyss, and the abyss whispered 'see you soon'."
+    price: 50000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6The abyss always returns"
+  
+  defeated_poet:
+    name: "Defeated Poet"
+    message: "&b%player% &6wanted to be an epic poem, but rhymed with defeat."
+    price: 50000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Defeat also rhymes"
+  
+  reality_seeker:
+    name: "Reality Seeker"
+    message: "&b%player% &6searched for reality and found only the void."
+    price: 50000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Reality is elusive"
+  
+  eternal_dreamer:
+    name: "Eternal Dreamer"
+    message: "&b%player% &6dreamed of eternity, but eternity had other plans."
+    price: 50000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Eternity decides"
+
+# Status messages for different death message states
+status_messages:
+  owned_selected:
+    - "&aCurrently selected"
+    - "&8➥ Using this message"
+    - ""
+    - "&eClick to deselect"
+  
+  owned_click_to_select:
+    - "&eClick to select"
+    - "&8➥ You already own this message"
+  
+  purchasable:
+    - "&7Click to purchase"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+  
+  insufficient_funds:
+    - "&cInsufficient funds"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+    - "&8➥ You have: &e%balance% KGCoins"
+
+# Messages
+messages:
+  message_selected: "&aYou have selected the message: %message_name%"
+  message_deselected: "&aYou have deselected the message. Using default messages."
+  message_purchased: "&aYou have purchased and selected the message %message_name% &afor &e%price% KGCoins&a!"
+  insufficient_funds: "&cYou don't have enough KGCoins to purchase this message."

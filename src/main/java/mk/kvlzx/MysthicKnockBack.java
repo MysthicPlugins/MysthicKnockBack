@@ -22,7 +22,9 @@ import mk.kvlzx.commands.MainTabCompleter;
 import mk.kvlzx.commands.StatsCommand;
 import mk.kvlzx.commands.StatsTabCompleter;
 import mk.kvlzx.config.BlocksShopConfig;
+import mk.kvlzx.config.DeathMessagesShopConfig;
 import mk.kvlzx.config.HotbarMenuConfig;
+import mk.kvlzx.config.KillMessagesShopConfig;
 import mk.kvlzx.config.KnockersShopConfig;
 import mk.kvlzx.config.MainConfig;
 import mk.kvlzx.config.MainMenuConfig;
@@ -89,6 +91,8 @@ public class MysthicKnockBack extends JavaPlugin {
     private ShopMenuConfig shopMenuConfig;
     private BlocksShopConfig blocksShopConfig;
     private KnockersShopConfig knockersShopConfig;
+    private KillMessagesShopConfig killMessagesShopConfig;
+    private DeathMessagesShopConfig deathMessagesShopConfig;
     
     private BukkitTask autoSaveTask;
     private BukkitTask weatherTimeTask; // Nueva tarea para controlar clima y tiempo
@@ -109,6 +113,8 @@ public class MysthicKnockBack extends JavaPlugin {
         shopMenuConfig = new ShopMenuConfig(this);
         blocksShopConfig = new BlocksShopConfig(this);
         knockersShopConfig = new KnockersShopConfig(this);
+        killMessagesShopConfig = new KillMessagesShopConfig(this);
+        deathMessagesShopConfig = new DeathMessagesShopConfig(this);
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
@@ -576,6 +582,14 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public KnockersShopConfig getKnockersShopConfig() {
         return knockersShopConfig;
+    }
+
+    public KillMessagesShopConfig getKillMessagesShopConfig() {
+        return killMessagesShopConfig;
+    }
+
+    public DeathMessagesShopConfig getDeathMessagesShopConfig() {
+        return deathMessagesShopConfig;
     }
 
 }

@@ -1,0 +1,221 @@
+menu:
+  title: "&8• &e&lKill Message Shop &8•"
+  size: 54
+  items:
+    # Balance display
+    balance:
+      slot: 4
+      material: EMERALD
+      title: "&a&lYour Balance"
+      lore:
+        - "&7Current Balance: &e%balance% KGCoins"
+    
+    # Kill message items configuration
+    kill_messages:
+      slots: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 50, 51, 52, 53]
+      title: "%rarity_color%%message_name%"
+      lore:
+        - "%rarity_color%✦ Rarity: %rarity%"
+        - ""
+        - "%preview_message%"
+        - ""
+        - "%status_lore%"
+      material_selected: ENCHANTED_BOOK
+      material_unselected: PAPER
+      enchanted_if_selected: true
+      hide_enchants: true
+    
+    # Back button
+    back_button:
+      slot: 49
+      material: ARROW
+      title: "&c← Back"
+      lore:
+        - "&7Click to return to the shop"
+    
+    # Filler items
+    filler:
+      material: STAINED_GLASS_PANE
+      data: 15
+      title: " "
+      fill_empty_slots: true
+
+# Kill message definitions
+kill_message_items:
+  # COMMON messages
+  orbital_launch:
+    name: "Orbital Launch"
+    message: "&b%player% &7launched &b%victim% &7into the orbit of defeat!"
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7A one-way space trip!"
+  
+  ground_hug:
+    name: "Ground Hug"
+    message: "&b%victim% &7challenged &b%player%&7, but the ground hugged them first."
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7The ground always wins!"
+  
+  respawn_ticket:
+    name: "Respawn Ticket"
+    message: "&b%player% &7gave &b%victim% &7a ticket to the respawn screen!"
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7A direct trip to spawn!"
+  
+  flight_school:
+    name: "Flight School"
+    message: "&b%victim% &7learned to fly... &7but &b%player% &7cancelled the lesson."
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Flight lessons are dangerous!"
+  
+  void_express:
+    name: "Void Express"
+    message: "&b%player% &7sent &b%victim% &7on the express train to nowhere!"
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Next stop: respawn!"
+  
+  gravity_lesson:
+    name: "Gravity Lesson"
+    message: "&b%player% &7taught &b%victim% &7about gravity the hard way!"
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Physics can be painful!"
+
+  # EPIC messages
+  shooting_star:
+    name: "Shooting Star"
+    message: "&b%player% &9transformed &b%victim% &9into a shooting star!"
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&9"
+    description: "&9Shines as it falls!"
+  
+  cloud_reach:
+    name: "Cloud Reach"
+    message: "&b%player% &9helped &b%victim% &9reach the clouds... permanently."
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&9"
+    description: "&9A celestial journey!"
+  
+  true_knockback:
+    name: "True Knockback"
+    message: "&b%player% &9showed &b%victim% &9the meaning of true knockback!"
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&9"
+    description: "&9The true essence of KB!"
+  
+  star_journey:
+    name: "Star Journey"
+    message: "&b%player% &9sent &b%victim% &9on a journey to the stars!"
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&9"
+    description: "&9An interplanetary trip!"
+  
+  cosmic_punch:
+    name: "Cosmic Punch"
+    message: "&b%player% &9delivered a punch that echoed through the cosmos to &b%victim%&9!"
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&9"
+    description: "&9Feel the power of the universe!"
+  
+  dimensional_rift:
+    name: "Dimensional Rift"
+    message: "&b%player% &9opened a dimensional rift under &b%victim%&9!"
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&9"
+    description: "&9Lost between dimensions!"
+
+  # LEGENDARY messages
+  kb_master:
+    name: "KB Master"
+    message: "&b%player% &6unleashed the power of knockback on &b%victim%&6!"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6The power of the true master!"
+  
+  destiny_writer:
+    name: "Destiny Writer"
+    message: "&b%player% &6rewrote &b%victim%'s &6destiny with a legendary hit!"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Rewriting stories!"
+  
+  god_of_kb:
+    name: "God of KB"
+    message: "&b%player% &6showed &b%victim% &6what godlike knockback looks like!"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6The power of a god!"
+  
+  legend_maker:
+    name: "Legend Maker"
+    message: "&b%player% &6sent &b%victim% &6to the hall of legends!"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6A place in history!"
+  
+  reality_bender:
+    name: "Reality Bender"
+    message: "&b%player% &6bent reality itself to eliminate &b%victim%&6!"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Master of space and time!"
+  
+  eternal_force:
+    name: "Eternal Force"
+    message: "&b%player% &6channeled an eternal force that consumed &b%victim%&6!"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Power that transcends time!"
+
+# Status messages for different kill message states
+status_messages:
+  owned_selected:
+    - "&aCurrently selected"
+    - "&8➥ Using this message"
+    - ""
+    - "&eClick to deselect"
+  
+  owned_click_to_select:
+    - "&eClick to select"
+    - "&8➥ You already own this message"
+  
+  purchasable:
+    - "&7Click to purchase"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+  
+  insufficient_funds:
+    - "&cInsufficient funds"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+    - "&8➥ You have: &e%balance% KGCoins"
+
+# Messages
+messages:
+  message_selected: "&aYou have selected the message: %message_name%"
+  message_deselected: "&aYou have deselected the message. Using default messages."
+  message_purchased: "&aYou have purchased and selected the message %message_name% &afor &e%price% KGCoins&a!"
+  insufficient_funds: "&cYou don't have enough KGCoins to purchase this message."
+  default_victim_name: "Enemy"

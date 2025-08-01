@@ -80,6 +80,8 @@
                     <include>config/menus/main-shop.yml</include>
                     <include>config/menus/blocks-shop.yml</include>
                     <include>config/menus/knockers-shop.yml</include>
+                    <include>config/menus/kill-message-shop.yml</include>
+                    <include>config/menus/death-message-shop.yml</include>
                 </includes>
             </resource>
         </resources>

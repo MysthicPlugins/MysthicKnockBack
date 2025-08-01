@@ -1,7 +1,6 @@
 package mk.kvlzx.config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -273,9 +272,13 @@ public class KnockersShopConfig {
         if (knockerItem != null) {
             ItemStack item = new ItemStack(knockerItem.getMaterial(), 1, (short) knockerItem.getData());
             ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName(MessageUtils.getColor(knockerItem.getRarityColor() + knockerItem.getName()));
-            meta.setLore(Arrays.asList(MessageUtils.getColor(knockerItem.getLore())));
-            item.setItemMeta(meta);
+            String displayName = knockerItem.getRarityColor() + knockerItem.getName();
+            meta.setDisplayName(MessageUtils.getColor(displayName));
+            
+            List<String> lore = new ArrayList<>();
+            lore.add(MessageUtils.getColor(knockerItem.getRarityColor() + knockerItem.getRarity()));
+            lore.add(MessageUtils.getColor(knockerItem.getLore()));
+            meta.setLore(lore);
             item.addUnsafeEnchantment(Enchantment.KNOCKBACK, plugin.getMainConfig().getKnockerKnockbackLevel());
             return item;
         } else {

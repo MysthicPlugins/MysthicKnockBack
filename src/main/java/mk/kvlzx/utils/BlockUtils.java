@@ -118,7 +118,7 @@ public class BlockUtils {
                 meta.setDisplayName(MessageUtils.getColor(displayName));
                 
                 List<String> lore = new ArrayList<>();
-                lore.add(MessageUtils.getColor(blockItem.getRarityColor() + "✦ " + blockItem.getRarity()));
+                lore.add(MessageUtils.getColor(blockItem.getRarityColor() + blockItem.getRarity()));
                 lore.add(MessageUtils.getColor(blockItem.getLore()));
                 meta.setLore(lore);
                 

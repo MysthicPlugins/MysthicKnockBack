@@ -1,9 +1,7 @@
 package mk.kvlzx.menu;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -16,185 +14,193 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.cosmetics.KillMessageItem;
+import mk.kvlzx.config.KillMessagesShopConfig;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 
 public class KillMessageShopMenu extends Menu {
-    private final List<KillMessageItem> shopItems;
+    private final KillMessagesShopConfig config;
 
     public KillMessageShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lKill Message Shop &8•", 54);
-        this.shopItems = initializeShopItems();
-    }
-
-    private List<KillMessageItem> initializeShopItems() {
-        List<KillMessageItem> items = new ArrayList<>();
-
-        // Mensajes Comunes (15000 coins)
-        items.add(new KillMessageItem(
-            "&b%player% &7launched &b%victim% &7into the orbit of defeat!",
-            "Orbital Launch", 15000, "COMMON", "&7",
-            "&7A one-way space trip!"
-        ));
-        items.add(new KillMessageItem(
-            "&b%victim% &7challenged &b%player%&7, but the ground hugged them first.",
-            "Ground Hug", 15000, "COMMON", "&7",
-            "&7The ground always wins!"
-        ));
-        items.add(new KillMessageItem(
-            "&b%player% &7gave &b%victim% &7a ticket to the respawn screen!",
-            "Respawn Ticket", 15000, "COMMON", "&7",
-            "&7A direct trip to spawn!"
-        ));
-        items.add(new KillMessageItem(
-            "&b%victim% &7learned to fly... &7but &b%player% &7cancelled the lesson.",
-            "Flight School", 15000, "COMMON", "&7",
-            "&7Flight lessons are dangerous!"
-        ));
-
-        // Mensajes Épicos (35000 coins)
-        items.add(new KillMessageItem(
-            "&b%player% &9transformed &b%victim% &9into a shooting star!",
-            "Shooting Star", 35000, "EPIC", "&9",
-            "&9Shines as it falls!"
-        ));
-        items.add(new KillMessageItem(
-            "&b%player% &9helped &b%victim% &9reach the clouds... permanently.",
-            "Cloud Reach", 35000, "EPIC", "&9",
-            "&9A celestial journey!"
-        ));
-        items.add(new KillMessageItem(
-            "&b%player% &9showed &b%victim% &9the meaning of true knockback!",
-            "True Knockback", 35000, "EPIC", "&9",
-            "&9The true essence of KB!"
-        ));
-        items.add(new KillMessageItem(
-            "&b%player% &9sent &b%victim% &9on a journey to the stars!",
-            "Star Journey", 35000, "EPIC", "&9",
-            "&9An interplanetary trip!"
-        ));
-
-        // Mensajes Legendarios (75000 coins)
-        items.add(new KillMessageItem(
-            "&b%player% &6unleashed the power of knockback on &b%victim%&6!",
-            "KB Master", 75000, "LEGENDARY", "&6",
-            "&6The power of the true master!"
-        ));
-        items.add(new KillMessageItem(
-            "&b%player% &6rewrote &b%victim%'s &6destiny with a legendary hit!",
-            "Destiny Writer", 75000, "LEGENDARY", "&6",
-            "&6Rewriting stories!"
-        ));
-        items.add(new KillMessageItem(
-            "&b%player% &6showed &b%victim% &6what godlike knockback looks like!",
-            "God of KB", 75000, "LEGENDARY", "&6",
-            "&6The power of a god!"
-        ));
-        items.add(new KillMessageItem(
-            "&b%player% &6sent &b%victim% &6to the hall of legends!",
-            "Legend Maker", 75000, "LEGENDARY", "&6",
-            "&6A place in history!"
-        ));
-
-        // Ordenar por rareza: COMMON → EPIC → LEGENDARY
-        items.sort((a, b) -> {
-            Map<String, Integer> rarityOrder = new HashMap<>();
-            rarityOrder.put("COMMON", 1);
-            rarityOrder.put("EPIC", 2);
-            rarityOrder.put("LEGENDARY", 3);
-            
-            return rarityOrder.get(a.getRarity()).compareTo(rarityOrder.get(b.getRarity()));
-        });
-        
-        return items;
+        super(plugin, plugin.getKillMessagesShopConfig().getMenuTitle(), plugin.getKillMessagesShopConfig().getMenuSize());
+        this.config = plugin.getKillMessagesShopConfig();
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Balance actual
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins"));
+        // Balance item
+        setupBalanceItem(inv, stats);
 
-        // Slots disponibles para mensajes (evitando el balance y botón de volver)
-        int[] availableSlots = {
-            9, 10, 11, 12, 13, 14, 15, 16, 17,
-            18, 19, 20, 21, 22, 23, 24, 25, 26,
-            27, 28, 29, 30, 31, 32, 33, 34, 35,
-            36, 37, 38, 39, 40, 41, 42, 43, 44,
-            45, 46, 47, 48, 50, 51, 52, 53
-        };
-        
-        int slotIndex = 0;
-        
-        // Mostrar todos los mensajes organizados por rareza
-        for (KillMessageItem item : shopItems) {
-            if (slotIndex >= availableSlots.length) break;
-            
-            int slot = availableSlots[slotIndex];
-            setupMessageButton(inv, slot, item, player);
-            slotIndex++;
+        // Setup kill message items
+        setupKillMessageItems(inv, player);
+
+        // Back button
+        setupBackButton(inv);
+
+        // Fill empty slots with filler items
+        if (config.isFillEmptySlots()) {
+            fillEmptySlots(inv);
         }
-
-        // Botón para volver
-        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to the shop"));
-
-        // Relleno
-        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 15));
     }
 
-    private void setupMessageButton(Inventory inv, int slot, KillMessageItem item, Player player) {
-        String currentMessage = plugin.getCosmeticManager().getPlayerKillMessage(player.getUniqueId());
-        boolean hasMessage = plugin.getCosmeticManager().hasPlayerKillMessage(player.getUniqueId(), item.getName());
-        boolean isSelected = currentMessage.equals(item.getName());
-
-        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
-        String victimName;
-        if (players.isEmpty() || players.size() == 1 && players.get(0).getUniqueId().equals(player.getUniqueId())) {
-            // Si no hay otros jugadores, usar un nombre default
-            victimName = "Enemy";
-        } else {
-            Player randomPlayer = players.get((int) (Math.random() * players.size()));
-            victimName = randomPlayer.getName();
+    private void setupBalanceItem(Inventory inv, PlayerStats stats) {
+        List<String> balanceLore = new ArrayList<>();
+        for (String line : config.getBalanceLore()) {
+            balanceLore.add(line.replace("%balance%", String.valueOf(stats.getKGCoins())));
         }
         
-        List<String> lore = new ArrayList<>();
-        lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
-        lore.add("");
-        lore.add(MessageUtils.getColor(item.getMessage()
-            .replace("%player%", player.getName())
-            .replace("%victim%", victimName)));
-        lore.add("");
+        ItemStack balanceItem = config.createMenuItem(
+            config.getBalanceMaterial(), 
+            config.getBalanceTitle(), 
+            balanceLore
+        );
+        
+        inv.setItem(config.getBalanceSlot(), balanceItem);
+    }
+
+    private void setupKillMessageItems(Inventory inv, Player player) {
+        String currentMessage = plugin.getCosmeticManager().getPlayerKillMessage(player.getUniqueId());
+        List<Integer> availableSlots = config.getKillMessageSlots();
+        
+        // Obtener mensajes ordenados por rareza
+        List<KillMessagesShopConfig.KillMessageItem> sortedMessages = config.getSortedKillMessagesByRarity();
+        
+        int slotIndex = 0;
+        for (KillMessagesShopConfig.KillMessageItem messageItem : sortedMessages) {
+            if (slotIndex >= availableSlots.size()) break;
+            
+            int slot = availableSlots.get(slotIndex);
+            setupKillMessageButton(inv, slot, messageItem, player, currentMessage);
+            slotIndex++;
+        }
+    }
+
+    private void setupKillMessageButton(Inventory inv, int slot, KillMessagesShopConfig.KillMessageItem messageItem, 
+                                        Player player, String currentMessage) {
+        
+        boolean hasMessage = plugin.getCosmeticManager().hasPlayerKillMessage(player.getUniqueId(), messageItem.getName());
+        boolean isSelected = currentMessage.equals(messageItem.getName());
+        
+        // Determine the status of the message
+        String statusKey = determineMessageStatus(messageItem, hasMessage, isSelected, player);
+        List<String> statusLore = config.getStatusMessage(statusKey);
+        
+        // Build the final lore for the message item
+        List<String> finalLore = buildKillMessageLore(messageItem, statusLore, player);
+        
+        // Create the title for the message item
+        String title = config.getKillMessageTitle()
+            .replace("%rarity_color%", messageItem.getRarityColor())
+            .replace("%message_name%", messageItem.getName());
+        
+        // Determine material based on selection status
+        String materialId = isSelected ? config.getMaterialSelected() : config.getMaterialUnselected();
+        
+        // Create the item for the message
+        ItemStack messageItemStack = config.createMenuItem(materialId, title, finalLore);
+        
+        // Add enchantments if the message is selected
+        if (isSelected && config.isEnchantedIfSelected()) {
+            messageItemStack.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            if (config.isHideEnchants()) {
+                ItemMeta meta = messageItemStack.getItemMeta();
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                messageItemStack.setItemMeta(meta);
+            }
+        }
+
+        inv.setItem(slot, messageItemStack);
+    }
+
+    private String determineMessageStatus(KillMessagesShopConfig.KillMessageItem messageItem, boolean hasMessage, 
+                                            boolean isSelected, Player player) {
         
         if (hasMessage) {
-            if (isSelected) {
-                lore.add("&aCurrently selected");
-                lore.add("&eClick to deselect");
-            } else {
-                lore.add("&eClick to select");
-            }
+            return isSelected ? "owned_selected" : "owned_click_to_select";
         } else {
-            lore.add("&7Click to purchase");
-            lore.add("");
-            lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
+            PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+            return stats.getKGCoins() < messageItem.getPrice() ? "insufficient_funds" : "purchasable";
         }
+    }
 
-        Material material = isSelected ? Material.ENCHANTED_BOOK : Material.PAPER;
-        ItemStack button = createItem(material, 
-            (isSelected ? "&b" : item.getRarityColor()) + item.getName(), 
-            lore.toArray(new String[0]));
-
-        if (isSelected) {
-            ItemMeta meta = button.getItemMeta();
-            meta.addEnchant(Enchantment.DURABILITY, 1, true);
-            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-            button.setItemMeta(meta);
+    private List<String> buildKillMessageLore(KillMessagesShopConfig.KillMessageItem messageItem, 
+                                                List<String> statusLore, Player player) {
+        List<String> finalLore = new ArrayList<>();
+        
+        // Get a random victim name for preview
+        String victimName = getRandomVictimName(player);
+        
+        for (String line : config.getKillMessageLore()) {
+            String processedLine = line
+                .replace("%rarity_color%", messageItem.getRarityColor())
+                .replace("%rarity%", messageItem.getRarity())
+                .replace("%message_name%", messageItem.getName());
+            
+            if (processedLine.contains("%preview_message%")) {
+                String previewMessage = messageItem.getMessage()
+                    .replace("%player%", player.getName())
+                    .replace("%victim%", victimName);
+                finalLore.add(MessageUtils.getColor(previewMessage));
+            } else if (processedLine.contains("%status_lore%")) {
+                for (String statusLine : statusLore) {
+                    String processedStatusLine = statusLine
+                        .replace("%price%", String.valueOf(messageItem.getPrice()))
+                        .replace("%balance%", String.valueOf(PlayerStats.getStats(player.getUniqueId()).getKGCoins()))
+                        .replace("%message_name%", messageItem.getName());
+                    finalLore.add(processedStatusLine);
+                }
+            } else {
+                finalLore.add(processedLine);
+            }
         }
+        
+        return finalLore;
+    }
 
-        inv.setItem(slot, button);
+    private String getRandomVictimName(Player player) {
+        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+        
+        // Remove the current player from the list
+        players.removeIf(p -> p.getUniqueId().equals(player.getUniqueId()));
+        
+        if (players.isEmpty()) {
+            return config.getDefaultVictimName();
+        } else {
+            Player randomPlayer = players.get((int) (Math.random() * players.size()));
+            return randomPlayer.getName();
+        }
+    }
+
+    private void setupBackButton(Inventory inv) {
+        ItemStack backButton = config.createMenuItem(
+            config.getBackButtonMaterial(),
+            config.getBackButtonTitle(),
+            config.getBackButtonLore()
+        );
+        
+        inv.setItem(config.getBackButtonSlot(), backButton);
+    }
+
+    private void fillEmptySlots(Inventory inv) {
+        Material fillerMaterial;
+        try {
+            fillerMaterial = Material.valueOf(config.getFillerMaterial().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            fillerMaterial = Material.STAINED_GLASS_PANE;
+        }
+        
+        ItemStack filler = new ItemStack(fillerMaterial, 1, (short) config.getFillerData());
+        ItemMeta meta = filler.getItemMeta();
+        meta.setDisplayName(MessageUtils.getColor(config.getFillerTitle()));
+        filler.setItemMeta(meta);
+        
+        for (int i = 0; i < inv.getSize(); i++) {
+            if (inv.getItem(i) == null) {
+                inv.setItem(i, filler);
+            }
+        }
     }
 
     @Override
@@ -204,80 +210,91 @@ public class KillMessageShopMenu extends Menu {
             event.setCancelled(true);
             return;
         }
-        
+
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (event.getSlot() == 49) {
+        // Back button
+        if (event.getSlot() == config.getBackButtonSlot()) {
             plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
 
-        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE || 
-            clicked.getType() == Material.EMERALD) return;
+        // Ignore clicks on special items
+        if (clicked == null || 
+            clicked.getType().name().equals(config.getFillerMaterial()) || 
+            clicked.getType().name().equals(config.getBalanceMaterial())) {
+            return;
+        }
 
-        String itemName = clicked.getItemMeta().getDisplayName();
-        KillMessageItem messageItem = findMessageItem(MessageUtils.stripColor(itemName));
+        // Find the clicked kill message
+        String clickedMessageName = findKillMessageFromItem(clicked);
+        if (clickedMessageName == null) return;
+        
+        KillMessagesShopConfig.KillMessageItem messageItem = findKillMessageItemByName(clickedMessageName);
         if (messageItem == null) return;
 
-        handleMessageSelection(player, messageItem);
+        handleKillMessageSelection(player, messageItem);
     }
 
-    private void handleMessageSelection(Player player, KillMessageItem messageItem) {
-        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
-        String currentMessage = plugin.getCosmeticManager().getPlayerKillMessage(player.getUniqueId());
-
-        // Si ya tiene el mensaje
-        if (plugin.getCosmeticManager().hasPlayerKillMessage(player.getUniqueId(), messageItem.getName())) {
-            // Si está seleccionado, deseleccionar
-            if (currentMessage.equals(messageItem.getName())) {
-                plugin.getCosmeticManager().setPlayerKillMessage(player.getUniqueId(), "default");
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have deselected the message. Using default messages."));
-            } else {
-                plugin.getCosmeticManager().setPlayerKillMessage(player.getUniqueId(), messageItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have selected the message: " + messageItem.getName()));
-            }
-            player.closeInventory();
-        } else {
-            if (stats.getKGCoins() >= messageItem.getPrice()) {
-                stats.removeKGCoins(messageItem.getPrice());
-                plugin.getCosmeticManager().addPlayerKillMessage(player.getUniqueId(), messageItem.getName());
-                plugin.getCosmeticManager().setPlayerKillMessage(player.getUniqueId(), messageItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have purchased and selected the message " + 
-                    messageItem.getName() + " &afor &e" + messageItem.getPrice() + " KGCoins&a!"));
-                player.closeInventory();
-            } else {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou don't have enough KGCoins to purchase this message."));
+    private String findKillMessageFromItem(ItemStack item) {
+        if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) {
+            return null;
+        }
+        
+        String displayName = MessageUtils.stripColor(item.getItemMeta().getDisplayName());
+        
+        // Buscar el mensaje por nombre
+        for (KillMessagesShopConfig.KillMessageItem messageItem : config.getKillMessageItems().values()) {
+            if (messageItem.getName().equals(displayName)) {
+                return messageItem.getName();
             }
         }
+        
+        return null;
     }
 
-    private KillMessageItem findMessageItem(String name) {
-        return shopItems.stream()
-            .filter(item -> MessageUtils.stripColor(item.getName()).equals(name))
+    private KillMessagesShopConfig.KillMessageItem findKillMessageItemByName(String name) {
+        return config.getKillMessageItems().values().stream()
+            .filter(item -> item.getName().equals(name))
             .findFirst()
             .orElse(null);
     }
 
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
-    }
+    private void handleKillMessageSelection(Player player, KillMessagesShopConfig.KillMessageItem messageItem) {
+        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        String currentMessage = plugin.getCosmeticManager().getPlayerKillMessage(player.getUniqueId());
 
-    private ItemStack createItem(Material material, String name, byte data, String... lore) {
-        ItemStack item = new ItemStack(material, 1, data);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(MessageUtils.getColor(name));
-        
-        if (lore.length > 0) {
-            List<String> coloredLore = new ArrayList<>();
-            for (String line : lore) {
-                coloredLore.add(MessageUtils.getColor(line));
+        // If the player already owns the message
+        if (plugin.getCosmeticManager().hasPlayerKillMessage(player.getUniqueId(), messageItem.getName())) {
+            // If the message is already selected, deselect it
+            if (currentMessage.equals(messageItem.getName())) {
+                plugin.getCosmeticManager().setPlayerKillMessage(player.getUniqueId(), "default");
+                String message = config.getMessageDeselectedMessage();
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
+            } else {
+                // Select the message
+                plugin.getCosmeticManager().setPlayerKillMessage(player.getUniqueId(), messageItem.getName());
+                String message = config.getMessageSelectedMessage().replace("%message_name%", messageItem.getName());
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
             }
-            meta.setLore(coloredLore);
+            player.closeInventory();
+        } else {
+            // Buy the message
+            if (stats.getKGCoins() >= messageItem.getPrice()) {
+                stats.removeKGCoins(messageItem.getPrice());
+                plugin.getCosmeticManager().addPlayerKillMessage(player.getUniqueId(), messageItem.getName());
+                plugin.getCosmeticManager().setPlayerKillMessage(player.getUniqueId(), messageItem.getName());
+                
+                String message = config.getMessagePurchasedMessage()
+                    .replace("%message_name%", messageItem.getName())
+                    .replace("%price%", String.valueOf(messageItem.getPrice()));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
+                player.closeInventory();
+            } else {
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + config.getInsufficientFundsMessage()));
+            }
         }
-        
-        item.setItemMeta(meta);
-        return item;
     }
-}
+}    

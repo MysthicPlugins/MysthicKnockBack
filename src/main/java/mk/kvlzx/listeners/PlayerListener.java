@@ -39,9 +39,9 @@ import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.utils.TitleUtils;
 import mk.kvlzx.arena.Arena;
 import mk.kvlzx.arena.Zone;
-import mk.kvlzx.cosmetics.DeathMessageItem;
+import mk.kvlzx.config.DeathMessagesShopConfig;
+import mk.kvlzx.config.KillMessagesShopConfig;
 import mk.kvlzx.cosmetics.DeathSoundItem;
-import mk.kvlzx.cosmetics.KillMessageItem;
 import mk.kvlzx.cosmetics.KillSoundItem;
 import mk.kvlzx.hotbar.PlayerHotbar;
 import mk.kvlzx.stats.PlayerStats;
@@ -185,15 +185,18 @@ public class PlayerListener implements Listener {
             // Mensaje de muerte por desconexión
             String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
             String killMessage;
+            
             if (messageName.equals("default")) {
+                // Usar mensajes por defecto
                 killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
             } else {
-                KillMessageItem messageItem = KillMessageItem.getByName(messageName);
+                // Buscar el mensaje en la configuración
+                KillMessagesShopConfig.KillMessageItem messageItem = plugin.getKillMessagesShopConfig().getKillMessageItem(getKillMessageKeyByName(messageName));
                 killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
             }
             
             Bukkit.broadcastMessage(MessageUtils.getColor(
-                killMessage.replace("%killer%", killer.getName())
+                killMessage.replace("%player%", killer.getName())
                             .replace("%victim%", player.getName())
             ));
 
@@ -366,13 +369,16 @@ public class PlayerListener implements Listener {
                     String messageName = plugin.getCosmeticManager().getPlayerKillMessage(killer.getUniqueId());
                     String killMessage;
                     if (messageName.equals("default")) {
+                        // Usar mensajes por defecto
                         killMessage = KILL_MESSAGES.get(random.nextInt(KILL_MESSAGES.size()));
                     } else {
-                        KillMessageItem messageItem = KillMessageItem.getByName(messageName);
+                        // Buscar el mensaje en la configuración
+                        KillMessagesShopConfig.KillMessageItem messageItem = plugin.getKillMessagesShopConfig().getKillMessageItem(getKillMessageKeyByName(messageName));
                         killMessage = messageItem != null ? messageItem.getMessage() : KILL_MESSAGES.get(0);
                     }
+                    
                     Bukkit.broadcastMessage(MessageUtils.getColor(
-                        killMessage.replace("%killer%", killer.getName())
+                        killMessage.replace("%player%", killer.getName())
                                     .replace("%victim%", player.getName())
                     ));
                     handlePlayerKill(killer);
@@ -391,7 +397,7 @@ public class PlayerListener implements Listener {
                     if (messageName.equals("default")) {
                         deathMessage = DEATH_MESSAGES.get(random.nextInt(DEATH_MESSAGES.size()));
                     } else {
-                        DeathMessageItem messageItem = DeathMessageItem.getByName(messageName);
+                        DeathMessagesShopConfig.DeathMessageItem messageItem = plugin.getDeathMessagesShopConfig().getDeathMessageItem(getDeathMessageKeyByName(messageName));
                         deathMessage = messageItem != null ? messageItem.getMessage() : DEATH_MESSAGES.get(0);
                     }
                     Bukkit.broadcastMessage(MessageUtils.getColor(
@@ -504,6 +510,24 @@ public class PlayerListener implements Listener {
         }
         
         return -1; // No se encontró el item configurado
+    }
+
+    private String getKillMessageKeyByName(String messageName) {
+        for (Map.Entry<String, KillMessagesShopConfig.KillMessageItem> entry : plugin.getKillMessagesShopConfig().getKillMessageItems().entrySet()) {
+            if (entry.getValue().getName().equals(messageName)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    private String getDeathMessageKeyByName(String messageName) {
+        for (Map.Entry<String, DeathMessagesShopConfig.DeathMessageItem> entry : plugin.getDeathMessagesShopConfig().getDeathMessageItems().entrySet()) {
+            if (entry.getValue().getName().equals(messageName)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     private void respawnPlayerAtSpawn(Player player, Arena arena) {
