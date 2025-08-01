@@ -1,6 +1,7 @@
 package mk.kvlzx.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -270,11 +271,12 @@ public class KnockersShopConfig {
         // Create knocker
         KnockersShopConfig.KnockerItem knockerItem = getKnockerItem(knockerType.name().toLowerCase());
         if (knockerItem != null) {
-            ItemStack item = new ItemStack(knockerItem.getMaterial(), (short) knockerItem.getData());
+            ItemStack item = new ItemStack(knockerItem.getMaterial(), 1, (short) knockerItem.getData());
             ItemMeta meta = item.getItemMeta();
-            meta.setDisplayName(knockerItem.getName());
+            meta.setDisplayName(MessageUtils.getColor(knockerItem.getRarityColor() + knockerItem.getName()));
+            meta.setLore(Arrays.asList(MessageUtils.getColor(knockerItem.getLore())));
             item.setItemMeta(meta);
-            item.addUnsafeEnchantment(Enchantment.KNOCKBACK, 1);
+            item.addUnsafeEnchantment(Enchantment.KNOCKBACK, plugin.getMainConfig().getKnockerKnockbackLevel());
             return item;
         } else {
             return CustomItem.create(ItemType.KNOCKER);

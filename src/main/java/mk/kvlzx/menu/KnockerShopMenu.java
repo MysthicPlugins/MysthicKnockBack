@@ -250,7 +250,7 @@ public class KnockerShopMenu extends Menu {
         // Ignore clicks on special items
         if (clicked == null || 
             clicked.getType().name().equals(config.getFillerMaterial()) || 
-            clicked.getType().name().equals(config.getBalanceMaterial())) {
+            event.getSlot() == config.getBalanceSlot()){
             return;
         }
 
