@@ -8,17 +8,14 @@ import java.util.Map;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.items.CustomItem;
-import mk.kvlzx.items.CustomItem.ItemType;
 import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.utils.config.CustomConfig;
 
-public class KnockersShopConfig {
+public class ArrowEffectsShopConfig {
     private final CustomConfig configFile;
     private final MysthicKnockBack plugin;
     
@@ -32,10 +29,12 @@ public class KnockersShopConfig {
     private String balanceTitle;
     private List<String> balanceLore;
     
-    // Knockers configuration
-    private List<Integer> knockerSlots;
-    private String knockerTitle;
-    private List<String> knockerLore;
+    // Arrow effects configuration
+    private List<Integer> arrowEffectSlots;
+    private String arrowEffectTitle;
+    private List<String> arrowEffectLore;
+    private String materialSelected;
+    private String materialUnselected;
     private boolean enchantedIfSelected;
     private boolean hideEnchants;
     
@@ -51,56 +50,21 @@ public class KnockersShopConfig {
     private String fillerTitle;
     private boolean fillEmptySlots;
     
-    // Knocker items
-    private Map<String, KnockerItem> knockerItems;
+    // Arrow effect items
+    private Map<String, ArrowEffectItem> arrowEffectItems;
     
     // Status messages
     private Map<String, List<String>> statusMessages;
     
     // Messages
-    private String knockerSelectedMessage;
-    private String knockerPurchasedMessage;
+    private String effectSelectedMessage;
+    private String effectDeselectedMessage;
+    private String effectPurchasedMessage;
     private String insufficientFundsMessage;
 
-    // Hardcoded knocker materials mapping
-    private static final Map<String, KnockerMaterial> KNOCKER_MATERIALS = new HashMap<>();
-    
-    static {
-        // COMMON knockers
-        KNOCKER_MATERIALS.put("stick", new KnockerMaterial(Material.STICK, 0));
-        KNOCKER_MATERIALS.put("bone", new KnockerMaterial(Material.BONE, 0));
-        KNOCKER_MATERIALS.put("blaze_rod", new KnockerMaterial(Material.BLAZE_ROD, 0));
-        KNOCKER_MATERIALS.put("carrot_stick", new KnockerMaterial(Material.CARROT_STICK, 0));
-        
-        // UNCOMMON knockers
-        KNOCKER_MATERIALS.put("golden_hoe", new KnockerMaterial(Material.GOLD_HOE, 0));
-        KNOCKER_MATERIALS.put("stone_hoe", new KnockerMaterial(Material.STONE_HOE, 0));
-        KNOCKER_MATERIALS.put("wooden_hoe", new KnockerMaterial(Material.WOOD_HOE, 0));
-        KNOCKER_MATERIALS.put("wooden_sword", new KnockerMaterial(Material.WOOD_SWORD, 0));
-        
-        // RARE knockers
-        KNOCKER_MATERIALS.put("diamond_hoe", new KnockerMaterial(Material.DIAMOND_HOE, 0));
-        KNOCKER_MATERIALS.put("golden_sword", new KnockerMaterial(Material.GOLD_SWORD, 0));
-        KNOCKER_MATERIALS.put("enchanted_book", new KnockerMaterial(Material.ENCHANTED_BOOK, 0));
-        KNOCKER_MATERIALS.put("rabbit_foot", new KnockerMaterial(Material.RABBIT_FOOT, 0));
-        KNOCKER_MATERIALS.put("iron_sword", new KnockerMaterial(Material.IRON_SWORD, 0));
-        
-        // EPIC knockers
-        KNOCKER_MATERIALS.put("diamond_sword", new KnockerMaterial(Material.DIAMOND_SWORD, 0));
-        KNOCKER_MATERIALS.put("iron_axe", new KnockerMaterial(Material.IRON_AXE, 0));
-        KNOCKER_MATERIALS.put("diamond_axe", new KnockerMaterial(Material.DIAMOND_AXE, 0));
-        KNOCKER_MATERIALS.put("golden_axe", new KnockerMaterial(Material.GOLD_AXE, 0));
-        
-        // LEGENDARY knockers
-        KNOCKER_MATERIALS.put("nether_star", new KnockerMaterial(Material.NETHER_STAR, 0));
-        KNOCKER_MATERIALS.put("ghast_tear", new KnockerMaterial(Material.GHAST_TEAR, 0));
-        KNOCKER_MATERIALS.put("prismarine_shard", new KnockerMaterial(Material.PRISMARINE_SHARD, 0));
-        KNOCKER_MATERIALS.put("emerald_power", new KnockerMaterial(Material.EMERALD, 0));
-    }
-
-    public KnockersShopConfig(MysthicKnockBack plugin) {
+    public ArrowEffectsShopConfig(MysthicKnockBack plugin) {
         this.plugin = plugin;
-        configFile = new CustomConfig("knockers-shop.yml", "config/menus", plugin);
+        configFile = new CustomConfig("arrow-effects-shop.yml", "config/menus", plugin);
         configFile.registerConfig();
         loadConfig();
     }
@@ -118,12 +82,14 @@ public class KnockersShopConfig {
         balanceTitle = config.getString("menu.items.balance.title");
         balanceLore = config.getStringList("menu.items.balance.lore");
         
-        // Knockers configuration
-        knockerSlots = config.getIntegerList("menu.items.knockers.slots");
-        knockerTitle = config.getString("menu.items.knockers.title");
-        knockerLore = config.getStringList("menu.items.knockers.lore");
-        enchantedIfSelected = config.getBoolean("menu.items.knockers.enchanted_if_selected");
-        hideEnchants = config.getBoolean("menu.items.knockers.hide_enchants");
+        // Arrow effects configuration
+        arrowEffectSlots = config.getIntegerList("menu.items.arrow_effects.slots");
+        arrowEffectTitle = config.getString("menu.items.arrow_effects.title");
+        arrowEffectLore = config.getStringList("menu.items.arrow_effects.lore");
+        materialSelected = validateAndGetMaterial(config, "menu.items.arrow_effects.material_selected", "ARROW");
+        materialUnselected = validateAndGetMaterial(config, "menu.items.arrow_effects.material_unselected", "ARROW");
+        enchantedIfSelected = config.getBoolean("menu.items.arrow_effects.enchanted_if_selected");
+        hideEnchants = config.getBoolean("menu.items.arrow_effects.hide_enchants");
         
         // Back button configuration
         backButtonSlot = config.getInt("menu.items.back_button.slot");
@@ -137,41 +103,42 @@ public class KnockersShopConfig {
         fillerTitle = config.getString("menu.items.filler.title");
         fillEmptySlots = config.getBoolean("menu.items.filler.fill_empty_slots");
         
-        // Load knocker items
-        loadKnockerItems(config);
+        // Load arrow effect items
+        loadArrowEffectItems(config);
         
         // Load status messages
         loadStatusMessages(config);
         
         // Load messages
-        knockerSelectedMessage = config.getString("messages.knocker_selected");
-        knockerPurchasedMessage = config.getString("messages.knocker_purchased");
+        effectSelectedMessage = config.getString("messages.effect_selected");
+        effectDeselectedMessage = config.getString("messages.effect_deselected");
+        effectPurchasedMessage = config.getString("messages.effect_purchased");
         insufficientFundsMessage = config.getString("messages.insufficient_funds");
     }
     
-    private void loadKnockerItems(FileConfiguration config) {
-        knockerItems = new HashMap<>();
-        ConfigurationSection knockerItemsSection = config.getConfigurationSection("knocker_items");
+    private void loadArrowEffectItems(FileConfiguration config) {
+        arrowEffectItems = new HashMap<>();
+        ConfigurationSection arrowEffectItemsSection = config.getConfigurationSection("arrow_effect_items");
         
-        if (knockerItemsSection != null) {
-            for (String key : knockerItemsSection.getKeys(false)) {
-                ConfigurationSection knockerSection = knockerItemsSection.getConfigurationSection(key);
-                if (knockerSection != null && KNOCKER_MATERIALS.containsKey(key)) {
-                    KnockerMaterial knockerMaterial = KNOCKER_MATERIALS.get(key);
-                    KnockerItem knockerItem = new KnockerItem(
+        if (arrowEffectItemsSection != null) {
+            for (String key : arrowEffectItemsSection.getKeys(false)) {
+                ConfigurationSection effectSection = arrowEffectItemsSection.getConfigurationSection(key);
+                if (effectSection != null) {
+                    ArrowEffectItem effectItem = new ArrowEffectItem(
                         key,
-                        knockerSection.getString("name", key),
-                        knockerMaterial.getMaterial(),
-                        knockerMaterial.getData(),
-                        knockerSection.getInt("price", 0),
-                        knockerSection.getString("rarity", "COMMON"),
-                        knockerSection.getString("rarity_color", "&7"),
-                        knockerSection.getString("lore", ""),
-                        knockerSection.getBoolean("default", false)
+                        effectSection.getString("name", key),
+                        effectSection.getString("description", ""),
+                        effectSection.getInt("price", 0),
+                        effectSection.getString("rarity", "COMMON"),
+                        effectSection.getString("rarity_color", "&7"),
+                        effectSection.getString("effect", "FLAME"),
+                        (float) effectSection.getDouble("effect_speed", 0.0),
+                        effectSection.getInt("effect_count", 1),
+                        (float) effectSection.getDouble("offset_x", 0.0),
+                        (float) effectSection.getDouble("offset_y", 0.0),
+                        (float) effectSection.getDouble("offset_z", 0.0)
                     );
-                    knockerItems.put(key, knockerItem);
-                } else if (!KNOCKER_MATERIALS.containsKey(key)) {
-                    plugin.getLogger().warning("Unknown knocker key '" + key + "' in configuration. Skipping...");
+                    arrowEffectItems.put(key, effectItem);
                 }
             }
         }
@@ -212,6 +179,8 @@ public class KnockersShopConfig {
         
         String[] materialPaths = {
             "menu.items.balance.material",
+            "menu.items.arrow_effects.material_selected",
+            "menu.items.arrow_effects.material_unselected",
             "menu.items.back_button.material",
             "menu.items.filler.material"
         };
@@ -232,15 +201,11 @@ public class KnockersShopConfig {
     }
 
     public ItemStack createMenuItem(String materialId, String name, List<String> lore) {
-        return createMenuItem(materialId, name, 0, lore);
-    }
-
-    public ItemStack createMenuItem(String materialId, String name, int data, List<String> lore) {
         ItemStack item;
         
         try {
             Material material = Material.valueOf(materialId.toUpperCase());
-            item = new ItemStack(material, 1, (short) data);
+            item = new ItemStack(material);
             ItemMeta meta = item.getItemMeta();
                 
             if (name != null) {
@@ -255,8 +220,8 @@ public class KnockersShopConfig {
             }
             item.setItemMeta(meta);
         } catch (IllegalArgumentException e) {
-            plugin.getLogger().warning("Failed to create item with material: " + materialId + ". Using STICK as fallback.");
-            item = new ItemStack(Material.STICK);
+            plugin.getLogger().warning("Failed to create item with material: " + materialId + ". Using STONE as fallback.");
+            item = new ItemStack(Material.STONE);
             ItemMeta meta = item.getItemMeta();
             meta.setDisplayName("§cInvalid Material");
             item.setItemMeta(meta);
@@ -264,33 +229,11 @@ public class KnockersShopConfig {
         return item;
     }
 
-    public ItemStack createKnockerItem(Material knockerType) {
-        // Create knocker
-        KnockersShopConfig.KnockerItem knockerItem = getKnockerItem(knockerType.name().toLowerCase());
-        if (knockerItem != null) {
-            ItemStack item = new ItemStack(knockerItem.getMaterial(), 1, (short) knockerItem.getData());
-            ItemMeta meta = item.getItemMeta();
-            String displayName = knockerItem.getRarityColor() + knockerItem.getName();
-            meta.setDisplayName(MessageUtils.getColor(displayName));
-            
-            List<String> lore = new ArrayList<>();
-            lore.add(MessageUtils.getColor(knockerItem.getRarityColor() + knockerItem.getRarity()));
-            lore.add(MessageUtils.getColor(knockerItem.getLore()));
-            meta.setLore(lore);
-            item.setItemMeta(meta);
-            item.addUnsafeEnchantment(Enchantment.KNOCKBACK, plugin.getMainConfig().getKnockerKnockbackLevel());
-            return item;
-        } else {
-            return CustomItem.create(ItemType.KNOCKER);
-        }
-    }
-
     public void reload() {
         configFile.reloadConfig();
         
-        // Validar materiales después de recargar la configuración
         if (!validateAllMaterials()) {
-            plugin.getLogger().warning("Invalid materials detected in knocker menu configuration. The menu will be loaded with default values for problematic materials.");
+            plugin.getLogger().warning("Invalid materials detected in arrow effects menu configuration. The menu will be loaded with default values for problematic materials.");
         }
         
         loadConfig();
@@ -306,10 +249,12 @@ public class KnockersShopConfig {
     public String getBalanceTitle() { return balanceTitle; }
     public List<String> getBalanceLore() { return new ArrayList<>(balanceLore); }
     
-    // Getters for knockers configuration
-    public List<Integer> getKnockerSlots() { return new ArrayList<>(knockerSlots); }
-    public String getKnockerTitle() { return knockerTitle; }
-    public List<String> getKnockerLore() { return new ArrayList<>(knockerLore); }
+    // Getters for arrow effects configuration
+    public List<Integer> getArrowEffectSlots() { return new ArrayList<>(arrowEffectSlots); }
+    public String getArrowEffectTitle() { return arrowEffectTitle; }
+    public List<String> getArrowEffectLore() { return new ArrayList<>(arrowEffectLore); }
+    public String getMaterialSelected() { return materialSelected; }
+    public String getMaterialUnselected() { return materialUnselected; }
     public boolean isEnchantedIfSelected() { return enchantedIfSelected; }
     public boolean isHideEnchants() { return hideEnchants; }
     
@@ -325,11 +270,12 @@ public class KnockersShopConfig {
     public String getFillerTitle() { return fillerTitle; }
     public boolean isFillEmptySlots() { return fillEmptySlots; }
     
-    // Getters for knocker items and messages
-    public Map<String, KnockerItem> getKnockerItems() { return new HashMap<>(knockerItems); }
+    // Getters for arrow effect items and messages
+    public Map<String, ArrowEffectItem> getArrowEffectItems() { return new HashMap<>(arrowEffectItems); }
     public Map<String, List<String>> getStatusMessages() { return new HashMap<>(statusMessages); }
-    public String getKnockerSelectedMessage() { return knockerSelectedMessage; }
-    public String getKnockerPurchasedMessage() { return knockerPurchasedMessage; }
+    public String getEffectSelectedMessage() { return effectSelectedMessage; }
+    public String getEffectDeselectedMessage() { return effectDeselectedMessage; }
+    public String getEffectPurchasedMessage() { return effectPurchasedMessage; }
     public String getInsufficientFundsMessage() { return insufficientFundsMessage; }
     
     // Helper methods
@@ -337,62 +283,83 @@ public class KnockersShopConfig {
         return statusMessages.getOrDefault(statusKey, new ArrayList<>());
     }
     
-    public KnockerItem getKnockerItem(String key) {
-        return knockerItems.get(key);
+    public ArrowEffectItem getArrowEffectItem(String key) {
+        return arrowEffectItems.get(key);
     }
     
-    public static KnockerMaterial getKnockerMaterial(String key) {
-        return KNOCKER_MATERIALS.get(key);
-    }
-    
-    // Inner class for knocker materials
-    public static class KnockerMaterial {
-        private final Material material;
-        private final int data;
+    public List<ArrowEffectItem> getSortedArrowEffectsByRarity() {
+        Map<String, Integer> rarityOrder = new HashMap<>();
+        rarityOrder.put("COMMON", 1);
+        rarityOrder.put("EPIC", 2);
+        rarityOrder.put("LEGENDARY", 3);
         
-        public KnockerMaterial(Material material, int data) {
-            this.material = material;
-            this.data = data;
-        }
+        List<ArrowEffectItem> sortedList = new ArrayList<>(arrowEffectItems.values());
         
-        public Material getMaterial() { return material; }
-        public int getData() { return data; }
+        sortedList.sort((item1, item2) -> {
+            // First compare by rarity
+            int rarity1 = rarityOrder.getOrDefault(item1.getRarity(), 999);
+            int rarity2 = rarityOrder.getOrDefault(item2.getRarity(), 999);
+            
+            if (rarity1 != rarity2) {
+                return Integer.compare(rarity1, rarity2);
+            }
+            
+            // If rarities are the same, compare by price
+            if (item1.getPrice() != item2.getPrice()) {
+                return Integer.compare(item1.getPrice(), item2.getPrice());
+            }
+            
+            // If both rarity and price are the same, compare by name
+            return item1.getName().compareToIgnoreCase(item2.getName());
+        });
+        
+        return sortedList;
     }
     
-    // Inner class for knocker items
-    public static class KnockerItem {
+    // Inner class for arrow effect items
+    public static class ArrowEffectItem {
         private final String key;
         private final String name;
-        private final Material material;
-        private final int data;
+        private final String description;
         private final int price;
         private final String rarity;
         private final String rarityColor;
-        private final String lore;
-        private final boolean isDefault;
+        private final String effect;
+        private final float effectSpeed;
+        private final int effectCount;
+        private final float offsetX;
+        private final float offsetY;
+        private final float offsetZ;
         
-        public KnockerItem(String key, String name, Material material, int data, int price, String rarity, 
-                            String rarityColor, String lore, boolean isDefault) {
+        public ArrowEffectItem(String key, String name, String description, int price, String rarity, 
+                                String rarityColor, String effect, float effectSpeed, int effectCount,
+                                float offsetX, float offsetY, float offsetZ) {
             this.key = key;
             this.name = name;
-            this.material = material;
-            this.data = data;
+            this.description = description;
             this.price = price;
             this.rarity = rarity;
             this.rarityColor = rarityColor;
-            this.lore = lore;
-            this.isDefault = isDefault;
+            this.effect = effect;
+            this.effectSpeed = effectSpeed;
+            this.effectCount = effectCount;
+            this.offsetX = offsetX;
+            this.offsetY = offsetY;
+            this.offsetZ = offsetZ;
         }
         
         // Getters
         public String getKey() { return key; }
         public String getName() { return name; }
-        public Material getMaterial() { return material; }
-        public int getData() { return data; }
+        public String getDescription() { return description; }
         public int getPrice() { return price; }
         public String getRarity() { return rarity; }
         public String getRarityColor() { return rarityColor; }
-        public String getLore() { return lore; }
-        public boolean isDefault() { return isDefault; }
+        public String getEffect() { return effect; }
+        public float getEffectSpeed() { return effectSpeed; }
+        public int getEffectCount() { return effectCount; }
+        public float getOffsetX() { return offsetX; }
+        public float getOffsetY() { return offsetY; }
+        public float getOffsetZ() { return offsetZ; }
     }
 }

@@ -1,6 +1,5 @@
 package mk.kvlzx.menu;
 
-import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -11,214 +10,269 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.cosmetics.ArrowEffectItem;
+import mk.kvlzx.config.ArrowEffectsShopConfig;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ArrowEffectShopMenu extends Menu {
-    private final List<ArrowEffectItem> shopItems;
+    private final ArrowEffectsShopConfig config;
 
     public ArrowEffectShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lEffects Shop &8•", 54);
-        this.shopItems = initializeShopItems();
-    }
-
-    private List<ArrowEffectItem> initializeShopItems() {
-        List<ArrowEffectItem> items = new ArrayList<>();
-
-        // Common effects
-        items.add(new ArrowEffectItem(
-            "Flame Trail", 15000, "COMMON", "&7",
-            "&cLeaves a trail of flames!", 
-            Effect.FLAME, 0.0f, 1, 0f, 0f, 0f));
-        
-        items.add(new ArrowEffectItem(
-            "Water Splash", 15000, "COMMON", "&7",
-            "&bSplashes water while flying!", 
-            Effect.WATERDRIP, 0.0f, 2, 0.1f, 0.1f, 0.1f));
-
-        // Epic effects
-        items.add(new ArrowEffectItem(
-            "Ender Magic", 35000, "EPIC", "&5",
-            "&5The power of the End!", 
-            Effect.PORTAL, 0.2f, 3, 0.1f, 0.1f, 0.1f));
-        
-        items.add(new ArrowEffectItem(
-            "Slime Trail", 35000, "EPIC", "&5",
-            "&aLeaves a sticky trail!", 
-            Effect.SLIME, 0.1f, 2, 0f, 0f, 0f));
-
-        // Legendary effects
-        items.add(new ArrowEffectItem(
-            "Rainbow Spirit", 75000, "LEGENDARY", "&6",
-            "&dA rainbow of power!", 
-            Effect.COLOURED_DUST, 0.2f, 4, 0.2f, 0.2f, 0.2f));
-        
-        items.add(new ArrowEffectItem(
-            "Firework Show", 75000, "LEGENDARY", "&6",
-            "&eFireworks!", 
-            Effect.FIREWORKS_SPARK, 0.1f, 3, 0.1f, 0.1f, 0.1f));
-
-        return items;
+        super(plugin, plugin.getArrowEffectsShopConfig().getMenuTitle(), plugin.getArrowEffectsShopConfig().getMenuSize());
+        this.config = plugin.getArrowEffectsShopConfig();
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Balance actual
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins"));
+        // Balance item
+        setupBalanceItem(inv, stats);
 
-        // Slots disponibles para efectos (evitando el balance y botón de volver)
-        int[] availableSlots = {
-            9, 10, 11, 12, 13, 14, 15, 16, 17,
-            18, 19, 20, 21, 22, 23, 24, 25, 26,
-            27, 28, 29, 30, 31, 32, 33, 34, 35,
-            36, 37, 38, 39, 40, 41, 42, 43, 44,
-            45, 46, 47, 48, 50, 51, 52, 53
-        };
+        // Setup arrow effect items
+        setupArrowEffectItems(inv, player);
 
-        int slotIndex = 0;
-        for (ArrowEffectItem item : shopItems) {
-            if (slotIndex >= availableSlots.length) break;
-            
-            int slot = availableSlots[slotIndex];
-            setupEffectButton(inv, slot, item, player);
-            slotIndex++;
+        // Back button
+        setupBackButton(inv);
+
+        // Fill empty slots with filler items
+        if (config.isFillEmptySlots()) {
+            fillEmptySlots(inv);
         }
-
-        // Botón para volver
-        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to the shop"));
-
-        // Relleno
-        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
     }
 
-    private void setupEffectButton(Inventory inv, int slot, ArrowEffectItem item, Player player) {
-        boolean hasEffect = plugin.getCosmeticManager().hasPlayerArrowEffect(player.getUniqueId(), item.getName());
-        boolean isSelected = plugin.getCosmeticManager().getPlayerArrowEffect(player.getUniqueId())
-                            .equals(item.getName());
+    private void setupBalanceItem(Inventory inv, PlayerStats stats) {
+        List<String> balanceLore = new ArrayList<>();
+        for (String line : config.getBalanceLore()) {
+            balanceLore.add(line.replace("%balance%", String.valueOf(stats.getKGCoins())));
+        }
+        
+        ItemStack balanceItem = config.createMenuItem(
+            config.getBalanceMaterial(), 
+            config.getBalanceTitle(), 
+            balanceLore
+        );
+        
+        inv.setItem(config.getBalanceSlot(), balanceItem);
+    }
 
-        List<String> lore = new ArrayList<>();
-        lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
-        lore.add("");
-        lore.add(MessageUtils.getColor(item.getDescription()));
-        lore.add("");
+    private void setupArrowEffectItems(Inventory inv, Player player) {
+        String currentEffect = plugin.getCosmeticManager().getPlayerArrowEffect(player.getUniqueId());
+        List<Integer> availableSlots = config.getArrowEffectSlots();
+        
+        // Get effects sorted by rarity
+        List<ArrowEffectsShopConfig.ArrowEffectItem> sortedEffects = config.getSortedArrowEffectsByRarity();
+        
+        int slotIndex = 0;
+        for (ArrowEffectsShopConfig.ArrowEffectItem effectItem : sortedEffects) {
+            if (slotIndex >= availableSlots.size()) break;
+            
+            int slot = availableSlots.get(slotIndex);
+            setupArrowEffectButton(inv, slot, effectItem, player, currentEffect);
+            slotIndex++;
+        }
+    }
 
-        if (hasEffect) {
-            if (isSelected) {
-                lore.add("&aCurrently selected");
-                lore.add("&eClick to deselect");
-            } else {
-                lore.add("&eClick to select");
+    private void setupArrowEffectButton(Inventory inv, int slot, ArrowEffectsShopConfig.ArrowEffectItem effectItem, 
+                                        Player player, String currentEffect) {
+        
+        boolean hasEffect = plugin.getCosmeticManager().hasPlayerArrowEffect(player.getUniqueId(), effectItem.getName());
+        boolean isSelected = currentEffect.equals(effectItem.getName());
+        
+        // Determine the status of the effect
+        String statusKey = determineEffectStatus(effectItem, hasEffect, isSelected, player);
+        List<String> statusLore = config.getStatusMessage(statusKey);
+        
+        // Build the final lore for the effect item
+        List<String> finalLore = buildArrowEffectLore(effectItem, statusLore, player);
+        
+        // Create the title for the effect item
+        String title = config.getArrowEffectTitle()
+            .replace("%rarity_color%", effectItem.getRarityColor())
+            .replace("%effect_name%", effectItem.getName());
+        
+        // Determine material based on selection status
+        String materialId = isSelected ? config.getMaterialSelected() : config.getMaterialUnselected();
+        
+        // Create the item for the effect
+        ItemStack effectItemStack = config.createMenuItem(materialId, title, finalLore);
+        
+        // Add enchantments if the effect is selected
+        if (isSelected && config.isEnchantedIfSelected()) {
+            effectItemStack.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            if (config.isHideEnchants()) {
+                ItemMeta meta = effectItemStack.getItemMeta();
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                effectItemStack.setItemMeta(meta);
             }
+        }
+
+        inv.setItem(slot, effectItemStack);
+    }
+
+    private String determineEffectStatus(ArrowEffectsShopConfig.ArrowEffectItem effectItem, boolean hasEffect, 
+                                            boolean isSelected, Player player) {
+        
+        if (hasEffect) {
+            return isSelected ? "owned_selected" : "owned_click_to_select";
         } else {
-            lore.add("&7Click to buy");
-            lore.add("");
-            lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
+            PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+            return stats.getKGCoins() < effectItem.getPrice() ? "insufficient_funds" : "purchasable";
         }
+    }
 
-        // Create the button with the appropriate material
-        Material material = isSelected ? Material.ARROW : Material.ARROW;
-        ItemStack button = createItem(material, 
-            (isSelected ? "&b" : item.getRarityColor()) + item.getName(), 
-            lore.toArray(new String[0]));
-
-        if (isSelected) {
-            button.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-            ItemMeta meta = button.getItemMeta();
-            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-            button.setItemMeta(meta);
+    private List<String> buildArrowEffectLore(ArrowEffectsShopConfig.ArrowEffectItem effectItem, 
+                                                List<String> statusLore, Player player) {
+        List<String> finalLore = new ArrayList<>();
+        
+        for (String line : config.getArrowEffectLore()) {
+            String processedLine = line
+                .replace("%rarity_color%", effectItem.getRarityColor())
+                .replace("%rarity%", effectItem.getRarity())
+                .replace("%effect_name%", effectItem.getName());
+            
+            if (processedLine.contains("%effect_description%")) {
+                finalLore.add(MessageUtils.getColor(effectItem.getDescription()));
+            } else if (processedLine.contains("%status_lore%")) {
+                for (String statusLine : statusLore) {
+                    String processedStatusLine = statusLine
+                        .replace("%price%", String.valueOf(effectItem.getPrice()))
+                        .replace("%balance%", String.valueOf(PlayerStats.getStats(player.getUniqueId()).getKGCoins()))
+                        .replace("%effect_name%", effectItem.getName());
+                    finalLore.add(processedStatusLine);
+                }
+            } else {
+                finalLore.add(processedLine);
+            }
         }
+        
+        return finalLore;
+    }
 
-        inv.setItem(slot, button);
+    private void setupBackButton(Inventory inv) {
+        ItemStack backButton = config.createMenuItem(
+            config.getBackButtonMaterial(),
+            config.getBackButtonTitle(),
+            config.getBackButtonLore()
+        );
+        
+        inv.setItem(config.getBackButtonSlot(), backButton);
+    }
+
+    private void fillEmptySlots(Inventory inv) {
+        Material fillerMaterial;
+        try {
+            fillerMaterial = Material.valueOf(config.getFillerMaterial().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            fillerMaterial = Material.STAINED_GLASS_PANE;
+        }
+        
+        ItemStack filler = new ItemStack(fillerMaterial, 1, (short) config.getFillerData());
+        ItemMeta meta = filler.getItemMeta();
+        meta.setDisplayName(MessageUtils.getColor(config.getFillerTitle()));
+        filler.setItemMeta(meta);
+        
+        for (int i = 0; i < inv.getSize(); i++) {
+            if (inv.getItem(i) == null) {
+                inv.setItem(i, filler);
+            }
+        }
     }
 
     @Override
     public void handleClick(InventoryClickEvent event) {
-        // Validar que el click sea en el menú y no en el inventario del jugador
+        // Validate that the click is in the menu and not in the player's inventory
         if (!isValidClick(event)) {
             event.setCancelled(true);
             return;
         }
-        
+
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (event.getSlot() == 49) {
+        // Back button
+        if (event.getSlot() == config.getBackButtonSlot()) {
             plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
 
-        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE || 
-            clicked.getType() == Material.EMERALD) return;
+        // Ignore clicks on special items
+        if (clicked == null || 
+            clicked.getType().name().equals(config.getFillerMaterial()) || 
+            clicked.getType().name().equals(config.getBalanceMaterial())) {
+            return;
+        }
 
-        String itemName = clicked.getItemMeta().getDisplayName();
-        ArrowEffectItem effectItem = findEffectItem(MessageUtils.stripColor(itemName));
+        // Find the clicked arrow effect
+        String clickedEffectName = findArrowEffectFromItem(clicked);
+        if (clickedEffectName == null) return;
+        
+        ArrowEffectsShopConfig.ArrowEffectItem effectItem = findArrowEffectItemByName(clickedEffectName);
         if (effectItem == null) return;
 
-        handleEffectSelection(player, effectItem);
+        handleArrowEffectSelection(player, effectItem);
     }
 
-    private void handleEffectSelection(Player player, ArrowEffectItem effectItem) {
-        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
-        String currentEffect = plugin.getCosmeticManager().getPlayerArrowEffect(player.getUniqueId());
-
-        // Si ya tiene el efecto seleccionado
-        if (plugin.getCosmeticManager().hasPlayerArrowEffect(player.getUniqueId(), effectItem.getName())) {
-            // Si el efecto ya está seleccionado, lo deselecciona
-            if (currentEffect.equals(effectItem.getName())) {
-                plugin.getCosmeticManager().setPlayerArrowEffect(player.getUniqueId(), "none");
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have deselected the effect."));
-            } else {
-                plugin.getCosmeticManager().setPlayerArrowEffect(player.getUniqueId(), effectItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have selected the effect: " + effectItem.getName()));
-            }
-            player.closeInventory();
-        } else {
-            if (stats.getKGCoins() >= effectItem.getPrice()) {
-                stats.removeKGCoins(effectItem.getPrice());
-                plugin.getCosmeticManager().addPlayerArrowEffect(player.getUniqueId(), effectItem.getName());
-                plugin.getCosmeticManager().setPlayerArrowEffect(player.getUniqueId(), effectItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have purchased and selected the effect " +
-                    effectItem.getName() + " &afor &e" + effectItem.getPrice() + " KGCoins&a!"));
-                player.closeInventory();
-            } else {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou don't have enough KGCoins to purchase this effect."));
+    private String findArrowEffectFromItem(ItemStack item) {
+        if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) {
+            return null;
+        }
+        
+        String displayName = MessageUtils.stripColor(item.getItemMeta().getDisplayName());
+        
+        // Search for the effect by name
+        for (ArrowEffectsShopConfig.ArrowEffectItem effectItem : config.getArrowEffectItems().values()) {
+            if (effectItem.getName().equals(displayName)) {
+                return effectItem.getName();
             }
         }
+        
+        return null;
     }
 
-    private ArrowEffectItem findEffectItem(String name) {
-        return shopItems.stream()
-            .filter(item -> MessageUtils.stripColor(item.getName()).equals(name))
+    private ArrowEffectsShopConfig.ArrowEffectItem findArrowEffectItemByName(String name) {
+        return config.getArrowEffectItems().values().stream()
+            .filter(item -> item.getName().equals(name))
             .findFirst()
             .orElse(null);
     }
 
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
-    }
+    private void handleArrowEffectSelection(Player player, ArrowEffectsShopConfig.ArrowEffectItem effectItem) {
+        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        String currentEffect = plugin.getCosmeticManager().getPlayerArrowEffect(player.getUniqueId());
 
-    private ItemStack createItem(Material material, String name, byte data, String... lore) {
-        ItemStack item = new ItemStack(material, 1, data);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(MessageUtils.getColor(name));
-        
-        if (lore.length > 0) {
-            List<String> coloredLore = new ArrayList<>();
-            for (String line : lore) {
-                coloredLore.add(MessageUtils.getColor(line));
+        // If the player already owns the effect
+        if (plugin.getCosmeticManager().hasPlayerArrowEffect(player.getUniqueId(), effectItem.getName())) {
+            // If the effect is already selected, deselect it
+            if (currentEffect.equals(effectItem.getName())) {
+                plugin.getCosmeticManager().setPlayerArrowEffect(player.getUniqueId(), "none");
+                String message = config.getEffectDeselectedMessage();
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
+            } else {
+                // Select the effect
+                plugin.getCosmeticManager().setPlayerArrowEffect(player.getUniqueId(), effectItem.getName());
+                String message = config.getEffectSelectedMessage().replace("%effect_name%", effectItem.getName());
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
             }
-            meta.setLore(coloredLore);
+            player.closeInventory();
+        } else {
+            // Buy the effect
+            if (stats.getKGCoins() >= effectItem.getPrice()) {
+                stats.removeKGCoins(effectItem.getPrice());
+                plugin.getCosmeticManager().addPlayerArrowEffect(player.getUniqueId(), effectItem.getName());
+                plugin.getCosmeticManager().setPlayerArrowEffect(player.getUniqueId(), effectItem.getName());
+                
+                String message = config.getEffectPurchasedMessage()
+                    .replace("%effect_name%", effectItem.getName())
+                    .replace("%price%", String.valueOf(effectItem.getPrice()));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
+                player.closeInventory();
+            } else {
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + config.getInsufficientFundsMessage()));
+            }
         }
-        
-        item.setItemMeta(meta);
-        return item;
     }
 }

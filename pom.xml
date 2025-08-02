@@ -82,6 +82,7 @@
                     <include>config/menus/knockers-shop.yml</include>
                     <include>config/menus/kill-messages-shop.yml</include>
                     <include>config/menus/death-messages-shop.yml</include>
+                    <include>config/menus/arrow-effects-shop.yml</include>
                 </includes>
             </resource>
         </resources>

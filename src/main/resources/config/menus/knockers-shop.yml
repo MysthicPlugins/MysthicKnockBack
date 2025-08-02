@@ -55,13 +55,6 @@ knocker_items:
     rarity_color: "&7"
     lore: "&eDogs love it!"
   
-  wooden_shovel:
-    name: "Wooden Shovel"
-    price: 5000
-    rarity: "COMMON"
-    rarity_color: "&7"
-    lore: "&6Digging your victory!"
-  
   blaze_rod:
     name: "Blaze Rod"
     price: 5000
@@ -83,13 +76,6 @@ knocker_items:
     rarity: "UNCOMMON"
     rarity_color: "&a"
     lore: "&eShines like the sun!"
-  
-  iron_shovel:
-    name: "Iron Shovel"
-    price: 15000
-    rarity: "UNCOMMON"
-    rarity_color: "&a"
-    lore: "&7Forged in the mountains"
   
   stone_hoe:
     name: "Stone Hoe"
@@ -126,6 +112,20 @@ knocker_items:
     rarity: "RARE"
     rarity_color: "&9"
     lore: "&eThe weapon of kings!"
+
+  enchanted_book:
+    name: "Enchanted Book"
+    price: 50000
+    rarity: "RARE"
+    rarity_color: "&9"
+    lore: "&dKnowledge is power!"
+
+  rabbit_foot:
+    name: "Rabbit's Foot"
+    price: 50000
+    rarity: "RARE"
+    rarity_color: "&9"
+    lore: "&7Brings good luck!"
   
   iron_sword:
     name: "Iron Sword"
@@ -133,20 +133,6 @@ knocker_items:
     rarity: "RARE"
     rarity_color: "&9"
     lore: "&7Sharp as none"
-  
-  diamond_shovel:
-    name: "Diamond Shovel"
-    price: 50000
-    rarity: "RARE"
-    rarity_color: "&9"
-    lore: "&bDigging in style"
-  
-  golden_shovel:
-    name: "Golden Shovel"
-    price: 50000
-    rarity: "RARE"
-    rarity_color: "&9"
-    lore: "&eGleaming like gold!"
 
   # EPIC knockers
   diamond_sword:

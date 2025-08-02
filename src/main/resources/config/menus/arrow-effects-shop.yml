@@ -1,0 +1,232 @@
+menu:
+  title: "&8• &e&lEffects Shop &8•"
+  size: 54
+  items:
+    # Balance display
+    balance:
+      slot: 4
+      material: EMERALD
+      title: "&a&lYour Balance"
+      lore:
+        - "&7Current Balance: &e%balance% KGCoins"
+    
+    # Arrow effect items configuration
+    arrow_effects:
+      slots: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 50, 51, 52, 53]
+      title: "%rarity_color%%effect_name%"
+      lore:
+        - "%rarity_color%✦ Rarity: %rarity%"
+        - ""
+        - "%effect_description%"
+        - ""
+        - "%status_lore%"
+      material_selected: ARROW
+      material_unselected: ARROW
+      enchanted_if_selected: true
+      hide_enchants: true
+    
+    # Back button
+    back_button:
+      slot: 49
+      material: ARROW
+      title: "&c← Back"
+      lore:
+        - "&7Click to return to the shop"
+    
+    # Filler items
+    filler:
+      material: STAINED_GLASS_PANE
+      data: 7
+      title: " "
+      fill_empty_slots: true
+
+# Arrow effect definitions
+arrow_effect_items:
+  # COMMON effects
+  flame_trail:
+    name: "Flame Trail"
+    description: "&cLeaves a trail of flames!"
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    effect: "FLAME"
+    effect_speed: 0.0
+    effect_count: 1
+    offset_x: 0.0
+    offset_y: 0.0
+    offset_z: 0.0
+  
+  water_splash:
+    name: "Water Splash"
+    description: "&bSplashes water while flying!"
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    effect: "WATERDRIP"
+    effect_speed: 0.0
+    effect_count: 2
+    offset_x: 0.1
+    offset_y: 0.1
+    offset_z: 0.1
+  
+  smoke_cloud:
+    name: "Smoke Cloud"
+    description: "&8Creates a mysterious smoke trail!"
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    effect: "SMOKE"
+    effect_speed: 0.0
+    effect_count: 1
+    offset_x: 0.0
+    offset_y: 0.0
+    offset_z: 0.0
+  
+  heart_trail:
+    name: "Heart Trail"
+    description: "&dSpread love with every shot!"
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    effect: "HEART"
+    effect_speed: 0.0
+    effect_count: 1
+    offset_x: 0.1
+    offset_y: 0.1
+    offset_z: 0.1
+  
+  note_melody:
+    name: "Note Melody"
+    description: "&ePlays musical notes while flying!"
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    effect: "NOTE"
+    effect_speed: 0.0
+    effect_count: 1
+    offset_x: 0.0
+    offset_y: 0.0
+    offset_z: 0.0
+
+  # EPIC effects
+  ender_magic:
+    name: "Ender Magic"
+    description: "&5The power of the End!"
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    effect: "PORTAL"
+    effect_speed: 0.2
+    effect_count: 3
+    offset_x: 0.1
+    offset_y: 0.1
+    offset_z: 0.1
+  
+  slime_trail:
+    name: "Slime Trail"
+    description: "&aLeaves a sticky trail!"
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    effect: "SLIME"
+    effect_speed: 0.1
+    effect_count: 2
+    offset_x: 0.0
+    offset_y: 0.0
+    offset_z: 0.0
+  
+  witch_magic:
+    name: "Witch Magic"
+    description: "&5Dark magic follows your arrows!"
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    effect: "WITCH_MAGIC"
+    effect_speed: 0.1
+    effect_count: 2
+    offset_x: 0.1
+    offset_y: 0.1
+    offset_z: 0.1
+  
+  cloud_burst:
+    name: "Cloud Burst"
+    description: "&fClouds burst around your arrows!"
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    effect: "CLOUD"
+    effect_speed: 0.0
+    effect_count: 3
+    offset_x: 0.2
+    offset_y: 0.2
+    offset_z: 0.2
+
+  # LEGENDARY effects
+  rainbow_spirit:
+    name: "Rainbow Spirit"
+    description: "&dA rainbow of power!"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    effect: "COLOURED_DUST"
+    effect_speed: 0.2
+    effect_count: 4
+    offset_x: 0.2
+    offset_y: 0.2
+    offset_z: 0.2
+  
+  firework_show:
+    name: "Firework Show"
+    description: "&eFireworks!"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    effect: "FIREWORKS_SPARK"
+    effect_speed: 0.1
+    effect_count: 3
+    offset_x: 0.1
+    offset_y: 0.1
+    offset_z: 0.1
+  
+  explosion_large:
+    name: "Explosion Large"
+    description: "&cMassive explosive power!"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    effect: "EXPLOSION_LARGE"
+    effect_speed: 0.0
+    effect_count: 1
+    offset_x: 0.0
+    offset_y: 0.0
+    offset_z: 0.0
+
+# Status messages for different arrow effect states
+status_messages:
+  owned_selected:
+    - "&aCurrently selected"
+    - "&8➥ Using this effect"
+    - ""
+    - "&eClick to deselect"
+  
+  owned_click_to_select:
+    - "&eClick to select"
+    - "&8➥ You already own this effect"
+  
+  purchasable:
+    - "&7Click to purchase"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+  
+  insufficient_funds:
+    - "&cInsufficient funds"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+    - "&8➥ You have: &e%balance% KGCoins"
+
+# Messages
+messages:
+  effect_selected: "&aYou have selected the effect: %effect_name%"
+  effect_deselected: "&aYou have deselected the effect. Using no effects."
+  effect_purchased: "&aYou have purchased and selected the effect %effect_name% &afor &e%price% KGCoins&a!"
+  insufficient_funds: "&cYou don't have enough KGCoins to purchase this effect."
