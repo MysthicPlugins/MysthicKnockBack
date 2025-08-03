@@ -1,0 +1,156 @@
+menu:
+  title: "&8• &d&lMusic Store &8•"
+  size: 54
+  items:
+    # Balance display
+    balance:
+      slot: 4
+      material: EMERALD
+      title: "&a&lYour Balance"
+      lore:
+        - "&7Current Balance: &e%balance% KGCoins"
+    
+    # Background music items configuration
+    background_music:
+      slots: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 50, 51, 52, 53]
+      title: "%rarity_color%%music_name%"
+      lore:
+        - "%rarity_color%✦ Rarity: %rarity%"
+        - ""
+        - "%description%"
+        - ""
+        - "&eRight-click to hear a sample"
+        - ""
+        - "%status_lore%"
+      materials:
+        common:
+          selected: JUKEBOX
+          unselected: RECORD_12
+        epic:
+          selected: JUKEBOX
+          unselected: RECORD_11
+        legendary:
+          selected: JUKEBOX
+          unselected: RECORD_MELLOHI
+      enchanted_if_selected: true
+      hide_enchants: true
+    
+    # Back button
+    back_button:
+      slot: 49
+      material: ARROW
+      title: "&c← Back"
+      lore:
+        - "&7Click to return to the shop"
+    
+    # Filler items
+    filler:
+      material: STAINED_GLASS_PANE
+      data: 7
+      title: " "
+      fill_empty_slots: true
+
+# Background music definitions
+background_music_items:
+  # COMMON music
+  far:
+    name: "Far"
+    sound: "records.far"
+    volume: 1.0
+    pitch: 1.0
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&fA distant melody!"
+  
+  mall:
+    name: "Mall"
+    sound: "records.mall"
+    volume: 1.0
+    pitch: 1.0
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&fSounds of the mall!"
+  
+  strad:
+    name: "Strad"
+    sound: "records.strad"
+    volume: 1.0
+    pitch: 1.0
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&fA classic melody!"
+
+  # EPIC music
+  cat:
+    name: "Cat"
+    sound: "records.cat"
+    volume: 1.0
+    pitch: 1.0
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5The cat's disc!"
+  
+  chirp:
+    name: "Chirp"
+    sound: "records.chirp"
+    volume: 1.0
+    pitch: 1.0
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5Bird melodies!"
+
+  # LEGENDARY music
+  mellohi:
+    name: "Mellohi"
+    sound: "records.mellohi"
+    volume: 1.0
+    pitch: 1.0
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6The mystical melody!"
+  
+  stal:
+    name: "Stal"
+    sound: "records.stal"
+    volume: 1.0
+    pitch: 1.0
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6The steel music!"
+
+# Status messages for different music states
+status_messages:
+  owned_selected:
+    - "&aCurrently selected"
+    - "&8➥ Playing this music"
+    - ""
+    - "&eClick to deselect"
+  
+  owned_click_to_select:
+    - "&eClick to select"
+    - "&8➥ You already own this music"
+  
+  purchasable:
+    - "&7Click to purchase"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+  
+  insufficient_funds:
+    - "&cInsufficient funds"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+    - "&8➥ You have: &e%balance% KGCoins"
+
+# Messages
+messages:
+  music_selected: "&aYou have selected the music: %music_name%"
+  music_deselected: "&aYou have deselected the music. No background music will play."
+  music_purchased: "&aYou have purchased and selected the music %music_name% &afor &e%price% KGCoins&a!"
+  insufficient_funds: "&cYou don't have enough KGCoins to purchase this music."

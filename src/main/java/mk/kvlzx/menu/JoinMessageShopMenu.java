@@ -3,7 +3,6 @@ package mk.kvlzx.menu;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -14,298 +13,270 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.cosmetics.JoinMessageItem;
+import mk.kvlzx.config.JoinMessagesShopConfig;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 
 public class JoinMessageShopMenu extends Menu {
-    private final List<JoinMessageItem> shopItems;
+    private final JoinMessagesShopConfig config;
 
     public JoinMessageShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lJoin Message Shop &8•", 54);
-        this.shopItems = initializeShopItems();
-    }
-
-    private List<JoinMessageItem> initializeShopItems() {
-        List<JoinMessageItem> items = new ArrayList<>();
-        
-        // Comunes
-        items.add(new JoinMessageItem(
-            "&a¡%player% &bhas burst into the server with force!", 
-            "Burst", 15000, "COMMON", "&7",
-            "Make a dramatic entrance with explosive energy!"
-        ));
-        items.add(new JoinMessageItem(
-            "&6%player% &ejoins the kingdom, prepare your swords!", 
-            "Kingdom", 15000, "COMMON", "&7",
-            "Join the realm as a noble warrior ready for battle!"
-        ));
-        items.add(new JoinMessageItem(
-            "&c¡Attention! &f%player% &chas snuck into the adventure.", 
-            "Attention", 15000, "COMMON", "&7",
-            "Alert everyone of your stealthy arrival!"
-        ));
-        items.add(new JoinMessageItem(
-            "&b%player% &3arrives from distant lands to the server.", 
-            "Distant", 15000, "COMMON", "&7",
-            "Come from far away lands with tales to tell!"
-        ));
-        items.add(new JoinMessageItem(
-            "&d¡Look! &5%player% &dbrings chaos and fun.", 
-            "Chaos", 15000, "COMMON", "&7",
-            "Bring excitement and unpredictable fun to the server!"
-        ));
-        items.add(new JoinMessageItem(
-            "&e%player% &6has entered, let the creepers tremble!", 
-            "Creepers", 15000, "COMMON", "&7",
-            "Strike fear into the hearts of all hostile mobs!"
-        ));
-        items.add(new JoinMessageItem(
-            "&f%player% &7connected, ready to leave their mark.", 
-            "Mark", 15000, "COMMON", "&7",
-            "Join with determination to make your presence known!"
-        ));
-        
-        // Épicos
-        items.add(new JoinMessageItem(
-            "&a¡%player% &2has arrived to sow epic tales!", 
-            "Epic", 35000, "EPIC", "&5",
-            "Become the protagonist of legendary adventures!"
-        ));
-        items.add(new JoinMessageItem(
-            "&c%player% &4enters the server with thirst for victory.", 
-            "Victory", 35000, "EPIC", "&5",
-            "Join with an unstoppable desire to conquer all challenges!"
-        ));
-        items.add(new JoinMessageItem(
-            "&b¡%player% &9descends from the sky with a trident!", 
-            "Trident", 35000, "EPIC", "&5",
-            "Make a godly entrance wielding the power of the seas!"
-        ));
-        items.add(new JoinMessageItem(
-            "&d%player% &5joins, magic on the horizon!", 
-            "Magic", 35000, "EPIC", "&5",
-            "Bring mystical powers and enchanting abilities!"
-        ));
-        items.add(new JoinMessageItem(
-            "&e¡Careful! &6%player% &eis here to shine.", 
-            "Shine", 35000, "EPIC", "&5",
-            "Radiate brilliance and become the center of attention!"
-        ));
-        items.add(new JoinMessageItem(
-            "&a%player% &2enters with a bow and arrows ready.", 
-            "Archer", 35000, "EPIC", "&5",
-            "Join as a skilled marksman ready for precise combat!"
-        ));
-        
-        // Legendarios
-        items.add(new JoinMessageItem(
-            "&f¡%player% &bhas arrived to forge legends!", 
-            "Legends", 75000, "LEGENDARY", "&6",
-            "Create stories that will be remembered for generations!"
-        ));
-        items.add(new JoinMessageItem(
-            "&c%player% &4whispers: 'The Nether fears me...'",
-            "Nether", 75000, "LEGENDARY", "&6",
-            "Command respect from the most dangerous dimensions!"
-        ));
-        items.add(new JoinMessageItem(
-            "&b¡%player% &3connects with a master plan!", 
-            "Master", 75000, "LEGENDARY", "&6",
-            "Arrive with calculated strategies for ultimate success!"
-        ));
-        items.add(new JoinMessageItem(
-            "&d%player% &esteps on the server with enchanted boots.", 
-            "Boots", 75000, "LEGENDARY", "&6",
-            "Walk with magical footwear that enhances your journey!"
-        ));
-        items.add(new JoinMessageItem(
-            "&6¡Attention! &c%player% &6brings fire to the game.", 
-            "Fire", 75000, "LEGENDARY", "&6",
-            "Ignite passion and intensity in every adventure!"
-        ));
-        items.add(new JoinMessageItem(
-            "&a%player% &bhas arrived, the End awaits!", 
-            "End", 75000, "LEGENDARY", "&6",
-            "Prepare for the ultimate challenge in the final dimension!"
-        ));
-        items.add(new JoinMessageItem(
-            "&e%player% &7enters stealthily, beware of the diamonds!", 
-            "Diamonds", 75000, "LEGENDARY", "&6",
-            "Move with the grace of a master treasure hunter!"
-        ));
-        
-        return items;
+        super(plugin, plugin.getJoinMessagesShopConfig().getMenuTitle(), plugin.getJoinMessagesShopConfig().getMenuSize());
+        this.config = plugin.getJoinMessagesShopConfig();
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Balance actual
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins"));
+        // Balance item
+        setupBalanceItem(inv, stats);
 
-        // Slots disponibles para mensajes (evitando el balance y botón de volver)
-        int[] availableSlots = {
-            9, 10, 11, 12, 13, 14, 15, 16, 17,
-            18, 19, 20, 21, 22, 23, 24, 25, 26,
-            27, 28, 29, 30, 31, 32, 33, 34, 35,
-            36, 37, 38, 39, 40, 41, 42, 43, 44,
-            45, 46, 47, 48, 50, 51, 52, 53
-        };
+        // Setup join message items
+        setupJoinMessageItems(inv, player);
 
-        int slotIndex = 0;
-        for (JoinMessageItem item : shopItems) {
-            if (slotIndex >= availableSlots.length) break;
-            
-            int slot = availableSlots[slotIndex];
-            setupMessageButton(inv, slot, item, player);
-            slotIndex++;
+        // Back button
+        setupBackButton(inv);
+
+        // Fill empty slots with filler items
+        if (config.isFillEmptySlots()) {
+            fillEmptySlots(inv);
         }
-
-        // Botón para volver
-        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to the shop"));
-
-        // Relleno
-        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
     }
 
-    private void setupMessageButton(Inventory inv, int slot, JoinMessageItem item, Player player) {
-        String currentMessage = plugin.getCosmeticManager().getPlayerJoinMessage(player.getUniqueId());
-        boolean hasMessage = plugin.getCosmeticManager().hasPlayerJoinMessage(player.getUniqueId(), item.getMessage());
-        boolean isSelected = currentMessage.equals(item.getMessage());
+    private void setupBalanceItem(Inventory inv, PlayerStats stats) {
+        List<String> balanceLore = new ArrayList<>();
+        for (String line : config.getBalanceLore()) {
+            balanceLore.add(line.replace("%balance%", String.valueOf(stats.getKGCoins())));
+        }
         
-        List<String> lore = new ArrayList<>();
-        lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
-        lore.add("");
-        lore.add("&7Preview:");
-        lore.add(MessageUtils.getColor(item.getMessage().replace("%player%", player.getName())));
-        lore.add("");
+        ItemStack balanceItem = config.createMenuItem(
+            config.getBalanceMaterial(), 
+            config.getBalanceTitle(), 
+            balanceLore
+        );
+        
+        inv.setItem(config.getBalanceSlot(), balanceItem);
+    }
+
+    private void setupJoinMessageItems(Inventory inv, Player player) {
+        String currentMessage = plugin.getCosmeticManager().getPlayerJoinMessage(player.getUniqueId());
+        List<Integer> availableSlots = config.getJoinMessageSlots();
+        
+        // Get sorted join messages by rarity
+        List<JoinMessagesShopConfig.JoinMessageItem> sortedMessages = config.getSortedJoinMessagesByRarity();
+        
+        int slotIndex = 0;
+        for (JoinMessagesShopConfig.JoinMessageItem messageItem : sortedMessages) {
+            if (slotIndex >= availableSlots.size()) break;
+            
+            int slot = availableSlots.get(slotIndex);
+            setupMessageButton(inv, slot, messageItem, player, currentMessage);
+            slotIndex++;
+        }
+    }
+
+    private void setupMessageButton(Inventory inv, int slot, JoinMessagesShopConfig.JoinMessageItem messageItem, 
+                                    Player player, String currentMessage) {
+        
+        boolean hasMessage = plugin.getCosmeticManager().hasPlayerJoinMessage(player.getUniqueId(), messageItem.getName());
+        boolean isSelected = currentMessage.equals(messageItem.getName());
+        
+        // Determine the status of the message
+        String statusKey = determineMessageStatus(messageItem, hasMessage, isSelected, player);
+        List<String> statusLore = config.getStatusMessage(statusKey);
+        
+        // Build the final lore for the message item
+        List<String> finalLore = buildJoinMessageLore(messageItem, statusLore, player);
+        
+        // Create the title for the message item
+        String title = config.getJoinMessageTitle()
+            .replace("%rarity_color%", messageItem.getRarityColor())
+            .replace("%message_name%", messageItem.getName());
+        
+        // Determine material based on rarity and selection status
+        String materialId = config.getMaterialForRarity(messageItem.getRarity(), isSelected);
+        
+        // Create the item for the message
+        ItemStack messageItemStack = config.createMenuItem(materialId, title, finalLore);
+        
+        // Add enchantments if the message is selected
+        if (isSelected && config.isEnchantedIfSelected()) {
+            messageItemStack.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            if (config.isHideEnchants()) {
+                ItemMeta meta = messageItemStack.getItemMeta();
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                messageItemStack.setItemMeta(meta);
+            }
+        }
+
+        inv.setItem(slot, messageItemStack);
+    }
+
+    private String determineMessageStatus(JoinMessagesShopConfig.JoinMessageItem messageItem, boolean hasMessage, 
+                                            boolean isSelected, Player player) {
         
         if (hasMessage) {
-            if (isSelected) {
-                lore.add("&aCurrently selected");
-                lore.add("&eClick to deselect");
-            } else {
-                lore.add("&eClick to select");
-            }
+            return isSelected ? "owned_selected" : "owned_click_to_select";
         } else {
-            lore.add("&7Click to purchase");
-            lore.add("");
-            lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
+            PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+            return stats.getKGCoins() < messageItem.getPrice() ? "insufficient_funds" : "purchasable";
+        }
+    }
+
+    private List<String> buildJoinMessageLore(JoinMessagesShopConfig.JoinMessageItem messageItem, 
+                                                List<String> statusLore, Player player) {
+        List<String> finalLore = new ArrayList<>();
+        
+        for (String line : config.getJoinMessageLore()) {
+            String processedLine = line
+                .replace("%rarity_color%", messageItem.getRarityColor())
+                .replace("%rarity%", messageItem.getRarity())
+                .replace("%message_name%", messageItem.getName());
+            
+            if (processedLine.contains("%preview_message%")) {
+                String previewMessage = messageItem.getMessage().replace("%player%", player.getName());
+                finalLore.add(MessageUtils.getColor(previewMessage));
+            } else if (processedLine.contains("%description%")) {
+                finalLore.add(MessageUtils.getColor(messageItem.getDescription()));
+            } else if (processedLine.contains("%status_lore%")) {
+                for (String statusLine : statusLore) {
+                    String processedStatusLine = statusLine
+                        .replace("%price%", String.valueOf(messageItem.getPrice()))
+                        .replace("%balance%", String.valueOf(PlayerStats.getStats(player.getUniqueId()).getKGCoins()))
+                        .replace("%message_name%", messageItem.getName());
+                    finalLore.add(processedStatusLine);
+                }
+            } else {
+                finalLore.add(processedLine);
+            }
         }
         
-        // Crear el botón con el material adecuado según la rareza
-        Material material;
-        switch (item.getRarity()) {
-            case "COMMON":
-                material = isSelected ? Material.ENCHANTED_BOOK : Material.PAPER;
-                break;
-            case "EPIC":
-                material = isSelected ? Material.ENCHANTED_BOOK : Material.WRITTEN_BOOK;
-                break;
-            case "LEGENDARY":
-                material = isSelected ? Material.ENCHANTED_BOOK : Material.BOOK_AND_QUILL;
-                break;
-            default:
-                material = isSelected ? Material.ENCHANTED_BOOK : Material.PAPER;
+        return finalLore;
+    }
+
+    private void setupBackButton(Inventory inv) {
+        ItemStack backButton = config.createMenuItem(
+            config.getBackButtonMaterial(),
+            config.getBackButtonTitle(),
+            config.getBackButtonLore()
+        );
+        
+        inv.setItem(config.getBackButtonSlot(), backButton);
+    }
+
+    private void fillEmptySlots(Inventory inv) {
+        Material fillerMaterial;
+        try {
+            fillerMaterial = Material.valueOf(config.getFillerMaterial().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            fillerMaterial = Material.STAINED_GLASS_PANE;
         }
-
-        ItemStack button = createItem(material, 
-            (isSelected ? "&b" : item.getRarityColor()) + item.getName(), 
-            lore.toArray(new String[0]));
-
-        if (isSelected) {
-            button.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-            ItemMeta meta = button.getItemMeta();
-            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-            button.setItemMeta(meta);
+        
+        ItemStack filler = new ItemStack(fillerMaterial, 1, (short) config.getFillerData());
+        ItemMeta meta = filler.getItemMeta();
+        meta.setDisplayName(MessageUtils.getColor(config.getFillerTitle()));
+        filler.setItemMeta(meta);
+        
+        for (int i = 0; i < inv.getSize(); i++) {
+            if (inv.getItem(i) == null) {
+                inv.setItem(i, filler);
+            }
         }
-
-        inv.setItem(slot, button);
     }
 
     @Override
     public void handleClick(InventoryClickEvent event) {
-        // Validar que el click sea en el menú y no en el inventario del jugador
         if (!isValidClick(event)) {
             event.setCancelled(true);
             return;
         }
-        
+
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
-        
-        if (event.getSlot() == 49) {
+
+        // Back button
+        if (event.getSlot() == config.getBackButtonSlot()) {
             plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
+
+        // Ignore clicks on special items
+        if (clicked == null || 
+            clicked.getType().name().equals(config.getFillerMaterial()) || 
+            clicked.getType().name().equals(config.getBalanceMaterial())) {
+            return;
+        }
+
+        // Find the clicked join message
+        String clickedMessageName = findJoinMessageFromItem(clicked);
+        if (clickedMessageName == null) return;
         
-        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE || 
-            clicked.getType() == Material.EMERALD) return;
-        
-        String itemName = MessageUtils.stripColor(clicked.getItemMeta().getDisplayName());
-        JoinMessageItem messageItem = findMessageItem(itemName);
+        JoinMessagesShopConfig.JoinMessageItem messageItem = findJoinMessageItemByName(clickedMessageName);
         if (messageItem == null) return;
-        
+
+        // Handle message selection
         handleMessageSelection(player, messageItem);
     }
 
-    private void handleMessageSelection(Player player, JoinMessageItem messageItem) {
+    private String findJoinMessageFromItem(ItemStack item) {
+        if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) {
+            return null;
+        }
+        
+        String displayName = MessageUtils.stripColor(item.getItemMeta().getDisplayName());
+        
+        // Search for the message by name
+        for (JoinMessagesShopConfig.JoinMessageItem messageItem : config.getJoinMessageItems().values()) {
+            if (messageItem.getName().equals(displayName)) {
+                return messageItem.getName();
+            }
+        }
+        
+        return null;
+    }
+
+    private JoinMessagesShopConfig.JoinMessageItem findJoinMessageItemByName(String name) {
+        return config.getJoinMessageItems().values().stream()
+            .filter(item -> item.getName().equals(name))
+            .findFirst()
+            .orElse(null);
+    }
+
+    private void handleMessageSelection(Player player, JoinMessagesShopConfig.JoinMessageItem messageItem) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         String currentMessage = plugin.getCosmeticManager().getPlayerJoinMessage(player.getUniqueId());
-        
+
+        // If the player already owns the message
         if (plugin.getCosmeticManager().hasPlayerJoinMessage(player.getUniqueId(), messageItem.getName())) {
+            // If the message is currently selected, deselect it
             if (currentMessage.equals(messageItem.getName())) {
                 plugin.getCosmeticManager().setPlayerJoinMessage(player.getUniqueId(), "default");
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have deselected the message. Using default messages."));
+                String message = config.getMessageDeselectedMessage();
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
             } else {
+                // Select the message
                 plugin.getCosmeticManager().setPlayerJoinMessage(player.getUniqueId(), messageItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have selected the message: " + messageItem.getName()));
+                String message = config.getMessageSelectedMessage().replace("%message_name%", messageItem.getName());
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
             }
             player.closeInventory();
         } else {
+            // Buy the message
             if (stats.getKGCoins() >= messageItem.getPrice()) {
                 stats.removeKGCoins(messageItem.getPrice());
                 plugin.getCosmeticManager().addPlayerJoinMessage(player.getUniqueId(), messageItem.getName());
                 plugin.getCosmeticManager().setPlayerJoinMessage(player.getUniqueId(), messageItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have purchased and selected the message " +
-                    messageItem.getName() + " &afor &e" + messageItem.getPrice() + " KGCoins&a!"));
+                
+                String message = config.getMessagePurchasedMessage()
+                    .replace("%message_name%", messageItem.getName())
+                    .replace("%price%", String.valueOf(messageItem.getPrice()));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou don't have enough KGCoins to purchase this message."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + config.getInsufficientFundsMessage()));
             }
         }
-    }
-
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
-    }
-
-    private ItemStack createItem(Material material, String name, byte data, String... lore) {
-        ItemStack item = new ItemStack(material, 1, data);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(MessageUtils.getColor(name));
-        
-        if (lore.length > 0) {
-            List<String> coloredLore = new ArrayList<>();
-            for (String line : lore) {
-                coloredLore.add(MessageUtils.getColor(line));
-            }
-            meta.setLore(coloredLore);
-        }
-        
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    private JoinMessageItem findMessageItem(String name) {
-        return shopItems.stream()
-            .filter(item -> MessageUtils.stripColor(item.getName()).equals(name))
-            .findFirst()
-            .orElse(null);
     }
 }

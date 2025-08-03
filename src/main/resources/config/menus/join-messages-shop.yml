@@ -1,0 +1,247 @@
+menu:
+  title: "&8• &e&lJoin Message Shop &8•"
+  size: 54
+  items:
+    # Balance display
+    balance:
+      slot: 4
+      material: EMERALD
+      title: "&a&lYour Balance"
+      lore:
+        - "&7Current Balance: &e%balance% KGCoins"
+    
+    # Join message items configuration
+    join_messages:
+      slots: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 50, 51, 52, 53]
+      title: "%rarity_color%%message_name%"
+      lore:
+        - "%rarity_color%✦ Rarity: %rarity%"
+        - ""
+        - "&7Preview:"
+        - "%preview_message%"
+        - ""
+        - "%description%"
+        - ""
+        - "%status_lore%"
+      materials:
+        common:
+          selected: ENCHANTED_BOOK
+          unselected: PAPER
+        epic:
+          selected: ENCHANTED_BOOK
+          unselected: WRITTEN_BOOK
+        legendary:
+          selected: ENCHANTED_BOOK
+          unselected: BOOK_AND_QUILL
+      enchanted_if_selected: true
+      hide_enchants: true
+    
+    # Back button
+    back_button:
+      slot: 49
+      material: ARROW
+      title: "&c← Back"
+      lore:
+        - "&7Click to return to the shop"
+    
+    # Filler items
+    filler:
+      material: STAINED_GLASS_PANE
+      data: 7
+      title: " "
+      fill_empty_slots: true
+
+# Join message definitions
+join_message_items:
+  # COMMON messages
+  burst:
+    name: "Burst"
+    message: "&a¡%player% &bhas burst into the server with force!"
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Make a dramatic entrance with explosive energy!"
+  
+  kingdom:
+    name: "Kingdom"
+    message: "&6%player% &ejoins the kingdom, prepare your swords!"
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Join the realm as a noble warrior ready for battle!"
+  
+  attention:
+    name: "Attention"
+    message: "&c¡Attention! &f%player% &chas snuck into the adventure."
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Alert everyone of your stealthy arrival!"
+  
+  distant:
+    name: "Distant"
+    message: "&b%player% &3arrives from distant lands to the server."
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Come from far away lands with tales to tell!"
+  
+  chaos:
+    name: "Chaos"
+    message: "&d¡Look! &5%player% &dbrings chaos and fun."
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Bring excitement and unpredictable fun to the server!"
+  
+  creepers:
+    name: "Creepers"
+    message: "&e%player% &6has entered, let the creepers tremble!"
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Strike fear into the hearts of all hostile mobs!"
+  
+  mark:
+    name: "Mark"
+    message: "&f%player% &7connected, ready to leave their mark."
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Join with determination to make your presence known!"
+
+  # EPIC messages
+  epic:
+    name: "Epic"
+    message: "&a¡%player% &2has arrived to sow epic tales!"
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&dBecome the protagonist of legendary adventures!"
+  
+  victory:
+    name: "Victory"
+    message: "&c%player% &4enters the server with thirst for victory."
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&dJoin with an unstoppable desire to conquer all challenges!"
+  
+  trident:
+    name: "Trident"
+    message: "&b¡%player% &9descends from the sky with a trident!"
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&dMake a godly entrance wielding the power of the seas!"
+  
+  magic:
+    name: "Magic"
+    message: "&d%player% &5joins, magic on the horizon!"
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&dBring mystical powers and enchanting abilities!"
+  
+  shine:
+    name: "Shine"
+    message: "&e¡Careful! &6%player% &eis here to shine."
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&dRadiate brilliance and become the center of attention!"
+  
+  archer:
+    name: "Archer"
+    message: "&a%player% &2enters with a bow and arrows ready."
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&dJoin as a skilled marksman ready for precise combat!"
+
+  # LEGENDARY messages
+  legends:
+    name: "Legends"
+    message: "&f¡%player% &bhas arrived to forge legends!"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Create stories that will be remembered for generations!"
+  
+  nether:
+    name: "Nether"
+    message: "&c%player% &4whispers: 'The Nether fears me...'"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Command respect from the most dangerous dimensions!"
+  
+  master:
+    name: "Master"
+    message: "&b¡%player% &3connects with a master plan!"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Arrive with calculated strategies for ultimate success!"
+  
+  boots:
+    name: "Boots"
+    message: "&d%player% &esteps on the server with enchanted boots."
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Walk with magical footwear that enhances your journey!"
+  
+  fire:
+    name: "Fire"
+    message: "&6¡Attention! &c%player% &6brings fire to the game."
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Ignite passion and intensity in every adventure!"
+  
+  end:
+    name: "End"
+    message: "&a%player% &bhas arrived, the End awaits!"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Prepare for the ultimate challenge in the final dimension!"
+  
+  diamonds:
+    name: "Diamonds"
+    message: "&e%player% &7enters stealthily, beware of the diamonds!"
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Move with the grace of a master treasure hunter!"
+
+# Status messages for different join message states
+status_messages:
+  owned_selected:
+    - "&aCurrently selected"
+    - "&8➥ Using this message"
+    - ""
+    - "&eClick to deselect"
+  
+  owned_click_to_select:
+    - "&eClick to select"
+    - "&8➥ You already own this message"
+  
+  purchasable:
+    - "&7Click to purchase"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+  
+  insufficient_funds:
+    - "&cInsufficient funds"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+    - "&8➥ You have: &e%balance% KGCoins"
+
+# Messages
+messages:
+  message_selected: "&aYou have selected the message: %message_name%"
+  message_deselected: "&aYou have deselected the message. Using default messages."
+  message_purchased: "&aYou have purchased and selected the message %message_name% &afor &e%price% KGCoins&a!"
+  insufficient_funds: "&cYou don't have enough KGCoins to purchase this message."

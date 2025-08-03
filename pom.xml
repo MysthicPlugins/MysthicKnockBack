@@ -84,6 +84,9 @@
                     <include>config/menus/death-messages-shop.yml</include>
                     <include>config/menus/arrow-effects-shop.yml</include>
                     <include>config/menus/death-sounds-shop.yml</include>
+                    <include>config/menus/kill-sounds-shop.yml</include>
+                    <include>config/menus/join-messages-shop.yml</include>
+                    <include>config/menus/music-shop.yml</include>
                 </includes>
             </resource>
         </resources>

@@ -42,7 +42,7 @@ import mk.kvlzx.arena.Zone;
 import mk.kvlzx.config.DeathMessagesShopConfig;
 import mk.kvlzx.config.DeathSoundsShopConfig;
 import mk.kvlzx.config.KillMessagesShopConfig;
-import mk.kvlzx.cosmetics.KillSoundItem;
+import mk.kvlzx.config.KillSoundsShopConfig;
 import mk.kvlzx.hotbar.PlayerHotbar;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.menu.Menu;
@@ -203,7 +203,7 @@ public class PlayerListener implements Listener {
             // Reproducir sonido de kill al asesino
             String soundName = plugin.getCosmeticManager().getPlayerKillSound(killer.getUniqueId());
             if (!soundName.equals("none")) {
-                KillSoundItem soundItem = KillSoundItem.getByName(soundName);
+                KillSoundsShopConfig.KillSoundItem soundItem = getKillSoundByName(soundName);
                 if (soundItem != null) {
                     killer.playSound(
                         killer.getLocation(),
@@ -320,7 +320,8 @@ public class PlayerListener implements Listener {
     private void handlePlayerKill(Player player) {
         String soundName = plugin.getCosmeticManager().getPlayerKillSound(player.getUniqueId());
         if (!soundName.equals("none")) {
-            KillSoundItem soundItem = KillSoundItem.getByName(soundName);
+            // Obtener el item de sonido desde la configuración
+            KillSoundsShopConfig.KillSoundItem soundItem = getKillSoundByName(soundName);
             if (soundItem != null) {
                 player.playSound(
                     player.getLocation(),
@@ -533,6 +534,15 @@ public class PlayerListener implements Listener {
 
     private DeathSoundsShopConfig.DeathSoundItem getDeathSoundByName(String soundName) {
         for (Map.Entry<String, DeathSoundsShopConfig.DeathSoundItem> entry : plugin.getDeathSoundsShopConfig().getDeathSoundItems().entrySet()) {
+            if (entry.getValue().getName().equals(soundName)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    private KillSoundsShopConfig.KillSoundItem getKillSoundByName(String soundName) {
+        for (Map.Entry<String, KillSoundsShopConfig.KillSoundItem> entry : plugin.getKillSoundsShopConfig().getKillSoundItems().entrySet()) {
             if (entry.getValue().getName().equals(soundName)) {
                 return entry.getValue();
             }

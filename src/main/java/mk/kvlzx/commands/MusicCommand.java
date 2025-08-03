@@ -23,7 +23,7 @@ public class MusicCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        plugin.getMenuManager().openMenu(player, "music_categories");
+        plugin.getMenuManager().openMenu(player, "music_shop");
         return true;
     }
 }

@@ -1,8 +1,9 @@
 package mk.kvlzx.menu;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.MusicShopConfig;
+import mk.kvlzx.stats.PlayerStats;
+import mk.kvlzx.utils.MessageUtils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -12,250 +13,276 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.cosmetics.BackgroundMusicItem;
-import mk.kvlzx.stats.PlayerStats;
-import mk.kvlzx.utils.MessageUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MusicShopMenu extends Menu {
-    private final List<BackgroundMusicItem> musicItems;
+    private final MusicShopConfig config;
 
     public MusicShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &d&lMusic Store &8•", 54);
-        this.musicItems = initializeMusicItems();
-    }
-
-    private List<BackgroundMusicItem> initializeMusicItems() {
-        List<BackgroundMusicItem> items = new ArrayList<>();
-
-        // Common music (15000 coins)
-        items.add(new BackgroundMusicItem(
-            "Far", 15000, "COMMON", "&7",
-            "&fA distant melody!", 
-            "records.far", 1.0f, 1.0f));
-
-        items.add(new BackgroundMusicItem(
-            "Mall", 15000, "COMMON", "&7",
-            "&fSounds of the mall!", 
-            "records.mall", 1.0f, 1.0f));
-
-        items.add(new BackgroundMusicItem(
-            "Strad", 15000, "COMMON", "&7",
-            "&fA classic melody!", 
-            "records.strad", 1.0f, 1.0f));
-
-        // Epic music (35000 coins)
-        items.add(new BackgroundMusicItem(
-            "Cat", 35000, "EPIC", "&5",
-            "&5The cat's disc!", 
-            "records.cat", 1.0f, 1.0f));
-
-        items.add(new BackgroundMusicItem(
-            "Chirp", 35000, "EPIC", "&5",
-            "&5Bird melodies!", 
-            "records.chirp", 1.0f, 1.0f));
-
-        // Legendary music (75000 coins)
-        items.add(new BackgroundMusicItem(
-            "Mellohi", 75000, "LEGENDARY", "&6",
-            "&6The mystical melody!", 
-            "records.mellohi", 1.0f, 1.0f));
-
-        items.add(new BackgroundMusicItem(
-            "Stal", 75000, "LEGENDARY", "&6",
-            "&6The steel music!", 
-            "records.stal", 1.0f, 1.0f));
-
-        return items;
+        super(plugin, plugin.getMusicShopConfig().getMenuTitle(), plugin.getMusicShopConfig().getMenuSize());
+        this.config = plugin.getMusicShopConfig();
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Balance
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current balance: &e" + stats.getKGCoins() + " KGCoins"));
+        // Balance item
+        setupBalanceItem(inv, stats);
 
-        // Slots disponibles para música (evitando el balance y botón de volver)
-        int[] availableSlots = {
-            9, 10, 11, 12, 13, 14, 15, 16, 17,
-            18, 19, 20, 21, 22, 23, 24, 25, 26,
-            27, 28, 29, 30, 31, 32, 33, 34, 35,
-            36, 37, 38, 39, 40, 41, 42, 43, 44,
-            45, 46, 47, 48, 50, 51, 52, 53
-        };
+        // Setup music items
+        setupMusicItems(inv, player);
 
-        // Configurar botones de música
-        int slotIndex = 0;
-        for (BackgroundMusicItem item : musicItems) {
-            if (slotIndex >= availableSlots.length) break;
-            
-            int slot = availableSlots[slotIndex];
-            setupMusicButton(inv, slot, item, player);
-            slotIndex++;
+        // Back button
+        setupBackButton(inv);
+
+        // Fill empty slots with filler items
+        if (config.isFillEmptySlots()) {
+            fillEmptySlots(inv);
         }
-
-        // Botón de volver
-        inv.setItem(49, createItem(Material.ARROW, "&c← Back", 
-            "&7Click to return to the shop"));
-
-        // Filler
-        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
     }
 
-    private void setupMusicButton(Inventory inv, int slot, BackgroundMusicItem item, Player player) {
-        boolean hasMusic = plugin.getCosmeticManager().hasPlayerBackgroundMusic(player.getUniqueId(), item.getName());
-        boolean isSelected = plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId())
-                            .equals(item.getName());
-        
-        List<String> lore = new ArrayList<>();
-        lore.add(item.getRarityColor() + "✦ Rarity: " + item.getRarity());
-        lore.add("");
-        lore.add(MessageUtils.getColor(item.getDescription()));
-        lore.add("");
-        lore.add("&eRight-click to hear a sample");
-        lore.add("");
-        
-        if (hasMusic) {
-            if (isSelected) {
-                lore.add("&aCurrently selected");
-                lore.add("&eClick to deselect");
-            } else {
-                lore.add("&eClick to select");
+    private void setupBalanceItem(Inventory inv, PlayerStats stats) {
+        List<String> balanceLore = new ArrayList<>();
+        for (String line : config.getBalanceLore()) {
+            balanceLore.add(line.replace("%balance%", String.valueOf(stats.getKGCoins())));
+        }
+
+        ItemStack balanceItem = config.createMenuItem(
+                config.getBalanceMaterial(),
+                config.getBalanceTitle(),
+                balanceLore
+        );
+
+        inv.setItem(config.getBalanceSlot(), balanceItem);
+    }
+
+    private void setupMusicItems(Inventory inv, Player player) {
+        String currentMusic = plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId());
+        List<Integer> availableSlots = config.getMusicSlots();
+
+        // Get sorted music by rarity
+        List<MusicShopConfig.BackgroundMusicItem> sortedMusic = config.getSortedMusicByRarity();
+
+        int slotIndex = 0;
+        for (MusicShopConfig.BackgroundMusicItem musicItem : sortedMusic) {
+            if (slotIndex >= availableSlots.size()) break;
+
+            int slot = availableSlots.get(slotIndex);
+            setupMusicButton(inv, slot, musicItem, player, currentMusic);
+            slotIndex++;
+        }
+    }
+
+    private void setupMusicButton(Inventory inv, int slot, MusicShopConfig.BackgroundMusicItem musicItem,
+                                    Player player, String currentMusic) {
+
+        boolean hasMusic = plugin.getCosmeticManager().hasPlayerBackgroundMusic(player.getUniqueId(), musicItem.getName());
+        boolean isSelected = currentMusic.equals(musicItem.getName());
+
+        // Determine the status of the music
+        String statusKey = determineMusicStatus(musicItem, hasMusic, isSelected, player);
+        List<String> statusLore = config.getStatusMessage(statusKey);
+
+        // Build the final lore for the music item
+        List<String> finalLore = buildMusicLore(musicItem, statusLore, player);
+
+        // Create the title for the music item
+        String title = config.getMusicTitle()
+                .replace("%rarity_color%", musicItem.getRarityColor())
+                .replace("%music_name%", musicItem.getName());
+
+        // Determine material based on rarity and selection status
+        String materialId = config.getMaterialForRarity(musicItem.getRarity(), isSelected);
+
+        // Create the item for the music
+        ItemStack musicItemStack = config.createMenuItem(materialId, title, finalLore);
+
+        // Add enchantments if the music is selected
+        if (isSelected && config.isEnchantedIfSelected()) {
+            musicItemStack.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            if (config.isHideEnchants()) {
+                ItemMeta meta = musicItemStack.getItemMeta();
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                musicItemStack.setItemMeta(meta);
             }
+        }
+
+        inv.setItem(slot, musicItemStack);
+    }
+
+    private String determineMusicStatus(MusicShopConfig.BackgroundMusicItem musicItem, boolean hasMusic,
+                                        boolean isSelected, Player player) {
+
+        if (hasMusic) {
+            return isSelected ? "owned_selected" : "owned_click_to_select";
         } else {
-            lore.add("&7Click to buy");
-            lore.add("");
-            lore.add("&8➥ Price: &e" + item.getPrice() + " KGCoins");
+            PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+            return stats.getKGCoins() < musicItem.getPrice() ? "insufficient_funds" : "purchasable";
+        }
+    }
+
+    private List<String> buildMusicLore(MusicShopConfig.BackgroundMusicItem musicItem,
+                                        List<String> statusLore, Player player) {
+        List<String> finalLore = new ArrayList<>();
+
+        for (String line : config.getMusicLore()) {
+            String processedLine = line
+                    .replace("%rarity_color%", musicItem.getRarityColor())
+                    .replace("%rarity%", musicItem.getRarity())
+                    .replace("%music_name%", musicItem.getName());
+
+            if (processedLine.contains("%description%")) {
+                finalLore.add(MessageUtils.getColor(musicItem.getDescription()));
+            } else if (processedLine.contains("%status_lore%")) {
+                for (String statusLine : statusLore) {
+                    String processedStatusLine = statusLine
+                            .replace("%price%", String.valueOf(musicItem.getPrice()))
+                            .replace("%balance%", String.valueOf(PlayerStats.getStats(player.getUniqueId()).getKGCoins()))
+                            .replace("%music_name%", musicItem.getName());
+                    finalLore.add(processedStatusLine);
+                }
+            } else {
+                finalLore.add(processedLine);
+            }
         }
 
-        Material material = isSelected ? Material.JUKEBOX : Material.RECORD_12;
-        ItemStack button = createItem(material, 
-            (isSelected ? "&b" : item.getRarityColor()) + item.getName(), 
-            lore.toArray(new String[0]));
+        return finalLore;
+    }
 
-        if (isSelected) {
-            button.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-            ItemMeta meta = button.getItemMeta();
-            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-            button.setItemMeta(meta);
+    private void setupBackButton(Inventory inv) {
+        ItemStack backButton = config.createMenuItem(
+                config.getBackButtonMaterial(),
+                config.getBackButtonTitle(),
+                config.getBackButtonLore()
+        );
+
+        inv.setItem(config.getBackButtonSlot(), backButton);
+    }
+
+    private void fillEmptySlots(Inventory inv) {
+        Material fillerMaterial;
+        try {
+            fillerMaterial = Material.valueOf(config.getFillerMaterial().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            fillerMaterial = Material.STAINED_GLASS_PANE;
         }
 
-        inv.setItem(slot, button);
+        ItemStack filler = new ItemStack(fillerMaterial, 1, (short) config.getFillerData());
+        ItemMeta meta = filler.getItemMeta();
+        meta.setDisplayName(MessageUtils.getColor(config.getFillerTitle()));
+        filler.setItemMeta(meta);
+
+        for (int i = 0; i < inv.getSize(); i++) {
+            if (inv.getItem(i) == null) {
+                inv.setItem(i, filler);
+            }
+        }
     }
 
     @Override
     public void handleClick(InventoryClickEvent event) {
-        // Validar que el click sea en el menú y no en el inventario del jugador
         if (!isValidClick(event)) {
             event.setCancelled(true);
             return;
         }
-        
+
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (event.getSlot() == 49) {
-            // Detener música previa si está sonando
-            stopPreviewMusic(player);
+        // Back button
+        if (event.getSlot() == config.getBackButtonSlot()) {
+            plugin.getMusicManager().stopMusicForPlayer(player);
             plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
 
-        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE || 
-            clicked.getType() == Material.EMERALD) return;
-
-        String itemName = MessageUtils.stripColor(clicked.getItemMeta().getDisplayName());
-        BackgroundMusicItem musicItem = findMusicItem(itemName);
-        if (musicItem == null) return;
-
-        // Si es click derecho, reproducir música de muestra
-        if (event.isRightClick()) {
-            playPreviewMusic(player, musicItem);
+        // Ignore clicks on special items
+        if (clicked == null ||
+                clicked.getType().name().equals(config.getFillerMaterial()) ||
+                clicked.getType().name().equals(config.getBalanceMaterial())) {
             return;
         }
 
-        // Si es click izquierdo, manejar selección o compra
+        // Find the clicked music
+        String clickedMusicName = findMusicFromItem(clicked);
+        if (clickedMusicName == null) return;
+
+        MusicShopConfig.BackgroundMusicItem musicItem = findMusicItemByName(clickedMusicName);
+        if (musicItem == null) return;
+
+        // If it's a right click, play the music
+        if (event.isRightClick()) {
+            plugin.getMusicManager().playPreviewMusic(player, musicItem.getSound());
+            return;
+        }
+
+        // If it's a left click, handle music selection
         handleMusicSelection(player, musicItem);
     }
 
-    private void playPreviewMusic(Player player, BackgroundMusicItem musicItem) {
-        // Detener música previa si está sonando
-        stopPreviewMusic(player);
+    private String findMusicFromItem(ItemStack item) {
+        if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) {
+            return null;
+        }
 
-        // Reproducir música de muestra usando el MusicManager
-        plugin.getMusicManager().playPreviewMusic(player, musicItem.getSound());
+        String displayName = MessageUtils.stripColor(item.getItemMeta().getDisplayName());
+
+        // Search for the music by name
+        for (MusicShopConfig.BackgroundMusicItem musicItem : config.getMusicItems().values()) {
+            if (musicItem.getName().equals(displayName)) {
+                return musicItem.getName();
+            }
+        }
+
+        return null;
     }
 
-    private void stopPreviewMusic(Player player) {
-        plugin.getMusicManager().stopMusicForPlayer(player);
+    private MusicShopConfig.BackgroundMusicItem findMusicItemByName(String name) {
+        return config.getMusicItems().values().stream()
+                .filter(item -> item.getName().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 
-    private void handleMusicSelection(Player player, BackgroundMusicItem musicItem) {
+    private void handleMusicSelection(Player player, MusicShopConfig.BackgroundMusicItem musicItem) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         String currentMusic = plugin.getCosmeticManager().getPlayerBackgroundMusic(player.getUniqueId());
 
+        // If the player already owns the music
         if (plugin.getCosmeticManager().hasPlayerBackgroundMusic(player.getUniqueId(), musicItem.getName())) {
+            // If the music is currently selected, deselect it
             if (currentMusic.equals(musicItem.getName())) {
                 plugin.getCosmeticManager().setPlayerBackgroundMusic(player.getUniqueId(), "none");
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have deselected the music."));
-                stopBackgroundMusic(player);
+                String message = config.getMusicDeselectedMessage();
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
+                plugin.getMusicManager().stopMusicForPlayer(player);
             } else {
+                // Select the music
                 plugin.getCosmeticManager().setPlayerBackgroundMusic(player.getUniqueId(), musicItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have selected the music: " + musicItem.getName()));
-                startBackgroundMusic(player, musicItem);
+                String message = config.getMusicSelectedMessage().replace("%music_name%", musicItem.getName());
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
+                plugin.getMusicManager().startMusicForPlayer(player, musicItem.getSound());
             }
             player.closeInventory();
         } else {
+            // Buy the music
             if (stats.getKGCoins() >= musicItem.getPrice()) {
                 stats.removeKGCoins(musicItem.getPrice());
                 plugin.getCosmeticManager().addPlayerBackgroundMusic(player.getUniqueId(), musicItem.getName());
                 plugin.getCosmeticManager().setPlayerBackgroundMusic(player.getUniqueId(), musicItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have purchased and selected the music " + 
-                    musicItem.getName() + " &afor &e" + musicItem.getPrice() + " KGCoins&a!"));
-                startBackgroundMusic(player, musicItem);
+
+                String message = config.getMusicPurchasedMessage()
+                        .replace("%music_name%", musicItem.getName())
+                        .replace("%price%", String.valueOf(musicItem.getPrice()));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
+                plugin.getMusicManager().startMusicForPlayer(player, musicItem.getSound());
                 player.closeInventory();
             } else {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou don't have enough KGCoins to purchase this music."));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + config.getInsufficientFundsMessage()));
             }
         }
-    }
-
-    private BackgroundMusicItem findMusicItem(String name) {
-        return musicItems.stream()
-            .filter(item -> MessageUtils.stripColor(item.getName()).equals(name))
-            .findFirst()
-            .orElse(null);
-    }
-
-    private void startBackgroundMusic(Player player, BackgroundMusicItem musicItem) {
-        plugin.getMusicManager().startMusicForPlayer(player, musicItem.getSound());
-    }
-
-    private void stopBackgroundMusic(Player player) {
-        plugin.getMusicManager().stopMusicForPlayer(player);
-    }
-
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
-    }
-
-    private ItemStack createItem(Material material, String name, byte data, String... lore) {
-        ItemStack item = new ItemStack(material, 1, data);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(MessageUtils.getColor(name));
-        
-        if (lore.length > 0) {
-            List<String> coloredLore = new ArrayList<>();
-            for (String line : lore) {
-                coloredLore.add(MessageUtils.getColor(line));
-            }
-            meta.setLore(coloredLore);
-        }
-        
-        item.setItemMeta(meta);
-        return item;
     }
 }

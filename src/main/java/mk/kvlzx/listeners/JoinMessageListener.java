@@ -6,11 +6,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.cosmetics.JoinMessageItem;
+import mk.kvlzx.config.JoinMessagesShopConfig;
 import mk.kvlzx.utils.MessageUtils;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class JoinMessageListener implements Listener {
@@ -31,9 +31,18 @@ public class JoinMessageListener implements Listener {
         if (messageName.equals("default")) {
             joinMessage = JOIN_MESSAGES.get(random.nextInt(JOIN_MESSAGES.size()));
         } else {
-            JoinMessageItem messageItem = JoinMessageItem.getByName(messageName);
+            JoinMessagesShopConfig.JoinMessageItem messageItem = getJoinMessageByName(messageName);
             joinMessage = messageItem != null ? messageItem.getMessage() : JOIN_MESSAGES.get(0);
         }
         event.setJoinMessage(MessageUtils.getColor(joinMessage.replace("%player%", player.getName())));
+    }
+
+    private JoinMessagesShopConfig.JoinMessageItem getJoinMessageByName(String messageName) {
+        for (Map.Entry<String, JoinMessagesShopConfig.JoinMessageItem> entry : plugin.getJoinMessagesShopConfig().getJoinMessageItems().entrySet()) {
+            if (entry.getValue().getName().equals(messageName)) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 }
