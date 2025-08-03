@@ -1,0 +1,226 @@
+menu:
+  title: "&8• &e&lSound Shop &8•"
+  size: 54
+  items:
+    # Balance display
+    balance:
+      slot: 4
+      material: EMERALD
+      title: "&a&lYour Balance"
+      lore:
+        - "&7Current Balance: &e%balance% KGCoins"
+    
+    # Death sound items configuration
+    death_sounds:
+      slots: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 50, 51, 52, 53]
+      title: "%rarity_color%%sound_name%"
+      lore:
+        - "%rarity_color%✦ Rarity: %rarity%"
+        - ""
+        - "%description%"
+        - ""
+        - "&eRight-click to preview"
+        - ""
+        - "%status_lore%"
+      materials:
+        common:
+          selected: JUKEBOX
+          unselected: NOTE_BLOCK
+        epic:
+          selected: JUKEBOX
+          unselected: RECORD_3
+        legendary:
+          selected: JUKEBOX
+          unselected: RECORD_12
+      enchanted_if_selected: true
+      hide_enchants: true
+    
+    # Back button
+    back_button:
+      slot: 49
+      material: ARROW
+      title: "&c← Back"
+      lore:
+        - "&7Click to return to the shop"
+    
+    # Filler items
+    filler:
+      material: STAINED_GLASS_PANE
+      data: 7
+      title: " "
+      fill_empty_slots: true
+
+# Death sound definitions
+death_sound_items:
+  # COMMON sounds
+  simple_death:
+    name: "Simple Death"
+    sound: "HURT_FLESH"
+    volume: 1.0
+    pitch: 1.0
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7A classic never fails!"
+  
+  last_breath:
+    name: "Last Breath"
+    sound: "GHAST_DEATH"
+    volume: 0.5
+    pitch: 1.2
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7The final gasp!"
+  
+  bone_break:
+    name: "Bone Break"
+    sound: "SKELETON_HURT"
+    volume: 0.8
+    pitch: 0.8
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Ouch! That must hurt!"
+  
+  splash_down:
+    name: "Splash Down"
+    sound: "SPLASH"
+    volume: 1.0
+    pitch: 1.0
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Into the water!"
+  
+  arrow_hit:
+    name: "Arrow Hit"
+    sound: "SUCCESSFUL_HIT"
+    volume: 1.0
+    pitch: 1.0
+    price: 15000
+    rarity: "COMMON"
+    rarity_color: "&7"
+    description: "&7Bullseye!"
+
+  # EPIC sounds
+  dragon_roar:
+    name: "Dragon Roar"
+    sound: "ENDERDRAGON_GROWL"
+    volume: 1.0
+    pitch: 1.0
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5The dragon's roar!"
+  
+  wither_curse:
+    name: "Wither Curse"
+    sound: "WITHER_SPAWN"
+    volume: 0.8
+    pitch: 1.0
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5The curse of the Wither!"
+  
+  blaze_death:
+    name: "Blaze Death"
+    sound: "BLAZE_DEATH"
+    volume: 1.0
+    pitch: 1.0
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5The flame extinguished!"
+  
+  enderman_scream:
+    name: "Enderman Scream"
+    sound: "ENDERMAN_SCREAM"
+    volume: 0.8
+    pitch: 1.2
+    price: 35000
+    rarity: "EPIC"
+    rarity_color: "&5"
+    description: "&5From another dimension!"
+
+  # LEGENDARY sounds
+  thunder_strike:
+    name: "Thunder Strike"
+    sound: "AMBIENCE_THUNDER"
+    volume: 1.0
+    pitch: 1.0
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6The power of thunder!"
+  
+  void_echo:
+    name: "Void Echo"
+    sound: "ENDERDRAGON_DEATH"
+    volume: 0.7
+    pitch: 1.2
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6The echo of the void!"
+  
+  anvil_fall:
+    name: "Anvil Fall"
+    sound: "ANVIL_LAND"
+    volume: 1.0
+    pitch: 0.8
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Crushed by destiny!"
+  
+  wither_death:
+    name: "Wither Death"
+    sound: "WITHER_DEATH"
+    volume: 1.0
+    pitch: 1.0
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6The boss has fallen!"
+  
+  portal_travel:
+    name: "Portal Travel"
+    sound: "PORTAL_TRAVEL"
+    volume: 0.8
+    pitch: 0.5
+    price: 75000
+    rarity: "LEGENDARY"
+    rarity_color: "&6"
+    description: "&6Traveling to another realm!"
+
+# Status messages for different death sound states
+status_messages:
+  owned_selected:
+    - "&aCurrently selected"
+    - "&8➥ Using this sound"
+    - ""
+    - "&eClick to deselect"
+  
+  owned_click_to_select:
+    - "&eClick to select"
+    - "&8➥ You already own this sound"
+  
+  purchasable:
+    - "&7Click to purchase"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+  
+  insufficient_funds:
+    - "&cInsufficient funds"
+    - ""
+    - "&8➥ Price: &e%price% KGCoins"
+    - "&8➥ You have: &e%balance% KGCoins"
+
+# Messages
+messages:
+  sound_selected: "&aYou have selected the sound: %sound_name%"
+  sound_deselected: "&aYou have deselected the sound. Using no sound."
+  sound_purchased: "&aYou have purchased and selected the sound %sound_name% &afor &e%price% KGCoins&a!"
+  insufficient_funds: "&cYou don't have enough KGCoins to purchase this sound."

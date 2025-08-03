@@ -73,13 +73,12 @@ public class KnockersShopConfig {
         KNOCKER_MATERIALS.put("carrot_stick", new KnockerMaterial(Material.CARROT_STICK, 0));
         
         // UNCOMMON knockers
-        KNOCKER_MATERIALS.put("golden_hoe", new KnockerMaterial(Material.GOLD_HOE, 0));
-        KNOCKER_MATERIALS.put("stone_hoe", new KnockerMaterial(Material.STONE_HOE, 0));
-        KNOCKER_MATERIALS.put("wooden_hoe", new KnockerMaterial(Material.WOOD_HOE, 0));
-        KNOCKER_MATERIALS.put("wooden_sword", new KnockerMaterial(Material.WOOD_SWORD, 0));
+        KNOCKER_MATERIALS.put("coal", new KnockerMaterial(Material.COAL, 0));
+        KNOCKER_MATERIALS.put("apple", new KnockerMaterial(Material.APPLE, 0));
+        KNOCKER_MATERIALS.put("saddle", new KnockerMaterial(Material.SADDLE, 0));
+        KNOCKER_MATERIALS.put("name_tag", new KnockerMaterial(Material.NAME_TAG, 0));
         
         // RARE knockers
-        KNOCKER_MATERIALS.put("diamond_hoe", new KnockerMaterial(Material.DIAMOND_HOE, 0));
         KNOCKER_MATERIALS.put("golden_sword", new KnockerMaterial(Material.GOLD_SWORD, 0));
         KNOCKER_MATERIALS.put("enchanted_book", new KnockerMaterial(Material.ENCHANTED_BOOK, 0));
         KNOCKER_MATERIALS.put("rabbit_foot", new KnockerMaterial(Material.RABBIT_FOOT, 0));
@@ -89,7 +88,7 @@ public class KnockersShopConfig {
         KNOCKER_MATERIALS.put("diamond_sword", new KnockerMaterial(Material.DIAMOND_SWORD, 0));
         KNOCKER_MATERIALS.put("iron_axe", new KnockerMaterial(Material.IRON_AXE, 0));
         KNOCKER_MATERIALS.put("diamond_axe", new KnockerMaterial(Material.DIAMOND_AXE, 0));
-        KNOCKER_MATERIALS.put("golden_axe", new KnockerMaterial(Material.GOLD_AXE, 0));
+        KNOCKER_MATERIALS.put("diamond_pickaxe", new KnockerMaterial(Material.DIAMOND_PICKAXE, 0));
         
         // LEGENDARY knockers
         KNOCKER_MATERIALS.put("nether_star", new KnockerMaterial(Material.NETHER_STAR, 0));

@@ -40,8 +40,8 @@ import mk.kvlzx.utils.TitleUtils;
 import mk.kvlzx.arena.Arena;
 import mk.kvlzx.arena.Zone;
 import mk.kvlzx.config.DeathMessagesShopConfig;
+import mk.kvlzx.config.DeathSoundsShopConfig;
 import mk.kvlzx.config.KillMessagesShopConfig;
-import mk.kvlzx.cosmetics.DeathSoundItem;
 import mk.kvlzx.cosmetics.KillSoundItem;
 import mk.kvlzx.hotbar.PlayerHotbar;
 import mk.kvlzx.stats.PlayerStats;
@@ -289,7 +289,8 @@ public class PlayerListener implements Listener {
     private void handlePlayerDeath(Player player) {
         String soundName = plugin.getCosmeticManager().getPlayerDeathSound(player.getUniqueId());
         if (!soundName.equals("none")) {
-            DeathSoundItem soundItem = DeathSoundItem.getByName(soundName);
+            // Obtener el item de sonido desde la configuración
+            DeathSoundsShopConfig.DeathSoundItem soundItem = getDeathSoundByName(soundName);
             if (soundItem != null) {
                 new BukkitRunnable() {
                     @Override
@@ -525,6 +526,15 @@ public class PlayerListener implements Listener {
         for (Map.Entry<String, DeathMessagesShopConfig.DeathMessageItem> entry : plugin.getDeathMessagesShopConfig().getDeathMessageItems().entrySet()) {
             if (entry.getValue().getName().equals(messageName)) {
                 return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    private DeathSoundsShopConfig.DeathSoundItem getDeathSoundByName(String soundName) {
+        for (Map.Entry<String, DeathSoundsShopConfig.DeathSoundItem> entry : plugin.getDeathSoundsShopConfig().getDeathSoundItems().entrySet()) {
+            if (entry.getValue().getName().equals(soundName)) {
+                return entry.getValue();
             }
         }
         return null;

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -14,176 +13,207 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.cosmetics.DeathSoundItem;
+import mk.kvlzx.config.DeathSoundsShopConfig;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 
 public class DeathSoundShopMenu extends Menu {
-    private final List<DeathSoundItem> shopItems;
+    private final DeathSoundsShopConfig config;
 
     public DeathSoundShopMenu(MysthicKnockBack plugin) {
-        super(plugin, "&8• &e&lSound Shop &8•", 54);
-        this.shopItems = initializeShopItems();
-    }
-
-    private List<DeathSoundItem> initializeShopItems() {
-        List<DeathSoundItem> items = new ArrayList<>();
-
-        // Sonidos Comunes
-        items.add(new DeathSoundItem(
-            "Simple Death", 15000, "COMMON", "&7",
-            "&7A classic never fails!",
-            Sound.HURT_FLESH, 1.0f, 1.0f));
-            
-        items.add(new DeathSoundItem(
-            "Last Breath", 15000, "COMMON", "&7",
-            "&7The final gasp!",
-            Sound.GHAST_DEATH, 0.5f, 1.2f));
-
-        // Sonidos Épicos
-        items.add(new DeathSoundItem(
-            "Dragon Roar", 35000, "EPIC", "&5",
-            "&5The dragon's roar!",
-            Sound.ENDERDRAGON_GROWL, 1.0f, 1.0f));
-            
-        items.add(new DeathSoundItem(
-            "Wither Curse", 35000, "EPIC", "&5",
-            "&5The curse of the Wither!",
-            Sound.WITHER_SPAWN, 0.8f, 1.0f));
-
-        // Sonidos Legendarios
-        items.add(new DeathSoundItem(
-            "Thunder Strike", 75000, "LEGENDARY", "&6",
-            "&6The power of thunder!",
-            Sound.AMBIENCE_THUNDER, 1.0f, 1.0f));
-            
-        items.add(new DeathSoundItem(
-            "Void Echo", 75000, "LEGENDARY", "&6",
-            "&6The echo of the void!",
-            Sound.ENDERDRAGON_DEATH, 0.7f, 1.2f));
-
-        return items;
+        super(plugin, plugin.getDeathSoundsShopConfig().getMenuTitle(), plugin.getDeathSoundsShopConfig().getMenuSize());
+        this.config = plugin.getDeathSoundsShopConfig();
     }
 
     @Override
     protected void setupItems(Player player, Inventory inv) {
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
-        // Balance actual
-        inv.setItem(4, createItem(Material.EMERALD, "&a&lYour Balance",
-            "&7Current Balance: &e" + stats.getKGCoins() + " KGCoins"));
+        // Balance item
+        setupBalanceItem(inv, stats);
 
-        // Slots disponibles para sonidos (evitando el balance y botón de volver)
-        int[] availableSlots = {
-            9, 10, 11, 12, 13, 14, 15, 16, 17,
-            18, 19, 20, 21, 22, 23, 24, 25, 26,
-            27, 28, 29, 30, 31, 32, 33, 34, 35,
-            36, 37, 38, 39, 40, 41, 42, 43, 44,
-            45, 46, 47, 48, 50, 51, 52, 53
-        };
+        // Setup death sound items
+        setupDeathSoundItems(inv, player);
 
-        int slotIndex = 0;
-        for (DeathSoundItem item : shopItems) {
-            if (slotIndex >= availableSlots.length) break;
-            
-            int slot = availableSlots[slotIndex];
-            setupSoundButton(inv, slot, item, player);
-            slotIndex++;
+        // Back button
+        setupBackButton(inv);
+
+        // Fill empty slots with filler items
+        if (config.isFillEmptySlots()) {
+            fillEmptySlots(inv);
         }
-
-        // Botón para volver
-        inv.setItem(49, createItem(Material.ARROW, "&c← Back",
-            "&7Click to return to the shop"));
-
-        // Relleno
-        fillEmptySlots(inv, createItem(Material.STAINED_GLASS_PANE, " ", (byte) 7));
     }
 
-    private void setupSoundButton(Inventory inv, int slot, DeathSoundItem soundItem, Player player) {
-        boolean hasSound = plugin.getCosmeticManager().hasPlayerDeathSound(player.getUniqueId(), soundItem.getName());
-        boolean isSelected = plugin.getCosmeticManager().getPlayerDeathSound(player.getUniqueId()).equals(soundItem.getName());
+    private void setupBalanceItem(Inventory inv, PlayerStats stats) {
+        List<String> balanceLore = new ArrayList<>();
+        for (String line : config.getBalanceLore()) {
+            balanceLore.add(line.replace("%balance%", String.valueOf(stats.getKGCoins())));
+        }
         
-        List<String> lore = new ArrayList<>();
-        lore.add(soundItem.getRarityColor() + "✦ Rarity: " + soundItem.getRarity());
-        lore.add("");
-        lore.add(MessageUtils.getColor(soundItem.getDescription()));
-        lore.add("");
-        lore.add("&eRight-click to preview");
-        lore.add("");
+        ItemStack balanceItem = config.createMenuItem(
+            config.getBalanceMaterial(), 
+            config.getBalanceTitle(), 
+            balanceLore
+        );
+        
+        inv.setItem(config.getBalanceSlot(), balanceItem);
+    }
+
+    private void setupDeathSoundItems(Inventory inv, Player player) {
+        String currentSound = plugin.getCosmeticManager().getPlayerDeathSound(player.getUniqueId());
+        List<Integer> availableSlots = config.getDeathSoundSlots();
+        
+        // Get sorted death sounds by rarity
+        List<DeathSoundsShopConfig.DeathSoundItem> sortedSounds = config.getSortedDeathSoundsByRarity();
+        
+        int slotIndex = 0;
+        for (DeathSoundsShopConfig.DeathSoundItem soundItem : sortedSounds) {
+            if (slotIndex >= availableSlots.size()) break;
+            
+            int slot = availableSlots.get(slotIndex);
+            setupSoundButton(inv, slot, soundItem, player, currentSound);
+            slotIndex++;
+        }
+    }
+
+    private void setupSoundButton(Inventory inv, int slot, DeathSoundsShopConfig.DeathSoundItem soundItem, 
+                                    Player player, String currentSound) {
+        
+        boolean hasSound = plugin.getCosmeticManager().hasPlayerDeathSound(player.getUniqueId(), soundItem.getName());
+        boolean isSelected = currentSound.equals(soundItem.getName());
+        
+        // Determine the status of the sound
+        String statusKey = determineSoundStatus(soundItem, hasSound, isSelected, player);
+        List<String> statusLore = config.getStatusMessage(statusKey);
+        
+        // Build the final lore for the sound item
+        List<String> finalLore = buildDeathSoundLore(soundItem, statusLore, player);
+        
+        // Create the title for the sound item
+        String title = config.getDeathSoundTitle()
+            .replace("%rarity_color%", soundItem.getRarityColor())
+            .replace("%sound_name%", soundItem.getName());
+        
+        // Determine material based on rarity and selection status
+        String materialId = config.getMaterialForRarity(soundItem.getRarity(), isSelected);
+        
+        // Create the item for the sound
+        ItemStack soundItemStack = config.createMenuItem(materialId, title, finalLore);
+        
+        // Add enchantments if the sound is selected
+        if (isSelected && config.isEnchantedIfSelected()) {
+            soundItemStack.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            if (config.isHideEnchants()) {
+                ItemMeta meta = soundItemStack.getItemMeta();
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                soundItemStack.setItemMeta(meta);
+            }
+        }
+
+        inv.setItem(slot, soundItemStack);
+    }
+
+    private String determineSoundStatus(DeathSoundsShopConfig.DeathSoundItem soundItem, boolean hasSound, 
+                                        boolean isSelected, Player player) {
         
         if (hasSound) {
-            if (isSelected) {
-                lore.add("&aCurrently selected");
-                lore.add("&eClick to deselect");
+            return isSelected ? "owned_selected" : "owned_click_to_select";
+        } else {
+            PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+            return stats.getKGCoins() < soundItem.getPrice() ? "insufficient_funds" : "purchasable";
+        }
+    }
+
+    private List<String> buildDeathSoundLore(DeathSoundsShopConfig.DeathSoundItem soundItem, 
+                                            List<String> statusLore, Player player) {
+        List<String> finalLore = new ArrayList<>();
+        
+        for (String line : config.getDeathSoundLore()) {
+            String processedLine = line
+                .replace("%rarity_color%", soundItem.getRarityColor())
+                .replace("%rarity%", soundItem.getRarity())
+                .replace("%sound_name%", soundItem.getName());
+            
+            if (processedLine.contains("%description%")) {
+                finalLore.add(MessageUtils.getColor(soundItem.getDescription()));
+            } else if (processedLine.contains("%status_lore%")) {
+                for (String statusLine : statusLore) {
+                    String processedStatusLine = statusLine
+                        .replace("%price%", String.valueOf(soundItem.getPrice()))
+                        .replace("%balance%", String.valueOf(PlayerStats.getStats(player.getUniqueId()).getKGCoins()))
+                        .replace("%sound_name%", soundItem.getName());
+                    finalLore.add(processedStatusLine);
+                }
             } else {
-                lore.add("&eClick to select");
-            }
-        } else {
-            lore.add("&7Click to purchase");
-            lore.add("");
-            lore.add("&8➥ Price: &e" + soundItem.getPrice() + " KGCoins");
-        }
-
-        // Crear el botón con el material adecuado según la rareza
-        Material material;
-        if (isSelected) {
-            material = Material.JUKEBOX;
-        } else {
-            switch (soundItem.getRarity()) {
-                case "COMMON":
-                    material = Material.NOTE_BLOCK;
-                    break;
-                case "EPIC":
-                    material = Material.RECORD_3;
-                    break;
-                case "LEGENDARY":
-                    material = Material.RECORD_12;
-                    break;
-                default:
-                    material = Material.NOTE_BLOCK;
-                    break;
+                finalLore.add(processedLine);
             }
         }
+        
+        return finalLore;
+    }
 
-        ItemStack button = createItem(material,
-            (isSelected ? "&b" : soundItem.getRarityColor()) + soundItem.getName(),
-            lore.toArray(new String[0]));
+    private void setupBackButton(Inventory inv) {
+        ItemStack backButton = config.createMenuItem(
+            config.getBackButtonMaterial(),
+            config.getBackButtonTitle(),
+            config.getBackButtonLore()
+        );
+        
+        inv.setItem(config.getBackButtonSlot(), backButton);
+    }
 
-        if (isSelected) {
-            button.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-            ItemMeta meta = button.getItemMeta();
-            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-            button.setItemMeta(meta);
+    private void fillEmptySlots(Inventory inv) {
+        Material fillerMaterial;
+        try {
+            fillerMaterial = Material.valueOf(config.getFillerMaterial().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            fillerMaterial = Material.STAINED_GLASS_PANE;
         }
-
-        inv.setItem(slot, button);
+        
+        ItemStack filler = new ItemStack(fillerMaterial, 1, (short) config.getFillerData());
+        ItemMeta meta = filler.getItemMeta();
+        meta.setDisplayName(MessageUtils.getColor(config.getFillerTitle()));
+        filler.setItemMeta(meta);
+        
+        for (int i = 0; i < inv.getSize(); i++) {
+            if (inv.getItem(i) == null) {
+                inv.setItem(i, filler);
+            }
+        }
     }
 
     @Override
     public void handleClick(InventoryClickEvent event) {
-        // Validar que el click sea en el menú y no en el inventario del jugador
         if (!isValidClick(event)) {
             event.setCancelled(true);
             return;
         }
-        
+
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (event.getSlot() == 49) {
+        // Back button
+        if (event.getSlot() == config.getBackButtonSlot()) {
             plugin.getMenuManager().openMenu(player, "shop");
             return;
         }
 
-        if (clicked == null || clicked.getType() == Material.STAINED_GLASS_PANE ||
-            clicked.getType() == Material.EMERALD) return;
+        // Ignore clicks on special items
+        if (clicked == null || 
+            clicked.getType().name().equals(config.getFillerMaterial()) || 
+            clicked.getType().name().equals(config.getBalanceMaterial())) {
+            return;
+        }
 
-        String itemName = MessageUtils.stripColor(clicked.getItemMeta().getDisplayName());
-        DeathSoundItem soundItem = findSoundItem(itemName);
+        // Find the clicked death sound
+        String clickedSoundName = findDeathSoundFromItem(clicked);
+        if (clickedSoundName == null) return;
+        
+        DeathSoundsShopConfig.DeathSoundItem soundItem = findDeathSoundItemByName(clickedSoundName);
         if (soundItem == null) return;
 
-        // Si es click derecho, reproducir muestra
+        // If it's a right click, play the sound
         if (event.isRightClick()) {
             player.playSound(player.getLocation(),
                 soundItem.getSound(),
@@ -192,62 +222,67 @@ public class DeathSoundShopMenu extends Menu {
             return;
         }
 
-        // Si es click izquierdo, manejar compra/selección
+        // If it's a left click, handle sound selection
         handleSoundSelection(player, soundItem);
     }
 
-    private void handleSoundSelection(Player player, DeathSoundItem soundItem) {
-        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
-        String currentSound = plugin.getCosmeticManager().getPlayerDeathSound(player.getUniqueId());
-
-        if (plugin.getCosmeticManager().hasPlayerDeathSound(player.getUniqueId(), soundItem.getName())) {
-            if (currentSound.equals(soundItem.getName())) {
-                plugin.getCosmeticManager().setPlayerDeathSound(player.getUniqueId(), "none");
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have deselected the sound."));
-            } else {
-                plugin.getCosmeticManager().setPlayerDeathSound(player.getUniqueId(), soundItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have selected the sound: " + soundItem.getName()));
-            }
-            player.closeInventory();
-        } else {
-            if (stats.getKGCoins() >= soundItem.getPrice()) {
-                stats.removeKGCoins(soundItem.getPrice());
-                plugin.getCosmeticManager().addPlayerDeathSound(player.getUniqueId(), soundItem.getName());
-                plugin.getCosmeticManager().setPlayerDeathSound(player.getUniqueId(), soundItem.getName());
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&aYou have purchased and selected the sound " +
-                    soundItem.getName() + " &afor &e" + soundItem.getPrice() + " KGCoins&a!"));
-                player.closeInventory();
-            } else {
-                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cYou don't have enough KGCoins to purchase this sound."));
+    private String findDeathSoundFromItem(ItemStack item) {
+        if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) {
+            return null;
+        }
+        
+        String displayName = MessageUtils.stripColor(item.getItemMeta().getDisplayName());
+        
+        // Buscar el sonido por nombre
+        for (DeathSoundsShopConfig.DeathSoundItem soundItem : config.getDeathSoundItems().values()) {
+            if (soundItem.getName().equals(displayName)) {
+                return soundItem.getName();
             }
         }
+        
+        return null;
     }
 
-    private DeathSoundItem findSoundItem(String name) {
-        return shopItems.stream()
-            .filter(item -> MessageUtils.stripColor(item.getName()).equals(name))
+    private DeathSoundsShopConfig.DeathSoundItem findDeathSoundItemByName(String name) {
+        return config.getDeathSoundItems().values().stream()
+            .filter(item -> item.getName().equals(name))
             .findFirst()
             .orElse(null);
     }
 
-    private ItemStack createItem(Material material, String name, String... lore) {
-        return createItem(material, name, (byte) 0, lore);
-    }
+    private void handleSoundSelection(Player player, DeathSoundsShopConfig.DeathSoundItem soundItem) {
+        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
+        String currentSound = plugin.getCosmeticManager().getPlayerDeathSound(player.getUniqueId());
 
-    private ItemStack createItem(Material material, String name, byte data, String... lore) {
-        ItemStack item = new ItemStack(material, 1, data);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(MessageUtils.getColor(name));
-        
-        if (lore.length > 0) {
-            List<String> coloredLore = new ArrayList<>();
-            for (String line : lore) {
-                coloredLore.add(MessageUtils.getColor(line));
+        // If the player already owns the sound
+        if (plugin.getCosmeticManager().hasPlayerDeathSound(player.getUniqueId(), soundItem.getName())) {
+            // If the sound is currently selected, deselect it
+            if (currentSound.equals(soundItem.getName())) {
+                plugin.getCosmeticManager().setPlayerDeathSound(player.getUniqueId(), "none");
+                String message = config.getSoundDeselectedMessage();
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
+            } else {
+                // Select the sound
+                plugin.getCosmeticManager().setPlayerDeathSound(player.getUniqueId(), soundItem.getName());
+                String message = config.getSoundSelectedMessage().replace("%sound_name%", soundItem.getName());
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
             }
-            meta.setLore(coloredLore);
+            player.closeInventory();
+        } else {
+            // Buy the sound
+            if (stats.getKGCoins() >= soundItem.getPrice()) {
+                stats.removeKGCoins(soundItem.getPrice());
+                plugin.getCosmeticManager().addPlayerDeathSound(player.getUniqueId(), soundItem.getName());
+                plugin.getCosmeticManager().setPlayerDeathSound(player.getUniqueId(), soundItem.getName());
+                
+                String message = config.getSoundPurchasedMessage()
+                    .replace("%sound_name%", soundItem.getName())
+                    .replace("%price%", String.valueOf(soundItem.getPrice()));
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
+                player.closeInventory();
+            } else {
+                player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + config.getInsufficientFundsMessage()));
+            }
         }
-        
-        item.setItemMeta(meta);
-        return item;
     }
 }

@@ -70,41 +70,35 @@ knocker_items:
     lore: "&6Rabbits' favorite!"
 
   # UNCOMMON knockers
-  golden_hoe:
-    name: "Golden Hoe"
+  coal:
+    name: "Coal Knocker"
     price: 15000
     rarity: "UNCOMMON"
     rarity_color: "&a"
-    lore: "&eShines like the sun!"
+    lore: "&8Burns bright!"
   
-  stone_hoe:
-    name: "Stone Hoe"
+  apple:
+    name: "Apple"
     price: 15000
     rarity: "UNCOMMON"
     rarity_color: "&a"
-    lore: "&8As tough as rock"
+    lore: "&6A tasty treat!"
   
-  wooden_hoe:
-    name: "Wooden Hoe"
+  saddle:
+    name: "Saddle"
     price: 15000
     rarity: "UNCOMMON"
     rarity_color: "&a"
-    lore: "&6Hand-carved"
+    lore: "&7Ride into the sunset!"
   
-  wooden_sword:
-    name: "Wooden Sword"
+  name_tag:
+    name: "Name Tag"
     price: 15000
     rarity: "UNCOMMON"
     rarity_color: "&a"
-    lore: "&6Perfect for training!"
+    lore: "&bName your companions!"
 
   # RARE knockers
-  diamond_hoe:
-    name: "Diamond Hoe"
-    price: 50000
-    rarity: "RARE"
-    rarity_color: "&9"
-    lore: "&bThe brightest of all!"
   
   golden_sword:
     name: "Golden Sword"
@@ -156,12 +150,12 @@ knocker_items:
     rarity_color: "&5"
     lore: "&bThe ultimate destroyer!"
   
-  golden_axe:
-    name: "Golden Axe"
+  diamond_pickaxe:
+    name: "Diamond Pickaxe"
     price: 500000
     rarity: "EPIC"
     rarity_color: "&5"
-    lore: "&eWorthy of a king!"
+    lore: "&bDigging deep for treasures!"
 
   # LEGENDARY knockers
   nether_star:

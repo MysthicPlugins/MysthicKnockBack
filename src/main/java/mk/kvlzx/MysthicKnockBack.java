@@ -24,6 +24,7 @@ import mk.kvlzx.commands.StatsTabCompleter;
 import mk.kvlzx.config.ArrowEffectsShopConfig;
 import mk.kvlzx.config.BlocksShopConfig;
 import mk.kvlzx.config.DeathMessagesShopConfig;
+import mk.kvlzx.config.DeathSoundsShopConfig;
 import mk.kvlzx.config.HotbarMenuConfig;
 import mk.kvlzx.config.KillMessagesShopConfig;
 import mk.kvlzx.config.KnockersShopConfig;
@@ -95,6 +96,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private KillMessagesShopConfig killMessagesShopConfig;
     private DeathMessagesShopConfig deathMessagesShopConfig;
     private ArrowEffectsShopConfig arrowEffectsShopConfig;
+    private DeathSoundsShopConfig deathSoundsShopConfig;
     
     private BukkitTask autoSaveTask;
     private BukkitTask weatherTimeTask; // Nueva tarea para controlar clima y tiempo
@@ -118,6 +120,7 @@ public class MysthicKnockBack extends JavaPlugin {
         killMessagesShopConfig = new KillMessagesShopConfig(this);
         deathMessagesShopConfig = new DeathMessagesShopConfig(this);
         arrowEffectsShopConfig = new ArrowEffectsShopConfig(this);
+        deathSoundsShopConfig = new DeathSoundsShopConfig(this);
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
@@ -361,6 +364,7 @@ public class MysthicKnockBack extends JavaPlugin {
         killMessagesShopConfig.reload();
         deathMessagesShopConfig.reload();
         arrowEffectsShopConfig.reload();
+        deathSoundsShopConfig.reload();
         
         // Reiniciar auto-save con nueva configuración
         restartAutoSave();
@@ -600,6 +604,10 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public ArrowEffectsShopConfig getArrowEffectsShopConfig() {
         return arrowEffectsShopConfig;
+    }
+
+    public DeathSoundsShopConfig getDeathSoundsShopConfig() {
+        return deathSoundsShopConfig;
     }
 
 }
