@@ -1,19 +1,19 @@
 menu:
   title: "&8• &b&lMain Menu &8•"
-  size: 45
+  size: 54
   items:
     top-kills:
       id: DIAMOND_SWORD
       name: "&a&lTop Kills"
       lore:
         - "&7Click to view the top 10 kills"
-      slot: 12
+      slot: 10
     top-elo:
       id: NETHER_STAR
       name: "&6&lTop ELO"
       lore:
         - "&7Click to view the top 10 ELO"
-      slot: 13
+      slot: 12
     top-streaks:
       id: DIAMOND
       name: "&d&lTop Streaks"
@@ -25,35 +25,24 @@ menu:
       name: "&b&lTop KDR"
       lore: 
         - "&7Click to view the top 10 KDR"
-      slot: 21
+      slot: 16
     top-time:
       id: WATCH
       name: "&e&lTop Time"
       lore:
         - "&7Click to view the top 10 playtime"  
-      slot: 23
-    edit-hotbar:
-      id: DIAMOND_SWORD
-      name: "&e&lEdit Hotbar"
+      slot: 19
+    arena-vote:
+      id: BEACON
+      name: "&6&lArena Vote"
       lore:
-        - "&7Click to customize your hotbar"
+        - "&7Start a vote to change"
+        - "&7the current arena!"
         - ""
-        - "&8➥ Customize the position of your items"
-      slot: 37
-    my-stats:
-      id: PLAYER_SKULL # Material Custom of this item
-      name: "&a&lMy Statistics"
-      lore: 
-      - "&7Click to view your statistics"
-      slot: 39
-    report-player: 
-      id: BOOK_AND_QUILL
-      name: "&c&lReport Player"
-      lore: 
-        - "&7Click to report a player"
+        - "&7Current: &b%current_arena%"
         - ""
-        - "&8➥ Report inappropriate behavior"
-      slot: 41
+        - "&e➤ Click to select arena!"
+      slot: 22
     shop:
       id: EMERALD
       name: "&a&lShop"
@@ -61,4 +50,26 @@ menu:
         - "&7Click to open the shop"
         - ""
         - "&8➥ Buy cosmetics and more!"
-      slot: 43
+      slot: 25
+    edit-hotbar:
+      id: DIAMOND_SWORD
+      name: "&e&lEdit Hotbar"
+      lore:
+        - "&7Click to customize your hotbar"
+        - ""
+        - "&8➥ Customize the position of your items"
+      slot: 28
+    my-stats:
+      id: PLAYER_SKULL # Material Custom of this item
+      name: "&a&lMy Statistics"
+      lore: 
+      - "&7Click to view your statistics"
+      slot: 31
+    report-player: 
+      id: BOOK_AND_QUILL
+      name: "&c&lReport Player"
+      lore: 
+        - "&7Click to report a player"
+        - ""
+        - "&8➥ Report inappropriate behavior"
+      slot: 34

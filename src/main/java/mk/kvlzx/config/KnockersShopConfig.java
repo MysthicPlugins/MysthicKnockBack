@@ -79,7 +79,7 @@ public class KnockersShopConfig {
         KNOCKER_MATERIALS.put("name_tag", new KnockerMaterial(Material.NAME_TAG, 0));
         
         // RARE knockers
-        KNOCKER_MATERIALS.put("golden_sword", new KnockerMaterial(Material.GOLD_SWORD, 0));
+        KNOCKER_MATERIALS.put("paper", new KnockerMaterial(Material.PAPER, 0));
         KNOCKER_MATERIALS.put("enchanted_book", new KnockerMaterial(Material.ENCHANTED_BOOK, 0));
         KNOCKER_MATERIALS.put("rabbit_foot", new KnockerMaterial(Material.RABBIT_FOOT, 0));
         KNOCKER_MATERIALS.put("iron_sword", new KnockerMaterial(Material.IRON_SWORD, 0));
@@ -94,7 +94,7 @@ public class KnockersShopConfig {
         KNOCKER_MATERIALS.put("nether_star", new KnockerMaterial(Material.NETHER_STAR, 0));
         KNOCKER_MATERIALS.put("ghast_tear", new KnockerMaterial(Material.GHAST_TEAR, 0));
         KNOCKER_MATERIALS.put("prismarine_shard", new KnockerMaterial(Material.PRISMARINE_SHARD, 0));
-        KNOCKER_MATERIALS.put("emerald_power", new KnockerMaterial(Material.EMERALD, 0));
+        KNOCKER_MATERIALS.put("emerald", new KnockerMaterial(Material.EMERALD, 0));
     }
 
     public KnockersShopConfig(MysthicKnockBack plugin) {

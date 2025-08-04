@@ -25,6 +25,7 @@ import mk.kvlzx.menu.BlockShopMenu;
 import mk.kvlzx.menu.KnockerShopMenu;
 import mk.kvlzx.menu.DeathMessageShopMenu;
 import mk.kvlzx.menu.KillMessageShopMenu;
+import mk.kvlzx.menu.ArenaSelectMenu;
 import mk.kvlzx.menu.ArrowEffectShopMenu;
 import mk.kvlzx.menu.MusicShopMenu;
 import mk.kvlzx.menu.DeathSoundShopMenu;
@@ -63,6 +64,7 @@ public class MenuManager {
         registerMenu("kill_sound_shop", new KillSoundShopMenu(plugin));
         registerMenu("music_shop", new MusicShopMenu(plugin));
         registerMenu("join_message_shop", new JoinMessageShopMenu(plugin));
+        registerMenu("select_arena", new ArenaSelectMenu(plugin));
         // Aquí registraremos los demás menús
     }
 

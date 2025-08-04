@@ -100,12 +100,12 @@ knocker_items:
 
   # RARE knockers
   
-  golden_sword:
-    name: "Golden Sword"
+  paper:
+    name: "Paper Knocker"
     price: 50000
     rarity: "RARE"
     rarity_color: "&9"
-    lore: "&eThe weapon of kings!"
+    lore: "&fLight as a feather!"
 
   enchanted_book:
     name: "Enchanted Book"
@@ -179,7 +179,7 @@ knocker_items:
     rarity_color: "&6"
     lore: "&3&lThe strength of the ocean!"
   
-  emerald_power:
+  emerald:
     name: "Emerald of Power"
     price: 1000000
     rarity: "LEGENDARY"

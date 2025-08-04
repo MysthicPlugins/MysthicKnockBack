@@ -41,6 +41,10 @@ public class MainMenuConfig {
     private String menuTopTimeName;
     private List<String> menuTopTimeLore;
     private Integer menuTopTimeSlot;
+    private String menuArenaVoteId;
+    private String menuArenaVoteName;
+    private List<String> menuArenaVoteLore;
+    private Integer menuArenaVoteSlot;
     private String menuEditHotbarId;
     private String menuEditHotbarName;
     private List<String> menuEditHotbarLore;
@@ -96,6 +100,11 @@ public class MainMenuConfig {
         menuTopTimeName = config.getString("menu.items.top-time.name");
         menuTopTimeLore = config.getStringList("menu.items.top-time.lore");
         menuTopTimeSlot = config.getInt("menu.items.top-time.slot");
+
+        menuArenaVoteId = validateAndGetMaterial(config, "menu.items.arena-vote.id", "BEACON");
+        menuArenaVoteName = config.getString("menu.items.arena-vote.name");
+        menuArenaVoteLore = config.getStringList("menu.items.arena-vote.lore");
+        menuArenaVoteSlot = config.getInt("menu.items.arena-vote.slot");
         
         menuEditHotbarId = validateAndGetMaterial(config, "menu.items.edit-hotbar.id", "DIAMOND_SWORD");
         menuEditHotbarName = config.getString("menu.items.edit-hotbar.name");
@@ -154,7 +163,8 @@ public class MainMenuConfig {
             "menu.items.edit-hotbar.id",
             "menu.items.my-stats.id",
             "menu.items.report-player.id",
-            "menu.items.shop.id"
+            "menu.items.shop.id",
+            "menu.items.arena-vote.id"
         };
         
         for (String path : materialPaths) {
@@ -281,4 +291,9 @@ public class MainMenuConfig {
     public String getMenuShopName() { return menuShopName; }
     public List<String> getMenuShopLore() { return menuShopLore; }
     public Integer getMenuShopSlot() { return menuShopSlot; }
+    public String getMenuArenaVoteId() { return menuArenaVoteId; }
+    public String getMenuArenaVoteName() { return menuArenaVoteName; }
+    public List<String> getMenuArenaVoteLore() { return menuArenaVoteLore; }
+    public Integer getMenuArenaVoteSlot() { return menuArenaVoteSlot; }
+
 }

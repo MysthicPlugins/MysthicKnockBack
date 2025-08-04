@@ -45,6 +45,10 @@ public class MainMenu extends Menu {
             menuConfig.createMenuItem(menuConfig.getMenuTopTimeId(), player, 
                 menuConfig.getMenuTopTimeName(), menuConfig.getMenuTopTimeLore()));
 
+        inv.setItem(menuConfig.getMenuArenaVoteSlot(), 
+            menuConfig.createMenuItem(menuConfig.getMenuArenaVoteId(), player, 
+                menuConfig.getMenuArenaVoteName(), menuConfig.getMenuArenaVoteLore()));
+
         inv.setItem(menuConfig.getMenuEditHotbarSlot(), 
             menuConfig.createMenuItem(menuConfig.getMenuEditHotbarId(), player, 
                 menuConfig.getMenuEditHotbarName(), menuConfig.getMenuEditHotbarLore()));
@@ -96,6 +100,8 @@ public class MainMenu extends Menu {
             plugin.getMenuManager().openMenu(player, "top_kdr");
         } else if (slot == menuConfig.getMenuTopTimeSlot()) {
             plugin.getMenuManager().openMenu(player, "top_time");
+        } else if (slot == menuConfig.getMenuArenaVoteSlot()) {
+            plugin.getMenuManager().openMenu(player, "select_arena");
         } else if (slot == menuConfig.getMenuEditHotbarSlot()) {
             plugin.getMenuManager().openMenu(player, "hotbar_edit");
         } else if (slot == menuConfig.getMenuMyStatsSlot()) {

@@ -59,7 +59,7 @@ public class ItemListener implements Listener {
         if (!(event.getEntity() instanceof Player)) return;
         Player player = (Player) event.getEntity();
 
-        if (plugin.getScoreboardManager().isArenaChanging()) {
+        if (plugin.getArenaChangeManager().isArenaChanging()) {
             event.setCancelled(true);
             return;
         }
@@ -115,7 +115,7 @@ public class ItemListener implements Listener {
     public void onFeatherUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
-        if (plugin.getScoreboardManager().isArenaChanging()) {
+        if (plugin.getArenaChangeManager().isArenaChanging()) {
             event.setCancelled(true);
             return;
         }
@@ -156,7 +156,7 @@ public class ItemListener implements Listener {
     public void onSlimeBallUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
-        if (plugin.getScoreboardManager().isArenaChanging()) {
+        if (plugin.getArenaChangeManager().isArenaChanging()) {
             event.setCancelled(true);
             return;
         }
@@ -204,7 +204,7 @@ public class ItemListener implements Listener {
     public void onStepPlate(PlayerInteractEvent event) {
         if (event.getAction() != Action.PHYSICAL) return;
         
-        if (plugin.getScoreboardManager().isArenaChanging()) {
+        if (plugin.getArenaChangeManager().isArenaChanging()) {
             event.setCancelled(true);
             return;
         }
@@ -229,7 +229,7 @@ public class ItemListener implements Listener {
 
         if (player.getGameMode() == GameMode.CREATIVE) return; // No hacer nada si está creativo 
 
-        if (plugin.getScoreboardManager().isArenaChanging()) {
+        if (plugin.getArenaChangeManager().isArenaChanging()) {
             event.setCancelled(true);
             return;
         }
@@ -280,7 +280,7 @@ public class ItemListener implements Listener {
         if (!(pearl.getShooter() instanceof Player)) return;
 
         // Verificar si la arena está cambiando
-        if (plugin.getScoreboardManager().isArenaChanging()) {
+        if (plugin.getArenaChangeManager().isArenaChanging()) {
             event.setCancelled(true);
             return;
         }
@@ -440,7 +440,7 @@ public class ItemListener implements Listener {
             
             // Verificar si se teleporta a spawn
             if (spawnZone != null && spawnZone.isInside(to)) {
-                plugin.getScoreboardManager().updatePlayerZone(player, arena.getName());
+                plugin.getArenaChangeManager().updatePlayerZone(player, arena.getName());
                 teleportingToSpawn = true;
             }
         }

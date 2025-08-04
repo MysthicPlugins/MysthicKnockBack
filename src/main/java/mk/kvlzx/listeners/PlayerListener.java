@@ -69,7 +69,7 @@ public class PlayerListener implements Listener {
         String currentArena = plugin.getArenaManager().getCurrentArena();
         
         // Si la arena está cambiando, esperar a que termine el cambio antes de procesar al jugador
-        if (plugin.getScoreboardManager().isArenaChanging()) {
+        if (plugin.getArenaChangeManager().isArenaChanging()) {
             // Congelar al jugador temporalmente
             freezePlayer(player);
             
@@ -82,7 +82,7 @@ public class PlayerListener implements Listener {
                 public void run() {
                     attempts++;
                     
-                    if (!plugin.getScoreboardManager().isArenaChanging() || attempts >= MAX_ATTEMPTS) {
+                    if (!plugin.getArenaChangeManager().isArenaChanging() || attempts >= MAX_ATTEMPTS) {
                         // Limpiar efectos y restaurar estado
                         cleanupPlayerEffects(player);
                         unfreezePlayer(player);
@@ -160,7 +160,7 @@ public class PlayerListener implements Listener {
             }
         }
         
-        plugin.getScoreboardManager().updatePlayerZone(player, currentArena);
+        plugin.getArenaChangeManager().updatePlayerZone(player, currentArena);
     }
 
     @EventHandler
@@ -554,7 +554,7 @@ public class PlayerListener implements Listener {
         PlayerStats playerStats = PlayerStats.getStats(player.getUniqueId());
         
         // Si la arena está cambiando, asegurarse de que el jugador no pueda moverse
-        if (plugin.getScoreboardManager().isArenaChanging()) {
+        if (plugin.getArenaChangeManager().isArenaChanging()) {
             player.setWalkSpeed(0.0f);
         } else {
             player.setWalkSpeed(0.2f);
@@ -577,7 +577,7 @@ public class PlayerListener implements Listener {
                     plugin.getArenaManager().showArenaBorder(arena);
                     
                     // Actualizar la zona del jugador al respawn
-                    plugin.getScoreboardManager().updatePlayerZone(player, arena.getName());
+                    plugin.getArenaChangeManager().updatePlayerZone(player, arena.getName());
                     
                 }
             }.runTaskLater(plugin, 1L);

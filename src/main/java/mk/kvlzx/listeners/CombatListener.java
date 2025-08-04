@@ -117,7 +117,7 @@ public class CombatListener implements Listener {
                 }
                 
                 // Verificar estados de la arena
-                if (plugin.getScoreboardManager().isArenaChanging()) {
+                if (plugin.getArenaChangeManager().isArenaChanging()) {
                     event.setCancelled(true);
                     return;
                 }
@@ -156,7 +156,7 @@ public class CombatListener implements Listener {
         }
 
         // Verificar estados de la arena
-        if (plugin.getScoreboardManager().isArenaChanging()) {
+        if (plugin.getArenaChangeManager().isArenaChanging()) {
             event.setCancelled(true);
             return;
         }

@@ -31,7 +31,7 @@ menu:
           unselected: RECORD_11
         legendary:
           selected: JUKEBOX
-          unselected: RECORD_MELLOHI
+          unselected: RECORD_12
       enchanted_if_selected: true
       hide_enchants: true
     

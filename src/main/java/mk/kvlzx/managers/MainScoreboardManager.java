@@ -8,13 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.entity.EnderPearl;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -24,15 +18,9 @@ import org.bukkit.scoreboard.ScoreboardManager;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.arena.Arena;
-import mk.kvlzx.arena.ArenaManager;
-import mk.kvlzx.arena.Zone;
-import mk.kvlzx.arena.ZoneType;
 import mk.kvlzx.config.TabConfig;
-import mk.kvlzx.items.ItemsManager;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
-import mk.kvlzx.utils.TitleUtils;
 
 public class MainScoreboardManager {
     private final MysthicKnockBack plugin;
@@ -41,8 +29,6 @@ public class MainScoreboardManager {
     private boolean placeholderAPIEnabled;
     
     private int timeLeft;
-    private boolean isChangingArena = false;
-    private int animationFrame = 0;
 
     private final Map<UUID, Scoreboard> playerScoreboards = new HashMap<>();
     private final Map<UUID, Objective> playerObjectives = new HashMap<>();
@@ -53,9 +39,6 @@ public class MainScoreboardManager {
     
     // Espacios únicos pre-generados para evitar regeneración constante
     private final Map<Integer, String> uniqueSpaces = new HashMap<>();
-
-    private long arenaChangeStartTime;
-    private static final long MAX_ARENA_CHANGE_TIME = 3000; // 3 segundos máximo
     
     public MainScoreboardManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -273,7 +256,6 @@ public class MainScoreboardManager {
                 
                 if (currentSecond > lastSecond) {
                     timeLeft--;
-                    animationFrame++;
                     lastSecond = currentSecond;
                     
                     // Usar alertas de configuración
@@ -295,199 +277,8 @@ public class MainScoreboardManager {
         }.runTaskTimer(plugin, 20L, 1L);
     }
 
-    public boolean isArenaChanging() {
-        // Si ha pasado demasiado tiempo, forzar el fin del cambio
-        if (isChangingArena && System.currentTimeMillis() - arenaChangeStartTime > MAX_ARENA_CHANGE_TIME) {
-            completeArenaChange();
-            return false;
-        }
-        return isChangingArena;
-    }
-
-    public void startArenaChange() {
-        isChangingArena = true;
-        arenaChangeStartTime = System.currentTimeMillis();
-        
-        // Congelar a todos los jugadores
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            freezePlayer(player);
-        }
-    }
-
-    public void completeArenaChange() {
-        isChangingArena = false;
-        
-        // Descongelar a todos los jugadores
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            unfreezePlayer(player);
-        }
-    }
-
-    private void freezePlayer(Player player) {
-        player.setWalkSpeed(0.0f);
-        player.setFoodLevel(0);
-        player.setSaturation(0.0f);
-        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 128, false, false));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 1, false, false));
-        player.setNoDamageTicks(100);
-    }
-
-    private void unfreezePlayer(Player player) {
-        player.setWalkSpeed(0.2f);
-        player.setFoodLevel(20);
-        player.setSaturation(20.0f);
-        player.removePotionEffect(PotionEffectType.JUMP);
-        player.removePotionEffect(PotionEffectType.BLINDNESS);
-        player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 1.0f);
-    }
-
     private void rotateArena() {
-        // Cambiar arenaChanging por isChangingArena
-        startArenaChange(); // Usar el método existente en lugar de asignar directamente
-
-        ArenaManager arenaManager = plugin.getArenaManager();
-        String currentArena = arenaManager.getCurrentArena();
-        String nextArena = arenaManager.getNextArena();
-        
-        if (nextArena == null || currentArena == null) {
-            completeArenaChange(); // Usar el método existente en lugar de asignar directamente
-            return;
-        }
-
-        Arena nextArenaObj = arenaManager.getArena(nextArena);
-        Location nextSpawn = nextArenaObj.getSpawnLocation();
-        
-        if (nextSpawn == null) {
-            completeArenaChange(); // Usar el método existente en lugar de asignar directamente
-            return;
-        }
-
-        // Congelar y preparar a todos los jugadores
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            plugin.getArenaManager().getPowerUpManager().clearAllPowerUpEffects(player);
-            player.setWalkSpeed(0.0f);
-            player.setFoodLevel(0);
-            player.setSaturation(0.0f);
-            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100, 128, false, false));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 1, false, false));
-            player.playSound(player.getLocation(), Sound.PORTAL_TRIGGER, 1.0f, 1.0f);
-            player.setNoDamageTicks(100);
-        }
-
-        // Secuencia de animación usando configuración
-        new BukkitRunnable() {
-            int step = 0;
-            List<String> loadingFrames = config.getScoreArenaChangeFrames();
-            List<String> loadingColors = config.getScoreArenaChangeColors();
-            
-            @Override
-            public void run() {
-                if (loadingFrames == null || loadingColors == null || 
-                    step >= loadingFrames.size() + 2) {
-                    this.cancel();
-                    teleportPlayers(currentArena, nextArena, nextSpawn);
-                    return;
-                }
-
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (step < loadingFrames.size()) {
-                        String title = config.getScoreTitleBeforeChangeTitle();
-                        String subtitle = config.getScoreTitleBeforeChangeSubtitle();
-                        
-                        if (title != null) title = processPlaceholders(title, player);
-                        if (subtitle != null) {
-                            subtitle = subtitle.replace("%title-animation%", 
-                                loadingColors.get(step) + loadingFrames.get(step) + " &7" + (step * 20 + 20) + "%");
-                            subtitle = processPlaceholders(subtitle, player);
-                        }
-                        
-                        TitleUtils.sendTitle(
-                            player,
-                            MessageUtils.getColor(title),
-                            MessageUtils.getColor(subtitle),
-                            config.getScoreTitleBeforeChangeFadeIn(),
-                            config.getScoreTitleBeforeChangeStay(),
-                            config.getScoreTitleBeforeChangeFadeOut()
-                        );
-                        player.playSound(player.getLocation(), Sound.CLICK, 1.0f, 1.0f);
-                    }
-                }
-                step++;
-            }
-        }.runTaskTimer(plugin, 0L, 10L);
-    }
-
-    private void teleportPlayers(String currentArena, String nextArena, Location nextSpawn) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (currentArena != null) {
-                plugin.getArenaManager().removePlayerFromArena(player, currentArena);
-            }
-
-            completeArenaChange(); // Usar el método existente en lugar de asignar directamente
-
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    ItemsManager.giveSpawnItems(player);
-                    player.teleport(nextSpawn);
-                    plugin.getArenaManager().addPlayerToArena(player, nextArena);
-                    player.setNoDamageTicks(60);
-                    
-                    updatePlayerZone(player, nextArena);
-
-                    player.getWorld().getEntities().stream()
-                        .filter(entity -> entity.getType() == EntityType.ENDER_PEARL)
-                        .filter(entity -> ((EnderPearl) entity).getShooter() == player)
-                        .forEach(entity -> entity.remove());
-                    
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                        player.setWalkSpeed(0.2f);
-                        player.setFoodLevel(20);
-                        player.setSaturation(20.0f);
-                        
-                        String title = config.getScoreTitleAfterChangeTitle();
-                        String subtitle = config.getScoreTitleAfterChangeSubtitle();
-                        
-                        if (title != null) {
-                            title = title.replace("%next_arena%", nextArena);
-                            title = processPlaceholders(title, player);
-                        }
-                        if (subtitle != null) {
-                            subtitle = processPlaceholders(subtitle, player);
-                        }
-                        
-                        TitleUtils.sendTitle(player, 
-                            MessageUtils.getColor(title), 
-                            MessageUtils.getColor(subtitle),
-                            config.getScoreTitleAfterChangeFadeIn(),
-                            config.getScoreTitleAfterChangeStay(),
-                            config.getScoreTitleAfterChangeFadeOut()
-                        );
-                        player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 1.0f);
-                    }, 30L);
-                }
-            }.runTaskLater(plugin, 2L);
-        }
-
-        plugin.getArenaManager().setCurrentArena(nextArena);
-    }
-
-    public void updatePlayerZone(Player player, String arenaName) {
-        Arena arena = plugin.getArenaManager().getArena(arenaName);
-        if (arena == null) return;
-        
-        Location playerLoc = player.getLocation();
-        String currentZone = null;
-        
-        for (ZoneType zoneType : ZoneType.values()) {
-            Zone zone = arena.getZone(zoneType.getId());
-            if (zone != null && zone.isInside(playerLoc)) {
-                currentZone = zoneType.getId();
-                break;
-            }
-        }
-        
-        plugin.getArenaManager().setPlayerZone(player, arenaName, currentZone);
+        plugin.getArenaChangeManager().rotateToNextArena();
     }
 
     public void removePlayer(Player player) {

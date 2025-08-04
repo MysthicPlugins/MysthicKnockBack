@@ -17,6 +17,7 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import mk.kvlzx.arena.ArenaManager;
 import mk.kvlzx.commands.ArenaCommand;
 import mk.kvlzx.commands.ArenaTabCompleter;
+import mk.kvlzx.commands.ArenaVoteCommand;
 import mk.kvlzx.commands.MainCommand;
 import mk.kvlzx.commands.MainTabCompleter;
 import mk.kvlzx.commands.StatsCommand;
@@ -54,6 +55,8 @@ import mk.kvlzx.listeners.ItemListener;
 import mk.kvlzx.listeners.JoinMessageListener;
 import mk.kvlzx.listeners.PlayerListener;
 import mk.kvlzx.listeners.MenuListener;
+import mk.kvlzx.managers.ArenaChangeManager;
+import mk.kvlzx.managers.ArenaVoteManager;
 import mk.kvlzx.managers.CombatManager;
 import mk.kvlzx.managers.CooldownManager;
 import mk.kvlzx.managers.ItemVerificationManager;
@@ -84,6 +87,8 @@ public class MysthicKnockBack extends JavaPlugin {
     private MusicManager musicManager;
     private ItemVerificationManager itemVerificationManager;
     private WeaponManager weaponManager;
+    private ArenaChangeManager arenaChangeManager;
+    private ArenaVoteManager arenaVoteManager;
     private EndermiteListener endermiteListener;
     private MessagesConfig messagesConfig;
     private MainConfig mainConfig;
@@ -212,6 +217,7 @@ public class MysthicKnockBack extends JavaPlugin {
 
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Saving arenas...");
             arenaManager.shutdown();
+            arenaVoteManager.shutdown();
             arenaManager.saveArenas();
 
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Cleaning blocks and items...");
@@ -257,6 +263,8 @@ public class MysthicKnockBack extends JavaPlugin {
         musicManager = new MusicManager(this);
         itemVerificationManager = new ItemVerificationManager(this);
         weaponManager = new WeaponManager(this);
+        arenaChangeManager = new ArenaChangeManager(this);
+        arenaVoteManager = new ArenaVoteManager(this);
     }
 
     private void startPlaytimeUpdater() {
@@ -480,6 +488,8 @@ public class MysthicKnockBack extends JavaPlugin {
         getCommand("stats").setTabCompleter(new StatsTabCompleter());
         getCommand("music").setExecutor(new MusicCommand(this));
         getCommand("report").setExecutor(new ReportCommand(this));
+        getCommand("arenavote").setExecutor(new ArenaVoteCommand(this));
+        getCommand("arenuvote").setExecutor(new ArenaVoteCommand(this));
     }
 
     public void registerEvents() {
@@ -632,6 +642,14 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public MusicShopConfig getMusicShopConfig() {
         return musicShopConfig;
+    }
+
+    public ArenaChangeManager getArenaChangeManager() {
+        return arenaChangeManager;
+    }
+
+    public ArenaVoteManager getArenaVoteManager() {
+        return arenaVoteManager;
     }
 
 }

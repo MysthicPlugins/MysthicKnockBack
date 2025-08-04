@@ -22,3 +22,9 @@ commands:
     aliases: [statistics]
   music:
     description: Open the music menu
+  arenavote:
+    description: Open arena voting menu
+    usage: /arenavote
+  arenuvote:
+    description: Vote for arena change (internal)
+    usage: /arenuvote <yes|no>

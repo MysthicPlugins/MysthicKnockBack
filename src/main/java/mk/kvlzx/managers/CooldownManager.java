@@ -73,7 +73,7 @@ public class CooldownManager {
                     return;
                 }
 
-                if (plugin.getScoreboardManager().isArenaChanging()) {
+                if (plugin.getArenaChangeManager().isArenaChanging()) {
                     clearAllCooldowns(player);
                     cleanup();
                     return;

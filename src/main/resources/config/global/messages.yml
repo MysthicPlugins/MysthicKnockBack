@@ -21,6 +21,7 @@ messages:
         - "/stats resetall"
         - "/music"
         - "/report"
+        -  "/arenavote"
         - "--------&r &b&lCommands MysthicKnockBack &8&m--------"
     arena:
       create:
