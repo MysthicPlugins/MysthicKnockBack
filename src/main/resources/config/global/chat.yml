@@ -1,0 +1,75 @@
+chat:
+  # Activar o desactivar el sistema de chat personalizado
+  enabled: true
+  
+  # Formato por defecto si no se encuentra formato específico del grupo
+  # Placeholders disponibles:
+  # %player_name% - Nombre del jugador
+  # %message% - Mensaje del jugador  
+  # %kbffa_rank% - Rango por elo del jugador
+  # También soporta placeholders de PlaceholderAPI si está instalado
+  default-format: "%kbffa_rank% &7%player_name%&7: &f%message%"
+  
+  # Formatos específicos por grupo de LuckPerms
+  # El nombre del grupo debe coincidir EXACTAMENTE con el nombre en LuckPerms
+  # Si un jugador pertenece a un grupo listado aquí, usará este formato
+  # Si no, usará el default-format de arriba
+  group-formats:
+    
+    # Owner
+    owner: "&4&l[OWNER] &c%player_name%&7: &f%message%"
+    
+    # Admin
+    admin: "&c&l[ADMIN] &4%player_name%&7: &f%message%"
+    
+    # Moderator
+    moderator: "&9&l[MOD] &b%player_name%&7: &f%message%"
+    mod: "&9&l[MOD] &b%player_name%&7: &f%message%"
+    
+    # Helper
+    helper: "&a&l[HELPER] &2%player_name%&7: &f%message%"
+    
+    # Developer
+    developer: "&3&l[DEV] &b%player_name%&7: &f%message%"
+    dev: "&3&l[DEV] &b%player_name%&7: &f%message%"
+    
+    # Builder
+    builder: "&2&l[BUILDER] &a%player_name%&7: &f%message%"
+    
+    # VIP
+    vip: "&6&l[VIP] &e%player_name%&7: &f%message%"
+    
+    # VIP+
+    vipplus: "&6&l[VIP&b+&6] &e%player_name%&7: &f%message%"
+    vip_plus: "&6&l[VIP&b+&6] &e%player_name%&7: &f%message%"
+    
+    # Premium
+    premium: "&d&l[PREMIUM] &5%player_name%&7: &f%message%"
+    
+    # YouTuber
+    youtuber: "&f&l[&cYou&fTuber&f] &c%player_name%&7: &f%message%"
+    youtube: "&f&l[&cYou&fTuber&f] &c%player_name%&7: &f%message%"
+    
+    # Streamer
+    streamer: "&5&l[STREAMER] &d%player_name%&7: &f%message%"
+    
+    # Influencer
+    influencer: "&e&l[INFLUENCER] &6%player_name%&7: &f%message%"
+    
+    # Partner
+    partner: "&d&l[PARTNER] &5%player_name%&7: &f%message%"
+    
+    # Default
+    default: "%kbffa_rank% &7%player_name%&7: &f%message%"
+
+# ================================
+# NOTAS IMPORTANTES:
+# ================================
+# 1. Los nombres de grupos deben coincidir exactamente con LuckPerms
+# 2. Usa &f al final del formato para resetear el color del mensaje
+# 3. Los colores disponibles: &0-&9, &a-&f
+# 4. Estilos disponibles: &l (negrita), &m (tachado), &n (subrayado), &o (cursiva), &k (ofuscado)
+# 5. Usa &r para resetear todos los formatos
+# 6. Si LuckPerms no está instalado, todos usarán el formato 'default'
+# 7. Recarga la configuración con: /mkb reload
+# ================================

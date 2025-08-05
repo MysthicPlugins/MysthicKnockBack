@@ -281,6 +281,20 @@ public class MainScoreboardManager {
         plugin.getArenaChangeManager().rotateToNextArena();
     }
 
+    /**
+     * Reiniciar el timer de arena (usado después de votaciones exitosas)
+     */
+    public void resetArenaTimer() {
+        timeLeft = config.getScoreArenaChange();
+    }
+    
+    /**
+     * Obtener tiempo restante del timer (para verificar restricciones de votación)
+     */
+    public int getArenaTimeLeft() {
+        return timeLeft;
+    }
+
     public void removePlayer(Player player) {
         UUID playerId = player.getUniqueId();
         playerScoreboards.remove(playerId);

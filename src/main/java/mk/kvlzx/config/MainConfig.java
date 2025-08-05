@@ -14,8 +14,6 @@ public class MainConfig {
 
     private String prefix;
     private Long autoSaveInterval;
-    private Boolean chatEnabled;
-    private String chatFormat;
 
     private Boolean endermiteEnabled;
     private Integer endermiteLimit;
@@ -257,9 +255,6 @@ public class MainConfig {
 
         prefix = config.getString("config.prefix", "&b[&3KBFFA&b] ");
         autoSaveInterval = config.getLong("config.auto-save-interval", 5);
-
-        chatEnabled = config.getBoolean("config.chat.enabled");
-        chatFormat = config.getString("config.chat.format");
 
         endermiteEnabled = config.getBoolean("config.endermite.enabled");
         endermiteLimit = config.getInt("config.endermite.limit");
@@ -563,8 +558,6 @@ public class MainConfig {
 
     public String getPrefix() { return prefix; }
     public Long getAutoSaveInterval() { return autoSaveInterval; }
-    public Boolean getChatEnabled() { return chatEnabled; }
-    public String getChatFormat() { return chatFormat; }
 
     public Boolean getEndermiteEnabled() { return endermiteEnabled; }
     public Integer getEndermiteLimit() { return endermiteLimit; }

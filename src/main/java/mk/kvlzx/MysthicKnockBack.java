@@ -24,6 +24,7 @@ import mk.kvlzx.commands.StatsCommand;
 import mk.kvlzx.commands.StatsTabCompleter;
 import mk.kvlzx.config.ArrowEffectsShopConfig;
 import mk.kvlzx.config.BlocksShopConfig;
+import mk.kvlzx.config.ChatConfig;
 import mk.kvlzx.config.DeathMessagesShopConfig;
 import mk.kvlzx.config.DeathSoundsShopConfig;
 import mk.kvlzx.config.HotbarMenuConfig;
@@ -52,7 +53,6 @@ import mk.kvlzx.listeners.CombatListener;
 import mk.kvlzx.listeners.EndermiteListener;
 import mk.kvlzx.listeners.ExplosiveArrowListener;
 import mk.kvlzx.listeners.ItemListener;
-import mk.kvlzx.listeners.JoinMessageListener;
 import mk.kvlzx.listeners.PlayerListener;
 import mk.kvlzx.listeners.MenuListener;
 import mk.kvlzx.managers.ArenaChangeManager;
@@ -93,6 +93,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private MessagesConfig messagesConfig;
     private MainConfig mainConfig;
     private TabConfig tabConfig;
+    private ChatConfig chatConfig;
     private MainMenuConfig mainMenuConfig;
     private TopsMenuConfig topsMenuConfig;
     private StatsMenuConfig statsMenuConfig;
@@ -120,6 +121,7 @@ public class MysthicKnockBack extends JavaPlugin {
         mainConfig = new MainConfig(this);
         messagesConfig = new MessagesConfig(this);
         tabConfig = new TabConfig(this);
+        chatConfig = new ChatConfig(this);
         mainMenuConfig = new MainMenuConfig(this);
         topsMenuConfig = new TopsMenuConfig(this);
         statsMenuConfig = new StatsMenuConfig(this);
@@ -319,7 +321,6 @@ public class MysthicKnockBack extends JavaPlugin {
         for (World world : Bukkit.getWorlds()) {
             // Desactivar el ciclo día/noche
             world.setGameRuleValue("doDaylightCycle", "false");
-            world.setGameRuleValue("AnnounceAdvancements", "false");
             
             // Establecer tiempo de día
             world.setTime(6000); // Mediodía
@@ -385,6 +386,7 @@ public class MysthicKnockBack extends JavaPlugin {
         killSoundsShopConfig.reload();
         joinMessagesShopConfig.reload();
         musicShopConfig.reload();
+        chatConfig.reload();
         
         // Reiniciar auto-save con nueva configuración
         restartAutoSave();
@@ -502,7 +504,6 @@ public class MysthicKnockBack extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ArrowEffectListener(this), this);
         endermiteListener = new EndermiteListener(this);
         getServer().getPluginManager().registerEvents(endermiteListener, this);
-        getServer().getPluginManager().registerEvents(new JoinMessageListener(this), this);
         getServer().getPluginManager().registerEvents(new ExplosiveArrowListener(this), this);
         getServer().getPluginManager().registerEvents(new BlackHoleListener(this), this);
     }
@@ -650,6 +651,10 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public ArenaVoteManager getArenaVoteManager() {
         return arenaVoteManager;
+    }
+
+    public ChatConfig getChatConfig() {
+        return chatConfig;
     }
 
 }

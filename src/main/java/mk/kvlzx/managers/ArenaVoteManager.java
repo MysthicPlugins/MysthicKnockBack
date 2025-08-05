@@ -33,6 +33,7 @@ public class ArenaVoteManager {
     
     // Configuración
     private final int VOTE_DURATION = 30; // 30 segundos
+    private final int MIN_ARENA_TIME_FOR_VOTE = 120; // 2 minutos en segundos
     
     public ArenaVoteManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -70,6 +71,18 @@ public class ArenaVoteManager {
             return false;
         }
         
+        // Verificar tiempo restante del timer de arena
+        int arenaTimeLeft = plugin.getScoreboardManager().getArenaTimeLeft();
+        if (arenaTimeLeft <= MIN_ARENA_TIME_FOR_VOTE) {
+            int minutes = arenaTimeLeft / 60;
+            int seconds = arenaTimeLeft % 60;
+            String timeFormat = String.format("%02d:%02d", minutes, seconds);
+            
+            initiator.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
+                "&cCannot start vote! Arena changes in &e" + timeFormat + "&c. Wait until there's more than &e2:00 &cleft."));
+            return false;
+        }
+        
         // Iniciar votación
         voteActive = true;
         votedArena = arenaName;
@@ -86,26 +99,25 @@ public class ArenaVoteManager {
         return true;
     }
     
-    // ... resto del código igual hasta changeArena() ...
-    
     private void changeArena() {
         // USAR EL NUEVO ArenaChangeManager - SIN ANIMACIÓN para votos
         plugin.getArenaChangeManager().changeArenaImmediately(votedArena, false);
         
-        // Mensaje de confirmación
-        Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
-            "&a&lArena changed successfully! &r&7Welcome to &b" + votedArena));
+        // NUEVA FUNCIONALIDAD: Reiniciar el timer de arena después del cambio
+        plugin.getScoreboardManager().resetArenaTimer();
     }
-    
-    // ... resto del código igual (sendClickableVoteMessage, vote, startCountdown, finishVote, etc.) ...
     
     private void sendClickableVoteMessage() {
         String currentArena = plugin.getArenaManager().getCurrentArena();
+        int arenaTimeLeft = plugin.getScoreboardManager().getArenaTimeLeft();
+        int minutes = arenaTimeLeft / 60;
+        int seconds = arenaTimeLeft % 60;
+        String timeFormat = String.format("%02d:%02d", minutes, seconds);
         
-        // Mensaje de anuncio
+        // Mensaje de anuncio con información del timer
         String announcement = MysthicKnockBack.getPrefix() + 
             "&e&lArena Vote Started! &r&7Change from &b" + currentArena + 
-            " &7to &b" + votedArena + "&7? (&e" + VOTE_DURATION + "s&7)";
+            " &7to &b" + votedArena + "&7? (&e" + VOTE_DURATION + "s&7) &8[Timer: " + timeFormat + "]";
         Bukkit.broadcastMessage(MessageUtils.getColor(announcement));
         
         // Crear componentes clickeables
@@ -226,7 +238,7 @@ public class ArenaVoteManager {
         if (totalYes > totalNo) {
             // ¡Cambiar arena!
             Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
-                "&a&lVote PASSED! &r&7Changing to &b" + votedArena));
+                "&a&lVote PASSED! &r&7Changing to &b" + votedArena + " &7and resetting timer..."));
             changeArena();
         } else {
             Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
@@ -244,6 +256,7 @@ public class ArenaVoteManager {
     public String getVotedArena() { return votedArena; }
     public int getYesVotes() { return yesVotes.size(); }
     public int getNoVotes() { return noVotes.size(); }
+    public int getMinArenaTimeForVote() { return MIN_ARENA_TIME_FOR_VOTE; }
     
     public void shutdown() {
         if (voteTask != null) {
