@@ -318,18 +318,31 @@ public class MainScoreboardManager {
      */
     private String getTeamNameForTabOrder(Player player) {
         if (!luckPermsEnabled) {
-            return "z_" + player.getName(); // Sin LuckPerms, ordenar al final
+            String playerName = player.getName();
+            // Limitar a 14 caracteres para que "z_" + nombre no exceda 16
+            if (playerName.length() > 14) {
+                playerName = playerName.substring(0, 14);
+            }
+            return "z_" + playerName.toLowerCase(); // Sin LuckPerms, ordenar al final
         }
 
         String primaryGroup = getPlayerPrimaryGroup(player);
         int priority = chatConfig.getGroupPriority(primaryGroup);
         
         // Formatear prioridad con ceros a la izquierda para orden alfabético correcto
-        // Ejemplo: 00_owner, 01_admin, 17_default
+        // Ejemplo: 00, 01, 17
         String formattedPriority = String.format("%02d", priority);
+        String playerName = player.getName();
+
+        // Los nombres de team en MC 1.8 están limitados a 16 caracteres.
+        // Se usa un esquema: "prio_playerName" -> 2 + 1 + 13 = 16
+        int maxPlayerNameLength = 13;
+        if (playerName.length() > maxPlayerNameLength) {
+            playerName = playerName.substring(0, maxPlayerNameLength);
+        }
         
-        // Agregar el nombre del grupo y del jugador para desempate
-        return formattedPriority + "_" + primaryGroup + "_" + player.getName().toLowerCase();
+        // El nombre del team es único por jugador y controla el orden.
+        return formattedPriority + "_" + playerName.toLowerCase();
     }
 
     /**

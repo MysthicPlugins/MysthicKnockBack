@@ -191,16 +191,11 @@ public class PlayerListener implements Listener {
                     player.teleport(worldSpawn);
                 }
             } else {
-                for (Arena availableArena : plugin.getArenaManager().getArenas()) {
-                    plugin.getLogger().info("[SPAWN DEBUG] - Arena: " + availableArena.getName());
-                }
-                
                 // Fallback: teleportar al spawn del mundo
                 Location worldSpawn = player.getWorld().getSpawnLocation();
                 player.teleport(worldSpawn);
             }
         } else {
-            plugin.getLogger().warning("[SPAWN DEBUG] Current arena is NULL!");
             
             // Fallback: teleportar al spawn del mundo
             Location worldSpawn = player.getWorld().getSpawnLocation();

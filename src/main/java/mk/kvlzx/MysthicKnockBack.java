@@ -375,10 +375,8 @@ public class MysthicKnockBack extends JavaPlugin {
         // IMPORTANTE: Recargar ChatConfig ANTES que TabManager
         chatConfig.reload();
         
-        // Luego recargar TabManager para que aplique el nuevo orden
-        tabManager.reload();
-        
         scoreboardManager.reload();
+        
         mainMenuConfig.reload();
         topsMenuConfig.reload();
         statsMenuConfig.reload();
