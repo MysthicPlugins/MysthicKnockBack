@@ -71,12 +71,13 @@ public class ChatConfig {
         tabDefaultFormat = config.getString("tab.default-format", "%kbffa_rank% &f%player_name% &8[&f%player_ping%ms&8]");
         tabDefaultDisplayName = config.getString("tab.default-display-name", "%kbffa_rank% &f%player_name%");
 
-        // Cargar formatos por grupo para tab (LinkedHashMap para mantener orden)
+        // LIMPIAR COMPLETAMENTE el LinkedHashMap antes de recargar
         tabGroupFormats = new LinkedHashMap<>();
+        
         if (config.contains("tab.group-formats")) {
             ConfigurationSection tabGroupFormatsSection = config.getConfigurationSection("tab.group-formats");
             if (tabGroupFormatsSection != null) {
-                // Obtener las keys en el orden que aparecen en la configuración
+                // IMPORTANTE: Obtener las keys en el orden exacto que aparecen en el archivo YAML
                 for (String groupName : tabGroupFormatsSection.getKeys(false)) {
                     ConfigurationSection groupSection = tabGroupFormatsSection.getConfigurationSection(groupName);
                     if (groupSection != null) {
@@ -90,6 +91,7 @@ public class ChatConfig {
                                 displayName = tabFormat.replaceAll("\\s*&8\\[&f%player_ping%ms&8\\]", "").trim();
                             }
                             
+                            // MANTENER EL ORDEN: usar put directamente en el LinkedHashMap
                             tabGroupFormats.put(groupName.toLowerCase(), new TabGroupFormat(tabFormat, displayName));
                         }
                     } else {
@@ -108,11 +110,31 @@ public class ChatConfig {
         if (!tabGroupFormats.containsKey("default")) {
             tabGroupFormats.put("default", new TabGroupFormat(tabDefaultFormat, tabDefaultDisplayName));
         }
+
+        // Debug: imprimir el orden cargado
+        plugin.getLogger().info("Tab group order loaded:");
+        int priority = 0;
+        for (String group : tabGroupFormats.keySet()) {
+            plugin.getLogger().info("  " + priority + ": " + group);
+            priority++;
+        }
     }
 
     public void reload() {
         configFile.reloadConfig();
+        
+        // IMPORTANTE: Limpiar completamente las estructuras antes de recargar
+        if (groupFormats != null) {
+            groupFormats.clear();
+        }
+        if (tabGroupFormats != null) {
+            tabGroupFormats.clear();
+        }
+        
+        // Recargar completamente la configuración
         loadConfig();
+        
+        plugin.getLogger().info("ChatConfig reloaded - Group priorities updated");
     }
 
     // ======== CHAT GETTERS ========
@@ -188,12 +210,13 @@ public class ChatConfig {
         return tabGroupFormats.containsKey(groupName.toLowerCase());
     }
 
-    // Método para obtener la prioridad de un grupo basado en su orden en la configuración
+    // Método MEJORADO para obtener la prioridad de un grupo basado en su orden en la configuración
     public int getGroupPriority(String groupName) {
         if (groupName == null || groupName.trim().isEmpty()) {
             return Integer.MAX_VALUE; // Prioridad más baja para grupos sin nombre
         }
         
+        // Buscar en el LinkedHashMap que mantiene el orden
         int priority = 0;
         for (String configuredGroup : tabGroupFormats.keySet()) {
             if (configuredGroup.equals(groupName.toLowerCase())) {
@@ -203,6 +226,11 @@ public class ChatConfig {
         }
         
         return Integer.MAX_VALUE; // Si no se encuentra, dar prioridad más baja
+    }
+
+    // Método para obtener todos los grupos ordenados por prioridad
+    public String[] getGroupsByPriority() {
+        return tabGroupFormats.keySet().toArray(new String[0]);
     }
 
     // ======== CHAT SETTERS ========
@@ -338,6 +366,16 @@ public class ChatConfig {
 
     public int getTabGroupFormatCount() {
         return tabGroupFormats.size();
+    }
+
+    // Método para debug - imprimir orden actual
+    public void printCurrentOrder() {
+        plugin.getLogger().info("Current tab group order:");
+        int priority = 0;
+        for (String group : tabGroupFormats.keySet()) {
+            plugin.getLogger().info("  Priority " + priority + ": " + group);
+            priority++;
+        }
     }
 
     // Clase interna para representar formatos de tab

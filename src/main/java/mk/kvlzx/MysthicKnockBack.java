@@ -366,10 +366,18 @@ public class MysthicKnockBack extends JavaPlugin {
 
     // Método para recargar configuraciones dinámicamente
     public void reloadConfigs() {
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&e⚠&8] &7Reloading configurations...");
+        
         // Recargar configuraciones
         mainConfig.reload();
         messagesConfig.reload();
+        
+        // IMPORTANTE: Recargar ChatConfig ANTES que TabManager
+        chatConfig.reload();
+        
+        // Luego recargar TabManager para que aplique el nuevo orden
         tabManager.reload();
+        
         scoreboardManager.reload();
         mainMenuConfig.reload();
         topsMenuConfig.reload();
@@ -386,12 +394,12 @@ public class MysthicKnockBack extends JavaPlugin {
         killSoundsShopConfig.reload();
         joinMessagesShopConfig.reload();
         musicShopConfig.reload();
-        chatConfig.reload();
         
         // Reiniciar auto-save con nueva configuración
         restartAutoSave();
         
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&a✔&8] &7Configurations reloaded successfully");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Tab group priorities updated and applied");
     }
 
     // Método centralizado para guardar toda la data

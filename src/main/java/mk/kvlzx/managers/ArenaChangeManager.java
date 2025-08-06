@@ -188,6 +188,7 @@ public class ArenaChangeManager {
             // Remover de arena actual
             if (currentArena != null) {
                 plugin.getArenaManager().removePlayerFromArena(player, currentArena);
+                plugin.getArenaManager().getPowerUpManager().cleanupArena(currentArena);
             }
             
             // Teleportar y configurar jugador

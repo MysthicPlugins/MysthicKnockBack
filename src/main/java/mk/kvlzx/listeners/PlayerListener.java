@@ -69,51 +69,32 @@ public class PlayerListener implements Listener {
         UUID playerId = player.getUniqueId();
         String playerName = player.getName();
         
-        plugin.getLogger().info("=== [JOIN DEBUG] Starting join process for: " + playerName + " ===");
-        plugin.getLogger().info("[JOIN DEBUG] Player UUID: " + playerId);
-        plugin.getLogger().info("[JOIN DEBUG] Player location before processing: " + player.getLocation());
-        plugin.getLogger().info("[JOIN DEBUG] Is first time joining: " + !player.hasPlayedBefore());
-        
-        // === PARTE 1: CONFIGURAR MENSAJE DE BIENVENIDA ===
-        plugin.getLogger().info("[JOIN DEBUG] Processing join message...");
-        
         String messageName = plugin.getCosmeticManager().getPlayerJoinMessage(playerId);
-        plugin.getLogger().info("[JOIN DEBUG] Join message name: " + messageName);
         
         String joinMessage;
         if (messageName.equals("default")) {
             joinMessage = JOIN_MESSAGES.get(random.nextInt(JOIN_MESSAGES.size()));
-            plugin.getLogger().info("[JOIN DEBUG] Using default message: " + joinMessage);
         } else {
             JoinMessagesShopConfig.JoinMessageItem messageItem = getJoinMessageByName(messageName);
             joinMessage = messageItem != null ? messageItem.getMessage() : JOIN_MESSAGES.get(0);
-            plugin.getLogger().info("[JOIN DEBUG] Using custom message: " + joinMessage);
         }
         
         // Establecer el mensaje inmediatamente (debe ser síncrono)
         String finalJoinMessage = MessageUtils.getColor(joinMessage.replace("%player%", playerName));
         event.setJoinMessage(finalJoinMessage);
-        plugin.getLogger().info("[JOIN DEBUG] Join message set successfully");
-        
-        // === PARTE 2: LÓGICA DE SPAWN Y ESTADO DEL JUGADOR ===
-        plugin.getLogger().info("[JOIN DEBUG] Starting spawn logic...");
         
         // Asegurarnos de limpiar cualquier efecto residual
         cleanupPlayerEffects(player);
-        plugin.getLogger().info("[JOIN DEBUG] Player effects cleaned");
         
         String currentArena = plugin.getArenaManager().getCurrentArena();
-        plugin.getLogger().info("[JOIN DEBUG] Current arena: " + currentArena);
         
         // Verificar estado del ArenaManager
         if (plugin.getArenaManager() == null) {
-            plugin.getLogger().severe("[JOIN DEBUG] ArenaManager is NULL!");
             return;
         }
         
         // Si la arena está cambiando, esperar a que termine el cambio antes de procesar al jugador
         if (plugin.getArenaChangeManager().isArenaChanging()) {
-            plugin.getLogger().info("[JOIN DEBUG] Arena is changing, freezing player temporarily");
             
             // Congelar al jugador temporalmente
             freezePlayer(player);
@@ -126,10 +107,8 @@ public class PlayerListener implements Listener {
                 @Override
                 public void run() {
                     attempts++;
-                    plugin.getLogger().info("[JOIN DEBUG] Arena change wait attempt: " + attempts);
                     
                     if (!plugin.getArenaChangeManager().isArenaChanging() || attempts >= MAX_ATTEMPTS) {
-                        plugin.getLogger().info("[JOIN DEBUG] Arena change finished or max attempts reached");
                         
                         // Limpiar efectos y restaurar estado
                         cleanupPlayerEffects(player);
@@ -143,20 +122,14 @@ public class PlayerListener implements Listener {
                 }
             }.runTaskTimer(plugin, 0L, 1L);
         } else {
-            plugin.getLogger().info("[JOIN DEBUG] Arena not changing, processing normal join");
             // Procesar spawn normal directamente
             processNormalJoinWithDebug(player, currentArena);
         }
     }
     
     private void processNormalJoinWithDebug(Player player, String currentArena) {
-        String playerName = player.getName();
-        plugin.getLogger().info("[SPAWN DEBUG] === Starting processNormalJoin for: " + playerName + " ===");
-        plugin.getLogger().info("[SPAWN DEBUG] Player location before items: " + player.getLocation());
-        
         // Dar items de spawn
         ItemsManager.giveSpawnItems(player);
-        plugin.getLogger().info("[SPAWN DEBUG] Spawn items given");
         
         // Título de bienvenida
         if (plugin.getMainConfig().getJoinTitleEnabled()) {
@@ -168,32 +141,22 @@ public class PlayerListener implements Listener {
                 plugin.getMainConfig().getJoinTitleStay(),
                 plugin.getMainConfig().getJoinTitleFadeOut()
             );
-            plugin.getLogger().info("[SPAWN DEBUG] Join title sent");
         }
         
         // Actualizar rango
         PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
         RankManager.updatePlayerRank(player, stats.getElo());
-        plugin.getLogger().info("[SPAWN DEBUG] Player rank updated. ELO: " + stats.getElo());
-
-        plugin.getLogger().info("[SPAWN DEBUG] Current arena parameter: " + currentArena);
         
         if (currentArena != null) {
             Arena arena = plugin.getArenaManager().getArena(currentArena);
-            plugin.getLogger().info("[SPAWN DEBUG] Arena object retrieved: " + (arena != null ? arena.getName() : "NULL"));
             
             if (arena != null) {
                 Location spawnLocation = arena.getSpawnLocation();
-                plugin.getLogger().info("[SPAWN DEBUG] Arena spawn location: " + (spawnLocation != null ? spawnLocation.toString() : "NULL"));
                 
                 if (spawnLocation != null) {
-                    plugin.getLogger().info("[SPAWN DEBUG] Attempting teleport to: " + spawnLocation);
-                    plugin.getLogger().info("[SPAWN DEBUG] Spawn world: " + spawnLocation.getWorld().getName());
-                    plugin.getLogger().info("[SPAWN DEBUG] Spawn coordinates: X=" + spawnLocation.getX() + " Y=" + spawnLocation.getY() + " Z=" + spawnLocation.getZ());
                     
                     // Verificar que el mundo esté cargado
                     if (spawnLocation.getWorld() == null) {
-                        plugin.getLogger().severe("[SPAWN DEBUG] Spawn location world is NULL!");
                         player.teleport(player.getWorld().getSpawnLocation());
                         return;
                     }
@@ -202,50 +165,32 @@ public class PlayerListener implements Listener {
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            plugin.getLogger().info("[SPAWN DEBUG] Executing delayed teleport for: " + playerName);
-                            plugin.getLogger().info("[SPAWN DEBUG] Player location before teleport: " + player.getLocation());
-                            
-                            boolean teleportSuccess = player.teleport(spawnLocation);
-                            plugin.getLogger().info("[SPAWN DEBUG] Teleport success: " + teleportSuccess);
-                            plugin.getLogger().info("[SPAWN DEBUG] Player location after teleport: " + player.getLocation());
-                            
                             // Añadir jugador a la arena
                             plugin.getArenaManager().addPlayerToArena(player, currentArena);
-                            plugin.getLogger().info("[SPAWN DEBUG] Player added to arena: " + currentArena);
                             
                             // Mostrar borde de arena
                             plugin.getArenaManager().showArenaBorder(arena);
-                            plugin.getLogger().info("[SPAWN DEBUG] Arena border shown");
                             
                             // Actualizar zona del jugador
                             plugin.getArenaChangeManager().updatePlayerZone(player, currentArena);
-                            plugin.getLogger().info("[SPAWN DEBUG] Player zone updated to: " + currentArena);
                             
                             // Verificación final de posición
                             Location finalLocation = player.getLocation();
-                            plugin.getLogger().info("[SPAWN DEBUG] FINAL player location: " + finalLocation);
                             
                             // Verificar si la teleportación realmente funcionó
                             if (finalLocation.distance(spawnLocation) > 1.0) {
-                                plugin.getLogger().warning("[SPAWN DEBUG] Teleport may have failed! Distance from spawn: " + finalLocation.distance(spawnLocation));
                                 // Intentar teleportar de nuevo
                                 player.teleport(spawnLocation);
-                                plugin.getLogger().info("[SPAWN DEBUG] Re-attempted teleport");
                             }
                         }
                     }.runTaskLater(plugin, 3L); // 3 ticks de delay
                     
                 } else {
-                    plugin.getLogger().warning("[SPAWN DEBUG] Spawn location is NULL for arena: " + currentArena);
                     // Fallback: teleportar al spawn del mundo
                     Location worldSpawn = player.getWorld().getSpawnLocation();
                     player.teleport(worldSpawn);
-                    plugin.getLogger().info("[SPAWN DEBUG] Fallback: teleported to world spawn: " + worldSpawn);
                 }
             } else {
-                plugin.getLogger().warning("[SPAWN DEBUG] Arena object is NULL: " + currentArena);
-                // Verificar si hay arenas disponibles
-                plugin.getLogger().info("[SPAWN DEBUG] Available arenas: " + plugin.getArenaManager().getArenas().size());
                 for (Arena availableArena : plugin.getArenaManager().getArenas()) {
                     plugin.getLogger().info("[SPAWN DEBUG] - Arena: " + availableArena.getName());
                 }
@@ -253,23 +198,14 @@ public class PlayerListener implements Listener {
                 // Fallback: teleportar al spawn del mundo
                 Location worldSpawn = player.getWorld().getSpawnLocation();
                 player.teleport(worldSpawn);
-                plugin.getLogger().info("[SPAWN DEBUG] Fallback: teleported to world spawn: " + worldSpawn);
             }
         } else {
             plugin.getLogger().warning("[SPAWN DEBUG] Current arena is NULL!");
             
-            // Información adicional de debug
-            plugin.getLogger().info("[SPAWN DEBUG] ArenaManager state:");
-            plugin.getLogger().info("[SPAWN DEBUG] - Total arenas: " + plugin.getArenaManager().getArenas().size());
-            plugin.getLogger().info("[SPAWN DEBUG] - Current arena from manager: " + plugin.getArenaManager().getCurrentArena());
-            
             // Fallback: teleportar al spawn del mundo
             Location worldSpawn = player.getWorld().getSpawnLocation();
             player.teleport(worldSpawn);
-            plugin.getLogger().info("[SPAWN DEBUG] Fallback: teleported to world spawn: " + worldSpawn);
         }
-        
-        plugin.getLogger().info("[SPAWN DEBUG] === processNormalJoin completed for: " + playerName + " ===");
     }
 
     private void cleanupPlayerEffects(Player player) {

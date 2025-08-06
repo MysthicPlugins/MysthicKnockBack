@@ -5,6 +5,8 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
@@ -78,6 +80,7 @@ public class TabManager {
             public void run() {
                 updateHeaderFooter();
                 updatePlayerList();
+                updateNameTags(); // Nueva función para actualizar nametags
                 
                 // Solo avanzar frame si hay animaciones habilitadas
                 if (hasAnimations()) {
@@ -238,6 +241,98 @@ public class TabManager {
         }
     }
 
+    /**
+     * Nueva función para actualizar los nametags (prefijo y sufijo encima del jugador)
+     */
+    private void updateNameTags() {
+        for (Player target : Bukkit.getOnlinePlayers()) {
+            // Obtener el display name personalizado para este jugador
+            String displayName = getTabDisplayName(target);
+            
+            // Separar prefix y suffix del display name
+            NameTagData nameTagData = parseNameTagData(displayName, target);
+            
+            for (Player viewer : Bukkit.getOnlinePlayers()) {
+                Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
+                
+                String teamName = "nt_" + target.getName();
+                Team team = board.getTeam(teamName);
+                
+                if (team == null) {
+                    // Crear nuevo team si no existe
+                    try {
+                        team = board.registerNewTeam(teamName);
+                    } catch (IllegalArgumentException e) {
+                        // Team ya existe, obtenerlo
+                        team = board.getTeam(teamName);
+                        if (team == null) continue; // Skip si no se puede obtener
+                    }
+                }
+                
+                // Actualizar prefix y suffix
+                team.setPrefix(MessageUtils.getColor(nameTagData.getPrefix()));
+                team.setSuffix(MessageUtils.getColor(nameTagData.getSuffix()));
+                
+                // Añadir jugador al team si no está
+                if (!team.hasEntry(target.getName())) {
+                    team.addEntry(target.getName());
+                }
+                
+                // Aplicar scoreboard al viewer
+                viewer.setScoreboard(board);
+            }
+        }
+    }
+
+    /**
+     * Parsear el display name para extraer prefix y suffix para nametags
+     */
+    private NameTagData parseNameTagData(String displayName, Player player) {
+        String prefix = "";
+        String suffix = "";
+        
+        // Remover códigos de color para procesar
+        String cleanDisplayName = displayName.replaceAll("§[0-9a-fk-or]", "");
+        String playerName = player.getName();
+        
+        // Encontrar la posición del nombre del jugador en el display name
+        int playerNameIndex = cleanDisplayName.indexOf(playerName);
+        
+        if (playerNameIndex != -1) {
+            // Extraer prefix (todo antes del nombre del jugador)
+            if (playerNameIndex > 0) {
+                prefix = displayName.substring(0, displayName.indexOf(playerName));
+                // Limpiar espacios extra al final del prefix
+                prefix = prefix.trim();
+            }
+            
+            // Extraer suffix (todo después del nombre del jugador)
+            int afterNameIndex = displayName.indexOf(playerName) + playerName.length();
+            if (afterNameIndex < displayName.length()) {
+                suffix = displayName.substring(afterNameIndex);
+                // Limpiar espacios extra al principio del suffix
+                suffix = suffix.trim();
+                // Si el suffix solo contiene información del ping, no mostrarlo en el nametag
+                if (suffix.matches(".*\\[.*ms\\].*")) {
+                    suffix = "";
+                }
+            }
+        } else {
+            // Si no se encuentra el nombre, usar todo como prefix
+            prefix = displayName.replace(playerName, "").trim();
+        }
+        
+        // Limitar longitud para evitar problemas visuales
+        if (prefix.length() > 16) {
+            prefix = prefix.substring(0, 16);
+        }
+        if (suffix.length() > 16) {
+            suffix = suffix.substring(0, 16);
+        }
+        
+        return new NameTagData(prefix, suffix);
+    }
+
     private String getTabFormat(Player player) {
         if (luckPermsEnabled) {
             // Intentar obtener formato específico del grupo de LuckPerms
@@ -252,6 +347,22 @@ public class TabManager {
         
         // Usar formato por defecto si no hay LuckPerms o no se encontró formato específico
         return chatConfig.getTabDefaultFormat();
+    }
+
+    private String getTabDisplayName(Player player) {
+        if (luckPermsEnabled) {
+            // Intentar obtener display name específico del grupo de LuckPerms
+            String primaryGroup = getPlayerPrimaryGroup(player);
+            if (primaryGroup != null) {
+                String groupDisplayName = chatConfig.getTabGroupDisplayName(primaryGroup);
+                if (groupDisplayName != null) {
+                    return processPlaceholders(groupDisplayName, player);
+                }
+            }
+        }
+        
+        // Usar display name por defecto si no hay LuckPerms o no se encontró formato específico
+        return processPlaceholders(chatConfig.getTabDefaultDisplayName(), player);
     }
 
     private String getPlayerPrimaryGroup(Player player) {
@@ -301,13 +412,75 @@ public class TabManager {
         return players;
     }
 
+    /**
+     * Método para limpiar teams de un jugador cuando se desconecta
+     */
+    public void cleanupPlayerTeams(Player player) {
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (online.equals(player)) continue;
+            
+            Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
+            
+            String teamName = "nt_" + player.getName();
+            Team team = board.getTeam(teamName);
+            if (team != null) {
+                team.unregister();
+            }
+        }
+    }
+
+    /**
+     * Método para actualizar nametags de un jugador específico (útil para cambios de rango)
+     */
+    public void updatePlayerNameTag(Player player) {
+        String displayName = getTabDisplayName(player);
+        NameTagData nameTagData = parseNameTagData(displayName, player);
+        
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            
+            Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
+            
+            String teamName = "nt_" + player.getName();
+            Team team = board.getTeam(teamName);
+            
+            if (team == null) {
+                try {
+                    team = board.registerNewTeam(teamName);
+                } catch (IllegalArgumentException e) {
+                    team = board.getTeam(teamName);
+                    if (team == null) continue;
+                }
+            }
+            
+            team.setPrefix(MessageUtils.getColor(nameTagData.getPrefix()));
+            team.setSuffix(MessageUtils.getColor(nameTagData.getSuffix()));
+            
+            if (!team.hasEntry(player.getName())) {
+                team.addEntry(player.getName());
+            }
+            
+            viewer.setScoreboard(board);
+        }
+    }
+
     public void reload() {
+        plugin.getLogger().info("Reloading TabManager...");
+        
         // Recargar integración con LuckPerms
         this.luckPermsEnabled = setupLuckPerms();
         
         // Recargar configuración
         tabConfig.reload();
-        chatConfig.reload();
+        
+        // Debug: mostrar el nuevo orden
+        chatConfig.printCurrentOrder();
+        
+        // Forzar actualización inmediata del orden de jugadores
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            updatePlayerList();
+            updateNameTags();
+            plugin.getLogger().info("TabManager reload completed - Player order updated");
+        }, 2L);
         
         // Reiniciar animación si está habilitada
         if (tabConfig.isTabEnabled()) {
@@ -328,6 +501,16 @@ public class TabManager {
             animationTask = null;
         }
         clearTabDisplay();
+        cleanupAllTeams();
+    }
+
+    /**
+     * Limpiar todos los teams de nametags
+     */
+    private void cleanupAllTeams() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            cleanupPlayerTeams(player);
+        }
     }
 
     private void clearTabDisplay() {
@@ -417,5 +600,26 @@ public class TabManager {
         }
         
         return text;
+    }
+
+    /**
+     * Clase para almacenar datos del nametag
+     */
+    private static class NameTagData {
+        private final String prefix;
+        private final String suffix;
+
+        public NameTagData(String prefix, String suffix) {
+            this.prefix = prefix != null ? prefix : "";
+            this.suffix = suffix != null ? suffix : "";
+        }
+
+        public String getPrefix() {
+            return prefix;
+        }
+
+        public String getSuffix() {
+            return suffix;
+        }
     }
 }

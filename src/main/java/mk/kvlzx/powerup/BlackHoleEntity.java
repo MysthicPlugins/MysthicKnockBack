@@ -339,20 +339,23 @@ public class BlackHoleEntity {
                     if (player.equals(thrower)) continue;
                     
                     double distance = player.getLocation().distance(blackHoleLocation);
-                    if (distance <= attractionRadius) {
-                        Vector direction = blackHoleLocation.toVector().subtract(player.getLocation().toVector());
-                        direction.normalize();
-                        
-                        // Fuerza inversamente proporcional a la distancia
-                        double force = attractionForce / Math.max(distance, 1);
-                        direction.multiply(force);
-                        
-                        // Aplicar velocidad
-                        player.setVelocity(direction);
-                        
-                        // Sonido de atracción
-                        if (Math.random() < 0.3) {
-                            player.playSound(player.getLocation(), Sound.ENDERDRAGON_WINGS, 0.5f, 2.0f);
+                    String playerZone = plugin.getArenaManager().getPlayerZone(player);
+                    if (playerZone != null && playerZone.equals("pvp")) {
+                        if (distance <= attractionRadius) {
+                            Vector direction = blackHoleLocation.toVector().subtract(player.getLocation().toVector());
+                            direction.normalize();
+                            
+                            // Fuerza inversamente proporcional a la distancia
+                            double force = attractionForce / Math.max(distance, 1);
+                            direction.multiply(force);
+                            
+                            // Aplicar velocidad
+                            player.setVelocity(direction);
+                            
+                            // Sonido de atracción
+                            if (Math.random() < 0.3) {
+                                player.playSound(player.getLocation(), Sound.ENDERDRAGON_WINGS, 0.5f, 2.0f);
+                            }
                         }
                     }
                 }
@@ -401,20 +404,23 @@ public class BlackHoleEntity {
                     if (player.equals(thrower)) continue;
                     
                     double distance = player.getLocation().distance(blackHoleLocation);
-                    if (distance <= repulsionRadius) {
-                        Vector direction = player.getLocation().toVector().subtract(blackHoleLocation.toVector());
-                        direction.normalize();
-                        
-                        // Fuerza de repulsión
-                        direction.multiply(repulsionForce);
-                        direction.setY(Math.max(direction.getY(), 0.5)); // Asegurar que vayan hacia arriba
-                        
-                        // Aplicar velocidad
-                        player.setVelocity(direction);
-                        
-                        // Sonido de repulsión
-                        if (Math.random() < 0.4) {
-                            player.playSound(player.getLocation(), Sound.EXPLODE, 0.8f, 1.2f);
+                    String playerZone = plugin.getArenaManager().getPlayerZone(player);
+                    if (playerZone != null && playerZone.equals("pvp")) {
+                        if (distance <= repulsionRadius) {
+                            Vector direction = player.getLocation().toVector().subtract(blackHoleLocation.toVector());
+                            direction.normalize();
+                            
+                            // Fuerza de repulsión
+                            direction.multiply(repulsionForce);
+                            direction.setY(Math.max(direction.getY(), 0.5)); // Asegurar que vayan hacia arriba
+                            
+                            // Aplicar velocidad
+                            player.setVelocity(direction);
+                            
+                            // Sonido de repulsión
+                            if (Math.random() < 0.4) {
+                                player.playSound(player.getLocation(), Sound.EXPLODE, 0.8f, 1.2f);
+                            }
                         }
                     }
                 }

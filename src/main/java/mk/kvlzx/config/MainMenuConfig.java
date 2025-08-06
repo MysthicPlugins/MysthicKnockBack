@@ -10,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.utils.config.CustomConfig;
@@ -205,12 +204,11 @@ public class MainMenuConfig {
                 meta.setDisplayName(MessageUtils.getColor(name));
             }
             if (lore != null && !lore.isEmpty()) {
-                List<String> finalLore = new ArrayList<>();
+                List<String> coloredLore = new ArrayList<>();
                 for (String line : lore) {
-                    String processedLine = processPlaceholders(line, player);
-                        finalLore.add(MessageUtils.getColor(processedLine));
+                    coloredLore.add(MessageUtils.getColor(line));
                 }
-                meta.setLore(finalLore);
+                meta.setLore(coloredLore);
             }
             item.setItemMeta(meta);
         } else {
@@ -226,7 +224,9 @@ public class MainMenuConfig {
                 if (lore != null && !lore.isEmpty()) {
                     List<String> coloredLore = new ArrayList<>();
                     for (String line : lore) {
-                        coloredLore.add(MessageUtils.getColor(line));
+                        coloredLore.add(MessageUtils.getColor(
+                            line.replace("%current_arena%", plugin.getArenaManager().getCurrentArena()
+                        )));
                     }
                     meta.setLore(coloredLore);
                 }
@@ -241,30 +241,6 @@ public class MainMenuConfig {
         }
         
         return item;
-    }
-
-    private String processPlaceholders(String text, Player player) {
-        if (text == null) return "";
-        
-        // Placeholders personalizados
-        String currentArena = plugin.getArenaManager().getCurrentArena();
-        if (currentArena == null) {
-            currentArena = plugin.getTabConfig().getScoreNullArena();
-        }
-        
-        text = text.replace("%current_arena%", currentArena);
-        text = text.replace("%player_name%", player.getName());
-        
-        // PlaceholderAPI si está disponible
-        if (plugin.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            try {
-                text = PlaceholderAPI.setPlaceholders(player, text);
-            } catch (Exception e) {
-                // Si PlaceholderAPI falla, continuar sin error
-            }
-        }
-        
-        return text;
     }
 
     public void reload() {
