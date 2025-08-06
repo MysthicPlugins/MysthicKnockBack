@@ -19,7 +19,6 @@ public class TabConfig {
     private Integer tabAnimationInterval;
     private List<TabLine> tabHeaderLines; // Estructura para líneas del header con configuración individual
     private List<TabLine> tabFooterLines; // Nueva estructura para líneas del footer con configuración individual
-    private String tabPlayerDisplay;
 
     private Boolean scoreEnabled;
     private Integer scoreUpdateInterval;
@@ -62,8 +61,6 @@ public class TabConfig {
         
         // Cargar líneas del footer con configuración individual
         loadFooterLines(config);
-        
-        tabPlayerDisplay = config.getString("tab.display.player-display");
 
         scoreEnabled = config.getBoolean("scoreboard.enabled");
         scoreUpdateInterval = config.getInt("scoreboard.update-interval");
@@ -174,7 +171,6 @@ public class TabConfig {
     public Boolean isTabEnabled() { return tabEnabled; }
     public Boolean isTabAnimationEnabled() { return tabAnimationEnabled; }
     public Integer getTabAnimationInterval() { return tabAnimationInterval; }
-    public String getTabPlayerDisplay() { return tabPlayerDisplay; }
 
     // Nuevos getters para la funcionalidad mejorada
     public List<TabLine> getTabHeaderLines() { return tabHeaderLines; }

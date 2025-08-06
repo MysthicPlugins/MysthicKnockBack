@@ -10,35 +10,61 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerListHeaderFooter;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent.ChatSerializer;
 
 import mk.kvlzx.MysthicKnockBack;
+import mk.kvlzx.config.ChatConfig;
 import mk.kvlzx.config.TabConfig;
 import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.MessageUtils;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class TabManager {
     private final MysthicKnockBack plugin;
     private final TabConfig tabConfig;
+    private final ChatConfig chatConfig;
     private int animationFrame = 0;
     private BukkitTask animationTask;
     private boolean placeholderAPIEnabled;
+    private LuckPerms luckPerms;
+    private boolean luckPermsEnabled;
 
     public TabManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
         this.tabConfig = plugin.getTabConfig();
+        this.chatConfig = plugin.getChatConfig();
         
         // Verificar si PlaceholderAPI está disponible
         this.placeholderAPIEnabled = plugin.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null;
+        
+        // Inicializar LuckPerms
+        this.luckPermsEnabled = setupLuckPerms();
         
         // Solo iniciar si el tab está habilitado
         if (tabConfig.isTabEnabled()) {
             startAnimation();
         }
+    }
+
+    private boolean setupLuckPerms() {
+        try {
+            if (plugin.getServer().getPluginManager().getPlugin("LuckPerms") != null) {
+                this.luckPerms = LuckPermsProvider.get();
+                return true;
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to hook into LuckPerms for tab: " + e.getMessage());
+        }
+        return false;
     }
 
     private void startAnimation() {
@@ -179,16 +205,22 @@ public class TabManager {
     }
 
     private void updatePlayerList() {
-        String playerDisplayFormat = tabConfig.getTabPlayerDisplay();
-        if (playerDisplayFormat == null || playerDisplayFormat.isEmpty()) {
+        // Solo proceder si el formato de tab está habilitado
+        if (!chatConfig.isTabEnabled()) {
             return;
         }
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        // Obtener y ordenar jugadores por grupo
+        List<Player> sortedPlayers = getSortedPlayersByGroup();
+
+        for (Player player : sortedPlayers) {
             CraftPlayer craftPlayer = (CraftPlayer) player;
             
+            // Obtener formato de tab apropiado
+            String displayFormat = getTabFormat(player);
+            
             // Procesar placeholders para cada jugador específico
-            String displayName = processPlaceholders(playerDisplayFormat, player);
+            String displayName = processPlaceholders(displayFormat, player);
             displayName = MessageUtils.getColor(displayName);
 
             // Actualizar el nombre en la lista de jugadores
@@ -206,9 +238,76 @@ public class TabManager {
         }
     }
 
+    private String getTabFormat(Player player) {
+        if (luckPermsEnabled) {
+            // Intentar obtener formato específico del grupo de LuckPerms
+            String primaryGroup = getPlayerPrimaryGroup(player);
+            if (primaryGroup != null) {
+                String groupFormat = chatConfig.getTabGroupFormat(primaryGroup);
+                if (groupFormat != null) {
+                    return groupFormat;
+                }
+            }
+        }
+        
+        // Usar formato por defecto si no hay LuckPerms o no se encontró formato específico
+        return chatConfig.getTabDefaultFormat();
+    }
+
+    private String getPlayerPrimaryGroup(Player player) {
+        try {
+            User user = luckPerms.getUserManager().getUser(player.getUniqueId());
+            if (user != null) {
+                return user.getPrimaryGroup();
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Error getting LuckPerms group for player " + player.getName() + ": " + e.getMessage());
+        }
+        
+        return "default";
+    }
+
+    // Nuevo método para ordenar jugadores por grupo según la configuración
+    private List<Player> getSortedPlayersByGroup() {
+        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+        
+        if (!luckPermsEnabled) {
+            // Si no está LuckPerms, ordenar alfabéticamente
+            Collections.sort(players, Comparator.comparing(Player::getName));
+            return players;
+        }
+        
+        // Ordenar por prioridad de grupo y luego por nombre
+        Collections.sort(players, new Comparator<Player>() {
+            @Override
+            public int compare(Player p1, Player p2) {
+                String group1 = getPlayerPrimaryGroup(p1);
+                String group2 = getPlayerPrimaryGroup(p2);
+                
+                int priority1 = chatConfig.getGroupPriority(group1);
+                int priority2 = chatConfig.getGroupPriority(group2);
+                
+                // Comparar por prioridad primero
+                int priorityComparison = Integer.compare(priority1, priority2);
+                if (priorityComparison != 0) {
+                    return priorityComparison;
+                }
+                
+                // Si tienen la misma prioridad, ordenar alfabéticamente
+                return p1.getName().compareToIgnoreCase(p2.getName());
+            }
+        });
+        
+        return players;
+    }
+
     public void reload() {
+        // Recargar integración con LuckPerms
+        this.luckPermsEnabled = setupLuckPerms();
+        
         // Recargar configuración
         tabConfig.reload();
+        chatConfig.reload();
         
         // Reiniciar animación si está habilitada
         if (tabConfig.isTabEnabled()) {

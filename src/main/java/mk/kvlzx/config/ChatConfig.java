@@ -1,6 +1,7 @@
 package mk.kvlzx.config;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -13,9 +14,16 @@ public class ChatConfig {
     private final CustomConfig configFile;
     private final MysthicKnockBack plugin;
 
+    // Chat configuration
     private Boolean chatEnabled;
     private String defaultFormat;
     private Map<String, String> groupFormats;
+
+    // Tab configuration
+    private Boolean tabEnabled;
+    private String tabDefaultFormat;
+    private String tabDefaultDisplayName;
+    private LinkedHashMap<String, TabGroupFormat> tabGroupFormats; // Nueva estructura para tab-format y display-name
 
     public ChatConfig(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -27,17 +35,19 @@ public class ChatConfig {
     public void loadConfig() {
         FileConfiguration config = configFile.getConfig();
 
-        // Cargar configuración básica
+        // Cargar configuración de chat
+        loadChatConfig(config);
+        
+        // Cargar configuración de tab
+        loadTabConfig(config);
+    }
+
+    private void loadChatConfig(FileConfiguration config) {
         chatEnabled = config.getBoolean("chat.enabled", true);
         defaultFormat = config.getString("chat.default-format", "&7%player_name%&7: &f%message%");
 
-        // Cargar formatos por grupo
-        loadGroupFormats(config);
-    }
-
-    private void loadGroupFormats(FileConfiguration config) {
+        // Cargar formatos por grupo para chat
         groupFormats = new HashMap<>();
-        
         if (config.contains("chat.group-formats")) {
             ConfigurationSection groupFormatsSection = config.getConfigurationSection("chat.group-formats");
             if (groupFormatsSection != null) {
@@ -56,12 +66,56 @@ public class ChatConfig {
         }
     }
 
+    private void loadTabConfig(FileConfiguration config) {
+        tabEnabled = config.getBoolean("tab.enabled", true);
+        tabDefaultFormat = config.getString("tab.default-format", "%kbffa_rank% &f%player_name% &8[&f%player_ping%ms&8]");
+        tabDefaultDisplayName = config.getString("tab.default-display-name", "%kbffa_rank% &f%player_name%");
+
+        // Cargar formatos por grupo para tab (LinkedHashMap para mantener orden)
+        tabGroupFormats = new LinkedHashMap<>();
+        if (config.contains("tab.group-formats")) {
+            ConfigurationSection tabGroupFormatsSection = config.getConfigurationSection("tab.group-formats");
+            if (tabGroupFormatsSection != null) {
+                // Obtener las keys en el orden que aparecen en la configuración
+                for (String groupName : tabGroupFormatsSection.getKeys(false)) {
+                    ConfigurationSection groupSection = tabGroupFormatsSection.getConfigurationSection(groupName);
+                    if (groupSection != null) {
+                        // Nueva estructura: cada grupo tiene tab-format y display-name
+                        String tabFormat = groupSection.getString("tab-format");
+                        String displayName = groupSection.getString("display-name");
+                        
+                        if (tabFormat != null && !tabFormat.trim().isEmpty()) {
+                            // Si no hay display-name, usar el tab-format sin ping como fallback
+                            if (displayName == null || displayName.trim().isEmpty()) {
+                                displayName = tabFormat.replaceAll("\\s*&8\\[&f%player_ping%ms&8\\]", "").trim();
+                            }
+                            
+                            tabGroupFormats.put(groupName.toLowerCase(), new TabGroupFormat(tabFormat, displayName));
+                        }
+                    } else {
+                        // Soporte para formato legacy (string directo)
+                        String legacyFormat = tabGroupFormatsSection.getString(groupName);
+                        if (legacyFormat != null && !legacyFormat.trim().isEmpty()) {
+                            String displayName = legacyFormat.replaceAll("\\s*&8\\[&f%player_ping%ms&8\\]", "").trim();
+                            tabGroupFormats.put(groupName.toLowerCase(), new TabGroupFormat(legacyFormat, displayName));
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Si no hay formato para 'default', usar los defaults
+        if (!tabGroupFormats.containsKey("default")) {
+            tabGroupFormats.put("default", new TabGroupFormat(tabDefaultFormat, tabDefaultDisplayName));
+        }
+    }
+
     public void reload() {
         configFile.reloadConfig();
         loadConfig();
     }
 
-    // Getters
+    // ======== CHAT GETTERS ========
     public Boolean isChatEnabled() {
         return chatEnabled;
     }
@@ -91,7 +145,67 @@ public class ChatConfig {
         return groupFormats.containsKey(groupName.toLowerCase());
     }
 
-    // Setters para modificar configuración programáticamente
+    // ======== TAB GETTERS ========
+    public Boolean isTabEnabled() {
+        return tabEnabled;
+    }
+
+    public String getTabDefaultFormat() {
+        return tabDefaultFormat;
+    }
+
+    public String getTabDefaultDisplayName() {
+        return tabDefaultDisplayName;
+    }
+
+    public String getTabGroupFormat(String groupName) {
+        if (groupName == null || groupName.trim().isEmpty()) {
+            return getTabDefaultFormat();
+        }
+        
+        TabGroupFormat format = tabGroupFormats.get(groupName.toLowerCase());
+        return format != null ? format.getTabFormat() : getTabDefaultFormat();
+    }
+
+    public String getTabGroupDisplayName(String groupName) {
+        if (groupName == null || groupName.trim().isEmpty()) {
+            return getTabDefaultDisplayName();
+        }
+        
+        TabGroupFormat format = tabGroupFormats.get(groupName.toLowerCase());
+        return format != null ? format.getDisplayName() : getTabDefaultDisplayName();
+    }
+
+    public LinkedHashMap<String, TabGroupFormat> getAllTabGroupFormats() {
+        return new LinkedHashMap<>(tabGroupFormats);
+    }
+
+    public boolean hasTabGroupFormat(String groupName) {
+        if (groupName == null || groupName.trim().isEmpty()) {
+            return false;
+        }
+        
+        return tabGroupFormats.containsKey(groupName.toLowerCase());
+    }
+
+    // Método para obtener la prioridad de un grupo basado en su orden en la configuración
+    public int getGroupPriority(String groupName) {
+        if (groupName == null || groupName.trim().isEmpty()) {
+            return Integer.MAX_VALUE; // Prioridad más baja para grupos sin nombre
+        }
+        
+        int priority = 0;
+        for (String configuredGroup : tabGroupFormats.keySet()) {
+            if (configuredGroup.equals(groupName.toLowerCase())) {
+                return priority;
+            }
+            priority++;
+        }
+        
+        return Integer.MAX_VALUE; // Si no se encuentra, dar prioridad más baja
+    }
+
+    // ======== CHAT SETTERS ========
     public void setChatEnabled(boolean enabled) {
         this.chatEnabled = enabled;
         configFile.getConfig().set("chat.enabled", enabled);
@@ -120,12 +234,48 @@ public class ChatConfig {
         }
     }
 
-    // Método para obtener el formato efectivo (considerando jerarquía)
-    public String getEffectiveFormat(String primaryGroup) {
-        // Primero intentar con el grupo primario
+    // ======== TAB SETTERS ========
+    public void setTabEnabled(boolean enabled) {
+        this.tabEnabled = enabled;
+        configFile.getConfig().set("tab.enabled", enabled);
+        configFile.saveConfig();
+    }
+
+    public void setTabDefaultFormat(String format) {
+        this.tabDefaultFormat = format;
+        configFile.getConfig().set("tab.default-format", format);
+        configFile.saveConfig();
+    }
+
+    public void setTabDefaultDisplayName(String displayName) {
+        this.tabDefaultDisplayName = displayName;
+        configFile.getConfig().set("tab.default-display-name", displayName);
+        configFile.saveConfig();
+    }
+
+    public void setTabGroupFormat(String groupName, String tabFormat, String displayName) {
+        if (groupName != null && !groupName.trim().isEmpty()) {
+            tabGroupFormats.put(groupName.toLowerCase(), new TabGroupFormat(tabFormat, displayName));
+            configFile.getConfig().set("tab.group-formats." + groupName.toLowerCase() + ".tab-format", tabFormat);
+            configFile.getConfig().set("tab.group-formats." + groupName.toLowerCase() + ".display-name", displayName);
+            configFile.saveConfig();
+        }
+    }
+
+    public void removeTabGroupFormat(String groupName) {
+        if (groupName != null && !groupName.trim().isEmpty()) {
+            tabGroupFormats.remove(groupName.toLowerCase());
+            configFile.getConfig().set("tab.group-formats." + groupName.toLowerCase(), null);
+            configFile.saveConfig();
+        }
+    }
+
+    // ======== UTILITY METHODS ========
+    
+    // Método para obtener el formato efectivo de chat (considerando jerarquía)
+    public String getEffectiveChatFormat(String primaryGroup) {
         String format = getGroupFormat(primaryGroup);
         
-        // Si no existe formato específico, usar el default
         if (format.equals(defaultFormat) && !primaryGroup.equals("default")) {
             format = getGroupFormat("default");
         }
@@ -133,23 +283,79 @@ public class ChatConfig {
         return format;
     }
 
+    // Método para obtener el formato efectivo de tab (considerando jerarquía)
+    public String getEffectiveTabFormat(String primaryGroup) {
+        String format = getTabGroupFormat(primaryGroup);
+        
+        if (format.equals(tabDefaultFormat) && !primaryGroup.equals("default")) {
+            format = getTabGroupFormat("default");
+        }
+        
+        return format;
+    }
+
+    // Método para obtener el display name efectivo (considerando jerarquía)
+    public String getEffectiveTabDisplayName(String primaryGroup) {
+        String displayName = getTabGroupDisplayName(primaryGroup);
+        
+        if (displayName.equals(tabDefaultDisplayName) && !primaryGroup.equals("default")) {
+            displayName = getTabGroupDisplayName("default");
+        }
+        
+        return displayName;
+    }
+
     // Método para validar formato (verificar placeholders básicos)
-    public boolean isValidFormat(String format) {
+    public boolean isValidChatFormat(String format) {
         if (format == null || format.trim().isEmpty()) {
             return false;
         }
         
-        // Verificar que contenga al menos el placeholder del mensaje
         return format.contains("%message%");
     }
 
+    public boolean isValidTabFormat(String format) {
+        if (format == null || format.trim().isEmpty()) {
+            return false;
+        }
+        
+        return format.contains("%player_name%");
+    }
+
     // Método para listar todos los grupos disponibles
-    public String[] getAvailableGroups() {
+    public String[] getAvailableChatGroups() {
         return groupFormats.keySet().toArray(new String[0]);
     }
 
+    public String[] getAvailableTabGroups() {
+        return tabGroupFormats.keySet().toArray(new String[0]);
+    }
+
     // Método para contar formatos configurados
-    public int getGroupFormatCount() {
+    public int getChatGroupFormatCount() {
         return groupFormats.size();
+    }
+
+    public int getTabGroupFormatCount() {
+        return tabGroupFormats.size();
+    }
+
+    // Clase interna para representar formatos de tab
+    public static class TabGroupFormat {
+        private final String tabFormat;
+        private final String displayName;
+
+        public TabGroupFormat(String tabFormat, String displayName) {
+            this.tabFormat = tabFormat != null ? tabFormat : "";
+            this.displayName = displayName != null ? displayName : "";
+        }
+
+        public String getTabFormat() {
+            return tabFormat;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
     }
 }

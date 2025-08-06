@@ -62,6 +62,108 @@ chat:
     # Default
     default: "%kbffa_rank% &7%player_name%&7: &f%message%"
 
+tab:
+  # Activar o desactivar el sistema de formato del tab
+  enabled: true
+  
+  # Formato por defecto si no se encuentra formato específico del grupo
+  # Placeholders disponibles:
+  # %player_name% - Nombre del jugador
+  # %kbffa_rank% - Rango por elo del jugador
+  # %player_ping% - Ping del jugador
+  # También soporta placeholders de PlaceholderAPI si está instalado
+  default-format: "%kbffa_rank% &f%player_name% &8[&f%player_ping%ms&8]"
+  default-display-name: "%kbffa_rank% &f%player_name%"
+  
+  # Formatos específicos por grupo de LuckPerms
+  # El nombre del grupo debe coincidir EXACTAMENTE con el nombre en LuckPerms
+  # Si un jugador pertenece a un grupo listado aquí, usará este formato
+  # Si no, usará el default-format de arriba
+  # El orden de los grupos es importante, puesto que será el orden en el que se mostrarán en el tab (prioridad)
+  group-formats:
+    
+    # Owner
+    owner:
+      tab-format: "&4&l[OWNER] &c%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&4&l[OWNER] &c%player_name%"
+    
+    # Admin
+    admin:
+      tab-format: "&c&l[ADMIN] &4%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&c&l[ADMIN] &4%player_name%"
+    
+    # Moderator
+    moderator:
+      tab-format: "&9&l[MOD] &b%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&9&l[MOD] &b%player_name%"
+    mod:
+      tab-format: "&9&l[MOD] &b%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&9&l[MOD] &b%player_name%"
+    
+    # Helper
+    helper:
+      tab-format: "&a&l[HELPER] &2%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&a&l[HELPER] &2%player_name%"
+    
+    # Developer
+    developer:
+      tab-format: "&3&l[DEV] &b%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&3&l[DEV] &b%player_name%"
+    dev:
+      tab-format: "&3&l[DEV] &b%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&3&l[DEV] &b%player_name%"
+    
+    # Builder
+    builder:
+      tab-format: "&2&l[BUILDER] &a%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&2&l[BUILDER] &a%player_name%"
+    
+    # VIP
+    vip:
+      tab-format: "&6&l[VIP] &e%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&6&l[VIP] &e%player_name%"
+    
+    # VIP+
+    vipplus:
+      tab-format: "&6&l[VIP&b+&6] &e%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&6&l[VIP&b+&6] &e%player_name%"
+    vip_plus:
+      tab-format: "&6&l[VIP&b+&6] &e%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&6&l[VIP&b+&6] &e%player_name%"
+    
+    # Premium
+    premium:
+      tab-format: "&d&l[PREMIUM] &5%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&d&l[PREMIUM] &5%player_name%"
+    
+    # YouTuber
+    youtuber:
+      tab-format: "&f&l[&cYou&fTuber&f] &c%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&f&l[&cYou&fTuber&f] &c%player_name%"
+    youtube:
+      tab-format: "&f&l[&cYou&fTuber&f] &c%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&f&l[&cYou&fTuber&f] &c%player_name%"
+    
+    # Streamer
+    streamer:
+      tab-format: "&5&l[STREAMER] &d%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&5&l[STREAMER] &d%player_name%"
+    
+    # Influencer
+    influencer:
+      tab-format: "&e&l[INFLUENCER] &6%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&e&l[INFLUENCER] &6%player_name%"
+    
+    # Partner
+    partner:
+      tab-format: "&d&l[PARTNER] &5%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "&d&l[PARTNER] &5%player_name%"
+    
+    # Default
+    default:
+      tab-format: "%kbffa_rank% &f%player_name% &8[&f%player_ping%ms&8]"
+      display-name: "%kbffa_rank% &f%player_name%"
+
 # ================================
 # NOTAS IMPORTANTES:
 # ================================
@@ -71,5 +173,8 @@ chat:
 # 4. Estilos disponibles: &l (negrita), &m (tachado), &n (subrayado), &o (cursiva), &k (ofuscado)
 # 5. Usa &r para resetear todos los formatos
 # 6. Si LuckPerms no está instalado, todos usarán el formato 'default'
-# 7. Recarga la configuración con: /mkb reload
+# 7. El orden en el tab será el mismo orden que aparece en la configuración
+# 8. tab-format: Cómo se muestra en la lista del tab
+# 9. display-name: Cómo se muestra el nombre encima de la cabeza del jugador
+# 10. Recarga la configuración con: /mkb reload
 # ================================
