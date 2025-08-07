@@ -110,14 +110,6 @@ public class ChatConfig {
         if (!tabGroupFormats.containsKey("default")) {
             tabGroupFormats.put("default", new TabGroupFormat(tabDefaultFormat, tabDefaultDisplayName));
         }
-
-        // Debug: imprimir el orden cargado
-        plugin.getLogger().info("Tab group order loaded:");
-        int priority = 0;
-        for (String group : tabGroupFormats.keySet()) {
-            plugin.getLogger().info("  " + priority + ": " + group);
-            priority++;
-        }
     }
 
     public void reload() {
@@ -133,8 +125,6 @@ public class ChatConfig {
         
         // Recargar completamente la configuración
         loadConfig();
-        
-        plugin.getLogger().info("ChatConfig reloaded - Group priorities updated");
     }
 
     // ======== CHAT GETTERS ========
@@ -366,16 +356,6 @@ public class ChatConfig {
 
     public int getTabGroupFormatCount() {
         return tabGroupFormats.size();
-    }
-
-    // Método para debug - imprimir orden actual
-    public void printCurrentOrder() {
-        plugin.getLogger().info("Current tab group order:");
-        int priority = 0;
-        for (String group : tabGroupFormats.keySet()) {
-            plugin.getLogger().info("  Priority " + priority + ": " + group);
-            priority++;
-        }
     }
 
     // Clase interna para representar formatos de tab

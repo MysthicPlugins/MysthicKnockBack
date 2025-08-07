@@ -108,12 +108,6 @@ public class CombatManager {
             direction = victim.getLocation().toVector()
                     .subtract(attacker.getLocation().toVector())
                     .normalize();
-
-            // Verificar si la dirección es válida (no es cero)
-            if (direction.lengthSquared() < 0.01) {
-                // Si los jugadores están en la misma posición, usar dirección aleatoria
-                direction = new Vector(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
-            }
         }
 
         // Calcular knockback base - usar valores específicos para flechas
@@ -131,7 +125,7 @@ public class CombatManager {
         if (weapon != null && weapon.containsEnchantment(Enchantment.KNOCKBACK)) {
             int knockbackLevel = weapon.getEnchantmentLevel(Enchantment.KNOCKBACK);
             // Para flechas, el multiplicador es aún mayor
-            double knockbackMultiplier = isArrow ? 1.5 : 1.2;
+            double knockbackMultiplier = isArrow ? plugin.getMainConfig().getMaxKnockbackHorizontalArrow() : plugin.getMainConfig().getMaxKnockbackHorizontal();
             horizontal += knockbackLevel * knockbackMultiplier;
         }
 
@@ -172,12 +166,6 @@ public class CombatManager {
         Vector direction = victim.getLocation().toVector()
                 .subtract(endermite.getLocation().toVector())
                 .normalize();
-
-        // Verificar si la dirección es válida
-        if (direction.lengthSquared() < 0.01) {
-            // Si están en la misma posición, usar dirección aleatoria
-            direction = new Vector(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
-        }
 
         // Usar valores base específicos para endermites
         double horizontal = endermiteHorizontalKnockback;

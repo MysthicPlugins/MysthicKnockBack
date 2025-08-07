@@ -28,7 +28,6 @@ public class ChatListener implements Listener {
         try {
             if (plugin.getServer().getPluginManager().getPlugin("LuckPerms") != null) {
                 this.luckPerms = LuckPermsProvider.get();
-                plugin.getLogger().info("LuckPerms integration enabled for chat formatting!");
                 return true;
             }
         } catch (Exception e) {

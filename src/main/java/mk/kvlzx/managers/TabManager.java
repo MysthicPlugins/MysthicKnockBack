@@ -265,7 +265,6 @@ public class TabManager {
     }
 
     public void reload() {
-        plugin.getLogger().info("Reloading TabManager...");
         
         // Recargar integración con LuckPerms
         this.luckPermsEnabled = setupLuckPerms();
@@ -276,7 +275,6 @@ public class TabManager {
         // Forzar actualización inmediata de los display names
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             updatePlayerList();
-            plugin.getLogger().info("TabManager reload completed - Display names updated");
         }, 2L);
         
         // Reiniciar animación si está habilitada

@@ -132,7 +132,8 @@ public class ArenaSelectMenu extends Menu {
         }
         
         String itemName = item.getItemMeta().getDisplayName();
-        if (item.getType() == Material.STAINED_GLASS_PANE) return;
+        if (item.getType() == Material.STAINED_GLASS_PANE ||
+            item.getType() == Material.PAPER) return;
         
         // Verificar restricción de tiempo antes de procesar
         int arenaTimeLeft = plugin.getScoreboardManager().getArenaTimeLeft();

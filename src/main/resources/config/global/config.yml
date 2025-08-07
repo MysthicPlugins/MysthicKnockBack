@@ -74,7 +74,7 @@ config:
   combat:
     default-elo: 500
     combat-log: 10000 # Milliseconds (10 seconds)
-    speed: 0.4 # Speed of the feather (0.2 default value)
+    speed: 0.32 # Speed of the feather (0.2 default value)
     elo:
       min: 6
       max: 15
@@ -91,7 +91,7 @@ config:
       message-enabled: true
       message: "&a+%coins% KGCoins"
     knockback-hit:
-      horizontal-knockback: 0.5
+      horizontal-knockback: 0.4
       vertical-knockback: 0.385
       knockback-resistance-reduction: 0.5
       sprint-multiplier: 1.8
@@ -103,9 +103,9 @@ config:
       vertical-knockback: 0.45
       knockback-level: 2
     knockback-limits:
-      max-horizontal-knockback: 1.7
+      max-horizontal-knockback: 1.5
       max-horizontal-knockback-arrow: 2.4
-      max-vertical-knockback: 0.7
+      max-vertical-knockback: 0.5
     ranks:
       divine:
         display: "&d&l[Divine]"
