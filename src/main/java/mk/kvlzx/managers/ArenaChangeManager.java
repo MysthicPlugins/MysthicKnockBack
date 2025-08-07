@@ -188,7 +188,7 @@ public class ArenaChangeManager {
             // Remover de arena actual
             if (currentArena != null) {
                 plugin.getArenaManager().removePlayerFromArena(player, currentArena);
-                plugin.getArenaManager().getPowerUpManager().cleanupArena(currentArena);
+                plugin.getArenaManager().getPowerUpManager().cleanupArenaPowerUpsOnly(currentArena);
             }
             
             // Teleportar y configurar jugador
@@ -212,6 +212,9 @@ public class ArenaChangeManager {
         
         // Actualizar arena actual en el manager
         plugin.getArenaManager().setCurrentArena(targetArenaName);
+        
+        // NUEVO: Reactivar el sistema de PowerUps de la nueva arena (por si acaso)
+        plugin.getArenaManager().getPowerUpManager().reactivateArena(targetArenaName);
         
         // Mostrar título de confirmación y descongelar
         new BukkitRunnable() {

@@ -65,7 +65,7 @@ scoreboard:
     - "%blank_line%"
     - "&eplay.mysthicknockback.gg"
   arena-change:
-    time: 120 # Time in seconds before arena change
+    time: 300 # Time in seconds before arena change
     seconds-to-alert:
       - 60
       - 30

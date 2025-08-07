@@ -361,6 +361,34 @@ public class PowerUpManager {
         }
     }
 
+    public void cleanupArenaPowerUpsOnly(String arenaName) {
+        plugin.getLogger().info("Cleaning up PowerUps (visual only) for arena: " + arenaName);
+        
+        // Solo remover los powerups existentes, NO cancelar tasks ni eliminar la arena del sistema
+        List<PowerUp> powerUps = arenaPowerUps.get(arenaName);
+        if (powerUps != null) {
+            synchronized (powerUps) {
+                for (PowerUp powerUp : powerUps) {
+                    powerUp.remove(); // Solo remover visualmente
+                }
+                powerUps.clear(); // Limpiar la lista
+            }
+        }
+        
+        plugin.getLogger().info("PowerUps cleaned for arena " + arenaName + " (spawn system remains active)");
+    }
+
+    public void reactivateArena(String arenaName) {
+        // Si la arena existe en el mapa pero no tiene task activo, reactivarla
+        if (arenaPowerUps.containsKey(arenaName)) {
+            BukkitTask currentTask = arenaSpawnTasks.get(arenaName);
+            if (currentTask == null) {
+                plugin.getLogger().info("Reactivating PowerUp spawn system for arena: " + arenaName);
+                initializeArena(arenaName); // Esto creará un nuevo task
+            }
+        }
+    }
+
     public void cleanupArena(String arenaName) {
         plugin.getLogger().info("Cleaning up arena: " + arenaName);
         
