@@ -46,7 +46,9 @@ public class ItemListener implements Listener {
     private final Map<UUID, ItemStack> savedArrows = new HashMap<>();
     private final Map<Location, BukkitRunnable> plateTimers = new HashMap<>();
     private final Map<UUID, BukkitRunnable> speedTasks = new HashMap<>(); // Nuevo mapa para las tasks de speed
-    private static final Set<Location> placedBlocks = new HashSet<>(); // Set para almacenar bloques colocados
+    
+    // CAMBIO: Hacer estos mapas/sets no estáticos para poder accederlos desde el plugin
+    private final Set<Location> placedBlocks = new HashSet<>(); // Set para almacenar bloques colocados
     private final Map<Location, List<BukkitRunnable>> blockAnimationTasks = new HashMap<>();
     private final Map<UUID, Integer> snowballCounts = new HashMap<>();
 
@@ -402,16 +404,40 @@ public class ItemListener implements Listener {
         tasks.add(breakTask);
     }
 
-    public static void cleanup() {
-        // Eliminar todos los bloques colocados (incluyendo placas)
+    // NUEVO: Método público para limpiar bloques desde el ArenaChangeManager
+    public void cleanupBlocks() {
+        // Cancelar todos los timers de placas
+        for (BukkitRunnable timer : plateTimers.values()) {
+            timer.cancel();
+        }
+        plateTimers.clear();
+        
+        // Cancelar todas las animaciones de bloques
+        for (List<BukkitRunnable> tasks : blockAnimationTasks.values()) {
+            for (BukkitRunnable task : tasks) {
+                task.cancel();
+            }
+        }
+        blockAnimationTasks.clear();
+        
+        // Eliminar todos los bloques colocados
         for (Location loc : placedBlocks) {
-            Block block = loc.getBlock();
-            // Verificar si es un bloque decorativo O una placa de oro
-            if (BlockUtils.isDecorativeBlock(block.getType()) || block.getType() == Material.GOLD_PLATE) {
-                block.setType(Material.AIR);
+            try {
+                Block block = loc.getBlock();
+                // Verificar si es un bloque decorativo O una placa de oro
+                if (BlockUtils.isDecorativeBlock(block.getType()) || block.getType() == Material.GOLD_PLATE) {
+                    block.setType(Material.AIR);
+                }
+            } catch (Exception e) {
+                // Chunk no cargado o error al acceder al bloque
+                // Esto es normal cuando los mapas están muy lejos
+                // El bloque se limpiará cuando se cargue el chunk
+                continue;
             }
         }
         placedBlocks.clear();
+        
+        Bukkit.getConsoleSender().sendMessage("§8[§bℹ§8] §7Blocks cleaned up for arena change.");
     }
 
     @EventHandler

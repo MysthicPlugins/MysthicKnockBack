@@ -1,19 +1,20 @@
 chat:
-  # Activar o desactivar el sistema de chat personalizado
+  chat:
+  # Enable or disable the custom chat system
   enabled: true
   
-  # Formato por defecto si no se encuentra formato específico del grupo
-  # Placeholders disponibles:
-  # %player_name% - Nombre del jugador
-  # %message% - Mensaje del jugador  
-  # %kbffa_rank% - Rango por elo del jugador
-  # También soporta placeholders de PlaceholderAPI si está instalado
+  # Default format if no specific group format is found
+  # Available placeholders:
+  # %player_name% - Player's name
+  # %message% - Player's message
+  # %kbffa_rank% - Player's elo rank
+  # Also supports PlaceholderAPI placeholders if installed
   default-format: "%kbffa_rank% &7%player_name%&7: &f%message%"
   
-  # Formatos específicos por grupo de LuckPerms
-  # El nombre del grupo debe coincidir EXACTAMENTE con el nombre en LuckPerms
-  # Si un jugador pertenece a un grupo listado aquí, usará este formato
-  # Si no, usará el default-format de arriba
+  # Specific formats for LuckPerms groups
+  # The group name must EXACTLY match the name in LuckPerms
+  # If a player belongs to a group listed here, this format will be used
+  # Otherwise, it will use the default-format above
   group-formats:
     
     # Owner
@@ -63,23 +64,23 @@ chat:
     default: "%kbffa_rank% &7%player_name%&7: &f%message%"
 
 tab:
-  # Activar o desactivar el sistema de formato del tab
+  # Enable or disable the tab formatting system
   enabled: true
   
-  # Formato por defecto si no se encuentra formato específico del grupo
-  # Placeholders disponibles:
-  # %player_name% - Nombre del jugador
-  # %kbffa_rank% - Rango por elo del jugador
-  # %player_ping% - Ping del jugador
-  # También soporta placeholders de PlaceholderAPI si está instalado
+  # Default format if no specific group format is found
+  # Available placeholders:
+  # %player_name% - Player's name
+  # %kbffa_rank% - Player's elo rank
+  # %player_ping% - Player's ping
+  # Also supports PlaceholderAPI placeholders if installed
   default-format: "%kbffa_rank% &f%player_name% &8[&f%player_ping%ms&8]"
   default-display-name: "%kbffa_rank% &f%player_name%"
   
-  # Formatos específicos por grupo de LuckPerms
-  # El nombre del grupo debe coincidir EXACTAMENTE con el nombre en LuckPerms
-  # Si un jugador pertenece a un grupo listado aquí, usará este formato
-  # Si no, usará el default-format de arriba
-  # El orden de los grupos es importante, puesto que será el orden en el que se mostrarán en el tab (prioridad)
+  # Specific formats for LuckPerms groups
+  # The group name must EXACTLY match the name in LuckPerms
+  # If a player belongs to a group listed here, this format will be used
+  # Otherwise, it will use the default-format above
+  # The order of the groups is important, as it will be the order in which they are displayed in the tab (priority)
   group-formats:
     
     # Owner
@@ -165,16 +166,16 @@ tab:
       display-name: "%kbffa_rank% &f%player_name%"
 
 # ================================
-# NOTAS IMPORTANTES:
+# IMPORTANT NOTES:
 # ================================
-# 1. Los nombres de grupos deben coincidir exactamente con LuckPerms
-# 2. Usa &f al final del formato para resetear el color del mensaje
-# 3. Los colores disponibles: &0-&9, &a-&f
-# 4. Estilos disponibles: &l (negrita), &m (tachado), &n (subrayado), &o (cursiva), &k (ofuscado)
-# 5. Usa &r para resetear todos los formatos
-# 6. Si LuckPerms no está instalado, todos usarán el formato 'default'
-# 7. El orden en el tab será el mismo orden que aparece en la configuración
-# 8. tab-format: Cómo se muestra en la lista del tab
-# 9. display-name: Cómo se muestra el nombre encima de la cabeza del jugador
-# 10. Recarga la configuración con: /mkb reload
+# 1. Group names must exactly match LuckPerms
+# 2. Use &f at the end of the format to reset the message color
+# 3. Available colors: &0-&9, &a-&f
+# 4. Available styles: &l (bold), &m (strikethrough), &n (underline), &o (italic), &k (obfuscated)
+# 5. Use &r to reset all formats
+# 6. If LuckPerms is not installed, everyone will use the 'default' format
+# 7. The order in the tab will be the same as the order in the configuration
+# 8. tab-format: How it is displayed in the tab list
+# 9. display-name: How the name is displayed above the player's head
+# 10. Reload the configuration with: /kb reload
 # ================================

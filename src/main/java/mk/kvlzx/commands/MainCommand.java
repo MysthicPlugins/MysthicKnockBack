@@ -24,13 +24,17 @@ public class MainCommand implements CommandExecutor{
         if(!(sender instanceof Player)){
             // Permitir que la consola use el reload
             if (args.length >= 1 && args[0].equalsIgnoreCase("reload")) {
-                try {
-                    // Usar el método centralizado de reloadConfigs
-                    plugin.reloadConfigs();
-                    Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMessagesConfig().getReloadConfig()));
-                } catch (Exception e) {
-                    Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cAn error occurred while reloading the configuration"));
-                    e.printStackTrace();
+                boolean success = plugin.reloadConfigs();
+                if (success) {
+                    Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(
+                        MysthicKnockBack.getPrefix() + 
+                        plugin.getMessagesConfig().getReloadConfig()
+                    ));
+                } else {
+                    Bukkit.getConsoleSender().sendMessage(MessageUtils.getColor(
+                        MysthicKnockBack.getPrefix() + 
+                        "&cAn error occurred while reloading the configuration. Check console for details.")
+                    );
                 }
                 return true;
             } else {
@@ -46,13 +50,17 @@ public class MainCommand implements CommandExecutor{
                 sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() +"&f ≽^•⩊•^≼ &b " + player.getName()));            
             } else if (args[0].equalsIgnoreCase("reload")) {
                 if (sender.hasPermission("mysthicknockback.reload")) {
-                    try {
-                        // Usar el método centralizado de reloadConfigs
-                        plugin.reloadConfigs();
-                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + plugin.getMessagesConfig().getReloadConfig()));
-                    } catch (Exception e) {
-                        sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + "&cAn error occurred while reloading the configuration"));
-                        e.printStackTrace();
+                    boolean success = plugin.reloadConfigs();
+                    if (success) {
+                        sender.sendMessage(MessageUtils.getColor(
+                            MysthicKnockBack.getPrefix() + 
+                            plugin.getMessagesConfig().getReloadConfig()
+                        ));
+                    } else {
+                        sender.sendMessage(MessageUtils.getColor(
+                            MysthicKnockBack.getPrefix() + 
+                            "&cAn error occurred while reloading the configuration. Check console for details.")
+                        );
                     }
                     return true;
                 } else {

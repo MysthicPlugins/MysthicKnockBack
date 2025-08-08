@@ -65,7 +65,7 @@ menu:
         - "&8▪ &7Special effects on your arrows"
         - "&8▪ &7Particles and animations"
         - ""
-        - "&8➥ Includes +5 unique effects"
+        - "&8➥ Includes +10 unique effects"
         - "&aAvailable!"
       slot: 31
     death-sounds:
@@ -77,7 +77,7 @@ menu:
         - "&8▪ &7Special sounds when dying"
         - "&8▪ &7Unique audio effects"
         - ""
-        - "&8➥ Includes +5 unique sounds"
+        - "&8➥ Includes +10 unique sounds"
         - "&aAvailable!"
       slot: 34
     kill-sounds:
@@ -89,7 +89,7 @@ menu:
         - "&8▪ &7Special sounds when eliminating players"
         - "&8▪ &7Unique audio effects"
         - ""
-        - "&8➥ Includes +5 unique sounds"
+        - "&8➥ Includes +10 unique sounds"
         - "&aAvailable!"
       slot: 37
     join-messages:

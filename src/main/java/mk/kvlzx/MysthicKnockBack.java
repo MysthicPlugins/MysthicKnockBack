@@ -92,6 +92,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private ArenaChangeManager arenaChangeManager;
     private ArenaVoteManager arenaVoteManager;
     private WorldManager worldManager;
+    private ItemListener itemListener;
     private EndermiteListener endermiteListener;
     private MessagesConfig messagesConfig;
     private MainConfig mainConfig;
@@ -231,7 +232,9 @@ public class MysthicKnockBack extends JavaPlugin {
             arenaManager.saveArenas();
 
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Cleaning blocks and items...");
-            ItemListener.cleanup();
+            if (itemListener != null) {
+                itemListener.cleanupBlocks();
+            }
             cleanupAllDroppedItems();
 
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b4&8] &7Cleaning up endermites...");
@@ -374,40 +377,49 @@ public class MysthicKnockBack extends JavaPlugin {
     }
 
     // Método para recargar configuraciones dinámicamente
-    public void reloadConfigs() {
+    public boolean reloadConfigs() {
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&e⚠&8] &7Reloading configurations...");
         
-        // Recargar configuraciones
-        mainConfig.reload();
-        messagesConfig.reload();
-        
-        // IMPORTANTE: Recargar ChatConfig ANTES que TabManager
-        chatConfig.reload();
-        
-        scoreboardManager.reload();
-        
-        mainMenuConfig.reload();
-        topsMenuConfig.reload();
-        statsMenuConfig.reload();
-        hotbarMenuConfig.reload();
-        reportMenuConfig.reload();
-        shopMenuConfig.reload();
-        blocksShopConfig.reload();
-        knockersShopConfig.reload();
-        killMessagesShopConfig.reload();
-        deathMessagesShopConfig.reload();
-        arrowEffectsShopConfig.reload();
-        deathSoundsShopConfig.reload();
-        killSoundsShopConfig.reload();
-        joinMessagesShopConfig.reload();
-        musicShopConfig.reload();
-        arenaSelectMenuConfig.reload();
-        
-        // Reiniciar auto-save con nueva configuración
-        restartAutoSave();
-        
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&a✔&8] &7Configurations reloaded successfully");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Tab group priorities updated and applied");
+        try {
+            // Recargar configuraciones
+            mainConfig.reload();
+            messagesConfig.reload();
+            
+            // IMPORTANTE: Recargar ChatConfig ANTES que TabManager
+            chatConfig.reload();
+            
+            scoreboardManager.reload();
+            
+            mainMenuConfig.reload();
+            topsMenuConfig.reload();
+            statsMenuConfig.reload();
+            hotbarMenuConfig.reload();
+            reportMenuConfig.reload();
+            shopMenuConfig.reload();
+            blocksShopConfig.reload();
+            knockersShopConfig.reload();
+            killMessagesShopConfig.reload();
+            deathMessagesShopConfig.reload();
+            arrowEffectsShopConfig.reload();
+            deathSoundsShopConfig.reload();
+            killSoundsShopConfig.reload();
+            joinMessagesShopConfig.reload();
+            musicShopConfig.reload();
+            arenaSelectMenuConfig.reload();
+            
+            // Reiniciar auto-save con nueva configuración
+            restartAutoSave();
+            
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&a✔&8] &7Configurations reloaded successfully");
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Tab group priorities updated and applied");
+            
+            return true; // Éxito
+            
+        } catch (Exception e) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&c!&8] &cError reloading configurations: " + e.getMessage());
+            e.printStackTrace();
+            return false; // Error
+        }
     }
 
     // Método centralizado para guardar toda la data
@@ -514,7 +526,8 @@ public class MysthicKnockBack extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         combatListener = new CombatListener(this);
         getServer().getPluginManager().registerEvents(combatListener, this);
-        getServer().getPluginManager().registerEvents(new ItemListener(this), this);
+        itemListener = new ItemListener(this);
+        getServer().getPluginManager().registerEvents(itemListener, this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         getServer().getPluginManager().registerEvents(new ArrowEffectListener(this), this);
@@ -587,6 +600,10 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public EndermiteListener getEndermiteListener() {
         return endermiteListener;
+    }
+
+    public ItemListener getItemListener() {
+        return itemListener;
     }
 
     public MessagesConfig getMessagesConfig() {

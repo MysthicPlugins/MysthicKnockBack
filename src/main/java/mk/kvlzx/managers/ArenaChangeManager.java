@@ -19,6 +19,7 @@ import mk.kvlzx.arena.Zone;
 import mk.kvlzx.arena.ZoneType;
 import mk.kvlzx.config.TabConfig;
 import mk.kvlzx.items.ItemsManager;
+import mk.kvlzx.listeners.ItemListener;
 import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.utils.TitleUtils;
 
@@ -112,7 +113,7 @@ public class ArenaChangeManager {
      * Cambia a la siguiente arena con animación completa (para rotación automática)
      */
     public void rotateToNextArena() {
-        String nextArena =plugin.getArenaManager().getNextArena();
+        String nextArena = plugin.getArenaManager().getNextArena();
         if (nextArena == null) {
             return;
         }
@@ -181,6 +182,9 @@ public class ArenaChangeManager {
         Arena targetArena = plugin.getArenaManager().getArena(targetArenaName);
         Location targetSpawn = targetArena.getSpawnLocation();
         
+        // NUEVO: Limpiar bloques colocados antes del cambio de arena
+        cleanupArenaBlocks();
+        
         for (Player player : Bukkit.getOnlinePlayers()) {
             // Limpiar efectos de powerups
             plugin.getArenaManager().getPowerUpManager().clearAllPowerUpEffects(player);
@@ -247,6 +251,21 @@ public class ArenaChangeManager {
                 completeArenaChange();
             }
         }.runTaskLater(plugin, 30L);
+    }
+    
+    /**
+     * NUEVO: Limpia todos los bloques colocados por jugadores
+     */
+    private void cleanupArenaBlocks() {
+        try {
+            // Obtener la instancia del ItemListener desde el plugin
+            ItemListener itemListener = plugin.getItemListener();
+            if (itemListener != null) {
+                itemListener.cleanupBlocks();
+            }
+        } catch (Exception e) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&c!&8] &cError cleaning up blocks during arena change: " + e.getMessage());
+        }
     }
     
     /**
