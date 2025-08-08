@@ -86,15 +86,12 @@ public class PowerUpManager {
         }.runTaskTimer(plugin, 20L * SPAWN_INTERVAL, 20L * SPAWN_INTERVAL);
 
         arenaSpawnTasks.put(arenaName, spawnTask);
-        
-        plugin.getLogger().info("PowerUp system initialized for arena: " + arenaName);
     }
 
     private void trySpawnPowerUp(String arenaName) {
         try {
             Arena arena = arenaManager.getArena(arenaName);
             if (arena == null) {
-                plugin.getLogger().warning("Arena " + arenaName + " not found when trying to spawn PowerUp");
                 return;
             }
 
@@ -115,7 +112,6 @@ public class PowerUpManager {
             }
 
             if (playersInArena.isEmpty()) {
-                plugin.getLogger().info("No players in arena " + arenaName + ", skipping PowerUp spawn");
                 return;
             }
 
@@ -132,24 +128,20 @@ public class PowerUpManager {
             }
             
             int activePowerUps = powerUps.size();
-            plugin.getLogger().info("Arena " + arenaName + " has " + activePowerUps + "/" + MAX_POWERUPS_PER_ARENA + " active powerups");
             
             if (activePowerUps >= MAX_POWERUPS_PER_ARENA) {
-                plugin.getLogger().info("Arena " + arenaName + " already has maximum powerups");
                 return;
             }
 
             // Obtener zona PVP
             Zone pvpZone = arena.getZone("pvp");
             if (pvpZone == null) {
-                plugin.getLogger().warning("No PVP zone found for arena " + arenaName);
                 return;
             }
 
             // ALGORITMO MEJORADO DE UBICACIÓN
             Location spawnLocation = getValidGroundLocationInZone(pvpZone, arenaName);
             if (spawnLocation == null) {
-                plugin.getLogger().warning("Could not find valid spawn location in arena " + arenaName + " after " + MAX_SPAWN_ATTEMPTS + " attempts");
                 return;
             }
 
@@ -160,9 +152,6 @@ public class PowerUpManager {
             synchronized (powerUps) {
                 powerUps.add(powerUp);
             }
-
-            plugin.getLogger().info("PowerUp " + randomType.name() + " spawned in arena " + arenaName + " at " + 
-                spawnLocation.getBlockX() + "," + spawnLocation.getBlockY() + "," + spawnLocation.getBlockZ());
 
             // Notificar a los jugadores
             for (Player player : playersInArena) {
@@ -219,8 +208,6 @@ public class PowerUpManager {
         if (!validLocations.isEmpty()) {
             return getBestLocationFromList(validLocations, arenaName);
         }
-        
-        plugin.getLogger().warning("No valid locations found for PowerUp spawn in arena " + arenaName);
         return null;
     }
 
@@ -333,14 +320,12 @@ public class PowerUpManager {
 
     private void cleanupExpiredPowerUps() {
         for (Map.Entry<String, List<PowerUp>> entry : arenaPowerUps.entrySet()) {
-            String arenaName = entry.getKey();
             List<PowerUp> powerUps = entry.getValue();
             
             if (powerUps == null) continue;
             
             synchronized (powerUps) {
                 Iterator<PowerUp> iterator = powerUps.iterator();
-                int removedCount = 0;
                 
                 while (iterator.hasNext()) {
                     PowerUp powerUp = iterator.next();
@@ -350,20 +335,13 @@ public class PowerUpManager {
                             powerUp.remove();
                         }
                         iterator.remove();
-                        removedCount++;
                     }
-                }
-                
-                if (removedCount > 0) {
-                    plugin.getLogger().info("Cleaned up " + removedCount + " expired/collected powerups from arena " + arenaName);
                 }
             }
         }
     }
 
     public void cleanupArenaPowerUpsOnly(String arenaName) {
-        plugin.getLogger().info("Cleaning up PowerUps (visual only) for arena: " + arenaName);
-        
         // Solo remover los powerups existentes, NO cancelar tasks ni eliminar la arena del sistema
         List<PowerUp> powerUps = arenaPowerUps.get(arenaName);
         if (powerUps != null) {
@@ -374,8 +352,6 @@ public class PowerUpManager {
                 powerUps.clear(); // Limpiar la lista
             }
         }
-        
-        plugin.getLogger().info("PowerUps cleaned for arena " + arenaName + " (spawn system remains active)");
     }
 
     public void reactivateArena(String arenaName) {
@@ -383,14 +359,12 @@ public class PowerUpManager {
         if (arenaPowerUps.containsKey(arenaName)) {
             BukkitTask currentTask = arenaSpawnTasks.get(arenaName);
             if (currentTask == null) {
-                plugin.getLogger().info("Reactivating PowerUp spawn system for arena: " + arenaName);
                 initializeArena(arenaName); // Esto creará un nuevo task
             }
         }
     }
 
     public void cleanupArena(String arenaName) {
-        plugin.getLogger().info("Cleaning up arena: " + arenaName);
         
         // Remover todos los powerups de la arena
         List<PowerUp> powerUps = arenaPowerUps.get(arenaName);
@@ -411,7 +385,6 @@ public class PowerUpManager {
     }
 
     public void shutdown() {
-        plugin.getLogger().info("Shutting down PowerUp system...");
         
         // Limpiar todas las arenas
         for (String arenaName : new HashSet<>(arenaPowerUps.keySet())) {
@@ -424,12 +397,10 @@ public class PowerUpManager {
     }
 
     public void addArena(String arenaName) {
-        plugin.getLogger().info("Adding arena to PowerUp system: " + arenaName);
         initializeArena(arenaName);
     }
 
     public void removeArena(String arenaName) {
-        plugin.getLogger().info("Removing arena from PowerUp system: " + arenaName);
         cleanupArena(arenaName);
         arenaPowerUps.remove(arenaName);
     }
@@ -444,7 +415,6 @@ public class PowerUpManager {
     }
 
     public void forcePowerUpSpawn(String arenaName) {
-        plugin.getLogger().info("Forcing PowerUp spawn in arena: " + arenaName);
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -495,39 +465,5 @@ public class PowerUpManager {
         }
 
         plugin.getCombatManager().removePowerupKnockback(player);
-    }
-
-    // Método para debug - obtener información detallada
-    public void debugArenaInfo(String arenaName) {
-        plugin.getLogger().info("=== DEBUG INFO FOR ARENA: " + arenaName + " ===");
-        
-        Arena arena = arenaManager.getArena(arenaName);
-        if (arena == null) {
-            plugin.getLogger().info("Arena is NULL!");
-            return;
-        }
-        
-        Zone pvpZone = arena.getZone("pvp");
-        if (pvpZone == null) {
-            plugin.getLogger().info("PVP Zone is NULL!");
-            return;
-        }
-        
-        plugin.getLogger().info("PVP Zone: " + pvpZone.getMin() + " to " + pvpZone.getMax());
-        
-        Set<Player> players = arenaManager.getPlayersInArena(arenaName);
-        plugin.getLogger().info("Players in arena: " + players.size());
-        
-        List<PowerUp> powerUps = arenaPowerUps.get(arenaName);
-        if (powerUps != null) {
-            synchronized (powerUps) {
-                plugin.getLogger().info("PowerUps in list: " + powerUps.size());
-                int active = (int) powerUps.stream().filter(p -> !p.isRemoved() && !p.isExpired() && !p.isCollected()).count();
-                plugin.getLogger().info("Active PowerUps: " + active);
-            }
-        }
-        
-        plugin.getLogger().info("Spawn task active: " + (arenaSpawnTasks.containsKey(arenaName)));
-        plugin.getLogger().info("=== END DEBUG INFO ===");
     }
 }
