@@ -243,6 +243,29 @@ public class MainConfig {
     private Integer streakTitleStay;
     private Integer streakTitleFadeOut;
 
+    private Integer arenaVoteMinTime;
+    private Integer arenaVoteDuration;
+    private String arenaVoteClickeableAnnouncement;
+    private String arenaVoteClickeableYes;
+    private String arenaVoteClickeableNo;
+    private String arenaVoteHoverYes;
+    private String arenaVoteHoverNo;
+    private String arenaVoteSeparator;
+    private String arenaVoteAlreadyActive;
+    private String arenaVoteArenaNotFound;
+    private String arenaVoteAlreadyInArena;
+    private String arenaVoteAlreadyInArenaChange;
+    private String arenaVoteCannotVote;
+    private String arenaVoteVoteYes;
+    private String arenaVoteVoteNo;
+    private String arenaVoteBroadcastCurrentVotes;
+    private String arenaVoteVotesEnd;
+    private String arenaVoteVoteResults;
+    private String arenaVoteNoVotesReceived;
+    private String arenaVoteVotePassed;
+    private String arenaVoteVoteFailed;
+
+
     public MainConfig(MysthicKnockBack plugin) {
         this.plugin = plugin;
         configFile = new CustomConfig("config.yml", "config/global", plugin);
@@ -486,6 +509,28 @@ public class MainConfig {
         streakTitleFadeIn = config.getInt("config.streak.title.fade-in");
         streakTitleStay = config.getInt("config.streak.title.stay");
         streakTitleFadeOut = config.getInt("config.streak.title.fade-out");
+
+        arenaVoteMinTime = config.getInt("config.arena-vote.min-time");
+        arenaVoteDuration = config.getInt("config.arena-vote.vote-duration");
+        arenaVoteClickeableAnnouncement = config.getString("config.arena-vote.clickeable-messages.announcement");
+        arenaVoteClickeableYes = config.getString("config.arena-vote.clickeable-messages.vote-yes");
+        arenaVoteClickeableNo = config.getString("config.arena-vote.clickeable-messages.vote-no");
+        arenaVoteHoverYes = config.getString("config.arena-vote.clickeable-messages.vote-yes-hover");
+        arenaVoteHoverNo = config.getString("config.arena-vote.clickeable-messages.vote-no-hover");
+        arenaVoteSeparator = config.getString("config.arena-vote.clickeable-messages.separator");
+        arenaVoteAlreadyActive = config.getString("config.arena-vote.messages.vote-already-active");
+        arenaVoteArenaNotFound = config.getString("config.arena-vote.messages.arena-not-found");
+        arenaVoteAlreadyInArena = config.getString("config.arena-vote.messages.already-in-arena");
+        arenaVoteAlreadyInArenaChange = config.getString("config.arena-vote.messages.already-in-arena-change");
+        arenaVoteCannotVote = config.getString("config.arena-vote.messages.cannot-vote");
+        arenaVoteVoteYes = config.getString("config.arena-vote.messages.vote-yes");
+        arenaVoteVoteNo = config.getString("config.arena-vote.messages.vote-no");
+        arenaVoteBroadcastCurrentVotes = config.getString("config.arena-vote.messages.broadcast-current-votes");
+        arenaVoteVotesEnd = config.getString("config.arena-vote.messages.votes-end");
+        arenaVoteVoteResults = config.getString("config.arena-vote.messages.vote-results");
+        arenaVoteNoVotesReceived = config.getString("config.arena-vote.messages.no-votes-received");
+        arenaVoteVotePassed = config.getString("config.arena-vote.messages.vote-passed");
+        arenaVoteVoteFailed = config.getString("config.arena-vote.messages.vote-failed");
     }
 
     private String validateAndGetMaterial(FileConfiguration config, String path, String defaultMaterial) {
@@ -786,4 +831,27 @@ public class MainConfig {
     public Integer getStreakTitleFadeIn() { return streakTitleFadeIn; }
     public Integer getStreakTitleStay() { return streakTitleStay; }
     public Integer getStreakTitleFadeOut() { return streakTitleFadeOut; }
+
+    public Integer getArenaVoteMinTime() { return arenaVoteMinTime; }
+    public Integer getArenaVoteDuration() { return arenaVoteDuration; }
+    public String getArenaVoteClickeableAnnouncement() { return arenaVoteClickeableAnnouncement; }
+    public String getArenaVoteClickeableYes() { return arenaVoteClickeableYes; }
+    public String getArenaVoteClickeableNo() {return arenaVoteClickeableNo; }
+    public String getArenaVoteHoverYes() { return arenaVoteHoverYes; }
+    public String getArenaVoteHoverNo() { return arenaVoteHoverNo; }
+    public String getArenaVoteSeparator() { return arenaVoteSeparator; }
+    public String getArenaVoteAlreadyActive() { return arenaVoteAlreadyActive; }
+    public String getArenaVoteArenaNotFound() { return arenaVoteArenaNotFound; }
+    public String getArenaVoteAlreadyInArena() { return arenaVoteAlreadyInArena;  }
+    public String getArenaVoteAlreadyInArenaChange() { return arenaVoteAlreadyInArenaChange; }
+    public String getArenaVoteCannotVote() { return arenaVoteCannotVote; }
+    public String getArenaVoteVoteYes() { return arenaVoteVoteYes; }
+    public String getArenaVoteVoteNo() { return arenaVoteVoteNo; }
+    public String getArenaVoteBroadcastCurrentVotes() { return arenaVoteBroadcastCurrentVotes; }
+    public String getArenaVoteVotesEnd() { return arenaVoteVotesEnd; }
+    public String getArenaVoteVoteResults() { return arenaVoteVoteResults;}
+    public String getArenaVoteNoVotesReceived() { return arenaVoteNoVotesReceived; }
+    public String getArenaVoteVotePassed() { return arenaVoteVotePassed; }
+    public String getArenaVoteVoteFailed() { return arenaVoteVoteFailed; }
+
 }

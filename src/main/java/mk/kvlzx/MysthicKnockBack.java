@@ -22,6 +22,7 @@ import mk.kvlzx.commands.MainCommand;
 import mk.kvlzx.commands.MainTabCompleter;
 import mk.kvlzx.commands.StatsCommand;
 import mk.kvlzx.commands.StatsTabCompleter;
+import mk.kvlzx.config.ArenaSelectMenuConfig;
 import mk.kvlzx.config.ArrowEffectsShopConfig;
 import mk.kvlzx.config.BlocksShopConfig;
 import mk.kvlzx.config.ChatConfig;
@@ -63,6 +64,7 @@ import mk.kvlzx.managers.ItemVerificationManager;
 import mk.kvlzx.managers.MainScoreboardManager;
 import mk.kvlzx.managers.TabManager;
 import mk.kvlzx.managers.WeaponManager;
+import mk.kvlzx.managers.WorldManager;
 import mk.kvlzx.managers.MenuManager;
 import mk.kvlzx.managers.MusicManager;
 import mk.kvlzx.managers.ReportManager;
@@ -89,6 +91,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private WeaponManager weaponManager;
     private ArenaChangeManager arenaChangeManager;
     private ArenaVoteManager arenaVoteManager;
+    private WorldManager worldManager;
     private EndermiteListener endermiteListener;
     private MessagesConfig messagesConfig;
     private MainConfig mainConfig;
@@ -109,6 +112,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private KillSoundsShopConfig killSoundsShopConfig;
     private JoinMessagesShopConfig joinMessagesShopConfig;
     private MusicShopConfig musicShopConfig;
+    private ArenaSelectMenuConfig arenaSelectMenuConfig;
     
     private BukkitTask autoSaveTask;
     private BukkitTask weatherTimeTask; // Nueva tarea para controlar clima y tiempo
@@ -137,6 +141,7 @@ public class MysthicKnockBack extends JavaPlugin {
         killSoundsShopConfig = new KillSoundsShopConfig(this);
         joinMessagesShopConfig = new JoinMessagesShopConfig(this);
         musicShopConfig = new MusicShopConfig(this);
+        arenaSelectMenuConfig = new ArenaSelectMenuConfig(this);
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
@@ -184,7 +189,10 @@ public class MysthicKnockBack extends JavaPlugin {
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Loading arenas...");
         arenaManager.loadArenas();
 
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b4&8] &7Registering commands and events...");
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b4&8] &7Initializing KBFFA world...");
+        worldManager.initialize();
+
+        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b5&8] &7Registering commands and events...");
         registerCommands();
         registerEvents();
         startPlaytimeUpdater();
@@ -267,6 +275,7 @@ public class MysthicKnockBack extends JavaPlugin {
         weaponManager = new WeaponManager(this);
         arenaChangeManager = new ArenaChangeManager(this);
         arenaVoteManager = new ArenaVoteManager(this);
+        worldManager = new WorldManager(this);
     }
 
     private void startPlaytimeUpdater() {
@@ -392,6 +401,7 @@ public class MysthicKnockBack extends JavaPlugin {
         killSoundsShopConfig.reload();
         joinMessagesShopConfig.reload();
         musicShopConfig.reload();
+        arenaSelectMenuConfig.reload();
         
         // Reiniciar auto-save con nueva configuración
         restartAutoSave();
@@ -661,6 +671,14 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public ChatConfig getChatConfig() {
         return chatConfig;
+    }
+
+    public WorldManager getWorldManager() {
+        return worldManager;
+    }
+
+    public ArenaSelectMenuConfig getArenaSelectMenuConfig() {
+        return arenaSelectMenuConfig;
     }
 
 }

@@ -327,3 +327,27 @@ config:
       fade-in: 10
       stay: 40
       fade-out: 10
+  arena-vote:
+    min-time: 120 # Seconds required to start voting
+    vote-duration: 30 # Seconds voting lasts
+    clickeable-messages:
+      announcement: "&e&lArena Vote Started! &r&7Change from &b%current_arena% &7to &b%voted_arena%&7? (&e%vote_duration%s&7)"
+      vote-yes: "  &a[YES]  "
+      vote-no: "  &c[NO]  "
+      vote-yes-hover: "&aClick to vote YES"
+      vote-no-hover: "&cClick to vote NO"
+      separator: " &7| "
+    messages:
+      vote-already-active: "&cAlready voting for an arena change!"
+      arena-not-found: "&cArena not found!"
+      already-in-arena: "&cWe're already in that arena!"
+      already-in-arena-change: "&cArena is already changing!"
+      cannot-vote: "&cCannot start vote! Arena changes in &e%time%&c. Wait until there's more than &e2:00 &cleft."
+      vote-yes: "&aYou voted &lYES &r&afor &b%voted_arena%"
+      vote-no: "&cYou voted &lNO &r&cfor &b%voted_arena%"
+      broadcast-current-votes: "&7Votes: &a%yes_votes% YES &7- &c %no_votes% NO"
+      votes-end: "&eVote ends in &b%time_left% &eseconds!"
+      vote-results: "&e&lVote Results: &a%yes_votes% YES &7- &c %no_votes% NO"
+      no-votes-received: "&cNo votes received!"
+      vote-passed: "&a&lVote PASSED! &r&7Changing to &b%voted_arena%&a!"
+      vote-failed: "&c&lVote FAILED! &r&7Staying in current arena."

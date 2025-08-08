@@ -23,7 +23,9 @@ public class CombatListener implements Listener {
     private final MysthicKnockBack plugin;
     private final Map<UUID, UUID> lastAttacker = new HashMap<>();
     private final Map<UUID, Long> lastAttackTime = new HashMap<>();
+    private final Map<UUID, Long> lastKnockbackTime = new HashMap<>(); // NUEVO: Para evitar knockback múltiple
     private static final long COMBAT_TIMEOUT = MysthicKnockBack.getInstance().getMainConfig().getCombatLog();
+    private static final long KNOCKBACK_IMMUNITY_TIME = 250; // NUEVO: 250ms de inmunidad entre knockbacks
 
     public CombatListener(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -48,25 +50,43 @@ public class CombatListener implements Listener {
 
         Player victim = (Player) event.getEntity();
         Player attacker = null;
-        boolean isEnderPearl = false;
+        boolean isProjectile = false;
+        
+        // NUEVO: Verificar inmunidad de knockback reciente
+        long currentTime = System.currentTimeMillis();
+        Long lastKnockback = lastKnockbackTime.get(victim.getUniqueId());
+        boolean hasKnockbackImmunity = lastKnockback != null && 
+            (currentTime - lastKnockback) < KNOCKBACK_IMMUNITY_TIME;
         
         if (event.getDamager() instanceof EnderPearl) {
             EnderPearl pearl = (EnderPearl) event.getDamager();
             if (pearl.getShooter() instanceof Player) {
                 Player thrower = (Player) pearl.getShooter();
                 attacker = thrower;
-                isEnderPearl = true;
+                isProjectile = true;
                 
-                // Registrar el último atacante solo si no es self-damage
+                // Verificar estados de combate antes de aplicar knockback
+                if (shouldCancelCombat(victim, thrower)) {
+                    event.setDamage(0.0D);
+                    event.setCancelled(true);
+                    return;
+                }
+                
+                // Solo aplicar knockback y registrar atacante si NO es self-damage Y no tiene inmunidad
                 if (!thrower.equals(victim)) {
                     lastAttacker.put(victim.getUniqueId(), thrower.getUniqueId());
-                    lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
-                    // Aplicar knockback de perla con prioridad
-                    plugin.getCombatManager().applyPrioritizedKnockback(victim, thrower, true);
+                    lastAttackTime.put(victim.getUniqueId(), currentTime);
+                    
+                    // Solo aplicar knockback si no tiene inmunidad
+                    if (!hasKnockbackImmunity) {
+                        plugin.getCombatManager().applyCustomKnockback(victim, thrower, false);
+                        lastKnockbackTime.put(victim.getUniqueId(), currentTime);
+                    }
                 }
+                
+                event.setDamage(0.0D);
+                // ARREGLADO: No hacer return aquí para permitir que se procese la animación
             }
-            event.setDamage(0.0D);
-            if (isEnderPearl) return; // Salir temprano para evitar knockback adicional
         } else if (event.getDamager() instanceof Player) {
             attacker = (Player) event.getDamager();
         } else if (event.getDamager() instanceof Arrow) {
@@ -75,39 +95,56 @@ public class CombatListener implements Listener {
             if (arrow.getShooter() instanceof Player) {
                 Player shooter = (Player) arrow.getShooter();
                 attacker = shooter;
+                isProjectile = true;
+                
+                // Verificar estados de combate
+                if (shouldCancelCombat(victim, shooter)) {
+                    event.setDamage(0.0D);
+                    event.setCancelled(true);
+                    return;
+                }
                 
                 // Solo registrar como atacante si NO es self-damage
                 if (!shooter.equals(victim)) {
                     lastAttacker.put(victim.getUniqueId(), shooter.getUniqueId());
-                    lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
+                    lastAttackTime.put(victim.getUniqueId(), currentTime);
                 }
                 
-                // Aplicar knockback personalizado para flechas (incluyendo self-damage)
-                plugin.getCombatManager().applyCustomKnockback(victim, shooter, true);
+                // Aplicar knockback de flecha solo si no tiene inmunidad
+                if (!hasKnockbackImmunity) {
+                    plugin.getCombatManager().applyCustomKnockback(victim, shooter, true);
+                    lastKnockbackTime.put(victim.getUniqueId(), currentTime);
+                }
+                
                 event.setDamage(0.0D);
                 return;
             }
         } else if (event.getDamager() instanceof Snowball) {
-            // NUEVO: Manejar ataques de bolas de nieve
             Snowball snowball = (Snowball) event.getDamager();
             
             if (snowball.getShooter() instanceof Player) {
                 Player shooter = (Player) snowball.getShooter();
+                isProjectile = true;
+                
+                // Verificar estados de combate
+                if (shouldCancelCombat(victim, shooter)) {
+                    event.setDamage(0.0D);
+                    event.setCancelled(true);
+                    return;
+                }
                 
                 // Solo registrar como atacante si NO es self-damage
                 if (!shooter.equals(victim)) {
                     lastAttacker.put(victim.getUniqueId(), shooter.getUniqueId());
-                    lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
+                    lastAttackTime.put(victim.getUniqueId(), currentTime);
                 }
                 
                 event.setDamage(0.0D);
                 return;
             }
         } else if (event.getDamager() instanceof Endermite) {
-            // Manejar ataques de endermites
             Endermite endermite = (Endermite) event.getDamager();
             
-            // Verificar si el endermite tiene un dueño registrado
             Player owner = plugin.getEndermiteListener().getEndermiteOwner(endermite);
             if (owner != null) {
                 // No permitir que el endermite ataque a su propio dueño
@@ -116,29 +153,28 @@ public class CombatListener implements Listener {
                     return;
                 }
                 
-                // Verificar estados de la arena
-                if (plugin.getArenaChangeManager().isArenaChanging()) {
-                    event.setCancelled(true);
-                    return;
-                }
-                
-                if (isInSpawn(victim) || isInSpawn(owner)) {
+                // Verificar estados de combate
+                if (shouldCancelCombat(victim, owner)) {
                     event.setCancelled(true);
                     return;
                 }
                 
                 // Registrar el dueño del endermite como atacante
                 lastAttacker.put(victim.getUniqueId(), owner.getUniqueId());
-                lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
+                lastAttackTime.put(victim.getUniqueId(), currentTime);
                 
-                // Aplicar knockback específico para endermites
-                plugin.getCombatManager().applyEndermiteKnockback(victim, owner, endermite);
+                // Aplicar knockback específico para endermites solo si no tiene inmunidad
+                if (!hasKnockbackImmunity) {
+                    plugin.getCombatManager().applyEndermiteKnockback(victim, owner, endermite);
+                    lastKnockbackTime.put(victim.getUniqueId(), currentTime);
+                }
+                
                 event.setDamage(0.0D);
                 return;
             }
         }
 
-        // Verificar que el atacante no sea nulo
+        // Si llegamos aquí y no hay atacante, salir
         if (attacker == null) {
             return;
         }
@@ -149,35 +185,45 @@ public class CombatListener implements Listener {
             return;
         }
 
-        // Verificar cooldown de hit
-        if (!plugin.getCombatManager().canHit(attacker)) {
+        // Verificar cooldown de hit (solo para ataques físicos, no proyectiles)
+        if (!isProjectile && !plugin.getCombatManager().canHit(attacker)) {
             event.setCancelled(true);
             return;
         }
 
+        // Verificar estados de combate para ataques físicos
+        if (!isProjectile && shouldCancelCombat(victim, attacker)) {
+            event.setCancelled(true);
+            return;
+        }
+
+        // Para ataques físicos (no proyectiles), registrar atacante y aplicar knockback
+        if (!isProjectile) {
+            lastAttacker.put(victim.getUniqueId(), attacker.getUniqueId());
+            lastAttackTime.put(victim.getUniqueId(), currentTime);
+
+            // Aplicar knockback solo si no tiene inmunidad
+            if (!hasKnockbackImmunity) {
+                plugin.getCombatManager().applyCustomKnockback(victim, attacker);
+                lastKnockbackTime.put(victim.getUniqueId(), currentTime);
+            }
+        }
+        
+        event.setDamage(0.0D);
+    }
+    
+    // NUEVO: Método helper para verificar si el combate debe ser cancelado
+    private boolean shouldCancelCombat(Player victim, Player attacker) {
         // Verificar estados de la arena
         if (plugin.getArenaChangeManager().isArenaChanging()) {
-            event.setCancelled(true);
-            return;
+            return true;
         }
         
-        if (isInSpawn(victim)) {
-            event.setCancelled(true);
-            return;
+        if (isInSpawn(victim) || isInSpawn(attacker)) {
+            return true;
         }
         
-        if (isInSpawn(attacker)) {
-            event.setCancelled(true);
-            return;
-        }
-
-        // Registrar el último atacante
-        lastAttacker.put(victim.getUniqueId(), attacker.getUniqueId());
-        lastAttackTime.put(victim.getUniqueId(), System.currentTimeMillis());
-
-        // Aplicar knockback personalizado usando el CombatManager
-        plugin.getCombatManager().applyCustomKnockback(victim, attacker);
-        event.setDamage(0.0D);
+        return false;
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -224,8 +270,10 @@ public class CombatListener implements Listener {
 
     // Método para resetear el combate cuando un jugador muere
     public void resetCombat(Player player) {
-        lastAttacker.remove(player.getUniqueId());
-        lastAttackTime.remove(player.getUniqueId());
+        UUID playerUUID = player.getUniqueId();
+        lastAttacker.remove(playerUUID);
+        lastAttackTime.remove(playerUUID);
+        lastKnockbackTime.remove(playerUUID); // NUEVO: Limpiar inmunidad de knockback
     }
 
     private boolean isInSpawn(Player player) {

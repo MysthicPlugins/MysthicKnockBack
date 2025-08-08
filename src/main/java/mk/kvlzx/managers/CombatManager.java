@@ -62,18 +62,39 @@ public class CombatManager {
     }
 
     public void applyCustomKnockback(Player victim, Player attacker, boolean isArrow) {
+        // MEJORADO: Verificar si ya hay knockback pendiente muy reciente
+        if (!canApplyKnockback(victim.getUniqueId())) {
+            return;
+        }
+        
         // Calcular knockback personalizado
         Vector knockback = calculateCustomKnockback(attacker, victim, isArrow);
 
         if (knockback != null) {
             UUID victimUUID = victim.getUniqueId();
+            
+            // MEJORADO: Si ya hay un knockback pendiente, usar el más fuerte
+            Vector existingKnockback = pendingKnockback.get(victimUUID);
+            if (existingKnockback != null) {
+                // Comparar magnitudes y usar el más fuerte
+                double existingMagnitude = existingKnockback.lengthSquared();
+                double newMagnitude = knockback.lengthSquared();
+                
+                if (newMagnitude <= existingMagnitude) {
+                    return; // El knockback actual es más débil, no aplicar
+                }
+            }
+            
             pendingKnockback.put(victimUUID, knockback);
+            knockbackCooldown.put(victimUUID, System.currentTimeMillis());
 
             // Aplicar knockback en el siguiente tick
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (victim.isOnline() && pendingKnockback.containsKey(victimUUID)) {
-                    victim.setVelocity(pendingKnockback.get(victimUUID));
-                    pendingKnockback.remove(victimUUID);
+                    Vector finalKnockback = pendingKnockback.remove(victimUUID);
+                    if (finalKnockback != null) {
+                        victim.setVelocity(finalKnockback);
+                    }
                 }
             }, 1L);
         }
@@ -81,17 +102,36 @@ public class CombatManager {
     
     // NUEVO: Método específico para knockback de endermites
     public void applyEndermiteKnockback(Player victim, Player owner, Endermite endermite) {
+        if (!canApplyKnockback(victim.getUniqueId())) {
+            return;
+        }
+        
         Vector knockback = calculateEndermiteKnockback(owner, victim, endermite);
 
         if (knockback != null) {
             UUID victimUUID = victim.getUniqueId();
+            
+            // MEJORADO: Aplicar la misma lógica de knockback más fuerte
+            Vector existingKnockback = pendingKnockback.get(victimUUID);
+            if (existingKnockback != null) {
+                double existingMagnitude = existingKnockback.lengthSquared();
+                double newMagnitude = knockback.lengthSquared();
+                
+                if (newMagnitude <= existingMagnitude) {
+                    return;
+                }
+            }
+            
             pendingKnockback.put(victimUUID, knockback);
+            knockbackCooldown.put(victimUUID, System.currentTimeMillis());
 
             // Aplicar knockback en el siguiente tick
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (victim.isOnline() && pendingKnockback.containsKey(victimUUID)) {
-                    victim.setVelocity(pendingKnockback.get(victimUUID));
-                    pendingKnockback.remove(victimUUID);
+                    Vector finalKnockback = pendingKnockback.remove(victimUUID);
+                    if (finalKnockback != null) {
+                        victim.setVelocity(finalKnockback);
+                    }
                 }
             }, 1L);
         }
@@ -280,27 +320,8 @@ public class CombatManager {
         return pendingKnockback.containsKey(playerUUID);
     }
 
-    public void applyPrioritizedKnockback(Player victim, Player attacker, boolean isPearl) {
-        if (!canApplyKnockback(victim.getUniqueId())) {
-            return;
-        }
-
-        Vector knockback = calculateCustomKnockback(attacker, victim, false);
-
-        if (knockback != null) {
-            UUID victimUUID = victim.getUniqueId();
-            pendingKnockback.put(victimUUID, knockback);
-            knockbackCooldown.put(victimUUID, System.currentTimeMillis());
-
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                if (victim.isOnline() && pendingKnockback.containsKey(victimUUID)) {
-                    victim.setVelocity(pendingKnockback.get(victimUUID));
-                    pendingKnockback.remove(victimUUID);
-                }
-            }, 1L);
-        }
-    }
-
+    // REMOVIDO: applyPrioritizedKnockback - ya no necesario con la nueva lógica
+    
     private boolean canApplyKnockback(UUID victimUUID) {
         if (!knockbackCooldown.containsKey(victimUUID)) {
             return true;

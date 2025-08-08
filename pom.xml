@@ -98,6 +98,7 @@
                     <include>config/menus/kill-sounds-shop.yml</include>
                     <include>config/menus/join-messages-shop.yml</include>
                     <include>config/menus/music-shop.yml</include>
+                    <include>config/menus/arena-select.yml</include>
                 </includes>
             </resource>
         </resources>

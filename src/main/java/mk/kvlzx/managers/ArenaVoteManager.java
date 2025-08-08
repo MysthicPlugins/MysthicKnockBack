@@ -12,6 +12,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.arena.Arena;
+import mk.kvlzx.config.MainConfig;
 import mk.kvlzx.utils.MessageUtils;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -20,190 +21,167 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class ArenaVoteManager {
     private final MysthicKnockBack plugin;
-    
-    // Estado de votación
+    private final MainConfig mainConfig;
+
+    // Vote status
     private boolean voteActive = false;
     private String votedArena = null;
     private int voteTimeLeft = 0;
     private BukkitTask voteTask;
-    
-    // Votos
+
+    // Votes
     private final Set<UUID> yesVotes = ConcurrentHashMap.newKeySet();
     private final Set<UUID> noVotes = ConcurrentHashMap.newKeySet();
-    
-    // Configuración
-    private final int VOTE_DURATION = 30; // 30 segundos
-    private final int MIN_ARENA_TIME_FOR_VOTE = 120; // 2 minutos en segundos
-    
+
     public ArenaVoteManager(MysthicKnockBack plugin) {
         this.plugin = plugin;
+        this.mainConfig = plugin.getMainConfig();
     }
-    
+
     /**
-     * Inicia una votación para cambiar a una arena específica
+     * Starts a vote to switch to a specific arena
      */
     public boolean startVote(Player initiator, String arenaName) {
         if (voteActive) {
-            initiator.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
-                "&cAlready voting for an arena change!"));
+            initiator.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() +
+                    mainConfig.getArenaVoteAlreadyActive()));
             return false;
         }
-        
-        // Verificar que la arena existe
+
         Arena arena = plugin.getArenaManager().getArena(arenaName);
         if (arena == null) {
-            initiator.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
-                "&cArena not found!"));
+            initiator.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() +
+                    mainConfig.getArenaVoteArenaNotFound()));
             return false;
         }
-        
-        // Verificar que no es la arena actual
+
         if (arenaName.equals(plugin.getArenaManager().getCurrentArena())) {
-            initiator.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
-                "&cWe're already in that arena!"));
+            initiator.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() +
+                    mainConfig.getArenaVoteAlreadyInArena()));
             return false;
         }
-        
-        // Verificar que no hay cambio de arena en progreso
+
         if (plugin.getArenaChangeManager().isArenaChanging()) {
-            initiator.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
-                "&cArena is already changing!"));
+            initiator.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() +
+                    mainConfig.getArenaVoteAlreadyInArenaChange()));
             return false;
         }
-        
-        // Verificar tiempo restante del timer de arena
+
         int arenaTimeLeft = plugin.getScoreboardManager().getArenaTimeLeft();
-        if (arenaTimeLeft <= MIN_ARENA_TIME_FOR_VOTE) {
-            int minutes = arenaTimeLeft / 60;
-            int seconds = arenaTimeLeft % 60;
+        if (arenaTimeLeft <= mainConfig.getArenaVoteMinTime()) {
+            int minutes = mainConfig.getArenaVoteMinTime() / 60;
+            int seconds = mainConfig.getArenaVoteMinTime() % 60;
             String timeFormat = String.format("%02d:%02d", minutes, seconds);
-            
-            initiator.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
-                "&cCannot start vote! Arena changes in &e" + timeFormat + "&c. Wait until there's more than &e2:00 &cleft."));
+
+            String message = mainConfig.getArenaVoteCannotVote()
+                    .replace("%time%", timeFormat);
+
+            initiator.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
             return false;
         }
-        
-        // Iniciar votación
+
         voteActive = true;
         votedArena = arenaName;
-        voteTimeLeft = VOTE_DURATION;
+        voteTimeLeft = mainConfig.getArenaVoteDuration();
         yesVotes.clear();
         noVotes.clear();
-        
-        // Enviar mensaje clickeable a todos los jugadores
+
         sendClickableVoteMessage();
-        
-        // Iniciar countdown
         startCountdown();
-        
+
         return true;
     }
-    
+
     private void changeArena() {
-        // USAR EL NUEVO ArenaChangeManager - SIN ANIMACIÓN para votos
         plugin.getArenaChangeManager().changeArenaImmediately(votedArena, false);
-        
-        // NUEVA FUNCIONALIDAD: Reiniciar el timer de arena después del cambio
         plugin.getScoreboardManager().resetArenaTimer();
     }
-    
+
     private void sendClickableVoteMessage() {
         String currentArena = plugin.getArenaManager().getCurrentArena();
-        int arenaTimeLeft = plugin.getScoreboardManager().getArenaTimeLeft();
-        int minutes = arenaTimeLeft / 60;
-        int seconds = arenaTimeLeft % 60;
-        String timeFormat = String.format("%02d:%02d", minutes, seconds);
-        
-        // Mensaje de anuncio con información del timer
-        String announcement = MysthicKnockBack.getPrefix() + 
-            "&e&lArena Vote Started! &r&7Change from &b" + currentArena + 
-            " &7to &b" + votedArena + "&7? (&e" + VOTE_DURATION + "s&7) &8[Timer: " + timeFormat + "]";
-        Bukkit.broadcastMessage(MessageUtils.getColor(announcement));
-        
-        // Crear componentes clickeables
-        TextComponent yesButton = new TextComponent(MessageUtils.getColor("  &a[YES]  "));
+
+        String announcement = mainConfig.getArenaVoteClickeableAnnouncement()
+                .replace("%current_arena%", currentArena)
+                .replace("%voted_arena%", votedArena)
+                .replace("%vote_duration%", String.valueOf(mainConfig.getArenaVoteDuration()));
+
+        Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + announcement));
+
+        TextComponent yesButton = new TextComponent(MessageUtils.getColor(mainConfig.getArenaVoteClickeableYes()));
         yesButton.setBold(true);
-        yesButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/arenuvote yes"));
-        yesButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, 
-            new ComponentBuilder(MessageUtils.getColor("&aClick to vote YES")).create()));
-        
-        TextComponent noButton = new TextComponent(MessageUtils.getColor("  &c[NO]  "));
+        yesButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/arenavote yes"));
+        yesButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                new ComponentBuilder(MessageUtils.getColor(mainConfig.getArenaVoteHoverYes())).create()));
+
+        TextComponent noButton = new TextComponent(MessageUtils.getColor(mainConfig.getArenaVoteClickeableNo()));
         noButton.setBold(true);
-        noButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/arenuvote no"));
-        noButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, 
-            new ComponentBuilder(MessageUtils.getColor("&cClick to vote NO")).create()));
-        
-        TextComponent separator = new TextComponent(MessageUtils.getColor(" &7| "));
-        
-        // Mensaje principal
-        TextComponent mainMessage = new TextComponent(MessageUtils.getColor(" "));
+        noButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/arenavote no"));
+        noButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                new ComponentBuilder(MessageUtils.getColor(mainConfig.getArenaVoteHoverNo())).create()));
+
+        TextComponent separator = new TextComponent(MessageUtils.getColor(mainConfig.getArenaVoteSeparator()));
+
+        TextComponent mainMessage = new TextComponent("");
         mainMessage.addExtra(yesButton);
         mainMessage.addExtra(separator);
         mainMessage.addExtra(noButton);
-        
-        // Enviar a todos los jugadores
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.spigot().sendMessage(mainMessage);
             player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 1.0f);
         }
     }
-    
+
     public boolean vote(Player player, boolean isYes) {
         if (!voteActive) {
-            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
-                "&cNo active vote!"));
             return false;
         }
-        
+
         UUID playerId = player.getUniqueId();
-        
-        // Remover voto anterior si existe
+
         yesVotes.remove(playerId);
         noVotes.remove(playerId);
-        
-        // Registrar nuevo voto
+
         if (isYes) {
             yesVotes.add(playerId);
-            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
-                "&aYou voted &lYES &r&afor &b" + votedArena));
+            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() +
+                    mainConfig.getArenaVoteVoteYes().replace("%voted_arena%", votedArena)));
         } else {
             noVotes.add(playerId);
-            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
-                "&cYou voted &lNO &r&cfor &b" + votedArena));
+            player.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() +
+                    mainConfig.getArenaVoteVoteNo().replace("%voted_arena%", votedArena)));
         }
-        
+
         player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1.0f, 1.0f);
-        
-        // Mostrar votos actuales
+
         broadcastCurrentVotes();
-        
+
         return true;
     }
-    
+
     private void broadcastCurrentVotes() {
-        String message = MysthicKnockBack.getPrefix() + 
-            "&7Votes: &a" + yesVotes.size() + " YES &7- &c" + noVotes.size() + " NO";
-        Bukkit.broadcastMessage(MessageUtils.getColor(message));
+        String message = mainConfig.getArenaVoteBroadcastCurrentVotes()
+                .replace("%yes_votes%", String.valueOf(yesVotes.size()))
+                .replace("%no_votes%", String.valueOf(noVotes.size()));
+        Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + message));
     }
-    
+
     private void startCountdown() {
         voteTask = new BukkitRunnable() {
             @Override
             public void run() {
                 voteTimeLeft--;
-                
-                // Alertas
-                if (voteTimeLeft == 10 || voteTimeLeft == 5 || voteTimeLeft <= 3) {
-                    String alert = MysthicKnockBack.getPrefix() + 
-                        "&eVote ends in &b" + voteTimeLeft + " &eseconds!";
-                    Bukkit.broadcastMessage(MessageUtils.getColor(alert));
-                    
+
+                if (voteTimeLeft == 10 || voteTimeLeft == 5 || voteTimeLeft <= 4) {
+                    String alert = mainConfig.getArenaVoteVotesEnd().replace("%time_left%", String.valueOf(voteTimeLeft));
+                    Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + alert));
+
                     for (Player player : Bukkit.getOnlinePlayers()) {
-                        player.playSound(player.getLocation(), Sound.CLICK, 1.0f, 
-                            voteTimeLeft <= 3 ? 2.0f : 1.0f);
+                        player.playSound(player.getLocation(), Sound.CLICK, 1.0f,
+                                voteTimeLeft <= 3 ? 2.0f : 1.0f);
                     }
                 }
-                
+
                 if (voteTimeLeft <= 0) {
                     finishVote();
                     cancel();
@@ -211,53 +189,48 @@ public class ArenaVoteManager {
             }
         }.runTaskTimer(plugin, 20L, 20L);
     }
-    
+
     private void finishVote() {
         voteActive = false;
-        
+
         if (voteTask != null) {
             voteTask.cancel();
             voteTask = null;
         }
-        
+
         int totalYes = yesVotes.size();
         int totalNo = noVotes.size();
-        int totalVotes = totalYes + totalNo;
-        
-        // Mostrar resultado
-        String result = MysthicKnockBack.getPrefix() + 
-            "&e&lVote Results: &a" + totalYes + " YES &7- &c" + totalNo + " NO";
-        Bukkit.broadcastMessage(MessageUtils.getColor(result));
-        
-        if (totalVotes == 0) {
-            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
-                "&cNo votes received!"));
+
+        String result = mainConfig.getArenaVoteVoteResults()
+                .replace("%yes_votes%", String.valueOf(totalYes))
+                .replace("%no_votes%", String.valueOf(totalNo));
+        Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + result));
+
+        if (totalYes + totalNo == 0) {
+            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + mainConfig.getArenaVoteNoVotesReceived()));
             return;
         }
-        
+
         if (totalYes > totalNo) {
-            // ¡Cambiar arena!
-            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
-                "&a&lVote PASSED! &r&7Changing to &b" + votedArena + " &7and resetting timer..."));
+            String passedMessage = mainConfig.getArenaVoteVotePassed().replace("%voted_arena%", votedArena);
+            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + passedMessage));
             changeArena();
         } else {
-            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + 
-                "&c&lVote FAILED! &r&7Staying in current arena."));
+            Bukkit.broadcastMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + mainConfig.getArenaVoteVoteFailed()));
         }
-        
-        // Limpiar
+
         yesVotes.clear();
         noVotes.clear();
         votedArena = null;
     }
-    
+
     // Getters
     public boolean isVoteActive() { return voteActive; }
     public String getVotedArena() { return votedArena; }
     public int getYesVotes() { return yesVotes.size(); }
     public int getNoVotes() { return noVotes.size(); }
-    public int getMinArenaTimeForVote() { return MIN_ARENA_TIME_FOR_VOTE; }
-    
+    public int getMinArenaTimeForVote() { return mainConfig.getArenaVoteMinTime(); }
+
     public void shutdown() {
         if (voteTask != null) {
             voteTask.cancel();

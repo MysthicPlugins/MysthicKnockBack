@@ -1,0 +1,74 @@
+menu:
+  title: "&9&lSelect Arena to Vote"
+  size: 54
+
+# Configuration for arena items (different states)
+arena-items:
+  current:
+    id: EMERALD_BLOCK
+    name: "&b&l%arena_name%"
+    lore:
+      - ""
+      - "&a✓ Current Arena"
+      - "&7You are already here!"
+      - ""
+
+  available:
+    id: DIAMOND_BLOCK
+    name: "&b&l%arena_name%"
+    lore:
+      - ""
+      - "&7Click to start a vote"
+      - "&7to change to this arena!"
+      - ""
+      - "&e➤ Click to vote!"
+      - ""
+
+  blocked:
+    id: REDSTONE_BLOCK
+    name: "&b&l%arena_name%"
+    lore:
+      - ""
+      - "&c✗ Cannot Vote"
+      - "&7Arena changes in &e%time_left%"
+      - "&7Wait until &e2:00+ &7remain"
+      - ""
+
+# Special items configuration
+special-items:
+  info:
+    id: PAPER
+    name: "&e&lArena Voting"
+    lore:
+      - "&7Select an arena to start a vote!"
+      - ""
+      - "&7Current: &b%current_arena%"
+      - "&7Total Arenas: &b%total_arenas%"
+      - ""
+    slot: 4
+
+  back-button:
+    id: ARROW
+    name: "&c&lBack"
+    lore:
+      - "&7Click to return to main menu"
+    slot: 49
+
+# Decoration configuration
+decoration:
+  id: STAINED_GLASS_PANE
+  data: 9  # Light blue glass pane
+
+# Arena grid layout configuration
+arena-grid:
+  start-slot: 10      # First slot where arenas start
+  slots-per-row: 7    # Number of slots per row
+  skip-slots: 2       # Slots to skip when moving to next row
+  max-slot: 44        # Maximum slot to place arenas
+
+messages:
+  cannot-vote-time: "&cCannot vote! Arena changes in &e%time_left%&c. Wait until there's more than &e2:00 &cleft."
+  no-permission: "&cYou don't have permission to start votes!"
+  already-in-arena: "&cYou're already in that arena!"
+  vote-unavailable: "&cCannot vote right now! Wait until there's more time left."
+  arena-not-found: "&cArena not found!"
