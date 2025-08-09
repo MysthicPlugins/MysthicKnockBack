@@ -10,11 +10,14 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import mk.kvlzx.MysthicKnockBack;
-import mk.kvlzx.config.MainConfig;
+import mk.kvlzx.config.CombatConfig;
 import mk.kvlzx.data.StatsData;
 import mk.kvlzx.managers.RankManager;
 import mk.kvlzx.managers.StreakManager;
 import mk.kvlzx.utils.MessageUtils;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
 
 public class PlayerStats {
     private static Map<UUID, PlayerStats> stats = new HashMap<>();
@@ -28,12 +31,14 @@ public class PlayerStats {
     private static final long DEATH_COOLDOWN = 500;
     private static StatsData statsData;
     private int kgCoins;
+    private static LuckPerms luckPerms;
+    private static boolean luckPermsEnabled;
 
     public PlayerStats(UUID uuid) {
         this.uuid = uuid;
         this.kills = 0;
         this.deaths = 0;
-        this.elo = MysthicKnockBack.getInstance().getMainConfig().getDefaultElo(); // Valor por defecto
+        this.elo = MysthicKnockBack.getInstance().getCombatConfig().getDefaultElo(); // Ahora usa CombatConfig
         this.playTime = 0;
         this.lastJoin = System.currentTimeMillis();
         this.kgCoins = 0;
@@ -49,6 +54,19 @@ public class PlayerStats {
 
     public static void initializeStatsData(MysthicKnockBack plugin) {
         statsData = new StatsData(plugin);
+        
+        // Inicializar LuckPerms si está disponible
+        try {
+            if (plugin.getServer().getPluginManager().getPlugin("LuckPerms") != null) {
+                luckPerms = LuckPermsProvider.get();
+                luckPermsEnabled = true;
+            } else {
+                luckPermsEnabled = false;
+            }
+        } catch (Exception e) {
+            luckPermsEnabled = false;
+            plugin.getLogger().warning("Failed to initialize LuckPerms integration: " + e.getMessage());
+        }
     }
 
     public static void loadAllStats() {
@@ -89,17 +107,35 @@ public class PlayerStats {
         }
     }
 
+    private String getPlayerPrimaryGroup(Player player) {
+        if (!luckPermsEnabled || luckPerms == null) {
+            return "default";
+        }
+
+        try {
+            User user = luckPerms.getUserManager().getUser(player.getUniqueId());
+            if (user != null) {
+                return user.getPrimaryGroup();
+            }
+        } catch (Exception e) {
+            MysthicKnockBack.getInstance().getLogger().warning("Error getting LuckPerms group for player " + player.getName() + ": " + e.getMessage());
+        }
+        
+        return "default";
+    }
+
     public void addKill() {
         this.kills++;
         StreakManager.addStreak(uuid);
         
         // Usar valores de configuración para ELO ganado
-        MainConfig config = MysthicKnockBack.getInstance().getMainConfig();
+        CombatConfig config = MysthicKnockBack.getInstance().getCombatConfig();
         int eloGained = (int)(Math.random() * (config.getEloMaxGained() - config.getEloMinGained() + 1)) + config.getEloMinGained();
         this.elo += eloGained;
 
-        // Notificar al jugador con mensaje personalizado
         Player player = Bukkit.getPlayer(uuid);
+
+        // Notificar al jugador con mensaje personalizado de ELO
         if (config.getEloGainedMessageEnabled()) {
             if (player != null && player.isOnline()) {
                 String eloMessage = config.getEloGainedMessage().replace("%elo%", String.valueOf(eloGained));
@@ -107,16 +143,47 @@ public class PlayerStats {
             }
         }
 
-        // Usar valores de configuración para KGCoins
-        int coinsGained = (int)(Math.random() * (config.getKgCoinsGainedMax() - config.getKgCoinsGainedMin() + 1)) + config.getKgCoinsGainedMin();
-        this.kgCoins += coinsGained;
+        // Sistema de coins con multiplicadores por rango
+        int baseCoins = (int)(Math.random() * (config.getKgCoinsGainedMax() - config.getKgCoinsGainedMin() + 1)) + config.getKgCoinsGainedMin();
         
-        // Notificar al jugador con mensaje personalizado
-        if (config.getKgCoinsGainedMessageEnabled()) {
-            if (player != null && player.isOnline()) {
-                String coinsMessage = config.getKgCoinsGainedMessage().replace("%coins%", String.valueOf(coinsGained));
-                player.sendMessage(MessageUtils.getColor(coinsMessage));
+        if (player != null && player.isOnline()) {
+            String playerGroup = getPlayerPrimaryGroup(player);
+            
+            // Verificar si el jugador tiene multiplicador de rango
+            CombatConfig.RankMultiplier rankMultiplier = config.getRankMultiplier(playerGroup);
+            
+            if (rankMultiplier != null) {
+                // Calcular coins totales con multiplicador
+                int totalCoins = config.calculateCoinsWithMultiplier(playerGroup, baseCoins);
+                int bonusCoins = config.getBonusCoins(playerGroup, baseCoins);
+                
+                this.kgCoins += totalCoins;
+                
+                // Mensaje de coins básico
+                if (config.getKgCoinsGainedMessageEnabled()) {
+                    String coinsMessage = config.getKgCoinsGainedMessage().replace("%coins%", String.valueOf(baseCoins));
+                    player.sendMessage(MessageUtils.getColor(coinsMessage));
+                }
+                
+                // Mensaje de bonus por rango
+                if (rankMultiplier.isMessageEnabled() && bonusCoins > 0) {
+                    String bonusMessage = rankMultiplier.getMessage()
+                            .replace("%bonus_coins%", String.valueOf(bonusCoins))
+                            .replace("%multiplier%", String.valueOf(rankMultiplier.getMultiplier()));
+                    player.sendMessage(MessageUtils.getColor(bonusMessage));
+                }
+            } else {
+                // Sin multiplicador, usar coins base
+                this.kgCoins += baseCoins;
+                
+                if (config.getKgCoinsGainedMessageEnabled()) {
+                    String coinsMessage = config.getKgCoinsGainedMessage().replace("%coins%", String.valueOf(baseCoins));
+                    player.sendMessage(MessageUtils.getColor(coinsMessage));
+                }
             }
+        } else {
+            // Jugador offline, usar coins base sin multiplicador
+            this.kgCoins += baseCoins;
         }
 
         // Actualizar el rango del jugador
@@ -152,7 +219,7 @@ public class PlayerStats {
         this.deaths++;
         
         // Usar valores de configuración para ELO perdido
-        MainConfig config = MysthicKnockBack.getInstance().getMainConfig();
+        CombatConfig config = MysthicKnockBack.getInstance().getCombatConfig();
         int eloLost = (int)(Math.random() * (config.getEloMaxLost() - config.getEloMinLost() + 1)) + config.getEloMinLost();
         this.elo = Math.max(0, this.elo - eloLost);
         
@@ -246,5 +313,24 @@ public class PlayerStats {
 
     public UUID getUUID() {
         return uuid;
+    }
+    
+    // Método para obtener el grupo del jugador (útil para debugging o logs)
+    public String getPlayerGroup() {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            return getPlayerPrimaryGroup(player);
+        }
+        return "default";
+    }
+    
+    // Método para obtener información del multiplicador actual del jugador
+    public CombatConfig.RankMultiplier getCurrentRankMultiplier() {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            String playerGroup = getPlayerPrimaryGroup(player);
+            return MysthicKnockBack.getInstance().getCombatConfig().getRankMultiplier(playerGroup);
+        }
+        return null;
     }
 }

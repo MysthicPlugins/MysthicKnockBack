@@ -83,6 +83,7 @@
                     <include>config/global/messages.yml</include>
                     <include>config/global/tab.yml</include>
                     <include>config/global/chat.yml</include>
+                    <include>config/global/combat.yml</include>
                     <include>config/menus/main.yml</include>
                     <include>config/menus/top-menus.yml</include>
                     <include>config/menus/stats.yml</include>

@@ -148,7 +148,7 @@ public class CustomItem {
                     if (config.getSlimeBallLore() != null) {
                         meta.setLore(Arrays.asList(MessageUtils.getColor(config.getSlimeBallLore())));
                     }
-                    if (config.getSlimeBallKnoback()) {
+                    if (config.getSlimeBallKnockback()) {
                         meta.addEnchant(Enchantment.KNOCKBACK, config.getSlimeBallKnockbackLevel(), true);
                     }
                     item.setItemMeta(meta);

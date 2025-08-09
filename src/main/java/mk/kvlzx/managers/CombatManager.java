@@ -22,19 +22,19 @@ public class CombatManager {
     private final Map<UUID, BukkitRunnable> powerupKnockbackTasks = new HashMap<>();
     private static final long KNOCKBACK_COOLDOWN_MS = 200; // 200ms cooldown entre knockbacks
 
-    private double horizontalKnockback = MysthicKnockBack.getInstance().getMainConfig().getHorizontalKnockback();
-    private double verticalKnockback = MysthicKnockBack.getInstance().getMainConfig().getVerticalKnockback();
-    private double knockbackResistanceReduction = MysthicKnockBack.getInstance().getMainConfig().getKnockbackReduction();
-    private double sprintMultiplier = MysthicKnockBack.getInstance().getMainConfig().getKnockbackSprintMultiplier();
+    private double horizontalKnockback = MysthicKnockBack.getInstance().getCombatConfig().getHorizontalKnockback();
+    private double verticalKnockback = MysthicKnockBack.getInstance().getCombatConfig().getVerticalKnockback();
+    private double knockbackResistanceReduction = MysthicKnockBack.getInstance().getCombatConfig().getKnockbackReduction();
+    private double sprintMultiplier = MysthicKnockBack.getInstance().getCombatConfig().getKnockbackSprintMultiplier();
     
     // Nuevos valores específicos para flechas
-    private double arrowHorizontalKnockback = MysthicKnockBack.getInstance().getMainConfig().getHorizontalKnockbackArrow();
-    private double arrowSprintMultiplier =  MysthicKnockBack.getInstance().getMainConfig().getSprintKnockbackArrow();
+    private double arrowHorizontalKnockback = MysthicKnockBack.getInstance().getCombatConfig().getHorizontalKnockbackArrow();
+    private double arrowSprintMultiplier =  MysthicKnockBack.getInstance().getCombatConfig().getSprintKnockbackArrow();
     
     // NUEVO: Valores específicos para endermites
-    private double endermiteHorizontalKnockback = MysthicKnockBack.getInstance().getMainConfig().getKnockbackHorizontalEndermite();
-    private double endermiteVerticalKnockback = MysthicKnockBack.getInstance().getMainConfig().getKnockbackVerticalEndermite();
-    private int endermiteKnockbackLevel = MysthicKnockBack.getInstance().getMainConfig().getKnockbackLevelEndermite();
+    private double endermiteHorizontalKnockback = MysthicKnockBack.getInstance().getCombatConfig().getKnockbackHorizontalEndermite();
+    private double endermiteVerticalKnockback = MysthicKnockBack.getInstance().getCombatConfig().getKnockbackVerticalEndermite();
+    private int endermiteKnockbackLevel = MysthicKnockBack.getInstance().getCombatConfig().getKnockbackLevelEndermite();
     
     private int hitDelay = 500; // millisegundos
     
@@ -165,7 +165,7 @@ public class CombatManager {
         if (weapon != null && weapon.containsEnchantment(Enchantment.KNOCKBACK)) {
             int knockbackLevel = weapon.getEnchantmentLevel(Enchantment.KNOCKBACK);
             // Para flechas, el multiplicador es aún mayor
-            double knockbackMultiplier = isArrow ? plugin.getMainConfig().getMaxKnockbackHorizontalArrow() : plugin.getMainConfig().getMaxKnockbackHorizontal();
+            double knockbackMultiplier = isArrow ? plugin.getCombatConfig().getMaxKnockbackHorizontalArrow() : plugin.getCombatConfig().getMaxKnockbackHorizontal();
             horizontal += knockbackLevel * knockbackMultiplier;
         }
 
@@ -253,8 +253,8 @@ public class CombatManager {
     
     private Vector applyVelocityLimits(Vector velocity, boolean isArrow) {
         // Límites más altos para flechas
-        double maxHorizontal = isArrow ? plugin.getMainConfig().getMaxKnockbackHorizontalArrow() : plugin.getMainConfig().getMaxKnockbackHorizontal();
-        double maxVertical = plugin.getMainConfig().getMaxKnockbackVertical();
+        double maxHorizontal = isArrow ? plugin.getCombatConfig().getMaxKnockbackHorizontalArrow() : plugin.getCombatConfig().getMaxKnockbackHorizontal();
+        double maxVertical = plugin.getCombatConfig().getMaxKnockbackVertical();
 
         // Limitar componentes horizontales
         double horizontalMagnitude = Math.sqrt(

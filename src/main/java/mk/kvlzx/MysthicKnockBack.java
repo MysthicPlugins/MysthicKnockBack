@@ -26,6 +26,7 @@ import mk.kvlzx.config.ArenaSelectMenuConfig;
 import mk.kvlzx.config.ArrowEffectsShopConfig;
 import mk.kvlzx.config.BlocksShopConfig;
 import mk.kvlzx.config.ChatConfig;
+import mk.kvlzx.config.CombatConfig;
 import mk.kvlzx.config.DeathMessagesShopConfig;
 import mk.kvlzx.config.DeathSoundsShopConfig;
 import mk.kvlzx.config.HotbarMenuConfig;
@@ -114,6 +115,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private JoinMessagesShopConfig joinMessagesShopConfig;
     private MusicShopConfig musicShopConfig;
     private ArenaSelectMenuConfig arenaSelectMenuConfig;
+    private CombatConfig combatConfig;
     
     private BukkitTask autoSaveTask;
     private BukkitTask weatherTimeTask; // Nueva tarea para controlar clima y tiempo
@@ -143,6 +145,7 @@ public class MysthicKnockBack extends JavaPlugin {
         joinMessagesShopConfig = new JoinMessagesShopConfig(this);
         musicShopConfig = new MusicShopConfig(this);
         arenaSelectMenuConfig = new ArenaSelectMenuConfig(this);
+        combatConfig = new CombatConfig(this);
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
@@ -406,6 +409,7 @@ public class MysthicKnockBack extends JavaPlugin {
             joinMessagesShopConfig.reload();
             musicShopConfig.reload();
             arenaSelectMenuConfig.reload();
+            combatConfig.reload();
             
             // Reiniciar auto-save con nueva configuración
             restartAutoSave();
@@ -696,6 +700,10 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public ArenaSelectMenuConfig getArenaSelectMenuConfig() {
         return arenaSelectMenuConfig;
+    }
+
+    public CombatConfig getCombatConfig() {
+        return combatConfig;
     }
 
 }

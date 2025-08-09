@@ -135,7 +135,7 @@ public class ItemListener implements Listener {
                     speedTasks.get(player.getUniqueId()).cancel();
                 }
 
-                player.setWalkSpeed((float) plugin.getMainConfig().getFeatherSpeed());
+                player.setWalkSpeed((float) plugin.getCombatConfig().getFeatherSpeed());
                 feather.setAmount(1);
                 player.getInventory().setItem(featherSlot, feather);
                 plugin.getCooldownManager().setCooldown(player, COOLDOWN_FEATHER, COOLDOWN_SECONDS);

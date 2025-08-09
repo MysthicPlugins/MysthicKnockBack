@@ -24,7 +24,7 @@ public class CombatListener implements Listener {
     private final Map<UUID, UUID> lastAttacker = new HashMap<>();
     private final Map<UUID, Long> lastAttackTime = new HashMap<>();
     private final Map<UUID, Long> lastKnockbackTime = new HashMap<>(); // NUEVO: Para evitar knockback múltiple
-    private static final long COMBAT_TIMEOUT = MysthicKnockBack.getInstance().getMainConfig().getCombatLog();
+    private static final long COMBAT_TIMEOUT = MysthicKnockBack.getInstance().getCombatConfig().getCombatLog();
     private static final long KNOCKBACK_IMMUNITY_TIME = 250; // NUEVO: 250ms de inmunidad entre knockbacks
 
     public CombatListener(MysthicKnockBack plugin) {

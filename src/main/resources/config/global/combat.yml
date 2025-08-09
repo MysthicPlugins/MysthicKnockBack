@@ -1,0 +1,209 @@
+combat:
+  # Default ELO for new players
+  default-elo: 500
+  
+  # Combat log duration in milliseconds (10 seconds)
+  combat-log: 10000
+  
+  # Speed of the feather item (0.2 is default value)
+  speed: 0.32
+  
+  # ELO system configuration
+  elo:
+    # ELO gained on kill
+    gained:
+      min: 6
+      max: 15
+      message-enabled: true
+      message: "&a+%elo% ELO"
+    # ELO lost on death
+    lost:
+      min: 6
+      max: 15
+      message-enabled: true
+      message: "&c-%elo% ELO"
+  
+  # KGCoins system configuration
+  kgcoins:
+    # Base coins gained on kill (before multipliers)
+    gained:
+      min: 4
+      max: 12
+      message-enabled: true
+      message: "&a+%coins% KGCoins"
+    
+    # Rank multipliers for LuckPerms groups
+    # The group name must EXACTLY match the name in LuckPerms
+    # Multiplier will be applied to the base coins amount
+    rank-multipliers:
+      # Staff ranks
+      owner:
+        multiplier: 3.0
+        message-enabled: true
+        message: "&6&lRANK BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      admin:
+        multiplier: 2.5
+        message-enabled: true
+        message: "&6&lRANK BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      moderator:
+        multiplier: 2.0
+        message-enabled: true
+        message: "&6&lRANK BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      mod:
+        multiplier: 2.0
+        message-enabled: true
+        message: "&6&lRANK BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      helper:
+        multiplier: 1.5
+        message-enabled: true
+        message: "&6&lRANK BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      developer:
+        multiplier: 2.0
+        message-enabled: true
+        message: "&6&lRANK BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      dev:
+        multiplier: 2.0
+        message-enabled: true
+        message: "&6&lRANK BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      builder:
+        multiplier: 1.5
+        message-enabled: true
+        message: "&6&lRANK BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      
+      # VIP ranks
+      vip:
+        multiplier: 1.25
+        message-enabled: true
+        message: "&6&lVIP BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      vipplus:
+        multiplier: 1.5
+        message-enabled: true
+        message: "&6&lVIP+ BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      vip_plus:
+        multiplier: 1.5
+        message-enabled: true
+        message: "&6&lVIP+ BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      premium:
+        multiplier: 1.75
+        message-enabled: true
+        message: "&6&lPREMIUM BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      
+      # Content creator ranks
+      youtuber:
+        multiplier: 2.5
+        message-enabled: true
+        message: "&6&lYOUTUBER BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      youtube:
+        multiplier: 2.5
+        message-enabled: true
+        message: "&6&lYOUTUBER BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      streamer:
+        multiplier: 2.25
+        message-enabled: true
+        message: "&6&lSTREAMER BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      influencer:
+        multiplier: 2.0
+        message-enabled: true
+        message: "&6&lINFLUENCER BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      partner:
+        multiplier: 1.75
+        message-enabled: true
+        message: "&6&lPARTNER BONUS! &r&a+%bonus_coins% KGCoins &7(x%multiplier%)"
+      
+      # Default group (no multiplier)
+      # default:
+      #   multiplier: 1.0
+      #   message-enabled: false
+      #   message: ""
+  
+  # Knockback configuration
+  knockback:
+    # Knockback on hit
+    hit:
+      horizontal: 0.4
+      vertical: 0.385
+      resistance-reduction: 0.5
+      sprint-multiplier: 1.8
+    
+    # Knockback from arrows
+    arrow:
+      horizontal: 2.2
+      sprint-multiplier: 2.2
+    
+    # Knockback from endermites
+    endermite:
+      horizontal: 1.2
+      vertical: 0.45
+      level: 2
+    
+    # Maximum knockback limits
+    limits:
+      max-horizontal: 1.5
+      max-horizontal-arrow: 2.4
+      max-vertical: 0.5
+  
+  # Rank system based on ELO
+  ranks:
+    divine:
+      display: "&d&l[Divine]"
+      elo: 30500
+    grand_master:
+      display: "&4&l[Grand Master]"
+      elo: 25500
+    god:
+      display: "&b&l[God]"
+      elo: 20500
+    titan:
+      display: "&6&l[Titan]"
+      elo: 18500
+    immortal:
+      display: "&5&l[Immortal]"
+      elo: 16500
+    supreme:
+      display: "&c&l[Supreme]"
+      elo: 14500
+    mythic:
+      display: "&6&l[Mythic]"
+      elo: 12500
+    legend:
+      display: "&e&l[Legend]"
+      elo: 9500
+    hero:
+      display: "&a&l[Hero]"
+      elo: 8500
+    champion:
+      display: "&2&l[Champion]"
+      elo: 7500
+    master:
+      display: "&9&l[Master]"
+      elo: 6500
+    elite:
+      display: "&1&l[Elite]"
+      elo: 5500
+    veteran:
+      display: "&8&l[Veteran]"
+      elo: 4500
+    competitor:
+      display: "&7&l[Competitor]"
+      elo: 3500
+    apprentice:
+      display: "&f&l[Apprentice]"
+      elo: 2000
+    novice:
+      display: "&7[Novice]"
+      elo: 1000
+    random:
+      display: "&8[Random]"
+      elo: 500
+
+# ================================
+# IMPORTANT NOTES:
+# ================================
+# 1. Group names for rank-multipliers must exactly match LuckPerms
+# 2. Multipliers are applied to the base coins amount
+# 3. Example: Base coins = 8, multiplier = 2.0 → Total coins = 16 (8 base + 8 bonus)
+# 4. %bonus_coins% shows the extra coins from the multiplier
+# 5. %multiplier% shows the multiplier value (e.g., 2.0, 1.5)
+# 6. If a player doesn't have a configured group, no multiplier is applied
+# 7. Reload the configuration with: /kb reload
+# ================================

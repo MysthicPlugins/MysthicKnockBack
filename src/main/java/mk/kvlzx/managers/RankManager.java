@@ -8,23 +8,23 @@ import mk.kvlzx.MysthicKnockBack;
 
 public class RankManager {
     public enum Rank {
-        DIVINE(MysthicKnockBack.getInstance().getMainConfig().getDivineElo(), MysthicKnockBack.getInstance().getMainConfig().getDivineDisplay()),
-        GRAND_MASTER(MysthicKnockBack.getInstance().getMainConfig().getGrandMasterElo(), MysthicKnockBack.getInstance().getMainConfig().getGrandMasterDisplay()),
-        GOD(MysthicKnockBack.getInstance().getMainConfig().getGodElo(), MysthicKnockBack.getInstance().getMainConfig().getGodDisplay()),
-        TITAN(MysthicKnockBack.getInstance().getMainConfig().getTitanElo(), MysthicKnockBack.getInstance().getMainConfig().getTitanDisplay()),
-        IMMORTAL(MysthicKnockBack.getInstance().getMainConfig().getImmortalElo(), MysthicKnockBack.getInstance().getMainConfig().getImmortalDisplay()),
-        SUPREME(MysthicKnockBack.getInstance().getMainConfig().getSupremeElo(), MysthicKnockBack.getInstance().getMainConfig().getSupremeDisplay()),
-        MYTHIC(MysthicKnockBack.getInstance().getMainConfig().getMythicElo(), MysthicKnockBack.getInstance().getMainConfig().getMythicDisplay()),
-        LEGEND(MysthicKnockBack.getInstance().getMainConfig().getLegendElo(), MysthicKnockBack.getInstance().getMainConfig().getLegendDisplay()),
-        HERO(MysthicKnockBack.getInstance().getMainConfig().getHeroElo(), MysthicKnockBack.getInstance().getMainConfig().getHeroDisplay()),
-        CHAMPION(MysthicKnockBack.getInstance().getMainConfig().getChampionElo(), MysthicKnockBack.getInstance().getMainConfig().getChampionDisplay()),
-        MASTER(MysthicKnockBack.getInstance().getMainConfig().getMasterElo(), MysthicKnockBack.getInstance().getMainConfig().getMasterDisplay()),
-        ELITE(MysthicKnockBack.getInstance().getMainConfig().getEliteElo(), MysthicKnockBack.getInstance().getMainConfig().getEliteDisplay()),
-        VETERAN(MysthicKnockBack.getInstance().getMainConfig().getVeteranElo(), MysthicKnockBack.getInstance().getMainConfig().getVeteranDisplay()),
-        COMPETITOR(MysthicKnockBack.getInstance().getMainConfig().getCompetitorElo(), MysthicKnockBack.getInstance().getMainConfig().getCompetitorDisplay()),
-        APPRENTICE(MysthicKnockBack.getInstance().getMainConfig().getApprenticeElo(), MysthicKnockBack.getInstance().getMainConfig().getApprenticeDisplay()),
-        NOVICE(MysthicKnockBack.getInstance().getMainConfig().getNoviceElo(), MysthicKnockBack.getInstance().getMainConfig().getNoviceDisplay()),
-        RANDOM(MysthicKnockBack.getInstance().getMainConfig().getRandomElo(), MysthicKnockBack.getInstance().getMainConfig().getRandomDisplay());
+        DIVINE(MysthicKnockBack.getInstance().getCombatConfig().getDivineElo(), MysthicKnockBack.getInstance().getCombatConfig().getDivineDisplay()),
+        GRAND_MASTER(MysthicKnockBack.getInstance().getCombatConfig().getGrandMasterElo(), MysthicKnockBack.getInstance().getCombatConfig().getGrandMasterDisplay()),
+        GOD(MysthicKnockBack.getInstance().getCombatConfig().getGodElo(), MysthicKnockBack.getInstance().getCombatConfig().getGodDisplay()),
+        TITAN(MysthicKnockBack.getInstance().getCombatConfig().getTitanElo(), MysthicKnockBack.getInstance().getCombatConfig().getTitanDisplay()),
+        IMMORTAL(MysthicKnockBack.getInstance().getCombatConfig().getImmortalElo(), MysthicKnockBack.getInstance().getCombatConfig().getImmortalDisplay()),
+        SUPREME(MysthicKnockBack.getInstance().getCombatConfig().getSupremeElo(), MysthicKnockBack.getInstance().getCombatConfig().getSupremeDisplay()),
+        MYTHIC(MysthicKnockBack.getInstance().getCombatConfig().getMythicElo(), MysthicKnockBack.getInstance().getCombatConfig().getMythicDisplay()),
+        LEGEND(MysthicKnockBack.getInstance().getCombatConfig().getLegendElo(), MysthicKnockBack.getInstance().getCombatConfig().getLegendDisplay()),
+        HERO(MysthicKnockBack.getInstance().getCombatConfig().getHeroElo(), MysthicKnockBack.getInstance().getCombatConfig().getHeroDisplay()),
+        CHAMPION(MysthicKnockBack.getInstance().getCombatConfig().getChampionElo(), MysthicKnockBack.getInstance().getCombatConfig().getChampionDisplay()),
+        MASTER(MysthicKnockBack.getInstance().getCombatConfig().getMasterElo(), MysthicKnockBack.getInstance().getCombatConfig().getMasterDisplay()),
+        ELITE(MysthicKnockBack.getInstance().getCombatConfig().getEliteElo(), MysthicKnockBack.getInstance().getCombatConfig().getEliteDisplay()),
+        VETERAN(MysthicKnockBack.getInstance().getCombatConfig().getVeteranElo(), MysthicKnockBack.getInstance().getCombatConfig().getVeteranDisplay()),
+        COMPETITOR(MysthicKnockBack.getInstance().getCombatConfig().getCompetitorElo(), MysthicKnockBack.getInstance().getCombatConfig().getCompetitorDisplay()),
+        APPRENTICE(MysthicKnockBack.getInstance().getCombatConfig().getApprenticeElo(), MysthicKnockBack.getInstance().getCombatConfig().getApprenticeDisplay()),
+        NOVICE(MysthicKnockBack.getInstance().getCombatConfig().getNoviceElo(), MysthicKnockBack.getInstance().getCombatConfig().getNoviceDisplay()),
+        RANDOM(MysthicKnockBack.getInstance().getCombatConfig().getRandomElo(), MysthicKnockBack.getInstance().getCombatConfig().getRandomDisplay());
 
         private final int minElo;
         private final String displayName;

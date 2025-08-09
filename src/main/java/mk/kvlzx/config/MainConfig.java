@@ -69,68 +69,6 @@ public class MainConfig {
     private Boolean slimeBallKnockback;
     private Integer slimeBallKnockbackLevel;
 
-    private double featherSpeed;
-    private Integer defaultElo;
-    private Long combatLog;
-    private Integer eloMinGained;
-    private Integer eloMaxGained;
-    private Boolean eloGainedMessageEnabled;
-    private String eloGainedMessage;
-    private Integer eloMinLost;
-    private Integer eloMaxLost;
-    private Boolean eloLostMessageEnabled;
-    private String eloLostMessage;
-    private Integer kgcoinsGainedMin;
-    private Integer kgcoinsGainedMax;
-    private Boolean kgcoinsGainedMessageEnabled;
-    private String kgcoinsGainedMessage;
-    private double horizontalKnockback;
-    private double verticalKnockback;
-    private double knockbackReduction;
-    private Integer knockbackSprintMultiplier;
-    private double horizontalKnockbackArrow;
-    private double sprintKnockbackArrow;
-    private double knockbackHorizontalEndermite;
-    private double knockbackVerticalEndermite;
-    private Integer knockbackLevelEndermite;
-    private double maxKnockbackHorizontal;
-    private double maxKnockbackHorizontalArrow;
-    private double maxKnockbackVertical;
-    private String divineDisplay;
-    private Integer divineElo;
-    private String grandMasterDisplay;
-    private Integer grandMasterElo;
-    private String godDisplay;
-    private Integer godElo;
-    private String titanDisplay;
-    private Integer titanElo;
-    private String immortalDisplay;
-    private Integer immortalElo;
-    private String supremeDisplay;
-    private Integer supremeElo;
-    private String mythicDisplay;
-    private Integer mythicElo;
-    private String legendDisplay;
-    private Integer legendElo;
-    private String heroDisplay;
-    private Integer heroElo;
-    private String championDisplay;
-    private Integer championElo;
-    private String masterDisplay;
-    private Integer masterElo;
-    private String eliteDisplay;
-    private Integer eliteElo;
-    private String veteranDisplay;
-    private Integer veteranElo;
-    private String competitorDisplay;
-    private Integer competitorElo;
-    private String apprenticeDisplay;
-    private Integer apprenticeElo;
-    private String noviceDisplay;
-    private Integer noviceElo;
-    private String randomDisplay;
-    private Integer randomElo;
-
     private Boolean joinTitleEnabled;
     private String joinTitleTitle;
     private String joinTitleSubtitle;
@@ -334,68 +272,6 @@ public class MainConfig {
         slimeBallKnockback = config.getBoolean("config.hotbar.default.items.slime_ball.knockback.enabled");
         slimeBallKnockbackLevel = config.getInt("config.hotbar.default.items.slime_ball.knockback.level");
 
-        featherSpeed = config.getDouble("config.combat.speed");
-        defaultElo = config.getInt("config.combat.default-elo");
-        combatLog = config.getLong("config.combat.combat-log");
-        eloMinGained = config.getInt("config.combat.elo.min");
-        eloMaxGained = config.getInt("config.combat.elo.max");
-        eloGainedMessageEnabled = config.getBoolean("config.combat.elo.message-enabled");
-        eloGainedMessage = config.getString("config.combat.elo.message");
-        eloMinLost = config.getInt("config.combat.elo.death-elo-lost.min");
-        eloMaxLost = config.getInt("config.combat.elo.death-elo-lost.max");
-        eloLostMessageEnabled = config.getBoolean("config.combat.elo.death-elo-lost.message-enabled");
-        eloLostMessage = config.getString("config.combat.elo.death-elo-lost.message");
-        kgcoinsGainedMin = config.getInt("config.combat.kgcoins.min");
-        kgcoinsGainedMax = config.getInt("config.combat.kgcoins.max");
-        kgcoinsGainedMessageEnabled = config.getBoolean("config.combat.kgcoins.message-enabled");
-        kgcoinsGainedMessage = config.getString("config.combat.kgcoins.message");
-        horizontalKnockback = config.getDouble("config.combat.knockback-hit.horizontal-knockback");
-        verticalKnockback = config.getDouble("config.combat.knockback-hit.vertical-knockback");
-        knockbackReduction = config.getDouble("config.combat.knockback-hit.knockback-resistance-reduction");
-        knockbackSprintMultiplier = config.getInt("config.combat.knockback-hit.sprint-multiplier");
-        horizontalKnockbackArrow = config.getDouble("config.combat.knockback-arrow.horizontal-knockback");
-        sprintKnockbackArrow = config.getDouble("config.combat.knockback-arrow.sprint-multiplier");
-        knockbackHorizontalEndermite = config.getDouble("config.combat.knockback-endermite.horizontal-knockback");
-        knockbackVerticalEndermite = config.getDouble("config.combat.knockback-endermite.vertical-knockback");
-        knockbackLevelEndermite = config.getInt("config.combat.knockback-endermite.knockback-level");
-        maxKnockbackHorizontal = config.getDouble("config.combat.knockback-limits.max-horizontal-knockback");
-        maxKnockbackHorizontalArrow = config.getDouble("config.combat.knockback-limits.max-horizontal-knockback-arrow");
-        maxKnockbackVertical = config.getDouble("config.combat.knockback-limits.max-vertical-knockback");
-        divineDisplay = config.getString("config.combat.ranks.divine.display");
-        divineElo = config.getInt("config.combat.ranks.divine.elo");
-        grandMasterDisplay = config.getString("config.combat.ranks.grand_master.display");
-        grandMasterElo = config.getInt("config.combat.ranks.grand_master.elo");
-        godDisplay = config.getString("config.combat.ranks.god.display");
-        godElo = config.getInt("config.combat.ranks.god.elo");
-        titanDisplay = config.getString("config.combat.ranks.titan.display");
-        titanElo = config.getInt("config.combat.ranks.titan.elo");
-        immortalDisplay = config.getString("config.combat.ranks.immortal.display");
-        immortalElo = config.getInt("config.combat.ranks.immortal.elo");
-        supremeDisplay = config.getString("config.combat.ranks.supreme.display");
-        supremeElo = config.getInt("config.combat.ranks.supreme.elo");
-        mythicDisplay = config.getString("config.combat.ranks.mythic.display");
-        mythicElo = config.getInt("config.combat.ranks.mythic.elo");
-        legendDisplay = config.getString("config.combat.ranks.legend.display");
-        legendElo = config.getInt("config.combat.ranks.legend.elo");
-        heroDisplay = config.getString("config.combat.ranks.hero.display");
-        heroElo = config.getInt("config.combat.ranks.hero.elo");
-        championDisplay = config.getString("config.combat.ranks.champion.display");
-        championElo = config.getInt("config.combat.ranks.champion.elo");
-        masterDisplay = config.getString("config.combat.ranks.master.display");
-        masterElo = config.getInt("config.combat.ranks.master.elo");
-        eliteDisplay = config.getString("config.combat.ranks.elite.display");
-        eliteElo = config.getInt("config.combat.ranks.elite.elo");
-        veteranDisplay = config.getString("config.combat.ranks.veteran.display");
-        veteranElo = config.getInt("config.combat.ranks.veteran.elo");
-        competitorDisplay = config.getString("config.combat.ranks.competitor.display");
-        competitorElo = config.getInt("config.combat.ranks.competitor.elo");
-        apprenticeDisplay = config.getString("config.combat.ranks.apprentice.display");
-        apprenticeElo = config.getInt("config.combat.ranks.apprentice.elo");
-        noviceDisplay = config.getString("config.combat.ranks.novice.display");
-        noviceElo = config.getInt("config.combat.ranks.novice.elo");
-        randomDisplay = config.getString("config.combat.ranks.random.display");
-        randomElo = config.getInt("config.combat.ranks.random.elo");
-
         joinTitleEnabled = config.getBoolean("config.titles.join-title.enabled");
         joinTitleTitle = config.getString("config.titles.join-title.title");
         joinTitleSubtitle = config.getString("config.titles.join-title.subtitle");
@@ -413,7 +289,6 @@ public class MainConfig {
         reportCooldownMessage = config.getString("config.report.messages.cooldown");
         reportMessage = config.getString("config.report.messages.report-message");
         reportStaffMessage = config.getString("config.report.messages.report-message-staff");
-
 
         powerUpPickupRadius = config.getDouble("config.powerups.pickup-radius");
         powerUpTime = config.getInt("config.powerups.time");
@@ -655,70 +530,8 @@ public class MainConfig {
     public String getSlimeBallId() { return slimeBallId; }
     public String getSlimeBallName() { return slimeBallName; }
     public String getSlimeBallLore() { return slimeBallLore; }
-    public Boolean getSlimeBallKnoback() { return slimeBallKnockback; }
+    public Boolean getSlimeBallKnockback() { return slimeBallKnockback; }
     public Integer getSlimeBallKnockbackLevel() { return slimeBallKnockbackLevel; }
-
-    public double getFeatherSpeed() { return featherSpeed; }
-    public Integer getDefaultElo() { return defaultElo; }
-    public Long getCombatLog() { return combatLog; }
-    public Integer getEloMinGained() { return eloMinGained; }
-    public Integer getEloMaxGained() { return eloMaxGained; }
-    public Boolean getEloGainedMessageEnabled() {return eloGainedMessageEnabled; }
-    public String getEloGainedMessage() { return eloGainedMessage; }
-    public Integer getEloMinLost() { return eloMinLost; }
-    public Integer getEloMaxLost() { return eloMaxLost; }
-    public Boolean getEloLostMessageEnabled() {return eloLostMessageEnabled; }
-    public String getEloLostMessage() { return eloLostMessage; }
-    public Integer getKgCoinsGainedMin() { return kgcoinsGainedMin; }
-    public Integer getKgCoinsGainedMax() { return kgcoinsGainedMax; }
-    public Boolean getKgCoinsGainedMessageEnabled() {return kgcoinsGainedMessageEnabled; }
-    public String getKgCoinsGainedMessage() { return kgcoinsGainedMessage; }
-    public double getHorizontalKnockback() { return horizontalKnockback; }
-    public double getVerticalKnockback() { return verticalKnockback; }
-    public double getKnockbackReduction() { return knockbackReduction; }
-    public Integer getKnockbackSprintMultiplier() { return knockbackSprintMultiplier; }
-    public double getHorizontalKnockbackArrow() { return horizontalKnockbackArrow; }
-    public double getSprintKnockbackArrow() { return sprintKnockbackArrow; }
-    public double getKnockbackHorizontalEndermite() { return knockbackHorizontalEndermite; }
-    public double getKnockbackVerticalEndermite() { return knockbackVerticalEndermite; }
-    public Integer getKnockbackLevelEndermite() { return knockbackLevelEndermite; }
-    public double getMaxKnockbackHorizontal() { return maxKnockbackHorizontal; }
-    public double getMaxKnockbackHorizontalArrow() { return maxKnockbackHorizontalArrow; }
-    public double getMaxKnockbackVertical() { return maxKnockbackVertical; }
-    public String getDivineDisplay() { return divineDisplay; }
-    public Integer getDivineElo() {  return divineElo; }
-    public String getGrandMasterDisplay() { return grandMasterDisplay; }
-    public Integer getGrandMasterElo() { return grandMasterElo; }
-    public String getGodDisplay() { return godDisplay; }
-    public Integer getGodElo() { return godElo; }
-    public String getTitanDisplay() { return titanDisplay; }
-    public Integer getTitanElo() { return titanElo; }
-    public String getImmortalDisplay() { return immortalDisplay; }
-    public Integer getImmortalElo() { return immortalElo; }
-    public String getSupremeDisplay() { return supremeDisplay; }
-    public Integer getSupremeElo() { return supremeElo; }
-    public String getMythicDisplay() { return mythicDisplay; }
-    public Integer getMythicElo() { return mythicElo; }
-    public String getLegendDisplay() { return legendDisplay; }
-    public Integer getLegendElo() { return legendElo; }
-    public String getHeroDisplay() { return heroDisplay; }
-    public Integer getHeroElo() { return heroElo; }
-    public String getChampionDisplay() { return championDisplay; }
-    public Integer getChampionElo() { return championElo; }
-    public String getMasterDisplay() { return masterDisplay; }
-    public Integer getMasterElo() { return masterElo; }
-    public String getEliteDisplay() { return eliteDisplay; }
-    public Integer getEliteElo() { return eliteElo; }
-    public String getVeteranDisplay() { return veteranDisplay; }
-    public Integer getVeteranElo() { return veteranElo; }
-    public String getCompetitorDisplay() { return competitorDisplay; }
-    public Integer getCompetitorElo() { return competitorElo; }
-    public String getApprenticeDisplay() { return apprenticeDisplay; }
-    public Integer getApprenticeElo() { return apprenticeElo; }
-    public String getNoviceDisplay() { return noviceDisplay; }
-    public Integer getNoviceElo() { return noviceElo; }
-    public String getRandomDisplay() { return randomDisplay; }
-    public Integer getRandomElo() { return randomElo; }
 
     public Boolean getJoinTitleEnabled() { return joinTitleEnabled; }
     public String getJoinTitleTitle() { return joinTitleTitle; }
