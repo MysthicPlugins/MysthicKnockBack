@@ -23,7 +23,11 @@ public class ChatConfig {
     private Boolean tabEnabled;
     private String tabDefaultFormat;
     private String tabDefaultDisplayName;
-    private LinkedHashMap<String, TabGroupFormat> tabGroupFormats; // Nueva estructura para tab-format y display-name
+    private LinkedHashMap<String, TabGroupFormat> tabGroupFormats;
+
+    // Join messages configuration
+    private Boolean joinMessagesEnabled;
+    private Map<String, String> groupJoinMessages;
 
     public ChatConfig(MysthicKnockBack plugin) {
         this.plugin = plugin;
@@ -40,6 +44,9 @@ public class ChatConfig {
         
         // Cargar configuración de tab
         loadTabConfig(config);
+        
+        // Cargar configuración de join messages
+        loadJoinMessagesConfig(config);
     }
 
     private void loadChatConfig(FileConfiguration config) {
@@ -112,6 +119,24 @@ public class ChatConfig {
         }
     }
 
+    private void loadJoinMessagesConfig(FileConfiguration config) {
+        joinMessagesEnabled = config.getBoolean("join-messages.enabled", true);
+        
+        // Cargar mensajes por grupo para join messages
+        groupJoinMessages = new HashMap<>();
+        if (config.contains("join-messages.group-messages")) {
+            ConfigurationSection groupJoinMessagesSection = config.getConfigurationSection("join-messages.group-messages");
+            if (groupJoinMessagesSection != null) {
+                for (String groupName : groupJoinMessagesSection.getKeys(false)) {
+                    String message = groupJoinMessagesSection.getString(groupName);
+                    if (message != null && !message.trim().isEmpty()) {
+                        groupJoinMessages.put(groupName.toLowerCase(), message);
+                    }
+                }
+            }
+        }
+    }
+
     public void reload() {
         configFile.reloadConfig();
         
@@ -121,6 +146,9 @@ public class ChatConfig {
         }
         if (tabGroupFormats != null) {
             tabGroupFormats.clear();
+        }
+        if (groupJoinMessages != null) {
+            groupJoinMessages.clear();
         }
         
         // Recargar completamente la configuración
@@ -223,6 +251,31 @@ public class ChatConfig {
         return tabGroupFormats.keySet().toArray(new String[0]);
     }
 
+    // ======== JOIN MESSAGES GETTERS ========
+    public Boolean isJoinMessagesEnabled() {
+        return joinMessagesEnabled;
+    }
+
+    public String getGroupJoinMessage(String groupName) {
+        if (groupName == null || groupName.trim().isEmpty()) {
+            return null; // Sin mensaje personalizado, usar el sistema default
+        }
+        
+        return groupJoinMessages.get(groupName.toLowerCase());
+    }
+
+    public Map<String, String> getAllGroupJoinMessages() {
+        return new HashMap<>(groupJoinMessages);
+    }
+
+    public boolean hasGroupJoinMessage(String groupName) {
+        if (groupName == null || groupName.trim().isEmpty()) {
+            return false;
+        }
+        
+        return groupJoinMessages.containsKey(groupName.toLowerCase());
+    }
+
     // ======== CHAT SETTERS ========
     public void setChatEnabled(boolean enabled) {
         this.chatEnabled = enabled;
@@ -288,6 +341,34 @@ public class ChatConfig {
         }
     }
 
+    // ======== JOIN MESSAGES SETTERS ========
+    public void setJoinMessagesEnabled(boolean enabled) {
+        this.joinMessagesEnabled = enabled;
+        configFile.getConfig().set("join-messages.enabled", enabled);
+        configFile.saveConfig();
+    }
+
+    public void setGroupJoinMessage(String groupName, String message) {
+        if (groupName != null && !groupName.trim().isEmpty()) {
+            if (message != null && !message.trim().isEmpty()) {
+                groupJoinMessages.put(groupName.toLowerCase(), message);
+                configFile.getConfig().set("join-messages.group-messages." + groupName.toLowerCase(), message);
+            } else {
+                groupJoinMessages.remove(groupName.toLowerCase());
+                configFile.getConfig().set("join-messages.group-messages." + groupName.toLowerCase(), null);
+            }
+            configFile.saveConfig();
+        }
+    }
+
+    public void removeGroupJoinMessage(String groupName) {
+        if (groupName != null && !groupName.trim().isEmpty()) {
+            groupJoinMessages.remove(groupName.toLowerCase());
+            configFile.getConfig().set("join-messages.group-messages." + groupName.toLowerCase(), null);
+            configFile.saveConfig();
+        }
+    }
+
     // ======== UTILITY METHODS ========
     
     // Método para obtener el formato efectivo de chat (considerando jerarquía)
@@ -323,6 +404,11 @@ public class ChatConfig {
         return displayName;
     }
 
+    // Método para obtener el mensaje de join efectivo (considerando jerarquía)
+    public String getEffectiveJoinMessage(String primaryGroup) {
+        return getGroupJoinMessage(primaryGroup);
+    }
+
     // Método para validar formato (verificar placeholders básicos)
     public boolean isValidChatFormat(String format) {
         if (format == null || format.trim().isEmpty()) {
@@ -340,6 +426,14 @@ public class ChatConfig {
         return format.contains("%player_name%");
     }
 
+    public boolean isValidJoinMessage(String message) {
+        if (message == null || message.trim().isEmpty()) {
+            return false;
+        }
+        
+        return message.contains("%player%") || message.contains("%player_name%");
+    }
+
     // Método para listar todos los grupos disponibles
     public String[] getAvailableChatGroups() {
         return groupFormats.keySet().toArray(new String[0]);
@@ -349,6 +443,10 @@ public class ChatConfig {
         return tabGroupFormats.keySet().toArray(new String[0]);
     }
 
+    public String[] getAvailableJoinMessageGroups() {
+        return groupJoinMessages.keySet().toArray(new String[0]);
+    }
+
     // Método para contar formatos configurados
     public int getChatGroupFormatCount() {
         return groupFormats.size();
@@ -356,6 +454,10 @@ public class ChatConfig {
 
     public int getTabGroupFormatCount() {
         return tabGroupFormats.size();
+    }
+
+    public int getJoinMessageGroupCount() {
+        return groupJoinMessages.size();
     }
 
     // Clase interna para representar formatos de tab

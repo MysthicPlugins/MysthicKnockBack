@@ -6,8 +6,10 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
@@ -18,6 +20,9 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+
+import me.clip.placeholderapi.PlaceholderAPI;
+
 import org.bukkit.Bukkit;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +43,9 @@ import mk.kvlzx.items.CustomItem;
 import mk.kvlzx.items.ItemsManager;
 import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.utils.TitleUtils;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
 import mk.kvlzx.arena.Arena;
 import mk.kvlzx.arena.Zone;
 import mk.kvlzx.config.DeathMessagesShopConfig;
@@ -52,6 +60,8 @@ import mk.kvlzx.menu.Menu;
 public class PlayerListener implements Listener {
     private final MysthicKnockBack plugin;
     private final Random random = new Random();
+    private LuckPerms luckPerms;
+    private boolean luckPermsEnabled;
 
     private static final List<String> DEATH_MESSAGES = MysthicKnockBack.getInstance().getMessagesConfig().getDeathMessages();
 
@@ -61,26 +71,43 @@ public class PlayerListener implements Listener {
 
     public PlayerListener(MysthicKnockBack plugin) {
         this.plugin = plugin;
+        this.luckPermsEnabled = setupLuckPerms();
+    }
+
+    private boolean setupLuckPerms() {
+        try {
+            if (plugin.getServer().getPluginManager().getPlugin("LuckPerms") != null) {
+                this.luckPerms = LuckPermsProvider.get();
+                return true;
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to hook into LuckPerms in PlayerListener: " + e.getMessage());
+        }
+        return false;
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UUID playerId = player.getUniqueId();
-        String playerName = player.getName();
         
-        String messageName = plugin.getCosmeticManager().getPlayerJoinMessage(playerId);
+        // Primero verificar si hay mensaje personalizado por grupo de LuckPerms
+        String joinMessage = getJoinMessageForPlayer(player);
         
-        String joinMessage;
-        if (messageName.equals("default")) {
-            joinMessage = JOIN_MESSAGES.get(random.nextInt(JOIN_MESSAGES.size()));
-        } else {
-            JoinMessagesShopConfig.JoinMessageItem messageItem = getJoinMessageByName(messageName);
-            joinMessage = messageItem != null ? messageItem.getMessage() : JOIN_MESSAGES.get(0);
+        // Si no hay mensaje personalizado de grupo, usar el sistema de cosméticos o default
+        if (joinMessage == null) {
+            String messageName = plugin.getCosmeticManager().getPlayerJoinMessage(playerId);
+            
+            if (messageName.equals("default")) {
+                joinMessage = JOIN_MESSAGES.get(random.nextInt(JOIN_MESSAGES.size()));
+            } else {
+                JoinMessagesShopConfig.JoinMessageItem messageItem = getJoinMessageByName(messageName);
+                joinMessage = messageItem != null ? messageItem.getMessage() : JOIN_MESSAGES.get(0);
+            }
         }
         
         // Establecer el mensaje inmediatamente (debe ser síncrono)
-        String finalJoinMessage = MessageUtils.getColor(joinMessage.replace("%player%", playerName));
+        String finalJoinMessage = formatJoinMessage(player, joinMessage);
         event.setJoinMessage(finalJoinMessage);
         
         // Asegurarnos de limpiar cualquier efecto residual
@@ -341,6 +368,62 @@ public class PlayerListener implements Listener {
         }
         
         event.setCancelled(true);
+    }
+
+    // NUEVO: EventHandler para bloquear interacciones con bloques con inventarios y huevos de dragón
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerInteractWithBlocks(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        
+        // Permitir todas las interacciones si está en modo creativo
+        if (player.getGameMode() == GameMode.CREATIVE) {
+            return;
+        }
+        
+        // Solo procesar clicks en bloques
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
+        
+        Block clickedBlock = event.getClickedBlock();
+        if (clickedBlock == null) {
+            return;
+        }
+        
+        Material blockType = clickedBlock.getType();
+        
+        // Lista de bloques con inventarios que queremos bloquear
+        if (isInventoryBlock(blockType) || isDragonEgg(blockType)) {
+            event.setCancelled(true);
+            return;
+        }
+    }
+    
+    // Método para verificar si un bloque tiene inventario
+    private boolean isInventoryBlock(Material material) {
+        switch (material) {
+            case CHEST:
+            case TRAPPED_CHEST:
+            case ENDER_CHEST:
+            case FURNACE:
+            case BURNING_FURNACE:
+            case DISPENSER:
+            case DROPPER:
+            case HOPPER:
+            case BREWING_STAND:
+            case BEACON:
+            case ANVIL:
+            case ENCHANTMENT_TABLE:
+            case WORKBENCH:
+                return true;
+            default:
+                return false;
+        }
+    }
+    
+    // Método para verificar si es un huevo de dragón
+    private boolean isDragonEgg(Material material) {
+        return material == Material.DRAGON_EGG;
     }
 
     @EventHandler
@@ -629,6 +712,62 @@ public class PlayerListener implements Listener {
             }
         }
         return null;
+    }
+
+    private String getJoinMessageForPlayer(Player player) {
+        // Si no hay LuckPerms o los mensajes de join no están habilitados, retornar null
+        if (!luckPermsEnabled || !plugin.getChatConfig().isJoinMessagesEnabled()) {
+            return null;
+        }
+
+        // Obtener el grupo primario del jugador
+        String primaryGroup = getPlayerPrimaryGroup(player);
+        if (primaryGroup != null) {
+            String groupMessage = plugin.getChatConfig().getGroupJoinMessage(primaryGroup);
+            if (groupMessage != null) {
+                return groupMessage;
+            }
+        }
+
+        return null; // No hay mensaje personalizado de grupo
+    }
+
+    private String getPlayerPrimaryGroup(Player player) {
+        if (!luckPermsEnabled) {
+            return null;
+        }
+
+        try {
+            User user = luckPerms.getUserManager().getUser(player.getUniqueId());
+            if (user != null) {
+                return user.getPrimaryGroup();
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Error getting LuckPerms group for player " + player.getName() + " in PlayerListener: " + e.getMessage());
+        }
+        
+        return "default";
+    }
+
+    private String formatJoinMessage(Player player, String message) {
+        if (message == null || message.trim().isEmpty()) {
+            return "";
+        }
+        
+        // Reemplazar placeholders básicos del jugador
+        String formattedMessage = message
+                .replace("%player_name%", player.getName())
+                .replace("%player%", player.getName());
+
+        // Aplicar placeholders de PlaceholderAPI si está disponible
+        if (plugin.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            formattedMessage = PlaceholderAPI.setPlaceholders(player, formattedMessage);
+        }
+
+        // Aplicar colores
+        formattedMessage = MessageUtils.getColor(formattedMessage);
+        
+        return formattedMessage;
     }
 
     private void respawnPlayerAtSpawn(Player player, Arena arena) {

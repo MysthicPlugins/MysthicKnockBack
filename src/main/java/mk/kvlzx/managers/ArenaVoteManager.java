@@ -109,13 +109,13 @@ public class ArenaVoteManager {
 
         TextComponent yesButton = new TextComponent(MessageUtils.getColor(mainConfig.getArenaVoteClickeableYes()));
         yesButton.setBold(true);
-        yesButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/arenavote yes"));
+        yesButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/arenuvote yes"));
         yesButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                 new ComponentBuilder(MessageUtils.getColor(mainConfig.getArenaVoteHoverYes())).create()));
 
         TextComponent noButton = new TextComponent(MessageUtils.getColor(mainConfig.getArenaVoteClickeableNo()));
         noButton.setBold(true);
-        noButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/arenavote no"));
+        noButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/arenuvote no"));
         noButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                 new ComponentBuilder(MessageUtils.getColor(mainConfig.getArenaVoteHoverNo())).create()));
 

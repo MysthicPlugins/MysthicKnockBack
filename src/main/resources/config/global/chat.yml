@@ -165,6 +165,19 @@ tab:
       tab-format: "%kbffa_rank% &f%player_name% &8[&f%player_ping%ms&8]"
       display-name: "%kbffa_rank% &f%player_name%"
 
+join-messages:
+  enabled: true
+  
+  # Custom messages for LuckPerms groups when a player joins
+  # If a player belongs to a group listed here, this message will be used
+  # Otherwise, it will use the default join message
+  group-messages:
+    owner: "&8[&a+&8] &c&lOWNER &f%player_name% &7has joined the server!"
+    admin: "&8[&a+&8] &4&lADMIN &f%player_name% &7has joined the server!"
+    mod: "&8[&a+&8] &6&lMOD &f%player_name% &7has joined the server!"
+    vip: "&8[&a+&8] &b&lVIP &f%player_name% &7has joined the server!"
+    # No specific message for 'default' group, it will use the default join message
+
 # ================================
 # IMPORTANT NOTES:
 # ================================

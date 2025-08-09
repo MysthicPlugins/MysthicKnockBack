@@ -17,6 +17,7 @@ commands:
     description: Command to report a player
   arena:
     description: Command to define an arena
+    permission: mysthicknockback.arena
   stats:
     description: Command to manage statistics
     aliases: [statistics]
@@ -25,6 +26,7 @@ commands:
   arenavote:
     description: Open arena voting menu
     usage: /arenavote
+    permission: mysthicknockback.vote.start
   arenuvote:
     description: Vote for arena change (internal)
     usage: /arenuvote <yes|no>
