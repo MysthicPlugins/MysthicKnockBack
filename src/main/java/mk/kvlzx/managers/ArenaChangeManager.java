@@ -59,6 +59,7 @@ public class ArenaChangeManager {
         // Congelar a todos los jugadores
         for (Player player : Bukkit.getOnlinePlayers()) {
             freezePlayer(player);
+            plugin.getFlyManager().disableAllFly();
         }
     }
     
@@ -211,6 +212,8 @@ public class ArenaChangeManager {
             
             // Configurar protección
             player.setNoDamageTicks(60);
+            // Verificar si el jugador puede tener fly activado en la nueva zona
+            plugin.getFlyManager().checkPlayer(player);
             player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1.0f, 1.0f);
         }
         

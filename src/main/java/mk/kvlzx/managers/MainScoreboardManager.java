@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -76,6 +77,7 @@ public class MainScoreboardManager {
         // Iniciar actualización de nametags si el tab está habilitado
         if (chatConfig.isTabEnabled()) {
             startNameTagUpdater();
+            startInvisibilityChecker();
         }
     }
 
@@ -142,6 +144,33 @@ public class MainScoreboardManager {
                 }
             }
         }.runTaskTimer(plugin, 20L, 20L); // Actualizar cada segundo
+    }
+
+    private void startInvisibilityChecker() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!chatConfig.isTabEnabled()) {
+                    this.cancel();
+                    return;
+                }
+                
+                // Verificar todos los jugadores para cambios en invisibilidad
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    UUID playerId = player.getUniqueId();
+                    String lastNameTag = lastNameTagCache.get(playerId);
+                    boolean isCurrentlyInvisible = player.hasPotionEffect(PotionEffectType.INVISIBILITY);
+                    
+                    // Determinar si el nametag estaba oculto antes
+                    boolean wasHidden = (lastNameTag != null && lastNameTag.isEmpty());
+                    
+                    // Si cambió el estado de invisibilidad, forzar actualización
+                    if (isCurrentlyInvisible != wasHidden) {
+                        updatePlayerNameTag(player);
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 40L, 20L); // Verificar cada segundo después de 2 segundos iniciales
     }
 
     private void updatePlayerScoreboard(Player player) {
@@ -243,6 +272,85 @@ public class MainScoreboardManager {
         }
     }
 
+
+    /**
+     * Obtener el nombre de team que debería tener un jugador (público para verificación)
+     */
+    public String getExpectedTeamName(Player player) {
+        return getTeamNameForTabOrder(player);
+    }
+
+    /**
+     * Verificar si un jugador tiene el team correcto en todos los scoreboards
+     */
+    public boolean playerHasCorrectTeam(Player player, String expectedTeamName) {
+        String playerName = player.getName();
+        
+        // Verificar en al menos algunos scoreboards si el jugador tiene el team correcto
+        int correctTeams = 0;
+        int totalChecked = 0;
+        
+        for (Scoreboard board : playerScoreboards.values()) {
+            if (board == null) continue;
+            
+            totalChecked++;
+            Team playerTeam = board.getEntryTeam(playerName);
+            
+            if (playerTeam != null && playerTeam.getName().equals(expectedTeamName)) {
+                correctTeams++;
+            }
+            
+            // Solo verificar algunos para eficiencia
+            if (totalChecked >= 3) break;
+        }
+        
+        // Considerar correcto si al menos el 50% tiene el team esperado
+        return totalChecked > 0 && (correctTeams * 2 >= totalChecked);
+    }
+
+    /**
+     * Forzar actualización completa del sistema de nametags para un jugador específico
+     */
+    public void forcePlayerNameTagUpdate(Player player) {
+        if (!chatConfig.isTabEnabled()) {
+            return;
+        }
+        
+        UUID playerId = player.getUniqueId();
+        
+        // Limpiar el cache para forzar actualización
+        lastNameTagCache.remove(playerId);
+        
+        // Limpiar teams existentes del jugador en todos los scoreboards
+        String teamName = getTeamNameForTabOrder(player);
+        for (Scoreboard board : playerScoreboards.values()) {
+            if (board == null) continue;
+            
+            Team existingTeam = board.getTeam(teamName);
+            if (existingTeam != null) {
+                try {
+                    existingTeam.removeEntry(player.getName());
+                    // No desregistrar el team, solo remover la entrada
+                } catch (Exception e) {
+                    // Ignorar errores
+                }
+            }
+        }
+        
+        // Forzar actualización inmediata
+        updatePlayerNameTag(player);
+        
+        // Delay adicional para asegurar propagación
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (player.isOnline()) {
+                    updatePlayerNameTag(player);
+                }
+            }
+        }.runTaskLater(plugin, 5L);
+    }
+
     /**
      * Actualizar nametags para un jugador específico
      */
@@ -252,6 +360,12 @@ public class MainScoreboardManager {
         }
 
         UUID playerId = player.getUniqueId();
+        
+        // NUEVO: Verificar si el jugador está completamente cargado
+        if (!player.isOnline()) {
+            return;
+        }
+        
         Scoreboard board = playerScoreboards.get(playerId);
         
         // Si no tiene scoreboard, crear una básica
@@ -261,17 +375,35 @@ public class MainScoreboardManager {
             player.setScoreboard(board);
         }
 
-        // Obtener display name personalizado para este jugador
-        String displayName = getTabDisplayName(player);
+        // NUEVO: Verificar si el jugador tiene invisibilidad activa
+        boolean isInvisible = player.hasPotionEffect(org.bukkit.potion.PotionEffectType.INVISIBILITY);
         
-        // Solo actualizar si cambió
+        // Obtener display name personalizado para este jugador
+        String displayName;
+        if (isInvisible) {
+            displayName = "";
+        } else {
+            displayName = getTabDisplayName(player);
+        }
+        
+        // NUEVO: Siempre actualizar si es la primera vez o si cambió
         String lastNameTag = lastNameTagCache.get(playerId);
-        if (displayName.equals(lastNameTag)) {
-            return;
+        boolean isFirstTime = (lastNameTag == null);
+        
+        if (!isFirstTime && displayName.equals(lastNameTag)) {
+            return; // No cambió, no actualizar
         }
 
         // Separar prefix y suffix del display name
-        NameTagData nameTagData = parseNameTagData(displayName, player);
+        NameTagData nameTagData;
+        if (isInvisible) {
+            nameTagData = new NameTagData("", "");
+        } else {
+            nameTagData = parseNameTagData(displayName, player);
+        }
+
+        // NUEVO: Obtener el nombre del team ANTES del loop
+        String teamName = getTeamNameForTabOrder(player);
 
         // Actualizar nametags para todos los jugadores
         for (Player target : Bukkit.getOnlinePlayers()) {
@@ -284,8 +416,6 @@ public class MainScoreboardManager {
                 target.setScoreboard(targetBoard);
             }
 
-            // CLAVE: Usar un nombre de team que controle el orden en el tab
-            String teamName = getTeamNameForTabOrder(player);
             Team team = targetBoard.getTeam(teamName);
             
             if (team == null) {
@@ -298,14 +428,21 @@ public class MainScoreboardManager {
                 }
             }
             
+            // NUEVO: Verificar si el jugador ya está en el team
+            if (!team.hasEntry(player.getName())) {
+                // NUEVO: Remover de otros teams primero (en caso de duplicados)
+                for (Team otherTeam : targetBoard.getTeams()) {
+                    if (otherTeam.hasEntry(player.getName()) && !otherTeam.equals(team)) {
+                        otherTeam.removeEntry(player.getName());
+                    }
+                }
+                
+                team.addEntry(player.getName());
+            }
+            
             // Actualizar prefix y suffix
             team.setPrefix(MessageUtils.getColor(nameTagData.getPrefix()));
             team.setSuffix(MessageUtils.getColor(nameTagData.getSuffix()));
-            
-            // Añadir jugador al team si no está
-            if (!team.hasEntry(player.getName())) {
-                team.addEntry(player.getName());
-            }
         }
 
         // Actualizar cache

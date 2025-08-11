@@ -18,10 +18,13 @@ import mk.kvlzx.arena.ArenaManager;
 import mk.kvlzx.commands.ArenaCommand;
 import mk.kvlzx.commands.ArenaTabCompleter;
 import mk.kvlzx.commands.ArenaVoteCommand;
+import mk.kvlzx.commands.FlyCommand;
 import mk.kvlzx.commands.MainCommand;
 import mk.kvlzx.commands.MainTabCompleter;
 import mk.kvlzx.commands.StatsCommand;
 import mk.kvlzx.commands.StatsTabCompleter;
+import mk.kvlzx.commands.TopCommand;
+import mk.kvlzx.commands.TopTabCompleter;
 import mk.kvlzx.config.ArenaSelectMenuConfig;
 import mk.kvlzx.config.ArrowEffectsShopConfig;
 import mk.kvlzx.config.BlocksShopConfig;
@@ -61,6 +64,7 @@ import mk.kvlzx.managers.ArenaChangeManager;
 import mk.kvlzx.managers.ArenaVoteManager;
 import mk.kvlzx.managers.CombatManager;
 import mk.kvlzx.managers.CooldownManager;
+import mk.kvlzx.managers.FlyManager;
 import mk.kvlzx.managers.ItemVerificationManager;
 import mk.kvlzx.managers.MainScoreboardManager;
 import mk.kvlzx.managers.TabManager;
@@ -93,6 +97,7 @@ public class MysthicKnockBack extends JavaPlugin {
     private ArenaChangeManager arenaChangeManager;
     private ArenaVoteManager arenaVoteManager;
     private WorldManager worldManager;
+    private FlyManager flyManager;
     private ItemListener itemListener;
     private EndermiteListener endermiteListener;
     private MessagesConfig messagesConfig;
@@ -261,6 +266,10 @@ public class MysthicKnockBack extends JavaPlugin {
             musicManager.onDisable();
         }
 
+        if (flyManager != null) {
+            flyManager.disableAllFly();
+        }
+
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&c✕&8] &cPlugin disabled successfully");
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
@@ -282,6 +291,7 @@ public class MysthicKnockBack extends JavaPlugin {
         arenaChangeManager = new ArenaChangeManager(this);
         arenaVoteManager = new ArenaVoteManager(this);
         worldManager = new WorldManager(this);
+        flyManager = new FlyManager(this);
     }
 
     private void startPlaytimeUpdater() {
@@ -524,6 +534,9 @@ public class MysthicKnockBack extends JavaPlugin {
         getCommand("report").setExecutor(new ReportCommand(this));
         getCommand("arenavote").setExecutor(new ArenaVoteCommand(this));
         getCommand("arenuvote").setExecutor(new ArenaVoteCommand(this));
+        getCommand("fly").setExecutor(new FlyCommand(this));
+        getCommand("top").setExecutor(new TopCommand(this));
+        getCommand("top").setTabCompleter(new TopTabCompleter());
     }
 
     public void registerEvents() {
@@ -704,6 +717,10 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public CombatConfig getCombatConfig() {
         return combatConfig;
+    }
+
+    public FlyManager getFlyManager() {
+        return flyManager;
     }
 
 }

@@ -45,7 +45,17 @@ public class MessagesConfig {
     private String statsResetSuccess;
     private String statsResetAllSuccess;
     private String statsStatUpdated;
+    private String statsStatOperationSet;
+    private String statsStatOperationAdded;
+    private String statsStatOperationRemoved;
     private List<String> statsFormat;
+
+    private String flyNonInArena;
+    private String flyEnabled;
+    private String flyDisabled;
+
+    private String topUsage;
+    private String topNotFound;
 
     private List<String> joinMessages;
     private List<String> deathMessages;
@@ -99,7 +109,17 @@ public class MessagesConfig {
         statsResetSuccess = config.getString("messages.commands.stats.reset-success");
         statsResetAllSuccess = config.getString("messages.commands.stats.resetall-success");
         statsStatUpdated = config.getString("messages.commands.stats.stat-updated");
+        statsStatOperationSet = config.getString("messages.commands.stats.operation.set");
+        statsStatOperationAdded = config.getString("messages.commands.stats.operation.added");
+        statsStatOperationRemoved = config.getString("messages.commands.stats.operation.removed");
         statsFormat = config.getStringList("messages.commands.stats.format");
+
+        flyNonInArena = config.getString("messages.commands.fly.non-in-spawn-zone");
+        flyEnabled = config.getString("messages.commands.fly.fly-enabled");
+        flyDisabled = config.getString("messages.commands.fly.fly-disabled");
+
+        topUsage = config.getString("messages.commands.top.usage");
+        topNotFound = config.getString("messages.commands.top.not-found");
 
         joinMessages = config.getStringList("messages.join-messages");
         deathMessages = config.getStringList("messages.death-messages");
@@ -147,9 +167,21 @@ public class MessagesConfig {
     public String getStatsResetSuccess() { return statsResetSuccess; }
     public String getStatsResetAllSuccess() { return statsResetAllSuccess; }
     public String getStatsStatUpdated() { return statsStatUpdated; }
+    public String getStatsStatOperationSet() { return statsStatOperationSet; }
+    public String getStatsStatOperationAdded() { return statsStatOperationAdded; }
+    public String getStatsStatOperationRemoved() { return statsStatOperationRemoved;}
     public List<String> getStatsFormat() { return statsFormat; }
+
+    public String getFlyNonInArena() { return flyNonInArena; }
+    public String getFlyEnabled() { return flyEnabled; }
+    public String getFlyDisabled() { return flyDisabled; }
+
+    public String getTopUsage() { return topUsage; }
+
+    public String getTopNotFound() { return topNotFound; }
 
     public List<String> getJoinMessages() { return joinMessages; }
     public List<String> getDeathMessages() { return deathMessages; }
     public List<String> getKillMessages() { return killMessages; }
+
 }

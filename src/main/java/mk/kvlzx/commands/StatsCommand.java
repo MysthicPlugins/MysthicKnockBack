@@ -180,8 +180,8 @@ public class StatsCommand implements CommandExecutor {
                 return;
         }
 
-        String operationName = operation.equals("set") ? "set" : 
-                                operation.equals("add") ? "added" : "removed";
+        String operationName = operation.equals("set") ? messages.getStatsStatOperationSet() : 
+                                operation.equals("add") ? messages.getStatsStatOperationAdded() : messages.getStatsStatOperationRemoved();
         sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getStatsStatUpdated()
             .replace("%operation%", operationName)
             .replace("%amount%", String.valueOf(amount))

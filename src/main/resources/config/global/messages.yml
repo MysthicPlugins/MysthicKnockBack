@@ -21,7 +21,7 @@ messages:
         - "/stats resetall"
         - "/music"
         - "/report"
-        -  "/arenavote"
+        - "/arenavote"
         - "--------&r &b&lCommands MysthicKnockBack &8&m--------"
     arena:
       create:
@@ -70,6 +70,10 @@ messages:
       reset-success: "&a%player%'s statistics have been reset."
       resetall-success: "&aAll players' statistics have been reset."
       stat-updated: "&aYou have %operation% %amount% %stat% to %player%."
+      operation:
+        set: "set"
+        added: "added"
+        removed: "removed"
       format:
         - "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"
         - "&b%player%'s Statistics"
@@ -83,6 +87,13 @@ messages:
         - "&7Play Time: &e%playtime%"
         - "&7KGCoins: &e%kgcoins%"
         - "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"
+    fly:
+      non-in-spawn-zone: "&cYou can only use fly in the spawn zone!"
+      fly-enabled: "&aFly mode &2enabled&a! Remember: fly will be disabled if you leave the spawn zone."
+      fly-disabled: "&cFly mode &4disabled&c!"
+    top:
+      usage: "&cUsage: /top <kills|elo|kdr|streak|time>"
+      not-found: "&cInvalid top type. Use one of: kills, elo, kdr, streak, time."
   join-messages:
     - "&e¡Watch out! &b%player% &ehas entered the server."
     - "&6%player% &ahas arrived to conquer the world."

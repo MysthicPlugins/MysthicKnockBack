@@ -30,3 +30,10 @@ commands:
   arenuvote:
     description: Vote for arena change (internal)
     usage: /arenuvote <yes|no>
+  fly:
+    description: Toggle fly mode in spawn zones
+    usage: /fly
+    permission: mysthicknockback.fly
+  top:
+    description: Open the top players menu
+    aliases: [tops]
