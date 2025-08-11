@@ -201,9 +201,6 @@ public class PlayerListener implements Listener {
                             // Actualizar zona del jugador
                             plugin.getArenaChangeManager().updatePlayerZone(player, currentArena);
                             
-                            // Actualizar los nametags
-                            plugin.getScoreboardManager().reloadNameTags();
-                            
                             // Verificación final de posición
                             Location finalLocation = player.getLocation();
                             
@@ -214,6 +211,17 @@ public class PlayerListener implements Listener {
                             }
                         }
                     }.runTaskLater(plugin, 3L); // 3 ticks de delay
+
+                    // Tarea retrasada para actualizar el tab y nametag
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            if (player.isOnline()) {
+                                plugin.getTabManager().updatePlayerListName(player);
+                                plugin.getScoreboardManager().updatePlayerNameTag(player);
+                            }
+                        }
+                    }.runTaskLater(plugin, 20L); // 20 ticks = 1 segundo de delay
                 } else {
                     // Fallback: teleportar al spawn del mundo
                     Location worldSpawn = player.getWorld().getSpawnLocation();

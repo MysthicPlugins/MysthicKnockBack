@@ -595,15 +595,6 @@ public class MainScoreboardManager {
         }
     }
 
-    public void reloadNameTags() {
-        // Reiniciar LuckPerms
-        this.luckPermsEnabled = setupLuckPerms();
-        // Actualizar nametags
-        if (chatConfig.isTabEnabled()) {
-            updateAllNameTags();
-        }
-    }
-
     private String processPlaceholders(String text, Player player) {
         if (text == null) return "";
         

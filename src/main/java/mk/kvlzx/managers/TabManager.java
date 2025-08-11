@@ -75,7 +75,6 @@ public class TabManager {
             public void run() {
                 updateHeaderFooter();
                 updatePlayerList();
-                // REMOVIDO: updateNameTags() - ahora se maneja en MainScoreboardManager
                 
                 // Solo avanzar frame si hay animaciones habilitadas
                 if (hasAnimations()) {
@@ -203,35 +202,36 @@ public class TabManager {
     }
 
     private void updatePlayerList() {
-        // Solo proceder si el formato de tab está habilitado
         if (!chatConfig.isTabEnabled()) {
             return;
         }
 
-        // SIMPLIFICADO: Solo actualizar el display name en la lista
-        // El orden se maneja automáticamente por los teams en MainScoreboardManager
         for (Player player : Bukkit.getOnlinePlayers()) {
-            CraftPlayer craftPlayer = (CraftPlayer) player;
-            
-            // Obtener formato de tab apropiado
-            String displayFormat = getTabFormat(player);
-            
-            // Procesar placeholders para cada jugador específico
-            String displayName = processPlaceholders(displayFormat, player);
-            displayName = MessageUtils.getColor(displayName);
+            updatePlayerListName(player);
+        }
+    }
 
-            // Actualizar el nombre en la lista de jugadores
-            craftPlayer.setPlayerListName(displayName);
-            
-            // Actualizar el tab para todos los jugadores
-            PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(
-                EnumPlayerInfoAction.UPDATE_DISPLAY_NAME, 
-                craftPlayer.getHandle()
-            );
+    public void updatePlayerListName(Player player) {
+        if (!chatConfig.isTabEnabled()) {
+            return;
+        }
 
-            for (Player online : Bukkit.getOnlinePlayers()) {
-                ((CraftPlayer) online).getHandle().playerConnection.sendPacket(packet);
-            }
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+        
+        String displayFormat = getTabFormat(player);
+        
+        String displayName = processPlaceholders(displayFormat, player);
+        displayName = MessageUtils.getColor(displayName);
+
+        craftPlayer.setPlayerListName(displayName);
+        
+        PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(
+            EnumPlayerInfoAction.UPDATE_DISPLAY_NAME, 
+            craftPlayer.getHandle()
+        );
+
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            ((CraftPlayer) online).getHandle().playerConnection.sendPacket(packet);
         }
     }
 
