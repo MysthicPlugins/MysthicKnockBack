@@ -17,6 +17,8 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -350,6 +352,20 @@ public class PowerUpManager {
                     powerUp.remove(); // Solo remover visualmente
                 }
                 powerUps.clear(); // Limpiar la lista
+            }
+        }
+    }
+
+    public void cleanupAllPowerUpEntities() {
+        for (World world : plugin.getServer().getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (entity.hasMetadata("MysthicKnockBack_PowerUp")) {
+                    entity.remove();
+                } else if (entity instanceof Item) {
+                    if (entity.hasMetadata("POWERUP_PROTECTED")) {
+                        entity.remove();
+                    }
+                }
             }
         }
     }

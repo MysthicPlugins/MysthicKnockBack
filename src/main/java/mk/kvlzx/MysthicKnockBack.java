@@ -521,6 +521,8 @@ public class MysthicKnockBack extends JavaPlugin {
                 }
             }
         }
+        // Eliminar armor stands marcados como powerups
+        this.arenaManager.getPowerUpManager().cleanupAllPowerUpEntities();
     }
 
     public void registerCommands() {

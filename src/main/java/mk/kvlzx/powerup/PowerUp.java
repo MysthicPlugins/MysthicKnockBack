@@ -82,6 +82,7 @@ public class PowerUp {
         itemStand.setSmall(true);
         itemStand.setArms(false);
         itemStand.setBasePlate(false);
+        itemStand.setMetadata("MysthicKnockBack_PowerUp", new FixedMetadataValue(plugin, true));
         
         droppedItem = location.getWorld().dropItem(itemLocation, item);
         droppedItem.setPickupDelay(Integer.MAX_VALUE);
@@ -191,6 +192,7 @@ public class PowerUp {
         hologram.setSmall(true);
         hologram.setArms(false);
         hologram.setBasePlate(false);
+        hologram.setMetadata("MysthicKnockBack_PowerUp", new FixedMetadataValue(plugin, true));
 
         List<String> lore = type.getLore();
         for (int i = 0; i < lore.size(); i++) {
@@ -205,6 +207,7 @@ public class PowerUp {
             loreHologram.setSmall(true);
             loreHologram.setArms(false);
             loreHologram.setBasePlate(false);
+            loreHologram.setMetadata("MysthicKnockBack_PowerUp", new FixedMetadataValue(plugin, true));
             
             loreHolograms.add(loreHologram);
         }

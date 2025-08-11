@@ -86,7 +86,7 @@ public class PlayerListener implements Listener {
         return false;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UUID playerId = player.getUniqueId();
@@ -152,16 +152,6 @@ public class PlayerListener implements Listener {
             // Procesar spawn normal directamente
             processNormalJoin(player, currentArena);
         }
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (player.isOnline()) {
-                    // Forzar actualización completa del nametag
-                    plugin.getScoreboardManager().forcePlayerNameTagUpdate(player);
-                }
-            }
-        }.runTaskLater(plugin, 10L); // 0.5 segundos después del join
     }
     
     private void processNormalJoin(Player player, String currentArena) {
@@ -211,14 +201,8 @@ public class PlayerListener implements Listener {
                             // Actualizar zona del jugador
                             plugin.getArenaChangeManager().updatePlayerZone(player, currentArena);
                             
-                            // NUEVO: Forzar actualización inmediata del nametag del jugador
-                            if (plugin.getChatConfig().isTabEnabled()) {
-                                plugin.getScoreboardManager().updatePlayerNameTag(player);
-                                
-                                // IMPORTANTE: También actualizar nametags de todos los demás jugadores
-                                // para que vean correctamente al nuevo jugador
-                                plugin.getScoreboardManager().updateAllNameTags();
-                            }
+                            // Actualizar los nametags
+                            plugin.getScoreboardManager().reloadNameTags();
                             
                             // Verificación final de posición
                             Location finalLocation = player.getLocation();
@@ -230,23 +214,6 @@ public class PlayerListener implements Listener {
                             }
                         }
                     }.runTaskLater(plugin, 3L); // 3 ticks de delay
-                    
-                    // NUEVO: Segunda verificación después de más tiempo para asegurar
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            if (player.isOnline() && plugin.getChatConfig().isTabEnabled()) {
-                                // Verificar si el jugador tiene el team correcto
-                                String expectedTeamName = plugin.getScoreboardManager().getExpectedTeamName(player);
-                                boolean hasCorrectTeam = plugin.getScoreboardManager().playerHasCorrectTeam(player, expectedTeamName);
-                                    
-                                if (!hasCorrectTeam) {
-                                    plugin.getScoreboardManager().updatePlayerNameTag(player);
-                                    plugin.getScoreboardManager().updateAllNameTags();
-                                }
-                            }
-                        }
-                    }.runTaskLater(plugin, 40L); // 2 segundos después
                 } else {
                     // Fallback: teleportar al spawn del mundo
                     Location worldSpawn = player.getWorld().getSpawnLocation();
