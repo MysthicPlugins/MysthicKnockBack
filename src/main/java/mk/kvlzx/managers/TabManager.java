@@ -201,7 +201,7 @@ public class TabManager {
         return MessageUtils.getColor(footerBuilder.toString());
     }
 
-    private void updatePlayerList() {
+    public void updatePlayerList() {
         if (!chatConfig.isTabEnabled()) {
             return;
         }

@@ -256,6 +256,7 @@ public class MainScoreboardManager {
         UUID playerId = player.getUniqueId();
         Scoreboard board = playerScoreboards.get(playerId);
 
+        // Si no tiene scoreboard, crear una básica
         if (board == null) {
             board = scoreboardManager.getNewScoreboard();
             playerScoreboards.put(playerId, board);
@@ -263,16 +264,19 @@ public class MainScoreboardManager {
         }
 
         boolean isInvisible = player.hasPotionEffect(PotionEffectType.INVISIBILITY);
+        // Obtener display name personalizado para este jugador
         String displayName = getTabDisplayName(player);
-        NameTagData nameTagData = parseNameTagData(displayName, player);
 
-        String cacheKey = displayName + ":invisible:" + isInvisible;
+        // Solo actualizar si cambió
         String lastNameTag = lastNameTagCache.get(playerId);
-
-        if (cacheKey.equals(lastNameTag)) {
+        if (displayName.equals(lastNameTag)) {
             return;
         }
 
+        // Separar prefix y suffix del display name
+        NameTagData nameTagData = parseNameTagData(displayName, player);
+
+        // Actualizar nametags para todos los jugadores
         for (Player target : Bukkit.getOnlinePlayers()) {
             UUID targetId = target.getUniqueId();
             Scoreboard targetBoard = playerScoreboards.get(targetId);
@@ -283,6 +287,7 @@ public class MainScoreboardManager {
                 target.setScoreboard(targetBoard);
             }
 
+            // CLAVE: Usar un nombre de team que controle el orden en el tab
             String teamName = getTeamNameForTabOrder(player);
             Team team = targetBoard.getTeam(teamName);
 
@@ -290,11 +295,13 @@ public class MainScoreboardManager {
                 try {
                     team = targetBoard.registerNewTeam(teamName);
                 } catch (IllegalArgumentException e) {
+                    // Team ya existe, obtenerlo
                     team = targetBoard.getTeam(teamName);
                     if (team == null) continue;
                 }
             }
 
+            // Actualizar prefix y suffix
             team.setPrefix(MessageUtils.getColor(nameTagData.getPrefix()));
             team.setSuffix(MessageUtils.getColor(nameTagData.getSuffix()));
 
@@ -304,12 +311,14 @@ public class MainScoreboardManager {
                 team.setNameTagVisibility(NameTagVisibility.ALWAYS);
             }
 
+            // Añadir jugador al team si no está
             if (!team.hasEntry(player.getName())) {
                 team.addEntry(player.getName());
             }
         }
 
-        lastNameTagCache.put(playerId, cacheKey);
+        // Actualizar cache
+        lastNameTagCache.put(playerId, displayName);
     }
 
     /**

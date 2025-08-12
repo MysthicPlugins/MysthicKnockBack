@@ -1,8 +1,5 @@
 package mk.kvlzx.managers;
 
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-
 import mk.kvlzx.utils.MessageUtils;
 import mk.kvlzx.MysthicKnockBack;
 
@@ -58,48 +55,6 @@ public class RankManager {
             // Si no se encuentra ningún rango, devolver RANDOM como fallback
             return RANDOM;
         }
-    }
-
-    public static void updatePlayerRank(Player player, int elo) {
-        if (player == null) return;
-        
-        // Agregar un pequeño delay para asegurar que el jugador esté completamente cargado
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                try {
-                    Rank rank = Rank.getRankByElo(elo);
-                    if (rank != null) {
-                        String displayName = rank.getDisplayName();
-                        // Validar que displayName no sea null
-                        if (displayName != null && !displayName.trim().isEmpty()) {
-                            String formattedDisplayName = MessageUtils.getColor(displayName + " &r" + player.getName());
-                            player.setPlayerListName(formattedDisplayName);
-                            player.setDisplayName(formattedDisplayName);
-                        } else {
-                            // Fallback si displayName es null o vacío
-                            String fallbackDisplayName = MessageUtils.getColor("&7[Unknown] &r" + player.getName());
-                            player.setPlayerListName(fallbackDisplayName);
-                            player.setDisplayName(fallbackDisplayName);
-                        }
-                    }
-                } catch (Exception e) {
-                    // En caso de error, asignar un nombre por defecto
-                    try {
-                        String fallbackDisplayName = MessageUtils.getColor("&7[Error] &r" + player.getName());
-                        player.setPlayerListName(fallbackDisplayName);
-                        player.setDisplayName(fallbackDisplayName);
-                    } catch (Exception ignored) {
-                        // Si incluso el fallback falla, no hacer nada
-                    }
-                    
-                    MysthicKnockBack.getInstance().getLogger().severe(
-                        "Error updating player rank for " + player.getName() + " (ELO: " + elo + "): " + e.getMessage()
-                    );
-                    e.printStackTrace();
-                }
-            }
-        }.runTaskLater(MysthicKnockBack.getInstance(), 2L);
     }
 
     public static String getRankPrefix(int elo) {

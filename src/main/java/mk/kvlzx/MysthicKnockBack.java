@@ -169,15 +169,24 @@ public class MysthicKnockBack extends JavaPlugin {
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Version: &f" + version);
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
 
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &7PlaceholderAPI detected! Placeholder support is enabled.");
+            new PlaceholdersUtils().register();
+        } else {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &7PlaceholderAPI not found! Disabling plugin...");
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
+
         if (Bukkit.getPluginManager().getPlugin("MysthicFriends") != null) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &dMysthicFriends detected! Both plugins are part of the &bMysthic&d Series.");
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &dMysthicFriends detected! Both plugins are part of the &bMysthic &dSeries.");
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &7Thanks for using both plugins together!");
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         }
 
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &7PlaceholderAPI detected! Placeholder support is enabled.");
-            new PlaceholdersUtils().register();
+        if (Bukkit.getPluginManager().getPlugin("MysthicStaff") != null) {
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &dMysthicStaff detected! Both plugins are part of the &bMysthic &dSeries.");
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&d★&8] &7Thanks for using both plugins together!");
+            MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
         }
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b1&8] &7Registering managers...");

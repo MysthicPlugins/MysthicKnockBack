@@ -3,8 +3,8 @@ version: 1.0.0
 name: MysthicKnockBack
 authors: [Kvlzx, Gabo]
 api-version: 1.13
-depends: [WorldEdit]
-softdepend: [MysthicFriends, PlaceholderAPI, LuckPerms]
+depends: [WorldEdit, PlaceholderAPI]
+softdepend: [MysthicFriends, MysthicStaff, LuckPerms]
 
 commands:
   mysthicknockback:

@@ -29,8 +29,6 @@ import java.util.*;
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.arena.Arena;
 import mk.kvlzx.arena.Zone;
-import mk.kvlzx.managers.RankManager;
-import mk.kvlzx.stats.PlayerStats;
 import mk.kvlzx.utils.BlockUtils;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.PacketPlayOutBlockBreakAnimation;
@@ -446,7 +444,6 @@ public class ItemListener implements Listener {
         Location from = event.getFrom();
         Location to = event.getTo();
         TeleportCause cause = event.getCause();
-        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
 
         // Solo procesar teleports por plugin (que es como se maneja la "muerte")
         if (cause != TeleportCause.PLUGIN) return;
@@ -473,7 +470,6 @@ public class ItemListener implements Listener {
         
         // Si se teleporta desde zona peligrosa a spawn, es una "muerte"
         if (wasInDangerZone && teleportingToSpawn) {
-            RankManager.updatePlayerRank(player, stats.getElo());
             handlePlayerDeath(player);
         }
     }

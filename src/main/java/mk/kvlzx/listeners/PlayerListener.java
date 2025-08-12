@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import mk.kvlzx.managers.RankManager;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -170,10 +168,6 @@ public class PlayerListener implements Listener {
             );
         }
         
-        // Actualizar rango
-        PlayerStats stats = PlayerStats.getStats(player.getUniqueId());
-        RankManager.updatePlayerRank(player, stats.getElo());
-        
         if (currentArena != null) {
             Arena arena = plugin.getArenaManager().getArena(currentArena);
             
@@ -209,19 +203,11 @@ public class PlayerListener implements Listener {
                                 // Intentar teleportar de nuevo
                                 player.teleport(spawnLocation);
                             }
+                            
+                            // Actualizar el tab
+                            plugin.getTabManager().updatePlayerList();
                         }
                     }.runTaskLater(plugin, 3L); // 3 ticks de delay
-
-                    // Tarea retrasada para actualizar el tab y nametag
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            if (player.isOnline()) {
-                                plugin.getTabManager().updatePlayerListName(player);
-                                plugin.getScoreboardManager().updatePlayerNameTag(player);
-                            }
-                        }
-                    }.runTaskLater(plugin, 20L); // 20 ticks = 1 segundo de delay
                 } else {
                     // Fallback: teleportar al spawn del mundo
                     Location worldSpawn = player.getWorld().getSpawnLocation();
@@ -788,8 +774,6 @@ public class PlayerListener implements Listener {
     }
 
     private void respawnPlayerAtSpawn(Player player, Arena arena) {
-        PlayerStats playerStats = PlayerStats.getStats(player.getUniqueId());
-        
         // Si la arena está cambiando, asegurarse de que el jugador no pueda moverse
         if (plugin.getArenaChangeManager().isArenaChanging()) {
             player.setWalkSpeed(0.0f);
@@ -806,8 +790,7 @@ public class PlayerListener implements Listener {
                     player.setVelocity(new Vector(0, 0, 0));
                     player.setFallDistance(0);
                     ItemsManager.giveSpawnItems(player);
-                    RankManager.updatePlayerRank(player, playerStats.getElo());
-                    
+
                     player.setNoDamageTicks(40);
                     
                     // Mostrar el borde de la arena al respawn

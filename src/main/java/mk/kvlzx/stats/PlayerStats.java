@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import mk.kvlzx.MysthicKnockBack;
 import mk.kvlzx.config.CombatConfig;
 import mk.kvlzx.data.StatsData;
-import mk.kvlzx.managers.RankManager;
 import mk.kvlzx.managers.StreakManager;
 import mk.kvlzx.utils.MessageUtils;
 import net.luckperms.api.LuckPerms;
@@ -185,11 +184,6 @@ public class PlayerStats {
             // Jugador offline, usar coins base sin multiplicador
             this.kgCoins += baseCoins;
         }
-
-        // Actualizar el rango del jugador
-        if (player != null && player.isOnline()) {
-            RankManager.updatePlayerRank(player, this.elo);
-        }
     }
 
     public void resetStreak() {
@@ -231,11 +225,6 @@ public class PlayerStats {
                 player.sendMessage(MessageUtils.getColor(eloLostMessage));
             }
         }
-        
-        // Actualizar rango si el jugador está online
-        if (player != null && player.isOnline()) {
-            RankManager.updatePlayerRank(player, this.elo);
-        }
     }
 
     public int getKills() { return kills; }
@@ -247,10 +236,6 @@ public class PlayerStats {
 
     public void setElo(int elo) {
         this.elo = Math.max(0, elo);
-        Player player = Bukkit.getPlayer(uuid);
-        if (player != null && player.isOnline()) {
-            RankManager.updatePlayerRank(player, this.elo);
-        }
     }
 
     public void setKills(int kills) {
