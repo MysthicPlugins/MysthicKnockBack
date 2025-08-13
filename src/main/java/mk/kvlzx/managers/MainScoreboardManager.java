@@ -262,48 +262,33 @@ public class MainScoreboardManager {
             playerScoreboards.put(playerId, board);
             player.setScoreboard(board);
         }
+        
+        // CLAVE: Actualizar teams para TODOS los jugadores en el scoreboard de CADA jugador
+        updateAllPlayersInScoreboard(board);
+        
+        // Actualizar el team específico de este jugador
+        updatePlayerTeamInAllScoreboards(player);
+    }
 
-        boolean isInvisible = player.hasPotionEffect(PotionEffectType.INVISIBILITY);
-        // Obtener display name personalizado para este jugador
-        String displayName = getTabDisplayName(player);
-
-        // Solo actualizar si cambió
-        String lastNameTag = lastNameTagCache.get(playerId);
-        if (displayName.equals(lastNameTag)) {
-            return;
-        }
-
-        // Separar prefix y suffix del display name
-        NameTagData nameTagData = parseNameTagData(displayName, player);
-
-        // Actualizar nametags para todos los jugadores
-        for (Player target : Bukkit.getOnlinePlayers()) {
-            UUID targetId = target.getUniqueId();
-            Scoreboard targetBoard = playerScoreboards.get(targetId);
-
-            if (targetBoard == null) {
-                targetBoard = scoreboardManager.getNewScoreboard();
-                playerScoreboards.put(targetId, targetBoard);
-                target.setScoreboard(targetBoard);
-            }
-
-            // CLAVE: Usar un nombre de team que controle el orden en el tab
-            String teamName = getTeamNameForTabOrder(player);
+    /**
+     * Método para actualizar todos los jugadores en un scoreboard específico
+     */
+    private void updateAllPlayersInScoreboard(Scoreboard targetBoard) {
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            String teamName = getTeamNameForTabOrder(onlinePlayer);
+            String displayName = getTabDisplayName(onlinePlayer);
+            NameTagData nameTagData = parseNameTagData(displayName, onlinePlayer);
+            boolean isInvisible = onlinePlayer.hasPotionEffect(PotionEffectType.INVISIBILITY);
+            
             Team team = targetBoard.getTeam(teamName);
-
             if (team == null) {
                 try {
                     team = targetBoard.registerNewTeam(teamName);
                 } catch (IllegalArgumentException e) {
-                    // Team ya existe, obtenerlo
                     team = targetBoard.getTeam(teamName);
                     if (team == null) continue;
                 }
             }
-
-            // Actualizar prefix y suffix
-            team.setPrefix(MessageUtils.getColor(nameTagData.getPrefix()));
-            team.setSuffix(MessageUtils.getColor(nameTagData.getSuffix()));
 
             if (isInvisible) {
                 team.setNameTagVisibility(NameTagVisibility.NEVER);
@@ -311,14 +296,90 @@ public class MainScoreboardManager {
                 team.setNameTagVisibility(NameTagVisibility.ALWAYS);
             }
 
+            // Actualizar prefix y suffix
+            team.setPrefix(MessageUtils.getColor(nameTagData.getPrefix()));
+            team.setSuffix(MessageUtils.getColor(nameTagData.getSuffix()));
+
+            // Añadir jugador al team si no está
+            if (!team.hasEntry(onlinePlayer.getName())) {
+                team.addEntry(onlinePlayer.getName());
+            }
+        }
+    }
+
+    /**
+     * Método para actualizar el team de un jugador específico en todos los scoreboards
+     */
+    private void updatePlayerTeamInAllScoreboards(Player player) {
+        String teamName = getTeamNameForTabOrder(player);
+        String displayName = getTabDisplayName(player);
+        NameTagData nameTagData = parseNameTagData(displayName, player);
+        boolean isInvisible = player.hasPotionEffect(PotionEffectType.INVISIBILITY);
+        
+        // Actualizar en todos los scoreboards de todos los jugadores
+        for (Player targetPlayer : Bukkit.getOnlinePlayers()) {
+            UUID targetId = targetPlayer.getUniqueId();
+            Scoreboard targetBoard = playerScoreboards.get(targetId);
+
+            if (targetBoard == null) {
+                targetBoard = scoreboardManager.getNewScoreboard();
+                playerScoreboards.put(targetId, targetBoard);
+                targetPlayer.setScoreboard(targetBoard);
+            }
+
+            Team team = targetBoard.getTeam(teamName);
+            if (team == null) {
+                try {
+                    team = targetBoard.registerNewTeam(teamName);
+                } catch (IllegalArgumentException e) {
+                    team = targetBoard.getTeam(teamName);
+                    if (team == null) continue;
+                }
+            }
+
+            if (isInvisible) {
+                team.setNameTagVisibility(NameTagVisibility.NEVER);
+            } else {
+                team.setNameTagVisibility(NameTagVisibility.ALWAYS);
+            }
+
+            // Actualizar prefix y suffix
+            team.setPrefix(MessageUtils.getColor(nameTagData.getPrefix()));
+            team.setSuffix(MessageUtils.getColor(nameTagData.getSuffix()));
+
             // Añadir jugador al team si no está
             if (!team.hasEntry(player.getName())) {
                 team.addEntry(player.getName());
             }
         }
-
-        // Actualizar cache
+        
+        // Actualizar cache solo después de actualizar todos los scoreboards
+        UUID playerId = player.getUniqueId();
         lastNameTagCache.put(playerId, displayName);
+    }
+
+    /**
+     * Método especial para cuando un jugador se conecta - inicializa su scoreboard con todos los teams
+     */
+    public void setupNewPlayerScoreboard(Player player) {
+        if (!chatConfig.isTabEnabled()) {
+            return;
+        }
+        
+        UUID playerId = player.getUniqueId();
+        Scoreboard board = scoreboardManager.getNewScoreboard();
+        
+        // Inicializar scoreboard con todos los jugadores actuales
+        updateAllPlayersInScoreboard(board);
+        
+        playerScoreboards.put(playerId, board);
+        player.setScoreboard(board);
+        
+        // Inicializar cache
+        lastNameTagCache.put(playerId, "");
+        
+        // Actualizar el team de este jugador en todos los demás scoreboards
+        updatePlayerTeamInAllScoreboards(player);
     }
 
     /**
@@ -559,10 +620,24 @@ public class MainScoreboardManager {
 
     public void removePlayer(Player player) {
         UUID playerId = player.getUniqueId();
+        String teamName = getTeamNameForTabOrder(player);
         
-        // Limpiar teams del jugador antes de removerlo
-        cleanupPlayerTeams(player);
+        // Limpiar el team de este jugador en TODOS los scoreboards
+        for (UUID otherPlayerId : playerScoreboards.keySet()) {
+            Scoreboard otherBoard = playerScoreboards.get(otherPlayerId);
+            if (otherBoard != null) {
+                Team team = otherBoard.getTeam(teamName);
+                if (team != null) {
+                    team.removeEntry(player.getName());
+                    // Si el team no tiene más entradas, eliminarlo
+                    if (team.getEntries().isEmpty()) {
+                        team.unregister();
+                    }
+                }
+            }
+        }
         
+        // Limpiar datos del jugador
         playerScoreboards.remove(playerId);
         playerObjectives.remove(playerId);
         lastScoreCache.remove(playerId);

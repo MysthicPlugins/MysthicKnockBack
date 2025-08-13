@@ -156,6 +156,9 @@ public class PlayerListener implements Listener {
         // Dar items de spawn
         ItemsManager.giveSpawnItems(player);
         
+        // NUEVO: Configurar el scoreboard del jugador con todos los teams
+        plugin.getScoreboardManager().setupNewPlayerScoreboard(player);
+        
         // Título de bienvenida
         if (plugin.getMainConfig().getJoinTitleEnabled()) {
             TitleUtils.sendTitle(
@@ -204,7 +207,7 @@ public class PlayerListener implements Listener {
                                 player.teleport(spawnLocation);
                             }
                             
-                            // Actualizar el tab
+                            // Actualizar el tab DESPUÉS de configurar el scoreboard
                             plugin.getTabManager().updatePlayerList();
                         }
                     }.runTaskLater(plugin, 3L); // 3 ticks de delay
