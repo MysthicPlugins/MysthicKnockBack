@@ -1,5 +1,7 @@
 package mk.kvlzx;
 
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.ArmorStand;
@@ -69,7 +71,6 @@ import mk.kvlzx.managers.ItemVerificationManager;
 import mk.kvlzx.managers.MainScoreboardManager;
 import mk.kvlzx.managers.TabManager;
 import mk.kvlzx.managers.WeaponManager;
-import mk.kvlzx.managers.WorldManager;
 import mk.kvlzx.managers.MenuManager;
 import mk.kvlzx.managers.MusicManager;
 import mk.kvlzx.managers.ReportManager;
@@ -96,7 +97,6 @@ public class MysthicKnockBack extends JavaPlugin {
     private WeaponManager weaponManager;
     private ArenaChangeManager arenaChangeManager;
     private ArenaVoteManager arenaVoteManager;
-    private WorldManager worldManager;
     private FlyManager flyManager;
     private ItemListener itemListener;
     private EndermiteListener endermiteListener;
@@ -205,10 +205,11 @@ public class MysthicKnockBack extends JavaPlugin {
         }.runTaskLater(this, 20L);
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Loading arenas...");
-        arenaManager.loadArenas();
-
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b4&8] &7Initializing KBFFA world...");
-        worldManager.initialize();
+		
+		// Cargar arenas con delay para asegurar que los mundos estén listos
+		Bukkit.getScheduler().runTaskLater(this, () -> {
+			arenaManager.loadArenas();
+		}, 40L);
 
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b5&8] &7Registering commands and events...");
         registerCommands();
@@ -228,25 +229,25 @@ public class MysthicKnockBack extends JavaPlugin {
         MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
     }
 
-    @Override
-    public void onDisable() {
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "                    &b&lKBFFA");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "                  &b≽^•⩊•^≼");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Status: &cShutting down");
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Version: &f" + version);
-        MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+	@Override
+	public void onDisable() {
+		MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+		MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+		MessageUtils.sendMsg(Bukkit.getConsoleSender(), "                    &b&lKBFFA");
+		MessageUtils.sendMsg(Bukkit.getConsoleSender(), "                  &b≽^•⩊•^≼");
+		MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
+		MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Status: &cShutting down");
+		MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&bℹ&8] &7Version: &f" + version);
+		MessageUtils.sendMsg(Bukkit.getConsoleSender(), "");
 
         try {
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b1&8] &7Saving data...");
             saveAllData(); // Usar el método centralizado
 
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b2&8] &7Saving arenas...");
+			arenaManager.saveArenas();
             arenaManager.shutdown();
             arenaVoteManager.shutdown();
-            arenaManager.saveArenas();
 
             MessageUtils.sendMsg(Bukkit.getConsoleSender(), "&8[&b3&8] &7Cleaning blocks and items...");
             if (itemListener != null) {
@@ -299,7 +300,6 @@ public class MysthicKnockBack extends JavaPlugin {
         weaponManager = new WeaponManager(this);
         arenaChangeManager = new ArenaChangeManager(this);
         arenaVoteManager = new ArenaVoteManager(this);
-        worldManager = new WorldManager(this);
         flyManager = new FlyManager(this);
     }
 
@@ -716,10 +716,6 @@ public class MysthicKnockBack extends JavaPlugin {
 
     public ChatConfig getChatConfig() {
         return chatConfig;
-    }
-
-    public WorldManager getWorldManager() {
-        return worldManager;
     }
 
     public ArenaSelectMenuConfig getArenaSelectMenuConfig() {
