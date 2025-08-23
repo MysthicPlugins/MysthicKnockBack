@@ -46,7 +46,7 @@ public class StatsCommand implements CommandExecutor {
         }
 
         // A partir de aquí, todos los comandos requieren permiso admin
-        if (!sender.hasPermission("kvknockback.stats.admin")) {
+        if (!sender.hasPermission("mysthicknockback.stats.admin")) {
             sender.sendMessage(MessageUtils.getColor(MysthicKnockBack.getPrefix() + messages.getStatsNoPermission()));
             return true;
         }
